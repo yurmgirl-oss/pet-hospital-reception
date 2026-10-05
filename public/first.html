@@ -36,7 +36,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h1 class="text-4xl md:text-5xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">초진 접수서</h1>
         
-        <!-- [수정] 크고 눈에 잘 띄는 재진 접수서 바로가기 버튼 -->
+        <!-- 크고 눈에 잘 띄는 재진 접수서 바로가기 버튼 -->
         <a 
           href="revisit.html" 
           class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#0d9488] hover:bg-[#0f766e] text-white text-sm md:text-base font-bold transition-all shadow-md hover:shadow-lg w-full sm:w-auto"
@@ -54,7 +54,7 @@
     <!-- 접수 폼 -->
     <form id="firstForm" onsubmit="submitForm(event)" class="space-y-5">
 
-      <!-- 카드 1: 보호자 인적사항 (기존 유지) -->
+      <!-- 카드 1: 보호자 인적사항 -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-teal-50 text-[#0d9488] flex items-center justify-center font-bold">
@@ -107,7 +107,7 @@
         </div>
       </div>
 
-      <!-- 카드 2: 반려동물 정보 -->
+      <!-- 카드 2: 반려동물 정보 (요청하신 3단 구조로 재배치) -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center font-bold">
@@ -122,94 +122,8 @@
         </div>
 
         <div class="space-y-4">
-          <!-- [수정] 동물이름 / 품종 / 성별 / 생년월일(나이연동 드롭다운) / 체중 모두 한 줄 배치 -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-end">
-            
-            <!-- 1. 동물 이름 -->
-            <div class="md:col-span-2">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">동물 이름 <span class="text-rose-500">*</span></label>
-              <input 
-                type="text" 
-                id="petName" 
-                required 
-                placeholder="아이의 이름" 
-                class="w-full px-3 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-xs sm:text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
-              >
-            </div>
-
-            <!-- 2. 품종 -->
-            <div class="md:col-span-2">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">품종</label>
-              <input 
-                type="text" 
-                id="breed" 
-                placeholder="예: 말티즈" 
-                class="w-full px-3 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-xs sm:text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
-              >
-            </div>
-
-            <!-- 3. 성별 & 중성화 -->
-            <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">성별 <span class="text-rose-500">*</span></label>
-              <div class="flex items-center gap-1.5 h-[46px]">
-                <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn flex-1 h-full text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">암컷</button>
-                <button type="button" onclick="selectGender('수컷')" id="gender-수컷" class="gender-btn flex-1 h-full text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">수컷</button>
-                <label class="flex items-center gap-1 px-2.5 h-full rounded-2xl border border-slate-200 bg-white cursor-pointer select-none whitespace-nowrap hover:border-teal-300 transition">
-                  <input type="checkbox" id="neutered" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
-                  <span class="text-xs font-bold text-slate-700">중성화</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- 4. 생년월일 (년/월/일 드롭다운 + 나이 자동계산) -->
-            <div class="md:col-span-3">
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="text-xs font-bold text-slate-700">생년월일 <span class="text-rose-500">*</span></label>
-                <div class="flex items-center gap-1 text-[11px] font-bold text-teal-700">
-                  <span>나이:</span>
-                  <input 
-                    type="number" 
-                    id="petAge" 
-                    min="0" 
-                    max="35" 
-                    placeholder="0" 
-                    oninput="handleAgeInput(this.value)" 
-                    class="w-10 h-5 px-1 text-center text-xs font-bold text-teal-800 bg-teal-50 border border-teal-300 rounded-md focus:outline-none focus:border-teal-500"
-                  >
-                  <span>살</span>
-                </div>
-              </div>
-              <div class="grid grid-cols-3 gap-1">
-                <select id="birthYear" onchange="handleYearSelect(this.value)" class="w-full px-1.5 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition">
-                  <option value="">년도</option>
-                </select>
-                <select id="birthMonth" class="w-full px-1 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition">
-                  <option value="">월</option>
-                </select>
-                <select id="birthDay" class="w-full px-1 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition">
-                  <option value="">일</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- 5. 체중 -->
-            <div class="md:col-span-2">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">체중</label>
-              <div class="relative">
-                <input 
-                  type="number" 
-                  step="0.1" 
-                  id="weight" 
-                  placeholder="0" 
-                  class="w-full pl-3 pr-8 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-xs sm:text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
-                >
-                <span class="absolute right-3 top-3.5 text-xs font-bold text-slate-400">kg</span>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- 동물 종류 칩 선택 (기존 유지) -->
+          
+          <!-- [1번째 칸] 맨 위: 동물 종류 (7개) -->
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-2">동물 종류 <span class="text-rose-500">*</span></label>
             <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -223,20 +137,120 @@
             </div>
           </div>
 
-          <!-- 성격 선택 (기존 유지) -->
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">성격 <span class="text-rose-500">*</span></label>
-            <div class="grid grid-cols-3 gap-2">
-              <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn py-3.5 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">온순</button>
-              <button type="button" onclick="selectPersonality('활발')" id="pers-활발" class="personality-btn py-3.5 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">활발</button>
-              <button type="button" onclick="selectPersonality('예민')" id="pers-예민" class="personality-btn py-3.5 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">예민</button>
+          <!-- [2번째 칸] 그 다음칸: 동물 이름, 품종, 성별, 체중 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+            <!-- 1. 동물 이름 -->
+            <div class="md:col-span-3">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">동물 이름 <span class="text-rose-500">*</span></label>
+              <input 
+                type="text" 
+                id="petName" 
+                required 
+                placeholder="아이의 이름" 
+                class="w-full px-3.5 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+              >
+            </div>
+
+            <!-- 2. 품종 -->
+            <div class="md:col-span-3">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">품종</label>
+              <input 
+                type="text" 
+                id="breed" 
+                placeholder="예: 말티즈" 
+                class="w-full px-3.5 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+              >
+            </div>
+
+            <!-- 3. 성별 & 중성화 -->
+            <div class="md:col-span-4">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">성별 <span class="text-rose-500">*</span></label>
+              <div class="flex items-center gap-1.5 h-[50px]">
+                <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn flex-1 h-full text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">암컷</button>
+                <button type="button" onclick="selectGender('수컷')" id="gender-수컷" class="gender-btn flex-1 h-full text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">수컷</button>
+                <label class="flex items-center gap-1.5 px-3 h-full rounded-2xl border border-slate-200 bg-white cursor-pointer select-none whitespace-nowrap hover:border-teal-300 transition">
+                  <input type="checkbox" id="neutered" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
+                  <span class="text-xs font-bold text-slate-700">중성화</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 4. 체중 -->
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">체중</label>
+              <div class="relative">
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  id="weight" 
+                  placeholder="0.0" 
+                  class="w-full pl-3.5 pr-8 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+                >
+                <span class="absolute right-3.5 top-3.5 text-xs font-bold text-slate-400">kg</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- [3번째 칸] 생년월일 + 나이(몇년 몇개월) + 성격 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end pt-1">
+            <!-- 생년월일 및 나이 (년, 개월) -->
+            <div class="md:col-span-7">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-bold text-slate-700">생년월일 <span class="text-rose-500">*</span></label>
+                <div class="flex items-center gap-1 text-xs font-bold text-teal-700">
+                  <span>나이:</span>
+                  <input 
+                    type="number" 
+                    id="petAgeYears" 
+                    min="0" 
+                    max="35" 
+                    placeholder="0" 
+                    oninput="handleAgeInput()" 
+                    class="w-9 h-6 px-1 text-center text-xs font-bold text-teal-800 bg-teal-50 border border-teal-300 rounded-lg focus:outline-none focus:border-teal-500"
+                  >
+                  <span>년</span>
+                  <input 
+                    type="number" 
+                    id="petAgeMonths" 
+                    min="0" 
+                    max="11" 
+                    placeholder="0" 
+                    oninput="handleAgeInput()" 
+                    class="w-9 h-6 px-1 text-center text-xs font-bold text-teal-800 bg-teal-50 border border-teal-300 rounded-lg focus:outline-none focus:border-teal-500"
+                  >
+                  <span>개월</span>
+                </div>
+              </div>
+
+              <!-- 년, 월, 일 드롭다운 -->
+              <div class="grid grid-cols-3 gap-2">
+                <select id="birthYear" onchange="handleDateSelect()" class="w-full px-2 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition">
+                  <option value="">년도 선택</option>
+                </select>
+                <select id="birthMonth" onchange="handleDateSelect()" class="w-full px-2 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition">
+                  <option value="">월 선택</option>
+                </select>
+                <select id="birthDay" onchange="handleDateSelect()" class="w-full px-2 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition">
+                  <option value="">일 선택</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 성격 선택 -->
+            <div class="md:col-span-5">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">성격 <span class="text-rose-500">*</span></label>
+              <div class="grid grid-cols-3 gap-2 h-[48px]">
+                <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn h-full text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">온순</button>
+                <button type="button" onclick="selectPersonality('활발')" id="pers-활발" class="personality-btn h-full text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">활발</button>
+                <button type="button" onclick="selectPersonality('예민')" id="pers-예민" class="personality-btn h-full text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">예민</button>
+              </div>
             </div>
           </div>
 
         </div>
       </div>
 
-      <!-- 카드 3: 내원 사유 & 예정일 (기존 유지) -->
+      <!-- 카드 3: 내원 사유 & 예정일 -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
@@ -282,7 +296,7 @@
         </div>
       </div>
 
-      <!-- 카드 4: 추가 처치 의뢰 (기존 유지) -->
+      <!-- 카드 4: 추가 처치 의뢰 -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
@@ -366,7 +380,7 @@
         </div>
       </div>
 
-      <!-- 카드 5: 안내 및 동의 + 동적 서명 패드 (기존 유지) -->
+      <!-- 카드 5: 안내 및 동의 + 동적 서명 패드 -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
@@ -436,7 +450,7 @@
 
       <!-- 4. 하단 버튼 바 -->
       <div class="pt-2 flex items-center gap-2.5 w-full">
-        <!-- [수정] 홈으로: 산뜻하고 세련된 소프트 인디고 컬러 -->
+        <!-- 홈으로: 산뜻하고 세련된 소프트 인디고 컬러 -->
         <a 
           href="index.html" 
           style="flex: 2.5;"
@@ -448,7 +462,7 @@
           <span>홈으로</span>
         </a>
 
-        <!-- 다시 작성 (기존 유지) -->
+        <!-- 다시 작성 -->
         <button 
           type="button" 
           onclick="resetFormWithConfirm()" 
@@ -461,7 +475,7 @@
           <span>다시 작성</span>
         </button>
 
-        <!-- [수정] 접수서 제출하기: 눈에 가장 잘 띄는 밝은 비비드 에메랄드 컬러 -->
+        <!-- 접수서 제출하기: 눈에 잘 띄는 밝은 비비드 에메랄드 컬러 -->
         <button 
           type="submit" 
           id="submitBtn"
@@ -491,6 +505,7 @@
       const daySel = document.getElementById('birthDay');
       const currentYear = new Date().getFullYear();
 
+      // 년도 채우기 (현재 연도부터 과거 30년)
       for (let y = currentYear; y >= currentYear - 30; y--) {
         const opt = document.createElement('option');
         opt.value = y;
@@ -498,6 +513,7 @@
         yearSel.appendChild(opt);
       }
 
+      // 월 채우기 (1~12월)
       for (let m = 1; m <= 12; m++) {
         const opt = document.createElement('option');
         const val = String(m).padStart(2, '0');
@@ -506,6 +522,7 @@
         monthSel.appendChild(opt);
       }
 
+      // 일 채우기 (1~31일)
       for (let d = 1; d <= 31; d++) {
         const opt = document.createElement('option');
         const val = String(d).padStart(2, '0');
@@ -516,34 +533,52 @@
     }
     window.addEventListener('DOMContentLoaded', initBirthDropdowns);
 
-    // 나이 입력 시 출생연도 자동 계산 연동
-    function handleAgeInput(age) {
-      const currentYear = new Date().getFullYear();
+    // 나이(년, 개월) 입력 시 출생연도 및 월 자동 계산
+    function handleAgeInput() {
+      const yVal = document.getElementById('petAgeYears').value;
+      const mVal = document.getElementById('petAgeMonths').value;
+
+      if (yVal === '' && mVal === '') return;
+
+      const years = parseInt(yVal, 10) || 0;
+      const months = parseInt(mVal, 10) || 0;
+      const totalMonths = (years * 12) + months;
+
+      const now = new Date();
+      // 개월 수 역산하여 예상 출생일자 계산
+      const birthEstimate = new Date(now.getFullYear(), now.getMonth() - totalMonths, 1);
+
       const yearSel = document.getElementById('birthYear');
       const monthSel = document.getElementById('birthMonth');
       const daySel = document.getElementById('birthDay');
 
-      if (age !== '' && !isNaN(age)) {
-        const parsedAge = parseInt(age, 10);
-        if (parsedAge >= 0) {
-          const targetYear = currentYear - parsedAge;
-          yearSel.value = targetYear;
-          if (!monthSel.value) monthSel.value = '01';
-          if (!daySel.value) daySel.value = '01';
-        }
-      }
+      yearSel.value = birthEstimate.getFullYear();
+      monthSel.value = String(birthEstimate.getMonth() + 1).padStart(2, '0');
+      if (!daySel.value) daySel.value = '01';
     }
 
-    // 연도 드롭다운 변경 시 나이 계산 연동
-    function handleYearSelect(year) {
-      const ageInput = document.getElementById('petAge');
-      if (year) {
-        const currentYear = new Date().getFullYear();
-        const age = currentYear - parseInt(year, 10);
-        ageInput.value = age >= 0 ? age : 0;
-      } else {
-        ageInput.value = '';
+    // 드롭다운 변경 시 나이(년, 개월) 자동 계산
+    function handleDateSelect() {
+      const y = document.getElementById('birthYear').value;
+      const m = document.getElementById('birthMonth').value;
+      const d = document.getElementById('birthDay').value;
+
+      const yearsInput = document.getElementById('petAgeYears');
+      const monthsInput = document.getElementById('petAgeMonths');
+
+      if (!y || !m) return;
+
+      const birthDate = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10) || 1);
+      const now = new Date();
+
+      let diffMonths = (now.getFullYear() - birthDate.getFullYear()) * 12 + (now.getMonth() - birthDate.getMonth());
+      if (now.getDate() < birthDate.getDate()) {
+        diffMonths--;
       }
+      if (diffMonths < 0) diffMonths = 0;
+
+      yearsInput.value = Math.floor(diffMonths / 12);
+      monthsInput.value = diffMonths % 12;
     }
 
     // 캔버스 설정
@@ -689,9 +724,9 @@
     function selectPersonality(pers) {
       selectedPersonality = pers;
       document.querySelectorAll('.personality-btn').forEach(btn => {
-        btn.className = "personality-btn py-3.5 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition";
+        btn.className = "personality-btn h-full text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition";
       });
-      document.getElementById(`pers-${pers}`).className = "personality-btn py-3.5 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition";
+      document.getElementById(`pers-${pers}`).className = "personality-btn h-full text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition";
     }
 
     function selectTimeSlot(slot) {
@@ -726,7 +761,8 @@
     function resetFormWithConfirm() {
       if (confirm('작성 중인 내용을 모두 지우고 처음부터 다시 작성하시겠습니까?')) {
         document.getElementById('firstForm').reset();
-        document.getElementById('petAge').value = '';
+        document.getElementById('petAgeYears').value = '';
+        document.getElementById('petAgeMonths').value = '';
         document.getElementById('birthYear').value = '';
         document.getElementById('birthMonth').value = '';
         document.getElementById('birthDay').value = '';
