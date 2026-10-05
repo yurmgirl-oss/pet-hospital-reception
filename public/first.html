@@ -21,31 +21,14 @@
     }
   </style>
 </head>
-<body class="min-h-screen text-slate-800 p-4 md:p-8 flex justify-center items-center relative">
+<body class="min-h-screen text-slate-800 p-4 md:p-8 flex justify-center items-center">
 
-  <div class="w-full max-w-xl space-y-6 my-4 pb-12">
+  <div class="w-full max-w-xl space-y-6 my-6">
 
-    <!-- 1. 병원 로고 및 타이틀 영역 -->
-    <header class="text-center space-y-3">
-      <!-- 엠블럼 로고 (선명하게 돋보이도록 크기 및 섀도우 최적화) -->
-      <div class="inline-block relative">
-        <img 
-          src="logo.png" 
-          alt="23시 하단오거리동물병원" 
-          onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden');"
-          class="w-44 h-44 md:w-52 md:h-52 mx-auto rounded-full object-contain shadow-xl shadow-teal-950/15 border-4 border-white bg-white transition-transform hover:scale-105 duration-200"
-        >
-
-        <!-- 이미지 미탑재 시 임시 대체 뱃지 -->
-        <div id="logo-fallback" class="hidden w-44 h-44 md:w-52 md:h-52 mx-auto rounded-full bg-gradient-to-b from-[#006257] to-[#00473e] text-white flex flex-col items-center justify-center p-4 shadow-xl border-4 border-white">
-          <span class="text-3xl font-black">23시</span>
-          <span class="text-sm font-bold mt-1">하단오거리 동물병원</span>
-          <span class="text-[11px] text-teal-200 mt-2">FOR ALL ANIMALS, ALWAYS</span>
-        </div>
-      </div>
-
+    <!-- 1. 병원 타이틀 영역 (로고 제거 후 깔끔하게 정돈) -->
+    <header class="text-center space-y-2.5 pt-2">
       <div class="space-y-1">
-        <p class="text-[11px] md:text-xs font-bold tracking-widest text-[#006257] uppercase">FOR ALL ANIMALS, ALWAYS</p>
+        <p class="text-xs font-bold tracking-widest text-[#006257] uppercase">FOR ALL ANIMALS, ALWAYS</p>
         <h1 class="text-3xl md:text-4xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">
           23시 하단오거리동물병원
         </h1>
@@ -55,7 +38,7 @@
       </div>
 
       <!-- 실시간 진료 상태 뱃지 (자동 계산) -->
-      <div id="statusBadgeContainer" class="pt-1">
+      <div id="statusBadgeContainer" class="pt-2">
         <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 shadow-sm">
           <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
           진료 현황 확인 중...
@@ -63,13 +46,13 @@
       </div>
     </header>
 
-    <!-- 2. 초진 / 재진 메인 접수 버튼 (색상 분리 & 터치 친화형 디자인) -->
+    <!-- 2. 초진 / 재진 메인 접수 버튼 (색상 확실히 구분) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       
-      <!-- 초진 접수 카드 (시그니처 청록/딥그린 컬러) -->
+      <!-- 초진 접수 카드 (딥그린 컬러) -->
       <a 
         href="first.html" 
-        class="group relative bg-gradient-to-br from-[#006257] to-[#004941] text-white p-6 rounded-3xl shadow-lg shadow-teal-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden border border-teal-500/30"
+        class="cursor-pointer group relative bg-gradient-to-br from-[#006257] to-[#004941] text-white p-6 rounded-3xl shadow-lg shadow-teal-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden border border-teal-500/30"
       >
         <div class="space-y-3">
           <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm text-teal-100 flex items-center justify-center group-hover:scale-110 transition">
@@ -89,10 +72,10 @@
         </div>
       </a>
 
-      <!-- 재진 접수 카드 (신뢰감 넘치는 로열 블루 컬러) -->
+      <!-- 재진 접수 카드 (로열 블루 컬러) -->
       <a 
         href="revisit.html" 
-        class="group relative bg-gradient-to-br from-[#1d4ed8] to-[#1e3a8a] text-white p-6 rounded-3xl shadow-lg shadow-blue-950/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden border border-blue-400/30"
+        class="cursor-pointer group relative bg-gradient-to-br from-[#1d4ed8] to-[#1e3a8a] text-white p-6 rounded-3xl shadow-lg shadow-blue-950/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden border border-blue-400/30"
       >
         <div class="space-y-3">
           <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm text-blue-100 flex items-center justify-center group-hover:scale-110 transition">
@@ -114,7 +97,7 @@
 
     </div>
 
-    <!-- 3. 진료 시간 안내 카드 & 대형 전화번호 바 -->
+    <!-- 3. 진료 시간 안내 카드 & 대형 전화번호 -->
     <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <div class="flex items-center gap-2">
@@ -124,7 +107,7 @@
         <span class="text-xs font-semibold text-slate-400">연중무휴 진료 안내</span>
       </div>
 
-      <!-- 요일별 시간 리스트 (시간 우측 일직선 정렬 & 보조문구 아래 배치) -->
+      <!-- 요일별 시간 리스트 -->
       <div class="space-y-3.5 text-sm">
         
         <!-- 평일 -->
@@ -175,7 +158,7 @@
 
       </div>
 
-      <!-- 원내 전화번호 대형 바 (글씨 크게 강조) -->
+      <!-- 전화번호 대형 바 -->
       <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between bg-teal-50/60 p-4 rounded-2xl gap-2">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center">
@@ -197,47 +180,44 @@
       </div>
     </div>
 
-    <!-- 4. 카카오채널 & 인스타그램 (심플 텍스트 링크 형태) -->
-    <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-500 pt-1">
+    <!-- 4. 카카오채널 & 인스타그램 & 직원 데스크 링크 (나란히 정렬) -->
+    <div class="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-2 text-xs text-slate-500 pt-2 pb-6">
+      <!-- 카카오톡 -->
       <a 
         href="https://pf.kakao.com" 
         target="_blank" 
         class="hover:text-slate-900 transition flex items-center gap-1.5 text-slate-600"
       >
-        <span class="w-1.5 h-1.5 rounded-full bg-[#FEE500] ring-1 ring-amber-300"></span>
+        <span class="w-2 h-2 rounded-full bg-[#FEE500] ring-1 ring-amber-300"></span>
         <span>카카오톡 채널</span>
-        <strong class="font-bold text-slate-800 hover:underline">23시 하단오거리동물병원</strong>
       </a>
 
-      <span class="text-slate-300 hidden sm:inline">•</span>
+      <span class="text-slate-300">•</span>
 
+      <!-- 인스타그램 -->
       <a 
         href="https://www.instagram.com/23haodong" 
         target="_blank" 
         class="hover:text-slate-900 transition flex items-center gap-1.5 text-slate-600"
       >
-        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+        <span class="w-2 h-2 rounded-full bg-rose-400"></span>
         <span>인스타그램</span>
-        <strong class="font-bold text-slate-800 hover:underline">@23haodong</strong>
+        <span class="text-slate-400">(@23haodong)</span>
+      </a>
+
+      <span class="text-slate-300">•</span>
+
+      <!-- 직원용 데스크 바로가기 -->
+      <a 
+        href="counter.html" 
+        class="hover:text-teal-700 transition flex items-center gap-1.5 text-slate-500 font-medium hover:font-bold"
+      >
+        <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+        <span>🖥️ 직원용 데스크</span>
       </a>
     </div>
 
   </div>
-
-  <!-- 5. 우측 하단 구석 병원 직원용 바로가기 쇼컷 플로팅 버튼 -->
-  <aside class="fixed bottom-4 right-4 z-50">
-    <a 
-      href="counter.html" 
-      class="group inline-flex items-center gap-2 bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-semibold px-3.5 py-2.5 rounded-full shadow-lg hover:shadow-xl backdrop-blur-md border border-slate-700/60 transition-all hover:scale-105 active:scale-95"
-      title="병원 직원 전용 데스크 접수 현황판 바로가기"
-    >
-      <span class="w-2 h-2 rounded-full bg-emerald-400 group-hover:animate-ping"></span>
-      <svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-      </svg>
-      <span>직원 데스크</span>
-    </a>
-  </aside>
 
   <!-- 진료 상태 실시간 자동 계산 스크립트 -->
   <script>
@@ -247,9 +227,7 @@
 
       const now = new Date();
       const day = now.getDay();
-      const hour = now.getHours();
-      const min = now.getMinutes();
-      const curTime = hour * 60 + min;
+      const curTime = now.getHours() * 60 + now.getMinutes();
 
       let badgeHtml = '';
 
