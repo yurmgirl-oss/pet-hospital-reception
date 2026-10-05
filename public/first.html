@@ -64,11 +64,12 @@
           </div>
           <div>
             <h2 class="text-base font-bold text-slate-900">보호자 인적사항</h2>
-            <p class="text-xs text-slate-400">진료 기록부와 안내에 사용돼요.</p>
+            <p class="text-xs text-slate-400">진료 기록부와 검사/안내 자료 발송에 사용돼요.</p>
           </div>
         </div>
 
         <div class="space-y-4">
+          <!-- 1번째 줄: 보호자 성함 / 전화번호 -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1.5">보호자 성함 <span class="text-rose-500">*</span></label>
@@ -94,15 +95,27 @@
             </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">주소 <span class="text-rose-500">*</span></label>
-            <input 
-              type="text" 
-              id="address" 
-              required 
-              placeholder="거주 지역 또는 주소" 
-              class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
-            >
+          <!-- [수정] 2번째 줄: 주소를 반으로 줄이고 뒤에 이메일 추가 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">주소 <span class="text-rose-500">*</span></label>
+              <input 
+                type="text" 
+                id="address" 
+                required 
+                placeholder="거주 지역 또는 주소" 
+                class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+              >
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">이메일 <span class="text-slate-400 font-normal">(자료 수신용)</span></label>
+              <input 
+                type="email" 
+                id="email" 
+                placeholder="example@email.com" 
+                class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -123,7 +136,7 @@
 
         <div class="space-y-4">
           
-          <!-- [1번째 칸] 동물 종류 (상단 글씨 가운데 정렬) -->
+          <!-- [1번째 칸] 맨 위: 동물 종류 (상단 글씨 가운데 정렬) -->
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-2 text-center">동물 종류 <span class="text-rose-500">*</span></label>
             <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -137,7 +150,7 @@
             </div>
           </div>
 
-          <!-- [2번째 칸] 동물 이름, 품종, 성별, 체중 (상단 글씨만 중앙 정렬) -->
+          <!-- [2번째 칸] 동물 이름, 품종, 성별, 체중 (상단 글씨 가운데 정렬) -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
             <!-- 1. 동물 이름 -->
             <div class="md:col-span-3">
@@ -191,11 +204,10 @@
             </div>
           </div>
 
-          <!-- [3번째 칸] 생년월일 + 나이 + 성격 (상단 글씨만 중앙 정렬) -->
+          <!-- [3번째 칸] 생년월일 + 나이(몇년 몇개월) + 성격 (상단 글씨 가운데 정렬) -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end pt-1">
             <!-- 생년월일 및 나이 -->
             <div class="md:col-span-7">
-              <!-- 생년월일과 나이 라벨을 가운데(중앙)로 배치 -->
               <div class="flex items-center justify-center gap-2 mb-1.5">
                 <label class="text-xs font-bold text-slate-700">생년월일 <span class="text-rose-500">*</span></label>
                 <span class="text-slate-300 text-xs">|</span>
@@ -224,7 +236,7 @@
                 </div>
               </div>
 
-              <!-- 년, 월, 일 드롭다운 (입력 영역은 기본 유지) -->
+              <!-- 년, 월, 일 드롭다운 -->
               <div class="grid grid-cols-3 gap-2">
                 <select id="birthYear" onchange="handleDateSelect()" class="w-full px-2 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition">
                   <option value="">년도 선택</option>
@@ -238,7 +250,7 @@
               </div>
             </div>
 
-            <!-- 성격 선택 (상단 글씨만 중앙 정렬) -->
+            <!-- 성격 선택 -->
             <div class="md:col-span-5">
               <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">성격 <span class="text-rose-500">*</span></label>
               <div class="grid grid-cols-3 gap-2 h-[48px]">
@@ -401,7 +413,7 @@
             <input type="checkbox" id="agreePrivacy" onchange="checkAgreements()" class="mt-0.5 w-4 h-4 rounded text-[#0d9488] focus:ring-0">
             <div>
               <p class="text-xs font-bold text-slate-800">개인정보 활용에 동의합니다</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">진료기록부 작성과 휴일 안내 SMS 발송에 이용됩니다.</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">진료기록부 작성, 검사 결과 발송 및 휴일 안내 등에 이용됩니다.</p>
             </div>
           </label>
 
@@ -452,7 +464,7 @@
 
       <!-- 4. 하단 버튼 바 -->
       <div class="pt-2 flex items-center gap-2.5 w-full">
-        <!-- 홈으로: 산뜻하고 세련된 소프트 인디고 컬러 -->
+        <!-- 홈으로 -->
         <a 
           href="index.html" 
           style="flex: 2.5;"
@@ -477,7 +489,7 @@
           <span>다시 작성</span>
         </button>
 
-        <!-- 접수서 제출하기: 눈에 잘 띄는 밝은 비비드 에메랄드 컬러 -->
+        <!-- 접수서 제출하기 -->
         <button 
           type="submit" 
           id="submitBtn"
@@ -547,7 +559,6 @@
       const totalMonths = (years * 12) + months;
 
       const now = new Date();
-      // 개월 수 역산하여 예상 출생일자 계산
       const birthEstimate = new Date(now.getFullYear(), now.getMonth() - totalMonths, 1);
 
       const yearSel = document.getElementById('birthYear');
@@ -815,6 +826,7 @@
       const guardianName = document.getElementById('guardianName').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const address = document.getElementById('address').value.trim();
+      const email = document.getElementById('email').value.trim();
       const petName = document.getElementById('petName').value.trim();
       const breed = document.getElementById('breed').value.trim();
       const weight = document.getElementById('weight').value;
@@ -829,7 +841,9 @@
 
       const payloadData = {
         guardian_name: guardianName,
+        phone: phone,
         address: address,
+        email: email,
         breed: breed || '믹스/미기재',
         species: selectedSpecies,
         gender: selectedGender,
