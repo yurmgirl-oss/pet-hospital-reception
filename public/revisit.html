@@ -315,7 +315,6 @@
       }
     }
 
-    // 서버로 데이터 전송 (모든 변수명 호환 + 정보 무손실 결합)
     async function submitForm(e) {
       e.preventDefault();
       const submitBtn = document.getElementById('submitBtn');
@@ -329,15 +328,6 @@
       const treatmentCheckboxes = document.querySelectorAll('input[name="treatment"]:checked');
       const treatments = Array.from(treatmentCheckboxes).map(c => c.value);
 
-      // 1. 내원 예정일 / 추가 처치가 어떤 환경에서도 누락되지 않도록 통합 요약문 생성
-      let fullSummary = reason || '작성된 내원 사유 없음';
-      if (expectedDate || selectedTimeSlot) {
-        fullSummary += `\n[내원예정: ${expectedDate || ''} ${selectedTimeSlot ? '(' + selectedTimeSlot + ')' : ''}]`;
-      }
-      if (treatments.length > 0) {
-        fullSummary += `\n[추가처치: ${treatments.join(', ')}]`;
-      }
-
       const payloadData = {
         reason: reason,
         expected_date: expectedDate,
@@ -345,22 +335,14 @@
         treatments: treatments
       };
 
-      // 2. 서버가 어떤 필드명을 쓰든 100% 매칭되도록 전체 필드 동시 전달
+      // D1 DB 컬럼명(symptom 단수형)과 100% 매칭
       const requestBody = {
         type: 'RETURN',
-        // 이름
+        status: '접수대기',
         pet_name: petName,
-        name: petName,
-        // 전화번호
         phone: phone,
-        owner_phone: phone,
-        guardian_phone: phone,
-        // 증상 및 내원사유 (단일 필드만 저장하는 DB에서도 100% 다 보이게 처리)
-        reason: fullSummary,
-        symptoms: fullSummary,
-        memo: fullSummary,
-        // JSON 형태 옵션
-        payload: JSON.stringify(payloadData)
+        symptom: reason,
+        payload: payloadData
       };
 
       try {
