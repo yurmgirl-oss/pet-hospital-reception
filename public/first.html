@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>초진 접수서</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#f8faf9] min-h-screen p-4 sm:p-8 flex justify-center">
+  <div class="w-full max-w-xl bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8">
+    <div class="border-b-2 border-teal-700 pb-3 mb-6">
+      <span class="text-xs font-bold text-teal-700 tracking-wide uppercase">First Visit Intake</span>
+      <h1 class="text-2xl font-serif font-bold text-slate-800">초진 접수서</h1>
+      <p class="text-xs text-slate-500 mt-1">아이를 더 잘 살피기 위해 아는 만큼 적어주세요.</p>
+    </div>
+
+    <form id="firstForm" class="space-y-5">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">보호자 성함 *</label>
+          <input type="text" id="owner_name" required placeholder="성함" class="w-full border rounded-xl px-3 py-2 text-sm outline-teal-600">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">전화번호 *</label>
+          <input type="tel" id="phone" required placeholder="010-0000-0000" class="w-full border rounded-xl px-3 py-2 text-sm outline-teal-600">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">주소</label>
+        <input type="text" id="address" placeholder="거주 지역 또는 주소" class="w-full border rounded-xl px-3 py-2 text-sm outline-teal-600">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">동물 이름 *</label>
+          <input type="text" id="pet_name" required placeholder="아이 이름" class="w-full border rounded-xl px-3 py-2 text-sm outline-teal-600">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">품종</label>
+          <input type="text" id="breed" placeholder="예: 말티즈, 코숏" class="w-full border rounded-xl px-3 py-2 text-sm outline-teal-600">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">체중 (kg)</label>
+          <input type="text" id="weight" placeholder="예: 2.5" class="w-full border rounded-xl px-3 py-2 text-sm outline-teal-600">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">동물 종류</label>
+          <select id="species" class="w-full border rounded-xl px-3 py-2 text-sm outline-teal-600">
+            <option value="강아지">강아지</option>
+            <option value="고양이">고양이</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">내원 사유</label>
+        <textarea id="symptom" rows="3" placeholder="증상 및 진료 요청사항을 작성해주세요." class="w-full border rounded-xl p-3 text-sm outline-teal-600"></textarea>
+      </div>
+
+      <button type="submit" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow transition">
+        초진 접수서 제출하기 →
+      </button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('firstForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        address: document.getElementById('address').value,
+        breed: document.getElementById('breed').value,
+        species: document.getElementById('species').value,
+        weight: document.getElementById('weight').value
+      };
+
+      const body = {
+        type: '초진',
+        owner_name: document.getElementById('owner_name').value,
+        pet_name: document.getElementById('pet_name').value,
+        phone: document.getElementById('phone').value,
+        symptom: document.getElementById('symptom').value,
+        payload: payload
+      };
+
+      const res = await fetch('/api/receptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        alert('초진 접수가 완료되었습니다.');
+        window.location.href = 'index.html';
+      } else {
+        alert('오류가 발생했습니다.');
+      }
+    });
+  </script>
+</body>
+</html>
