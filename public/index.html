@@ -23,34 +23,12 @@
 </head>
 <body class="min-h-screen text-slate-800 p-4 md:p-8 flex justify-center items-center">
 
-  <div class="w-full max-w-xl space-y-6 my-4">
+  <div class="w-full max-w-xl space-y-6 my-6">
 
-    <!-- 1. 병원 로고 및 타이틀 영역 -->
-    <header class="text-center space-y-3">
-      <div class="inline-block relative">
-        <!-- 원본 로고 이미지 (logo.png) -->
-        <img 
-          src="logo.png" 
-          alt="23시 하단오거리동물병원" 
-          onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden');"
-          class="w-32 h-32 md:w-36 md:h-36 mx-auto rounded-full object-contain shadow-lg shadow-teal-950/10 border-4 border-white bg-white p-1.5 transition-transform hover:scale-105"
-        >
-
-        <!-- 세련된 대체 엠블럼 (logo.png 미탑재 시 자동 표출) -->
-        <div id="logo-fallback" class="hidden w-32 h-32 md:w-36 md:h-36 mx-auto rounded-full bg-gradient-to-b from-[#006257] to-[#00473e] text-white flex flex-col items-center justify-center p-3 shadow-xl shadow-teal-900/15 border-4 border-white ring-2 ring-teal-600/30">
-          <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mb-1">
-            <svg class="w-5 h-5 text-teal-200" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-          </div>
-          <span class="text-xl md:text-2xl font-black tracking-tight leading-none text-white">23시</span>
-          <span class="text-[11px] font-bold text-teal-100 tracking-wider mt-1">하단오거리</span>
-          <span class="text-[9px] font-medium text-teal-300">동물병원</span>
-        </div>
-      </div>
-
+    <!-- 1. 병원 타이틀 영역 (로고 제거 후 깔끔하게 정돈) -->
+    <header class="text-center space-y-2.5 pt-2">
       <div class="space-y-1">
-        <p class="text-[11px] md:text-xs font-bold tracking-widest text-[#006257] uppercase">FOR ALL ANIMALS, ALWAYS</p>
+        <p class="text-xs font-bold tracking-widest text-[#006257] uppercase">FOR ALL ANIMALS, ALWAYS</p>
         <h1 class="text-3xl md:text-4xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">
           23시 하단오거리동물병원
         </h1>
@@ -60,66 +38,66 @@
       </div>
 
       <!-- 실시간 진료 상태 뱃지 (자동 계산) -->
-      <div id="statusBadgeContainer" class="pt-1">
-        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 shadow-sm">
+      <div id="statusBadgeContainer" class="pt-2">
+        <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 shadow-sm">
           <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
           진료 현황 확인 중...
         </span>
       </div>
     </header>
 
-    <!-- 2. 초진 / 재진 메인 접수 버튼 (터치 친화형 대형 카드) -->
+    <!-- 2. 초진 / 재진 메인 접수 버튼 (색상 확실히 구분) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       
-      <!-- 초진 접수 카드 -->
+      <!-- 초진 접수 카드 (딥그린 컬러) -->
       <a 
         href="first.html" 
-        class="group relative bg-white p-6 rounded-3xl border-2 border-slate-200/80 hover:border-[#006257] shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden"
+        class="cursor-pointer group relative bg-gradient-to-br from-[#006257] to-[#004941] text-white p-6 rounded-3xl shadow-lg shadow-teal-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden border border-teal-500/30"
       >
-        <div class="space-y-2.5">
-          <div class="w-12 h-12 rounded-2xl bg-teal-50 text-[#006257] flex items-center justify-center group-hover:scale-110 transition">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <div class="space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm text-teal-100 flex items-center justify-center group-hover:scale-110 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
             </svg>
           </div>
           <div>
-            <span class="text-[11px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md">처음 오셨나요?</span>
-            <h2 class="text-xl font-extrabold text-slate-900 mt-1">초진 접수하기</h2>
-            <p class="text-xs text-slate-500 mt-1 leading-relaxed">신규 등록 및 기초 문진표를 작성해 주세요.</p>
+            <span class="text-[11px] font-bold text-teal-100 bg-black/20 px-2.5 py-1 rounded-md border border-white/10">처음 오셨나요?</span>
+            <h2 class="text-2xl font-black text-white mt-2 tracking-tight">초진 접수하기</h2>
+            <p class="text-xs text-teal-100/85 mt-1 leading-relaxed">신규 등록 및 기초 문진표 작성</p>
           </div>
         </div>
-        <div class="mt-5 flex items-center justify-between text-xs font-bold text-[#006257] group-hover:translate-x-1 transition">
-          <span>접수서 작성</span>
-          <span class="text-base font-bold">→</span>
+        <div class="mt-6 flex items-center justify-between text-xs font-bold text-teal-200 group-hover:translate-x-1 transition">
+          <span>접수서 작성 시작</span>
+          <span class="text-lg font-bold">→</span>
         </div>
       </a>
 
-      <!-- 재진 접수 카드 -->
+      <!-- 재진 접수 카드 (로열 블루 컬러) -->
       <a 
         href="revisit.html" 
-        class="group relative bg-white p-6 rounded-3xl border-2 border-slate-200/80 hover:border-emerald-600 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden"
+        class="cursor-pointer group relative bg-gradient-to-br from-[#1d4ed8] to-[#1e3a8a] text-white p-6 rounded-3xl shadow-lg shadow-blue-950/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden border border-blue-400/30"
       >
-        <div class="space-y-2.5">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-110 transition">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <div class="space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm text-blue-100 flex items-center justify-center group-hover:scale-110 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
           </div>
           <div>
-            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">방문한 적이 있어요</span>
-            <h2 class="text-xl font-extrabold text-slate-900 mt-1">재진 접수하기</h2>
-            <p class="text-xs text-slate-500 mt-1 leading-relaxed">전화번호로 빠르고 간편하게 접수하세요.</p>
+            <span class="text-[11px] font-bold text-blue-100 bg-black/20 px-2.5 py-1 rounded-md border border-white/10">방문한 적이 있어요</span>
+            <h2 class="text-2xl font-black text-white mt-2 tracking-tight">재진 접수하기</h2>
+            <p class="text-xs text-blue-100/85 mt-1 leading-relaxed">전화번호로 빠르고 간편하게 접수</p>
           </div>
         </div>
-        <div class="mt-5 flex items-center justify-between text-xs font-bold text-emerald-700 group-hover:translate-x-1 transition">
-          <span>빠른 접수</span>
-          <span class="text-base font-bold">→</span>
+        <div class="mt-6 flex items-center justify-between text-xs font-bold text-blue-200 group-hover:translate-x-1 transition">
+          <span>빠른 접수 바로가기</span>
+          <span class="text-lg font-bold">→</span>
         </div>
       </a>
 
     </div>
 
-    <!-- 3. 진료 시간 안내 카드 & 전화번호 안내 -->
+    <!-- 3. 진료 시간 안내 카드 & 대형 전화번호 -->
     <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <div class="flex items-center gap-2">
@@ -129,7 +107,7 @@
         <span class="text-xs font-semibold text-slate-400">연중무휴 진료 안내</span>
       </div>
 
-      <!-- 요일별 시간 리스트 (글자 확대 및 우측 시간/하단 보조문구 정렬) -->
+      <!-- 요일별 시간 리스트 -->
       <div class="space-y-3.5 text-sm">
         
         <!-- 평일 -->
@@ -139,7 +117,7 @@
           </span>
           <div class="flex flex-col items-end">
             <strong class="text-slate-900 text-base font-extrabold tabular-nums">10:00 ~ 23:00</strong>
-            <span class="text-[11px] text-amber-700 font-bold bg-amber-50 border border-amber-200/80 px-1.5 py-0.5 rounded mt-1">
+            <span class="text-[11px] text-amber-700 font-bold bg-amber-50 border border-amber-200/70 px-1.5 py-0.5 rounded mt-1">
               야간진료 20:00 ~ 23:00
             </span>
           </div>
@@ -180,63 +158,68 @@
 
       </div>
 
-      <!-- 원내 전화번호 바 -->
-      <div class="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/80 p-3 rounded-2xl">
-        <span class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-[#006257]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-          </svg>
-          병원 문의 및 안내
-        </span>
+      <!-- 전화번호 대형 바 -->
+      <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between bg-teal-50/60 p-4 rounded-2xl gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-600">진료 문의 & 예약 전화</p>
+            <p class="text-[11px] text-slate-400">터치 시 바로 연결됩니다</p>
+          </div>
+        </div>
         <a 
           href="tel:0512648275" 
-          class="text-sm md:text-base font-black text-[#006257] hover:text-teal-800 transition tracking-tight"
+          class="text-2xl md:text-3xl font-black text-[#006257] hover:text-teal-800 transition tracking-tight tabular-nums"
         >
           051) 264-8275
         </a>
       </div>
     </div>
 
-    <!-- 4. 카카오채널 & 인스타그램 (텍스트 링크 형태) -->
-    <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-500 pt-1">
+    <!-- 4. 카카오채널 & 인스타그램 & 직원 데스크 링크 (나란히 정렬) -->
+    <div class="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-2 text-xs text-slate-500 pt-2 pb-6">
+      <!-- 카카오톡 -->
       <a 
         href="https://pf.kakao.com" 
         target="_blank" 
         class="hover:text-slate-900 transition flex items-center gap-1.5 text-slate-600"
       >
-        <span class="w-1.5 h-1.5 rounded-full bg-[#FEE500] ring-1 ring-amber-300"></span>
+        <span class="w-2 h-2 rounded-full bg-[#FEE500] ring-1 ring-amber-300"></span>
         <span>카카오톡 채널</span>
-        <strong class="font-bold text-slate-800 hover:underline">23시 하단오거리동물병원</strong>
       </a>
 
-      <span class="text-slate-300 hidden sm:inline">•</span>
+      <span class="text-slate-300">•</span>
 
+      <!-- 인스타그램 -->
       <a 
         href="https://www.instagram.com/23haodong" 
         target="_blank" 
         class="hover:text-slate-900 transition flex items-center gap-1.5 text-slate-600"
       >
-        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+        <span class="w-2 h-2 rounded-full bg-rose-400"></span>
         <span>인스타그램</span>
-        <strong class="font-bold text-slate-800 hover:underline">@23haodong</strong>
+        <span class="text-slate-400">(@23haodong)</span>
+      </a>
+
+      <span class="text-slate-300">•</span>
+
+      <!-- 직원용 데스크 바로가기 -->
+      <a 
+        href="counter.html" 
+        class="hover:text-teal-700 transition flex items-center gap-1.5 text-slate-500 font-medium hover:font-bold"
+      >
+        <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+        <span>🖥️ 직원용 데스크</span>
       </a>
     </div>
 
-    <!-- 5. 하단 데스크 카운터 링크 (원내 직원용) -->
-    <footer class="pt-2 pb-4 text-center">
-      <a 
-        href="counter.html" 
-        class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-teal-700 transition"
-      >
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-        </svg>
-        <span>데스크 접수 현황판 바로가기</span>
-      </a>
-    </footer>
-
   </div>
 
+  <!-- 진료 상태 실시간 자동 계산 스크립트 -->
   <script>
     function updateHospitalStatus() {
       const container = document.getElementById('statusBadgeContainer');
@@ -244,9 +227,7 @@
 
       const now = new Date();
       const day = now.getDay();
-      const hour = now.getHours();
-      const min = now.getMinutes();
-      const curTime = hour * 60 + min;
+      const curTime = now.getHours() * 60 + now.getMinutes();
 
       let badgeHtml = '';
 
@@ -276,7 +257,7 @@
     }
 
     updateHospitalStatus();
-    setInterval(updateHospitalStatus, 60000); // 1분 단위 상태 갱신
+    setInterval(updateHospitalStatus, 60000); // 1분 단위 자동 갱신
   </script>
 </body>
 </html>
