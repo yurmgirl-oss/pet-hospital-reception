@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>23시 동물병원 - 데스크 접수 현황판</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 고해상도 캡처를 위한 html2canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     body { font-family: 'Pretendard', sans-serif; }
+    
+    /* A4 표준 1장 규격 (794px x 1123px, 96 DPI 기준 정확한 1 : 1.414 비율) */
     #print-sheet {
       position: fixed;
       left: -9999px;
@@ -16,7 +19,7 @@
       width: 794px;
       height: 1123px;
       background: #ffffff;
-      padding: 44px 48px;
+      padding: 38px 44px;
       box-sizing: border-box;
       color: #1e293b;
       display: flex;
@@ -49,7 +52,7 @@
       </div>
     </header>
 
-    <!-- 요약 통계 (접수대기 완벽 매칭) -->
+    <!-- 요약 통계 -->
     <div class="grid grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
         <p class="text-xs font-semibold text-slate-400">접수 대기</p>
@@ -71,120 +74,137 @@
     </div>
   </div>
 
-  <!-- A4 초진 서식 템플릿 -->
+  <!-- A4 맞춤형 초진접수 및 개인정보 동의서 템플릿 (화면 밖 렌더링) -->
   <div id="print-sheet">
     <div>
-      <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3">
+      <!-- 1. 타이틀 & 병원 확인 결재란 -->
+      <div class="flex justify-between items-start border-b-2 border-slate-900 pb-2.5">
         <div>
-          <span class="text-xs font-bold tracking-widest text-emerald-700">23시 동물병원 · CLINIC FLOW</span>
-          <h2 class="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">초진 접수 및 기초 문진표</h2>
-          <p class="text-[11px] text-slate-500 mt-0.5">본 서식은 내원 시 보호자가 직접 작성한 전자 접수 원본 기록입니다.</p>
+          <span class="text-xs font-bold tracking-widest text-[#0d9488]">23시 동물병원 · CLINIC FLOW</span>
+          <h2 class="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">초진접수 및 개인정보 동의서</h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">본 서식은 내원 시 보호자가 직접 작성한 전자 접수 및 법적 동의서 원본입니다.</p>
         </div>
         
-        <table class="border-collapse border border-slate-400 text-xs text-center w-40">
+        <table class="border-collapse border border-slate-400 text-xs text-center w-36">
           <tr class="bg-slate-100 font-semibold text-slate-700">
-            <td class="border border-slate-400 py-1 w-1/2">접수확인</td>
-            <td class="border border-slate-400 py-1 w-1/2">담당수의사</td>
+            <td class="border border-slate-400 py-1 w-1/2">원무확인</td>
+            <td class="border border-slate-400 py-1 w-1/2">담당의사</td>
           </tr>
           <tr>
-            <td class="border border-slate-400 h-10"></td>
-            <td class="border border-slate-400 h-10"></td>
+            <td class="border border-slate-400 h-9"></td>
+            <td class="border border-slate-400 h-9"></td>
           </tr>
         </table>
       </div>
 
-      <div class="flex justify-between text-xs text-slate-600 font-mono mt-2 mb-4 px-1">
+      <!-- 접수 번호 및 일시 -->
+      <div class="flex justify-between text-xs text-slate-600 font-mono mt-1.5 mb-3 px-1">
         <span id="doc-id">접수번호: #0</span>
         <span id="doc-date">접수일시: 2026-00-00 00:00:00</span>
       </div>
 
-      <div class="mb-4">
+      <!-- 2. 보호자 및 환자 기본 정보 표 -->
+      <div class="mb-3">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 1. 보호자 및 환자 기본 정보
+          <span class="w-1.5 h-3 bg-[#0d9488] rounded-sm"></span> 1. 보호자 및 반려동물 인적사항
         </h3>
         <table class="w-full border-collapse border border-slate-300 text-xs">
           <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 w-24 text-left">보호자 성함</th>
-            <td class="border border-slate-300 py-2 px-3 font-semibold w-56" id="doc-guardian">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 w-24 text-left">연락처</th>
-            <td class="border border-slate-300 py-2 px-3 font-mono font-semibold" id="doc-phone">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 w-24 text-left">보호자 성함</th>
+            <td class="border border-slate-300 py-1.5 px-3 font-semibold w-56" id="doc-guardian">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 w-24 text-left">연락처</th>
+            <td class="border border-slate-300 py-1.5 px-3 font-mono font-semibold" id="doc-phone">-</td>
           </tr>
           <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left">주소</th>
-            <td colspan="3" class="border border-slate-300 py-2 px-3 text-slate-800" id="doc-address">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">주소</th>
+            <td colspan="3" class="border border-slate-300 py-1.5 px-3 text-slate-800" id="doc-address">-</td>
           </tr>
           <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left">동물 이름</th>
-            <td class="border border-slate-300 py-2 px-3 font-bold text-emerald-800 text-sm" id="doc-pet">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left">축종 / 품종</th>
-            <td class="border border-slate-300 py-2 px-3" id="doc-species">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">동물 이름</th>
+            <td class="border border-slate-300 py-1.5 px-3 font-bold text-teal-800 text-sm" id="doc-pet">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">축종 / 품종</th>
+            <td class="border border-slate-300 py-1.5 px-3" id="doc-species">-</td>
           </tr>
           <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left">체중</th>
-            <td class="border border-slate-300 py-2 px-3 font-semibold" id="doc-weight">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left">접수 구분</th>
-            <td class="border border-slate-300 py-2 px-3 font-semibold text-sky-700">초진 (신규 내원)</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">성별 / 중성화</th>
+            <td class="border border-slate-300 py-1.5 px-3 font-medium" id="doc-gender">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">생년월일 / 체중</th>
+            <td class="border border-slate-300 py-1.5 px-3 font-medium" id="doc-birth-weight">-</td>
           </tr>
         </table>
       </div>
 
-      <div class="mb-4">
+      <!-- 3. 주 증상 및 내원 사유 -->
+      <div class="mb-3">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 2. 주요 증상 및 내원 사유
+          <span class="w-1.5 h-3 bg-[#0d9488] rounded-sm"></span> 2. 주요 증상 및 내원 사유
         </h3>
-        <div class="border border-slate-300 rounded p-3.5 min-h-[140px] text-xs leading-relaxed text-slate-800 whitespace-pre-wrap bg-slate-50/50" id="doc-reason">
+        <div class="border border-slate-300 rounded p-2.5 min-h-[75px] text-xs leading-relaxed text-slate-800 whitespace-pre-wrap bg-slate-50/50" id="doc-reason">
           -
         </div>
       </div>
 
-      <div class="mb-4">
+      <!-- 4. 추가 처치 희망 내역 -->
+      <div class="mb-3">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 3. 추가 기본 처치 희망 내역
+          <span class="w-1.5 h-3 bg-[#0d9488] rounded-sm"></span> 3. 추가 처치 희망 항목
         </h3>
-        <table class="w-full border-collapse border border-slate-300 text-xs">
-          <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 w-28 text-left">선택된 처치 항목</th>
-            <td class="border border-slate-300 py-2 px-3 font-medium text-slate-800" id="doc-treatments">-</td>
-          </tr>
-        </table>
+        <div class="border border-slate-300 rounded p-2 px-3 text-xs font-medium text-slate-800 bg-white" id="doc-treatments">
+          선택 처치 없음
+        </div>
       </div>
 
-      <div>
-        <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-slate-600 rounded-sm"></span> 4. 원내 기초 바이탈 및 진료 메모 (의료진 작성란)
+      <!-- 5. 개인정보 활용 및 안전사고 책임 안내 동의 + 실제 사인 인자 (요청하신 핵심 영역) -->
+      <div class="border-2 border-slate-300 rounded-xl p-3.5 bg-slate-50/70">
+        <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center justify-between">
+          <span class="flex items-center gap-1">
+            <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 4. 개인정보 수집·이용 및 안전사고 예방 책임 동의
+          </span>
+          <span class="text-[11px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">✓ 보호자 전자 서명 완료</span>
         </h3>
-        <table class="w-full border-collapse border border-slate-300 text-xs">
-          <tr class="bg-slate-50 text-center text-slate-600 font-medium">
-            <td class="border border-slate-300 py-1.5 w-1/4">체온 (BT)</td>
-            <td class="border border-slate-300 py-1.5 w-1/4">심박수 (HR)</td>
-            <td class="border border-slate-300 py-1.5 w-1/4">호흡수 (RR)</td>
-            <td class="border border-slate-300 py-1.5 w-1/4">혈압 (BP)</td>
-          </tr>
-          <tr class="text-center h-8">
-            <td class="border border-slate-300 text-slate-400">℃</td>
-            <td class="border border-slate-300 text-slate-400">bpm</td>
-            <td class="border border-slate-300 text-slate-400">회/분</td>
-            <td class="border border-slate-300 text-slate-400">mmHg</td>
-          </tr>
-          <tr>
-            <td colspan="4" class="border border-slate-300 h-28 p-2 align-top text-slate-400">
-              [진료 소견 및 초진 특이사항 메모]
-            </td>
-          </tr>
-        </table>
+
+        <!-- 동의 조항 2종 -->
+        <div class="space-y-2 text-[11px] leading-relaxed text-slate-700">
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+            <p class="font-bold text-slate-800 flex items-center justify-between">
+              <span>① 개인정보 수집 및 활용 동의</span>
+              <span class="text-emerald-600 font-semibold">[동의함]</span>
+            </p>
+            <p class="text-slate-500 mt-0.5">수집항목: 보호자 성명, 연락처, 주소, 환자 정보 / 이용목적: 동물병원 진료기록부 작성, 처방 관리, 휴일 및 진료 알림 SMS 발송</p>
+          </div>
+
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+            <p class="font-bold text-slate-800 flex items-center justify-between">
+              <span>② 안전사고 예방 및 책임 안내 동의</span>
+              <span class="text-emerald-600 font-semibold">[동의함]</span>
+            </p>
+            <p class="text-slate-500 mt-0.5">본인은 병원 내 사람과 동물 간의 접촉이나 예기치 못한 상황으로 인한 인적·물적 피해(다툼, 상해 등) 가능성을 이해하며, 이로 인한 개인 간 분쟁 및 보상에 대해 병원이 개입하지 않음을 확인하였습니다.</p>
+          </div>
+        </div>
+
+        <!-- 서명 렌더링 박스 (Base64 실제 사인이 쏙 들어가는 영역) -->
+        <div class="mt-3 pt-3 border-t border-slate-300 flex justify-between items-center px-1">
+          <div class="text-xs space-y-0.5">
+            <p class="text-slate-600">위 안내 및 동의 조항을 충분히 숙지하였으며, 이에 정식 동의합니다.</p>
+            <p class="text-slate-800 font-bold">동의자(보호자 성함): <span id="doc-sign-guardian" class="text-teal-900">-</span></p>
+          </div>
+
+          <!-- 실제 사인 이미지 출력 -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-500">서명 (인):</span>
+            <div class="w-36 h-16 border border-slate-300 bg-white rounded-lg flex items-center justify-center p-1 shadow-inner overflow-hidden">
+              <img id="doc-signature-img" src="" alt="보호자 전자 서명" class="max-h-full max-w-full object-contain">
+              <span id="doc-no-sign" class="text-[11px] text-slate-400 hidden">서명 없음</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="border-t border-slate-300 pt-3 text-[11px] text-slate-500">
-      <div class="flex justify-between items-end">
-        <div>
-          <p>• 본 접수증에 기재된 정보는 진료 및 동물병원 진료부 기록 용도로만 사용됩니다.</p>
-          <p>• 23시 동물병원 EMR 시스템 연동 문서</p>
-        </div>
-        <div class="text-right">
-          <p class="font-medium text-slate-700">보호자 확인 서명: ________________ (인)</p>
-        </div>
-      </div>
+    <!-- 하단 푸터 -->
+    <div class="border-t border-slate-300 pt-2 text-[10px] text-slate-400 flex justify-between items-center">
+      <span>• 23시 동물병원 전자 의무기록 관리 시스템 (CLINIC FLOW)</span>
+      <span>인쇄일시: <script>document.write(new Date().toLocaleDateString('ko-KR'))</script></span>
     </div>
   </div>
 
@@ -218,9 +238,7 @@
         gain2.connect(audioCtx.destination);
         osc2.start(now + 0.22);
         osc2.stop(now + 0.85);
-      } catch (err) {
-        console.error("오디오 에러:", err);
-      }
+      } catch (err) {}
     }
 
     function toggleSound() {
@@ -278,7 +296,6 @@
       }
     }
 
-    // 만능 JSON 해독 함수 (따옴표가 몇 겹이든 완벽하게 객체로 복원)
     function unwrapPayload(raw) {
       if (!raw) return {};
       let current = raw;
@@ -298,7 +315,6 @@
       }
 
       container.innerHTML = list.map(item => {
-        // 1. 포장지 완벽 해독
         const payload = unwrapPayload(item.payload);
 
         const isFirst = item.type === 'FIRST' || item.type === '초진';
@@ -314,26 +330,22 @@
         if (isProg) statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
         if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
 
+        // 초진일 때 A4 동의서 다운로드 버튼 제공
         const downloadBtn = isFirst ? `
           <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition flex items-center gap-1 border border-sky-200 shadow-sm">
-            📄 A4 초진표 이미지 받기
+            📄 A4 초진·동의서 저장
           </button>
         ` : '';
 
-        // 시간 표시 (공백이나 T 포맷 모두 지원)
         const dateStrRaw = item.created_at ? item.created_at.replace(' ', 'T') : '';
         const timeStr = dateStrRaw ? new Date(dateStrRaw).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
-
-        // 2. 보호자 전화번호 (어떤 필드명이든 완벽 추출)
         const phone = item.phone || item.owner_phone || '-';
 
-        // 3. 내원 사유 추출 (payload.reason, item.symptom 등 모든 경로 확인)
         const displayReason = (payload.reason && payload.reason.trim())
           || (item.symptom && item.symptom.trim())
           || (item.symptoms && item.symptoms.trim())
           || '기재된 내원 사유가 없습니다.';
 
-        // 4. 내원 예정일 및 시간 뱃지
         let scheduleBadge = '';
         if (payload.expected_date || payload.expected_time) {
           const dStr = payload.expected_date || '';
@@ -345,13 +357,9 @@
           `;
         }
 
-        // 5. 추가 처치 목록 칩 태그
         let treatmentsArray = [];
-        if (Array.isArray(payload.treatments)) {
-          treatmentsArray = payload.treatments;
-        } else if (Array.isArray(payload.extras)) {
-          treatmentsArray = payload.extras;
-        }
+        if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
+        else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
 
         let treatmentsHtml = '';
         if (treatmentsArray.length > 0) {
@@ -383,16 +391,13 @@
                 ${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}
               </p>
 
-              <!-- 내원 사유 전체 출력 박스 -->
               <div class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 leading-relaxed whitespace-pre-line">
                 <strong class="text-slate-800">[내원 사유]</strong> ${displayReason}
               </div>
 
-              <!-- 추가 처치 칩 태그 -->
               ${treatmentsHtml}
             </div>
 
-            <!-- 상태 변경 셀렉트박스 (DB 상태값 완벽 연동) -->
             <div class="flex items-center gap-2 self-end md:self-center">
               <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border ${statusClass} focus:outline-none cursor-pointer">
                 <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
@@ -418,41 +423,69 @@
       }
     }
 
+    // A4 동의서 및 서명 인자 다운로드 함수
     async function downloadIntakeSheet(item) {
       const payload = unwrapPayload(item.payload);
 
       document.getElementById('doc-id').innerText = `접수번호: #${item.id}`;
       document.getElementById('doc-date').innerText = `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`;
-      document.getElementById('doc-guardian').innerText = payload.guardian_name || item.owner_name || '미기재';
+      
+      const guardian = payload.guardian_name || item.owner_name || '미기재';
+      document.getElementById('doc-guardian').innerText = guardian;
+      document.getElementById('doc-sign-guardian').innerText = guardian;
+      
       document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
       document.getElementById('doc-address').innerText = payload.address || '미기재';
       document.getElementById('doc-pet').innerText = item.pet_name || '-';
       document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
-      document.getElementById('doc-weight').innerText = payload.weight ? `${payload.weight} kg` : '미기재';
+      
+      // 성별 및 중성화 표기
+      const neuterText = payload.neutered ? '(중성화 완료)' : '(중성화 미실시)';
+      document.getElementById('doc-gender').innerText = `${payload.gender || '미선택'} ${neuterText}`;
+
+      // 생년월일 및 체중
+      const bDate = payload.birth_date ? payload.birth_date : '미기재';
+      const wt = payload.weight ? `${payload.weight} kg` : '미기재';
+      document.getElementById('doc-birth-weight').innerText = `${bDate}  /  ${wt}`;
+
+      // 내원 사유
       document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
 
-      const extraList = [];
-      if (Array.isArray(payload.treatments)) {
-        extraList.push(...payload.treatments);
+      // 추가 처치 항목
+      let treatmentsArray = [];
+      if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
+      else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
+      document.getElementById('doc-treatments').innerText = treatmentsArray.length > 0 ? treatmentsArray.join('  |  ') : '선택 처치 없음';
+
+      // 전자 서명 이미지 바인딩 (핵심 로직)
+      const sigImg = document.getElementById('doc-signature-img');
+      const noSigText = document.getElementById('doc-no-sign');
+
+      if (payload.signature && payload.signature.startsWith('data:image')) {
+        sigImg.src = payload.signature;
+        sigImg.classList.remove('hidden');
+        noSigText.classList.add('hidden');
+      } else {
+        sigImg.classList.add('hidden');
+        noSigText.classList.remove('hidden');
       }
-      document.getElementById('doc-treatments').innerText = extraList.length > 0 ? extraList.join('  |  ') : '선택 처치 없음';
 
       const sheetElement = document.getElementById('print-sheet');
 
       try {
         const canvas = await html2canvas(sheetElement, { 
-          scale: 2,
+          scale: 2, // 300 DPI급 인쇄 선명도
           useCORS: true,
           backgroundColor: '#ffffff'
         });
         const imageURL = canvas.toDataURL('image/png');
         const link = document.createElement('a');
         const cleanPhone = (item.phone || '0000').slice(-4);
-        link.download = `[초진기록지]_${item.pet_name || '환자'}_${cleanPhone}.png`;
+        link.download = `[초진접수·동의서]_${item.pet_name || '환자'}_${cleanPhone}.png`;
         link.href = imageURL;
         link.click();
       } catch (err) {
-        alert('이미지 생성 실패: ' + err.message);
+        alert('동의서 이미지 생성 실패: ' + err.message);
       }
     }
 
