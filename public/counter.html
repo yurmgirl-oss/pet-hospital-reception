@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     body { font-family: 'Pretendard', sans-serif; }
-    
     #print-sheet {
       position: fixed;
       left: -9999px;
@@ -50,7 +49,7 @@
       </div>
     </header>
 
-    <!-- 요약 통계 -->
+    <!-- 요약 통계 (접수대기 완벽 매칭) -->
     <div class="grid grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
         <p class="text-xs font-semibold text-slate-400">접수 대기</p>
@@ -72,7 +71,7 @@
     </div>
   </div>
 
-  <!-- A4 맞춤형 초진 서식 템플릿 -->
+  <!-- A4 초진 서식 템플릿 -->
   <div id="print-sheet">
     <div>
       <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3">
@@ -251,11 +250,15 @@
         let hasNew = false;
 
         data.forEach(item => {
-          if (item.status === '대기') waiting++;
-          else if (item.status === '진료중') progress++;
-          else if (item.status === '완료') done++;
+          const isWait = (item.status === '접수대기' || item.status === '대기');
+          const isProg = (item.status === '진료중');
+          const isComp = (item.status === '완료');
 
-          if (!isFirstLoad && !knownIds.has(item.id) && item.status === '대기') {
+          if (isWait) waiting++;
+          else if (isProg) progress++;
+          else if (isComp) done++;
+
+          if (!isFirstLoad && !knownIds.has(item.id) && isWait) {
             hasNew = true;
           }
         });
@@ -275,6 +278,18 @@
       }
     }
 
+    // 만능 JSON 해독 함수 (따옴표가 몇 겹이든 완벽하게 객체로 복원)
+    function unwrapPayload(raw) {
+      if (!raw) return {};
+      let current = raw;
+      try {
+        while (typeof current === 'string') {
+          current = JSON.parse(current);
+        }
+      } catch (e) {}
+      return (current && typeof current === 'object') ? current : {};
+    }
+
     function renderList(list) {
       const container = document.getElementById('list-container');
       if (list.length === 0) {
@@ -283,19 +298,21 @@
       }
 
       container.innerHTML = list.map(item => {
-        let payload = {};
-        try { 
-          payload = typeof item.payload === 'string' ? JSON.parse(item.payload) : (item.payload || {}); 
-        } catch(e){}
+        // 1. 포장지 완벽 해독
+        const payload = unwrapPayload(item.payload);
 
         const isFirst = item.type === 'FIRST' || item.type === '초진';
         const typeBadge = isFirst
           ? `<span class="bg-sky-100 text-sky-800 text-xs px-2.5 py-1 rounded-md font-bold">초진</span>`
           : `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-bold">재진</span>`;
 
+        const isWait = (item.status === '접수대기' || item.status === '대기');
+        const isProg = (item.status === '진료중');
+        const isComp = (item.status === '완료');
+
         let statusClass = "bg-amber-50 text-amber-700 border-amber-200";
-        if (item.status === '진료중') statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-        if (item.status === '완료') statusClass = "bg-slate-100 text-slate-400 border-slate-200";
+        if (isProg) statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
 
         const downloadBtn = isFirst ? `
           <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition flex items-center gap-1 border border-sky-200 shadow-sm">
@@ -303,34 +320,37 @@
           </button>
         ` : '';
 
-        const timeStr = item.created_at ? new Date(item.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
+        // 시간 표시 (공백이나 T 포맷 모두 지원)
+        const dateStrRaw = item.created_at ? item.created_at.replace(' ', 'T') : '';
+        const timeStr = dateStrRaw ? new Date(dateStrRaw).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
 
-        // 1. 전화번호 추출 (모든 변수명 호환)
-        const phone = item.phone || item.owner_phone || item.guardian_phone || '-';
+        // 2. 보호자 전화번호 (어떤 필드명이든 완벽 추출)
+        const phone = item.phone || item.owner_phone || '-';
 
-        // 2. 내원 사유 추출 (모든 변수명 호환)
-        const displayReason = (item.reason && item.reason.trim())
+        // 3. 내원 사유 추출 (payload.reason, item.symptom 등 모든 경로 확인)
+        const displayReason = (payload.reason && payload.reason.trim())
+          || (item.symptom && item.symptom.trim())
           || (item.symptoms && item.symptoms.trim())
-          || (item.memo && item.memo.trim())
-          || (payload.reason && payload.reason.trim())
           || '기재된 내원 사유가 없습니다.';
 
-        // 3. 내원 예정일 뱃지 (payload 또는 텍스트에서 자동 추출)
+        // 4. 내원 예정일 및 시간 뱃지
         let scheduleBadge = '';
         if (payload.expected_date || payload.expected_time) {
-          const dateStr = payload.expected_date ? payload.expected_date : '';
-          const timeSlot = payload.expected_time ? `(${payload.expected_time})` : '';
+          const dStr = payload.expected_date || '';
+          const tSlot = payload.expected_time ? `(${payload.expected_time})` : '';
           scheduleBadge = `
             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              📅 내원예정: ${dateStr} ${timeSlot}
+              📅 내원예정: ${dStr} ${tSlot}
             </span>
           `;
         }
 
-        // 4. 추가 처치 목록 칩 태그
+        // 5. 추가 처치 목록 칩 태그
         let treatmentsArray = [];
         if (Array.isArray(payload.treatments)) {
           treatmentsArray = payload.treatments;
+        } else if (Array.isArray(payload.extras)) {
+          treatmentsArray = payload.extras;
         }
 
         let treatmentsHtml = '';
@@ -352,18 +372,18 @@
             <div class="space-y-1.5 flex-1">
               <div class="flex flex-wrap items-center gap-2">
                 ${typeBadge}
-                <h3 class="text-lg font-bold text-slate-900">${item.pet_name || item.name || '이름 없음'}</h3>
+                <h3 class="text-lg font-bold text-slate-900">${item.pet_name || '이름 없음'}</h3>
                 <span class="text-xs text-slate-400 font-mono">${timeStr}</span>
                 ${scheduleBadge}
                 ${downloadBtn}
               </div>
 
               <p class="text-sm text-slate-600">
-                보호자: <strong>${phone}</strong> ${payload.guardian_name ? `(${payload.guardian_name})` : ''}
+                보호자: <strong>${phone}</strong> ${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}
                 ${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}
               </p>
 
-              <!-- 내원 사유 전체 출력 박스 (줄바꿈 보존) -->
+              <!-- 내원 사유 전체 출력 박스 -->
               <div class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 leading-relaxed whitespace-pre-line">
                 <strong class="text-slate-800">[내원 사유]</strong> ${displayReason}
               </div>
@@ -372,12 +392,12 @@
               ${treatmentsHtml}
             </div>
 
-            <!-- 상태 변경 셀렉트박스 -->
+            <!-- 상태 변경 셀렉트박스 (DB 상태값 완벽 연동) -->
             <div class="flex items-center gap-2 self-end md:self-center">
               <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border ${statusClass} focus:outline-none cursor-pointer">
-                <option value="대기" ${item.status === '대기' ? 'selected' : ''}>⏳ 접수 대기</option>
-                <option value="진료중" ${item.status === '진료중' ? 'selected' : ''}>🩺 진료 중</option>
-                <option value="완료" ${item.status === '완료' ? 'selected' : ''}>✅ 진료 완료</option>
+                <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
+                <option value="진료중" ${isProg ? 'selected' : ''}>🩺 진료 중</option>
+                <option value="완료" ${isComp ? 'selected' : ''}>✅ 진료 완료</option>
               </select>
             </div>
           </div>
@@ -399,18 +419,17 @@
     }
 
     async function downloadIntakeSheet(item) {
-      let payload = {};
-      try { payload = typeof item.payload === 'string' ? JSON.parse(item.payload) : (item.payload || {}); } catch(e){}
+      const payload = unwrapPayload(item.payload);
 
       document.getElementById('doc-id').innerText = `접수번호: #${item.id}`;
       document.getElementById('doc-date').innerText = `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`;
-      document.getElementById('doc-guardian').innerText = payload.guardian_name || '미기재';
+      document.getElementById('doc-guardian').innerText = payload.guardian_name || item.owner_name || '미기재';
       document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
       document.getElementById('doc-address').innerText = payload.address || '미기재';
-      document.getElementById('doc-pet').innerText = item.pet_name || item.name || '-';
+      document.getElementById('doc-pet').innerText = item.pet_name || '-';
       document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
       document.getElementById('doc-weight').innerText = payload.weight ? `${payload.weight} kg` : '미기재';
-      document.getElementById('doc-reason').innerText = item.reason || item.symptoms || payload.reason || '기재된 증상 없음';
+      document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
 
       const extraList = [];
       if (Array.isArray(payload.treatments)) {
@@ -428,7 +447,7 @@
         });
         const imageURL = canvas.toDataURL('image/png');
         const link = document.createElement('a');
-        const cleanPhone = (item.phone || item.owner_phone || '0000').slice(-4);
+        const cleanPhone = (item.phone || '0000').slice(-4);
         link.download = `[초진기록지]_${item.pet_name || '환자'}_${cleanPhone}.png`;
         link.href = imageURL;
         link.click();
