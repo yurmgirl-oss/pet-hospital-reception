@@ -74,11 +74,6 @@
     </div>
   </div>
 
-  <!-- 복사 알림 토스트 팝업 (클릭 시 화면 우측 하단에 표시) -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-slate-700">
-    <span id="toast-message">📋 복사 완료!</span>
-  </div>
-
   <!-- A4 맞춤형 초진접수 및 개인정보 동의서 템플릿 (화면 밖 렌더링) -->
   <div id="print-sheet">
     <div>
@@ -217,47 +212,6 @@
     let soundEnabled = false;
     let knownIds = new Set();
     let isFirstLoad = true;
-    let toastTimer = null;
-
-    // 클립보드 복사 함수
-    function copyPhone(phone) {
-      if (!phone || phone === '-') return;
-
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(phone).then(() => {
-          showToast(`📋 전화번호 [${phone}] 복사 완료! 차트 검색창에 붙여넣으세요.`);
-        }).catch(() => fallbackCopy(phone));
-      } else {
-        fallbackCopy(phone);
-      }
-    }
-
-    // 구형 브라우저 및 비보안 환경 대응용 복사 함수
-    function fallbackCopy(text) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showToast(`📋 전화번호 [${text}] 복사 완료! 차트 검색창에 붙여넣으세요.`);
-    }
-
-    // 토스트 알림 표시
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      const msgEl = document.getElementById('toast-message');
-      msgEl.innerText = msg;
-
-      toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
-      
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
-      }, 2200);
-    }
 
     function playDingDong() {
       if (!soundEnabled) return;
@@ -432,15 +386,9 @@
                 ${downloadBtn}
               </div>
 
-              <!-- 보호자 정보 (전화번호 클릭 시 복사 버튼) -->
-              <p class="text-sm text-slate-600 flex flex-wrap items-center gap-1.5">
-                <span>보호자:</span>
-                <button onclick="copyPhone('${phone}')" class="inline-flex items-center gap-1 bg-slate-100 hover:bg-teal-50 hover:text-teal-700 px-2 py-0.5 rounded-lg border border-slate-200 hover:border-teal-300 transition group cursor-pointer active:scale-95" title="클릭하면 번호가 복사됩니다">
-                  <strong class="text-slate-900 group-hover:text-teal-800">${phone}</strong>
-                  <span class="text-[11px] text-slate-400 group-hover:text-teal-600">📋 복사</span>
-                </button>
-                <span>${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}</span>
-                <span>${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
+              <p class="text-sm text-slate-600">
+                보호자: <strong>${phone}</strong> ${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}
+                ${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}
               </p>
 
               <div class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 leading-relaxed whitespace-pre-line">
@@ -458,7 +406,7 @@
                 <option value="완료" ${isComp ? 'selected' : ''}>✅ 진료 완료</option>
               </select>
               <button onclick="deleteReception(${item.id})" class="px-2.5 py-2 text-xs font-semibold rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition flex items-center gap-1 shadow-sm" title="접수 삭제">
-                🗑️️ 삭제
+                🗑️ 삭제
               </button>
             </div>
           </div>
@@ -479,7 +427,7 @@
       }
     }
 
-    // 접수 내역 삭제 함수
+    // 신규 추가: 접수 내역 삭제 함수
     async function deleteReception(id) {
       if (!confirm('정말 이 환자의 접수 내역을 삭제하시겠습니까?')) return;
       try {
