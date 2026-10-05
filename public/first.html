@@ -107,7 +107,7 @@
         </div>
       </div>
 
-      <!-- 카드 2: 반려동물 정보 (요청하신 3단 구조로 재배치) -->
+      <!-- 카드 2: 반려동물 정보 -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center font-bold">
@@ -123,9 +123,9 @@
 
         <div class="space-y-4">
           
-          <!-- [1번째 칸] 맨 위: 동물 종류 (7개) -->
+          <!-- [1번째 칸] 동물 종류 (상단 글씨 가운데 정렬) -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-2">동물 종류 <span class="text-rose-500">*</span></label>
+            <label class="block text-xs font-bold text-slate-700 mb-2 text-center">동물 종류 <span class="text-rose-500">*</span></label>
             <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
               <button type="button" onclick="selectSpecies('강아지')" id="spec-강아지" class="species-btn py-3 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">강아지</button>
               <button type="button" onclick="selectSpecies('고양이')" id="spec-고양이" class="species-btn py-3 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">고양이</button>
@@ -137,11 +137,11 @@
             </div>
           </div>
 
-          <!-- [2번째 칸] 그 다음칸: 동물 이름, 품종, 성별, 체중 -->
+          <!-- [2번째 칸] 동물 이름, 품종, 성별, 체중 (상단 글씨만 중앙 정렬) -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
             <!-- 1. 동물 이름 -->
             <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">동물 이름 <span class="text-rose-500">*</span></label>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">동물 이름 <span class="text-rose-500">*</span></label>
               <input 
                 type="text" 
                 id="petName" 
@@ -153,7 +153,7 @@
 
             <!-- 2. 품종 -->
             <div class="md:col-span-3">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">품종</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">품종</label>
               <input 
                 type="text" 
                 id="breed" 
@@ -164,7 +164,7 @@
 
             <!-- 3. 성별 & 중성화 -->
             <div class="md:col-span-4">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">성별 <span class="text-rose-500">*</span></label>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">성별 <span class="text-rose-500">*</span></label>
               <div class="flex items-center gap-1.5 h-[50px]">
                 <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn flex-1 h-full text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">암컷</button>
                 <button type="button" onclick="selectGender('수컷')" id="gender-수컷" class="gender-btn flex-1 h-full text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">수컷</button>
@@ -177,7 +177,7 @@
 
             <!-- 4. 체중 -->
             <div class="md:col-span-2">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">체중</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">체중</label>
               <div class="relative">
                 <input 
                   type="number" 
@@ -191,12 +191,14 @@
             </div>
           </div>
 
-          <!-- [3번째 칸] 생년월일 + 나이(몇년 몇개월) + 성격 -->
+          <!-- [3번째 칸] 생년월일 + 나이 + 성격 (상단 글씨만 중앙 정렬) -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end pt-1">
-            <!-- 생년월일 및 나이 (년, 개월) -->
+            <!-- 생년월일 및 나이 -->
             <div class="md:col-span-7">
-              <div class="flex items-center justify-between mb-1.5">
+              <!-- 생년월일과 나이 라벨을 가운데(중앙)로 배치 -->
+              <div class="flex items-center justify-center gap-2 mb-1.5">
                 <label class="text-xs font-bold text-slate-700">생년월일 <span class="text-rose-500">*</span></label>
+                <span class="text-slate-300 text-xs">|</span>
                 <div class="flex items-center gap-1 text-xs font-bold text-teal-700">
                   <span>나이:</span>
                   <input 
@@ -222,7 +224,7 @@
                 </div>
               </div>
 
-              <!-- 년, 월, 일 드롭다운 -->
+              <!-- 년, 월, 일 드롭다운 (입력 영역은 기본 유지) -->
               <div class="grid grid-cols-3 gap-2">
                 <select id="birthYear" onchange="handleDateSelect()" class="w-full px-2 py-3 rounded-2xl border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition">
                   <option value="">년도 선택</option>
@@ -236,9 +238,9 @@
               </div>
             </div>
 
-            <!-- 성격 선택 -->
+            <!-- 성격 선택 (상단 글씨만 중앙 정렬) -->
             <div class="md:col-span-5">
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">성격 <span class="text-rose-500">*</span></label>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">성격 <span class="text-rose-500">*</span></label>
               <div class="grid grid-cols-3 gap-2 h-[48px]">
                 <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn h-full text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">온순</button>
                 <button type="button" onclick="selectPersonality('활발')" id="pers-활발" class="personality-btn h-full text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">활발</button>
