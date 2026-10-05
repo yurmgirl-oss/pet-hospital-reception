@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>23시 동물병원 - 데스크 접수 현황판</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- HTML to Canvas 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     body { font-family: 'Pretendard', sans-serif; }
     
-    /* A4 표준 규격 캔버스 (794px x 1123px, 96 DPI 기준 정확한 1 : 1.414 비율) */
     #print-sheet {
       position: fixed;
       left: -9999px;
@@ -74,9 +72,8 @@
     </div>
   </div>
 
-  <!-- A4 맞춤형 초진 서식 템플릿 (화면 밖에서 정밀 렌더링) -->
+  <!-- A4 맞춤형 초진 서식 템플릿 -->
   <div id="print-sheet">
-    <!-- 1. 상단 타이틀 & 병원 확인 영역 -->
     <div>
       <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3">
         <div>
@@ -85,7 +82,6 @@
           <p class="text-[11px] text-slate-500 mt-0.5">본 서식은 내원 시 보호자가 직접 작성한 전자 접수 원본 기록입니다.</p>
         </div>
         
-        <!-- 원내 확인 결재란 -->
         <table class="border-collapse border border-slate-400 text-xs text-center w-40">
           <tr class="bg-slate-100 font-semibold text-slate-700">
             <td class="border border-slate-400 py-1 w-1/2">접수확인</td>
@@ -98,13 +94,11 @@
         </table>
       </div>
 
-      <!-- 접수 번호 및 일시 -->
       <div class="flex justify-between text-xs text-slate-600 font-mono mt-2 mb-4 px-1">
         <span id="doc-id">접수번호: #0</span>
         <span id="doc-date">접수일시: 2026-00-00 00:00:00</span>
       </div>
 
-      <!-- 2. 기본 정보 표 (보호자 & 환자) -->
       <div class="mb-4">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
           <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 1. 보호자 및 환자 기본 정보
@@ -135,7 +129,6 @@
         </table>
       </div>
 
-      <!-- 3. 주 증상 및 내원 사유 -->
       <div class="mb-4">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
           <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 2. 주요 증상 및 내원 사유
@@ -145,7 +138,6 @@
         </div>
       </div>
 
-      <!-- 4. 추가 처치 요청 내역 -->
       <div class="mb-4">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
           <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 3. 추가 기본 처치 희망 내역
@@ -158,7 +150,6 @@
         </table>
       </div>
 
-      <!-- 5. 원내 진료/처치 기록란 (종이 출력 시 수기 기재용) -->
       <div>
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
           <span class="w-1.5 h-3 bg-slate-600 rounded-sm"></span> 4. 원내 기초 바이탈 및 진료 메모 (의료진 작성란)
@@ -185,7 +176,6 @@
       </div>
     </div>
 
-    <!-- 하단 서명 및 동의 영역 -->
     <div class="border-t border-slate-300 pt-3 text-[11px] text-slate-500">
       <div class="flex justify-between items-end">
         <div>
@@ -204,14 +194,12 @@
     let knownIds = new Set();
     let isFirstLoad = true;
 
-    // 브라우저 Web Audio API로 생성하는 맑은 "띵-동" 소리
     function playDingDong() {
       if (!soundEnabled) return;
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const now = audioCtx.currentTime;
 
-        // 1음: 659.25Hz (E5)
         const osc1 = audioCtx.createOscillator();
         const gain1 = audioCtx.createGain();
         osc1.frequency.setValueAtTime(659.25, now);
@@ -222,7 +210,6 @@
         osc1.start(now);
         osc1.stop(now + 0.45);
 
-        // 2음: 523.25Hz (C5)
         const osc2 = audioCtx.createOscillator();
         const gain2 = audioCtx.createGain();
         osc2.frequency.setValueAtTime(523.25, now + 0.22);
@@ -297,7 +284,9 @@
 
       container.innerHTML = list.map(item => {
         let payload = {};
-        try { payload = typeof item.payload === 'string' ? JSON.parse(item.payload) : (item.payload || {}); } catch(e){}
+        try { 
+          payload = typeof item.payload === 'string' ? JSON.parse(item.payload) : (item.payload || {}); 
+        } catch(e){}
 
         const isFirst = item.type === 'FIRST' || item.type === '초진';
         const typeBadge = isFirst
@@ -316,22 +305,71 @@
 
         const timeStr = item.created_at ? new Date(item.created_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
 
+        // 1. 전화번호 추출 (모든 변수명 호환)
+        const phone = item.phone || item.owner_phone || item.guardian_phone || '-';
+
+        // 2. 내원 사유 추출 (모든 변수명 호환)
+        const displayReason = (item.reason && item.reason.trim())
+          || (item.symptoms && item.symptoms.trim())
+          || (item.memo && item.memo.trim())
+          || (payload.reason && payload.reason.trim())
+          || '기재된 내원 사유가 없습니다.';
+
+        // 3. 내원 예정일 뱃지 (payload 또는 텍스트에서 자동 추출)
+        let scheduleBadge = '';
+        if (payload.expected_date || payload.expected_time) {
+          const dateStr = payload.expected_date ? payload.expected_date : '';
+          const timeSlot = payload.expected_time ? `(${payload.expected_time})` : '';
+          scheduleBadge = `
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              📅 내원예정: ${dateStr} ${timeSlot}
+            </span>
+          `;
+        }
+
+        // 4. 추가 처치 목록 칩 태그
+        let treatmentsArray = [];
+        if (Array.isArray(payload.treatments)) {
+          treatmentsArray = payload.treatments;
+        }
+
+        let treatmentsHtml = '';
+        if (treatmentsArray.length > 0) {
+          treatmentsHtml = `
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+              <span class="text-[11px] font-bold text-slate-500 mr-0.5">추가 의뢰:</span>
+              ${treatmentsArray.map(t => `
+                <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-teal-50 text-[#0d9488] border border-teal-200">
+                  + ${t}
+                </span>
+              `).join('')}
+            </div>
+          `;
+        }
+
         return `
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-slate-300 transition">
             <div class="space-y-1.5 flex-1">
-              <div class="flex items-center gap-2">
+              <div class="flex flex-wrap items-center gap-2">
                 ${typeBadge}
-                <h3 class="text-lg font-bold text-slate-900">${item.pet_name || '이름 없음'}</h3>
+                <h3 class="text-lg font-bold text-slate-900">${item.pet_name || item.name || '이름 없음'}</h3>
                 <span class="text-xs text-slate-400 font-mono">${timeStr}</span>
+                ${scheduleBadge}
                 ${downloadBtn}
               </div>
+
               <p class="text-sm text-slate-600">
-                보호자: <strong>${item.owner_phone || '-'}</strong> ${payload.guardian_name ? `(${payload.guardian_name})` : ''}
+                보호자: <strong>${phone}</strong> ${payload.guardian_name ? `(${payload.guardian_name})` : ''}
                 ${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}
               </p>
-              <p class="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-100 mt-1">
-                증상: ${payload.reason || item.symptoms || '작성된 내원 사유가 없습니다.'}
-              </p>
+
+              <!-- 내원 사유 전체 출력 박스 (줄바꿈 보존) -->
+              <div class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 leading-relaxed whitespace-pre-line">
+                <strong class="text-slate-800">[내원 사유]</strong> ${displayReason}
+              </div>
+
+              <!-- 추가 처치 칩 태그 -->
+              ${treatmentsHtml}
             </div>
 
             <!-- 상태 변경 셀렉트박스 -->
@@ -360,7 +398,6 @@
       }
     }
 
-    // A4 규격 정밀 캡처 다운로드 함수
     async function downloadIntakeSheet(item) {
       let payload = {};
       try { payload = typeof item.payload === 'string' ? JSON.parse(item.payload) : (item.payload || {}); } catch(e){}
@@ -368,24 +405,22 @@
       document.getElementById('doc-id').innerText = `접수번호: #${item.id}`;
       document.getElementById('doc-date').innerText = `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`;
       document.getElementById('doc-guardian').innerText = payload.guardian_name || '미기재';
-      document.getElementById('doc-phone').innerText = item.owner_phone || '-';
+      document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
       document.getElementById('doc-address').innerText = payload.address || '미기재';
-      document.getElementById('doc-pet').innerText = item.pet_name || '-';
+      document.getElementById('doc-pet').innerText = item.pet_name || item.name || '-';
       document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
       document.getElementById('doc-weight').innerText = payload.weight ? `${payload.weight} kg` : '미기재';
-      document.getElementById('doc-reason').innerText = payload.reason || item.symptoms || '기재된 증상 없음';
+      document.getElementById('doc-reason').innerText = item.reason || item.symptoms || payload.reason || '기재된 증상 없음';
 
       const extraList = [];
-      if (payload.anal_sac) extraList.push('항문낭 관리 (5,000원)');
-      if (payload.nail_trim) extraList.push('기본 발톱 관리 (10,000원)');
-      if (payload.ear_clean) extraList.push('귀 세정 관리 (10,000원)');
-      if (payload.heartworm) extraList.push('심장사상충 예방');
+      if (Array.isArray(payload.treatments)) {
+        extraList.push(...payload.treatments);
+      }
       document.getElementById('doc-treatments').innerText = extraList.length > 0 ? extraList.join('  |  ') : '선택 처치 없음';
 
       const sheetElement = document.getElementById('print-sheet');
 
       try {
-        // scale: 2 적용으로 인쇄용 고해상도(300 DPI급 선명도) 획득
         const canvas = await html2canvas(sheetElement, { 
           scale: 2,
           useCORS: true,
@@ -393,7 +428,7 @@
         });
         const imageURL = canvas.toDataURL('image/png');
         const link = document.createElement('a');
-        const cleanPhone = (item.owner_phone || '0000').slice(-4);
+        const cleanPhone = (item.phone || item.owner_phone || '0000').slice(-4);
         link.download = `[초진기록지]_${item.pet_name || '환자'}_${cleanPhone}.png`;
         link.href = imageURL;
         link.click();
@@ -402,7 +437,6 @@
       }
     }
 
-    // 초기 실행 및 5초 주기 자동 갱신
     fetchReceptions();
     setInterval(() => fetchReceptions(), 5000);
   </script>
