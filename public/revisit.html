@@ -27,7 +27,7 @@
 
   <div class="w-full max-w-3xl space-y-6 my-4">
     
-    <!-- 1. 헤더 영역 -->
+    <!-- 헤더 -->
     <header class="space-y-2">
       <p class="text-xs font-bold tracking-widest text-[#0d9488] uppercase">Return Visit Intake</p>
       <h1 class="text-4xl md:text-5xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">재진 접수서</h1>
@@ -94,7 +94,6 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- 좌측 증상 상세 메모 -->
           <div class="md:col-span-2">
             <textarea 
               id="reason" 
@@ -104,7 +103,6 @@
             ></textarea>
           </div>
 
-          <!-- 우측 내원 예정일 & 시간대 선택 -->
           <div class="flex flex-col justify-between space-y-3 bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100">
             <div>
               <label class="block text-xs font-bold text-slate-700 text-center mb-1.5">내원 예정일</label>
@@ -148,7 +146,6 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
-          
           <label class="treatment-card flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 hover:border-teal-300 transition cursor-pointer select-none">
             <div class="flex items-center gap-2.5">
               <input type="checkbox" name="treatment" value="항문낭짜기" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
@@ -215,13 +212,11 @@
             </div>
             <span class="font-bold text-[#0d9488]">98,000원</span>
           </label>
-
         </div>
       </div>
 
-      <!-- 4. 하단 버튼 바 (2.5 : 2.5 : 5 비율 및 차별화된 색상) -->
+      <!-- 하단 버튼 바 (2.5 : 2.5 : 5 비율) -->
       <div class="pt-2 flex items-center gap-2.5 w-full">
-        <!-- 1) 홈화면 가기 (25% 비율, 세련된 다크 슬레이트 네이비) -->
         <a 
           href="index.html" 
           style="flex: 2.5;"
@@ -233,7 +228,6 @@
           <span>홈으로</span>
         </a>
 
-        <!-- 2) 다시 작성하기 (25% 비율, 경쾌한 앰버 웜톤) -->
         <button 
           type="button" 
           onclick="resetFormWithConfirm()" 
@@ -246,7 +240,6 @@
           <span>다시 작성</span>
         </button>
 
-        <!-- 3) 재진접수 제출하기 (50% 비율, 시그니처 딥 틸/에메랄드) -->
         <button 
           type="submit" 
           id="submitBtn"
@@ -322,6 +315,7 @@
       }
     }
 
+    // 서버로 데이터 전송 (모든 변수명 호환 + 정보 무손실 결합)
     async function submitForm(e) {
       e.preventDefault();
       const submitBtn = document.getElementById('submitBtn');
@@ -335,6 +329,15 @@
       const treatmentCheckboxes = document.querySelectorAll('input[name="treatment"]:checked');
       const treatments = Array.from(treatmentCheckboxes).map(c => c.value);
 
+      // 1. 내원 예정일 / 추가 처치가 어떤 환경에서도 누락되지 않도록 통합 요약문 생성
+      let fullSummary = reason || '작성된 내원 사유 없음';
+      if (expectedDate || selectedTimeSlot) {
+        fullSummary += `\n[내원예정: ${expectedDate || ''} ${selectedTimeSlot ? '(' + selectedTimeSlot + ')' : ''}]`;
+      }
+      if (treatments.length > 0) {
+        fullSummary += `\n[추가처치: ${treatments.join(', ')}]`;
+      }
+
       const payloadData = {
         reason: reason,
         expected_date: expectedDate,
@@ -342,12 +345,21 @@
         treatments: treatments
       };
 
-      // symptoms에도 reason을 그대로 전달하여 카운터에서 어떤 경로로 읽든 100% 나오도록 보장
+      // 2. 서버가 어떤 필드명을 쓰든 100% 매칭되도록 전체 필드 동시 전달
       const requestBody = {
         type: 'RETURN',
-        owner_phone: phone,
+        // 이름
         pet_name: petName,
-        symptoms: reason || '기재된 내원 사유 없음',
+        name: petName,
+        // 전화번호
+        phone: phone,
+        owner_phone: phone,
+        guardian_phone: phone,
+        // 증상 및 내원사유 (단일 필드만 저장하는 DB에서도 100% 다 보이게 처리)
+        reason: fullSummary,
+        symptoms: fullSummary,
+        memo: fullSummary,
+        // JSON 형태 옵션
         payload: JSON.stringify(payloadData)
       };
 
@@ -365,7 +377,7 @@
           throw new Error('서버 응답 오류 (' + res.status + ')');
         }
 
-        alert('✅ 재진 접수가 정상적으로 완료되었습니다!\n진료실 대기 현황판에 등록되었습니다.');
+        alert('✅ 재진 접수가 완료되었습니다!\n카운터 화면에서 확인해 보세요.');
         window.location.href = 'index.html';
 
       } catch (err) {
