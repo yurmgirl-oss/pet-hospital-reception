@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>23시 동물병원 - 접수 안내</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap">
+  <style>
+    body { 
+      font-family: 'Pretendard', sans-serif; 
+      background-color: #f8fafc;
+      background-image: 
+        linear-gradient(to right, rgba(203, 213, 225, 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(203, 213, 225, 0.45) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+    .font-serif-title {
+      font-family: 'Nanum Myeongjo', serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 p-4 md:p-8 flex items-center justify-center">
+
+  <div class="w-full max-w-xl space-y-8 my-auto">
+    
+    <!-- 병원 타이틀 헤더 -->
+    <header class="text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-[#0d9488] text-xs font-bold tracking-wide">
+        <span>🐾 23시 동물병원 진료 접수</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">
+        어서오세요
+      </h1>
+      <p class="text-slate-500 text-sm md:text-base font-medium">
+        방문해 주셔서 감사합니다. 접수 유형을 선택해 주세요.
+      </p>
+      <div class="h-1.5 w-24 bg-[#0d9488] rounded-full mx-auto mt-4"></div>
+    </header>
+
+    <!-- 접수 선택 카드 (초진 / 재진) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      
+      <!-- 1. 초진 접수 버튼 -->
+      <a 
+        href="first.html"
+        class="group relative bg-white rounded-3xl p-7 border-2 border-transparent hover:border-teal-500 shadow-lg shadow-teal-900/5 hover:shadow-teal-500/15 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1"
+      >
+        <div class="w-16 h-16 rounded-2xl bg-teal-50 text-[#0d9488] group-hover:bg-[#0d9488] group-hover:text-white flex items-center justify-center mb-5 transition-colors duration-300 shadow-sm">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+          </svg>
+        </div>
+        <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full mb-2">첫 방문</span>
+        <h2 class="text-xl font-extrabold text-slate-900 mb-2">초진 접수</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          우리 아이가 병원에<br><strong>처음 방문</strong>했거나 오랜만이에요
+        </p>
+        <div class="mt-6 w-full py-3 rounded-xl bg-teal-50 text-[#0d9488] font-bold text-sm group-hover:bg-[#0d9488] group-hover:text-white transition">
+          초진 작성하기 →
+        </div>
+      </a>
+
+      <!-- 2. 재진 접수 버튼 -->
+      <a 
+        href="revisit.html"
+        class="group relative bg-white rounded-3xl p-7 border-2 border-transparent hover:border-indigo-500 shadow-lg shadow-indigo-900/5 hover:shadow-indigo-500/15 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1"
+      >
+        <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center mb-5 transition-colors duration-300 shadow-sm">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+        </div>
+        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full mb-2">재방문</span>
+        <h2 class="text-xl font-extrabold text-slate-900 mb-2">재진 접수</h2>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          진료 차트가 이미 있고<br><strong>다시 진료</strong>를 받으러 왔어요
+        </p>
+        <div class="mt-6 w-full py-3 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-sm group-hover:bg-indigo-600 group-hover:text-white transition">
+          재진 작성하기 →
+        </div>
+      </a>
+
+    </div>
+
+    <!-- 하단 카운터 바로가기 (비밀번호 52 입력 시 이동) -->
+    <div class="text-center pt-4">
+      <button 
+        type="button" 
+        onclick="enterCounter()" 
+        class="text-xs text-slate-400 hover:text-slate-600 underline underline-offset-4 transition"
+      >
+        🔒 데스크 / 카운터 현황판 바로가기
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    // 카운터 접근 시 비밀번호 52 검증
+    function enterCounter() {
+      const pw = prompt('카운터 관리 비밀번호를 입력해주세요:');
+      if (pw === '52') {
+        // 카운터 페이지 주소로 이동 (예: counter.html 또는 /counter)
+        window.location.href = 'counter.html';
+      } else if (pw !== null) {
+        alert('❌ 비밀번호가 올바르지 않습니다.');
+      }
+    }
+  </script>
+
+</body>
+</html>
