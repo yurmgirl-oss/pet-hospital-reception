@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘의 진료 현황 - 카운터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#f0f4f4] min-h-screen p-6 font-sans">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">오늘의 진료 현황</h1>
+        <p class="text-xs text-slate-500 mt-1">접수 현황을 확인하고 진료 상태를 변경하세요. (3일 경과 시 자동 영구 삭제)</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-xs bg-white px-3 py-2 rounded-lg border text-slate-600 hover:bg-slate-50">홈 화면</a>
+        <button onclick="loadList()" class="text-xs bg-teal-700 text-white px-3 py-2 rounded-lg hover:bg-teal-800">새로고침</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-xl border border-slate-200">
+        <div class="text-xs text-slate-400">총 접수</div>
+        <div id="cnt-total" class="text-2xl font-bold text-slate-800 mt-1">0명</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200">
+        <div class="text-xs text-amber-500 font-semibold">접수 대기</div>
+        <div id="cnt-wait" class="text-2xl font-bold text-amber-600 mt-1">0명</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200">
+        <div class="text-xs text-teal-600 font-semibold">진료 중</div>
+        <div id="cnt-progress" class="text-2xl font-bold text-teal-700 mt-1">0명</div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200">
+        <div class="text-xs text-slate-400">진료 완료</div>
+        <div id="cnt-done" class="text-2xl font-bold text-slate-400 mt-1">0명</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-slate-700 mb-4">접수 현황 목록</h2>
+      <div id="listContainer" class="space-y-3">
+        <div class="text-center py-10 text-slate-400 text-xs">접수 기록을 불러오는 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function updateStatus(id, newStatus) {
+      await fetch('/api/receptions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus })
+      });
+      loadList();
+    }
+
+    async function loadList() {
+      const res = await fetch('/api/receptions');
+      const data = await res.json();
+
+      let wait = 0, progress = 0, done = 0;
+      const container = document.getElementById('listContainer');
+
+      if (!data || data.length === 0) {
+        container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs">현재 접수된 기록이 없습니다.</div>';
+        document.getElementById('cnt-total').textContent = '0명';
+        document.getElementById('cnt-wait').textContent = '0명';
+        document.getElementById('cnt-progress').textContent = '0명';
+        document.getElementById('cnt-done').textContent = '0명';
+        return;
+      }
+
+      data.forEach(item => {
+        if (item.status === '접수대기') wait++;
+        else if (item.status === '진료중') progress++;
+        else if (item.status === '진료완료') done++;
+      });
+
+      document.getElementById('cnt-total').textContent = data.length + '명';
+      document.getElementById('cnt-wait').textContent = wait + '명';
+      document.getElementById('cnt-progress').textContent = progress + '명';
+      document.getElementById('cnt-done').textContent = done + '명';
+
+      container.innerHTML = data.map(item => {
+        const timeStr = item.created_at ? item.created_at.substring(11, 16) : '';
+        const badgeColor = item.type === '초진' ? 'bg-amber-100 text-amber-700' : 'bg-teal-100 text-teal-700';
+
+        return `
+          <div class="flex items-center justify-between p-3.5 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-white transition">
+            <div class="flex items-center gap-3">
+              <span class="w-6 h-6 flex items-center justify-center bg-teal-50 text-teal-800 font-bold text-xs rounded-full">${item.id}</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold ${badgeColor}">${item.type}</span>
+              <div>
+                <span class="font-bold text-slate-800 text-sm">${item.pet_name}</span>
+                <span class="text-xs text-slate-400 ml-1">(${item.owner_name || '재진'} / ${item.phone})</span>
+                <div class="text-xs text-slate-500 mt-0.5">${item.symptom || '사유 미입력'}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-slate-400">${timeStr}</span>
+              <select onchange="updateStatus(${item.id}, this.value)" class="text-xs border rounded-lg px-2.5 py-1.5 font-medium outline-none">
+                <option value="접수대기" ${item.status === '접수대기' ? 'selected' : ''}>접수대기</option>
+                <option value="진료중" ${item.status === '진료중' ? 'selected' : ''}>진료중</option>
+                <option value="진료완료" ${item.status === '진료완료' ? 'selected' : ''}>진료완료</option>
+              </select>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    loadList();
+    setInterval(loadList, 10000);
+  </script>
+</body>
+</html>
