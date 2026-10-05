@@ -42,3 +42,17 @@ export async function onRequestPatch({ request, env }) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }
+
+// 개별 접수 삭제 (DELETE 요청 처리)
+export async function onRequestDelete({ request, env }) {
+  try {
+    const { id } = await request.json();
+    if (!id) {
+      return new Response(JSON.stringify({ error: "삭제할 id가 필요합니다." }), { status: 400 });
+    }
+    await env.DB.prepare("DELETE FROM receptions WHERE id = ?").bind(id).run();
+    return Response.json({ success: true });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  }
+}
