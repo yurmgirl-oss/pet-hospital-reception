@@ -113,8 +113,8 @@
         </div>
       </div>
 
-      <!-- 카드 2: 반려동물 정보 -->
-      <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
+      <!-- 카드 2: 반려동물 정보 (조밀하고 깔끔한 3단 컴팩트 레이아웃) -->
+      <div class="bg-white rounded-3xl p-5 md:p-6 border border-slate-200/80 shadow-sm space-y-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center font-bold">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -123,95 +123,126 @@
           </div>
           <div>
             <h2 class="text-base font-bold text-slate-900">반려동물 정보</h2>
-            <p class="text-xs text-slate-400">성격은 진료실의 안전을 위해 꼭 체크해주세요.</p>
+            <p class="text-xs text-slate-400">아이의 기본 정보와 성격을 알려주세요.</p>
           </div>
         </div>
 
-        <div class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-3.5 pt-1">
+          <!-- 1단: 동물 종류 -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">동물 종류 <span class="text-rose-500">*</span></label>
+            <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+              <button type="button" onclick="selectSpecies('강아지')" id="spec-강아지" class="species-btn py-2.5 text-xs font-bold rounded-xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">강아지</button>
+              <button type="button" onclick="selectSpecies('고양이')" id="spec-고양이" class="species-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">고양이</button>
+              <button type="button" onclick="selectSpecies('햄스터')" id="spec-햄스터" class="species-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">햄스터</button>
+              <button type="button" onclick="selectSpecies('앵무새')" id="spec-앵무새" class="species-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">앵무새</button>
+              <button type="button" onclick="selectSpecies('파충류')" id="spec-파충류" class="species-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">파충류</button>
+              <button type="button" onclick="selectSpecies('토끼')" id="spec-토끼" class="species-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">토끼</button>
+              <button type="button" onclick="selectSpecies('기타')" id="spec-기타" class="species-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">기타</button>
+            </div>
+          </div>
+
+          <!-- 2단: 이름 / 품종 / 체중 (가로 3단 그리드) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">동물 이름 <span class="text-rose-500">*</span></label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">동물 이름 <span class="text-rose-500">*</span></label>
               <input 
                 type="text" 
                 id="petName" 
                 required
                 placeholder="아이의 이름" 
-                class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-500/10 transition"
               >
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">품종</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">품종</label>
               <input 
                 type="text" 
                 id="breed" 
-                placeholder="예: 말티즈, 코리안숏헤어" 
-                class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+                placeholder="예: 말티즈, 코숏" 
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-500/10 transition"
               >
             </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-2">동물 종류 <span class="text-rose-500">*</span></label>
-            <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
-              <button type="button" onclick="selectSpecies('강아지')" id="spec-강아지" class="species-btn py-3 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">강아지</button>
-              <button type="button" onclick="selectSpecies('고양이')" id="spec-고양이" class="species-btn py-3 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">고양이</button>
-              <button type="button" onclick="selectSpecies('햄스터')" id="spec-햄스터" class="species-btn py-3 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">햄스터</button>
-              <button type="button" onclick="selectSpecies('앵무새')" id="spec-앵무새" class="species-btn py-3 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">앵무새</button>
-              <button type="button" onclick="selectSpecies('파충류')" id="spec-파충류" class="species-btn py-3 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">파충류</button>
-              <button type="button" onclick="selectSpecies('토끼')" id="spec-토끼" class="species-btn py-3 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">토끼</button>
-              <button type="button" onclick="selectSpecies('기타')" id="spec-기타" class="species-btn py-3 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">기타</button>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-2">성별 <span class="text-rose-500">*</span></label>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn py-3.5 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">암컷</button>
-                <button type="button" onclick="selectGender('수컷')" id="gender-수컷" class="gender-btn py-3.5 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">수컷</button>
-              </div>
-              <label class="flex items-center gap-2.5 px-4 py-3.5 rounded-2xl border border-slate-200 bg-white cursor-pointer select-none hover:border-teal-300 transition">
-                <input type="checkbox" id="neutered" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
-                <span class="text-xs font-bold text-slate-700">중성화 했어요</span>
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">생년월일 <span class="text-rose-500">*</span></label>
-            <input 
-              type="date" 
-              id="birthDate" 
-              required
-              onchange="calculateAge(this.value)"
-              class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-700 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
-            >
-            <p id="ageNotice" class="text-[11px] text-slate-400 mt-1.5">입력하시면 나이가 자동으로 계산됩니다</p>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">체중</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">체중</label>
               <div class="relative">
                 <input 
                   type="number" 
                   step="0.1" 
                   id="weight" 
-                  placeholder="0" 
-                  class="w-full pl-4 pr-12 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+                  placeholder="0.0" 
+                  class="w-full pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-500/10 transition"
                 >
-                <span class="absolute right-4 top-3.5 text-xs font-bold text-slate-400">kg</span>
+                <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400">kg</span>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1.5">대략적인 체중도 괜찮아요</p>
             </div>
+          </div>
 
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">성격 <span class="text-rose-500">*</span></label>
-              <div class="grid grid-cols-3 gap-2">
-                <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn py-3.5 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">온순</button>
-                <button type="button" onclick="selectPersonality('활발')" id="pers-활발" class="personality-btn py-3.5 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">활발</button>
-                <button type="button" onclick="selectPersonality('예민')" id="pers-예민" class="personality-btn py-3.5 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition">예민</button>
+          <!-- 3단: 성별 & 중성화 (인라인 결합) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">성별 및 중성화 <span class="text-rose-500">*</span></label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn py-2.5 text-xs font-bold rounded-xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">암컷</button>
+                <button type="button" onclick="selectGender('수컷')" id="gender-수컷" class="gender-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">수컷</button>
               </div>
+              <label class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer select-none hover:border-teal-300 transition">
+                <input type="checkbox" id="neutered" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
+                <span class="text-xs font-bold text-slate-700">중성화 수술을 했어요</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4단: 생년월일 & 나이 실시간 상호 연동 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">생년월일 <span class="text-rose-500">*</span></label>
+              <input 
+                type="date" 
+                id="birthDate" 
+                required
+                onchange="syncFromBirthDate(this.value)"
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-medium focus:outline-none focus:border-[#0d9488]"
+              >
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">현재 나이 (직접 입력 시 생년월일 자동 계산)</label>
+              <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                  <input 
+                    type="number" 
+                    id="petAgeYears" 
+                    min="0" 
+                    max="30" 
+                    placeholder="0" 
+                    oninput="syncFromAge()"
+                    class="w-full pl-3 pr-7 py-2 rounded-xl border border-slate-200 bg-white text-slate-800 text-xs text-center focus:outline-none focus:border-[#0d9488]"
+                  >
+                  <span class="absolute right-2.5 top-2 text-[11px] font-bold text-slate-400">살</span>
+                </div>
+                <div class="relative flex-1">
+                  <input 
+                    type="number" 
+                    id="petAgeMonths" 
+                    min="0" 
+                    max="11" 
+                    placeholder="0" 
+                    oninput="syncFromAge()"
+                    class="w-full pl-3 pr-9 py-2 rounded-xl border border-slate-200 bg-white text-slate-800 text-xs text-center focus:outline-none focus:border-[#0d9488]"
+                  >
+                  <span class="absolute right-2.5 top-2 text-[11px] font-bold text-slate-400">개월</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5단: 성격 -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">아이 성격 <span class="text-rose-500">*</span></label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn py-2.5 text-xs font-bold rounded-xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition">온순함</button>
+              <button type="button" onclick="selectPersonality('활발')" id="pers-활발" class="personality-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">활발함</button>
+              <button type="button" onclick="selectPersonality('예민')" id="pers-예민" class="personality-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition">예민·겁많음</button>
             </div>
           </div>
         </div>
@@ -414,7 +445,7 @@
         </div>
       </div>
 
-      <!-- 하단 버튼 바 -->
+      <!-- 하단 버튼 바 (2.5 : 2.5 : 5 비율 & 틸 그린 테마 적용) -->
       <div class="pt-2 flex items-center gap-2.5 w-full">
         <a 
           href="index.html" 
@@ -443,9 +474,9 @@
           type="submit" 
           id="submitBtn" 
           style="flex: 5;"
-          class="py-4 px-4 rounded-2xl bg-[#1e293b] hover:bg-[#0f172a] active:scale-[0.99] text-white font-bold text-xs sm:text-base shadow-lg shadow-slate-900/20 flex items-center justify-center gap-1.5 transition"
+          class="py-4 px-4 rounded-2xl bg-[#0d9488] hover:bg-[#0f766e] active:scale-[0.99] text-white font-bold text-xs sm:text-base shadow-md shadow-teal-700/20 flex items-center justify-center gap-1.5 transition"
         >
-          <span>접수서 제출하기</span>
+          <span>초진 접수서 제출하기</span>
           <span class="text-base sm:text-lg">→</span>
         </button>
       </div>
@@ -576,7 +607,8 @@
       else input.value = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7, 11);
     }
 
-    function calculateAge(birthStr) {
+    // [생년월일 -> 나이(년/개월) 실시간 동기화]
+    function syncFromBirthDate(birthStr) {
       if (!birthStr) return;
       const birth = new Date(birthStr);
       const today = new Date();
@@ -585,34 +617,47 @@
       const years = Math.floor(months / 12);
       const remMonths = months % 12;
 
-      let ageText = years > 0 ? `현재 나이: 약 ${years}살 ${remMonths}개월` : `현재 나이: 약 ${remMonths}개월`;
-      const notice = document.getElementById('ageNotice');
-      notice.innerText = `🎂 ${ageText}`;
-      notice.className = "text-[11px] font-bold text-teal-700 mt-1.5";
+      document.getElementById('petAgeYears').value = years;
+      document.getElementById('petAgeMonths').value = remMonths;
+    }
+
+    // [나이(년/개월) 입력 -> 생년월일 자동 계산 및 동기화]
+    function syncFromAge() {
+      const years = parseInt(document.getElementById('petAgeYears').value || 0, 10);
+      const months = parseInt(document.getElementById('petAgeMonths').value || 0, 10);
+      const totalMonths = (years * 12) + months;
+
+      const target = new Date();
+      target.setMonth(target.getMonth() - totalMonths);
+      const yyyy = target.getFullYear();
+      const mm = String(target.getMonth() + 1).padStart(2, '0');
+      const dd = String(target.getDate()).padStart(2, '0');
+
+      document.getElementById('birthDate').value = `${yyyy}-${mm}-${dd}`;
     }
 
     function selectSpecies(spec) {
       selectedSpecies = spec;
       document.querySelectorAll('.species-btn').forEach(btn => {
-        btn.className = "species-btn py-3 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition";
+        btn.className = "species-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition";
       });
-      document.getElementById(`spec-${spec}`).className = "species-btn py-3 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition";
+      document.getElementById(`spec-${spec}`).className = "species-btn py-2.5 text-xs font-bold rounded-xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition";
     }
 
     function selectGender(gen) {
       selectedGender = gen;
       document.querySelectorAll('.gender-btn').forEach(btn => {
-        btn.className = "gender-btn py-3.5 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition";
+        btn.className = "gender-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition";
       });
-      document.getElementById(`gender-${gen}`).className = "gender-btn py-3.5 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition";
+      document.getElementById(`gender-${gen}`).className = "gender-btn py-2.5 text-xs font-bold rounded-xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition";
     }
 
     function selectPersonality(pers) {
       selectedPersonality = pers;
       document.querySelectorAll('.personality-btn').forEach(btn => {
-        btn.className = "personality-btn py-3.5 text-xs font-semibold rounded-2xl border border-slate-200 bg-white text-slate-600 transition";
+        btn.className = "personality-btn py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 transition";
       });
-      document.getElementById(`pers-${pers}`).className = "personality-btn py-3.5 text-xs font-bold rounded-2xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition";
+      document.getElementById(`pers-${pers}`).className = "personality-btn py-2.5 text-xs font-bold rounded-xl border border-[#0d9488] bg-teal-50/70 text-teal-800 transition";
     }
 
     function selectTimeSlot(slot) {
@@ -701,6 +746,8 @@
         gender: selectedGender,
         neutered: isNeutered,
         birth_date: birthDate,
+        age_years: document.getElementById('petAgeYears').value,
+        age_months: document.getElementById('petAgeMonths').value,
         weight: weight,
         personality: selectedPersonality,
         reason: reason,
@@ -735,7 +782,7 @@
 
         if (!res.ok) throw new Error('서버 응답 오류 (' + res.status + ')');
 
-        // [카카오톡 알림 발송]
+        // [카카오톡 알림 발송 - 연동 성공 토큰 적용]
         await sendKakaoAlert(guardianName, phone, petName, breed, reason);
 
         alert('✅ 초진 접수와 전자 서명이 정상적으로 완료되었습니다!\n진료실 대기 현황판에 등록되었습니다.');
@@ -749,7 +796,7 @@
       }
     }
 
-    // [카카오톡 '나에게 보내기' 발송 함수 - 토큰 적용 완료]
+    // [카카오톡 '나에게 보내기' 발송 함수]
     async function sendKakaoAlert(guardianName, phone, petName, breed, reason) {
       const KAKAO_TOKEN = "zfqml2on40HQw3Dxcg35WSdUqVw-CTj6AAAAAQoNGZAAAAGhF2oHZXLErHmNOyL0";
 
