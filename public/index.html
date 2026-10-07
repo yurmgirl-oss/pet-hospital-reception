@@ -31,19 +31,23 @@
 
   <div class="w-full max-w-3xl space-y-6 my-4">
     
-    <!-- 1. 헤더 영역 (크고 눈에 잘 띄는 재진 접수서 바로가기 버튼) -->
+    <!-- 1. 헤더 영역 (초진/재진 명확한 구분을 위해 버튼 확대 및 문구 수정) -->
     <header class="space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">초진 접수서</h1>
+        <div>
+          <span class="inline-block text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full mb-1 border border-teal-200">처음 방문하신 보호자님</span>
+          <h1 class="text-4xl md:text-5xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">초진 접수서</h1>
+        </div>
         
+        <!-- 눈에 띄게 키운 재진 접수서 바로가기 버튼 -->
         <a 
           href="revisit.html" 
-          class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#0d9488] hover:bg-[#0f766e] text-white text-sm md:text-base font-bold transition-all shadow-md hover:shadow-lg w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-[#0d9488] hover:bg-[#0f766e] active:scale-[0.98] text-white text-base md:text-lg font-black transition-all shadow-lg hover:shadow-xl w-full sm:w-auto border-2 border-teal-400/30"
         >
-          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
-          <span>2번째 방문이라면 재진 접수서로 가기</span>
+          <span>재진 접수서 (2번째 방문)</span>
         </a>
       </div>
       <p class="text-sm text-slate-500 font-medium">아이를 더 잘 살피기 위해, 아는 만큼 천천히 적어주세요.</p>
@@ -53,7 +57,7 @@
     <!-- 접수 폼 -->
     <form id="firstForm" onsubmit="submitForm(event)" class="space-y-5">
 
-      <!-- 카드 1: 보호자 인적사항 -->
+      <!-- 카드 1: 보호자 인적사항 (주소 & 이메일 5:5 분할 배치 완료) -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-teal-50 text-[#0d9488] flex items-center justify-center font-bold">
@@ -93,20 +97,32 @@
             </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">주소 <span class="text-rose-500">*</span></label>
-            <input 
-              type="text" 
-              id="address" 
-              required 
-              placeholder="거주 지역 또는 주소" 
-              class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
-            >
+          <!-- 주소 및 이메일 5:5 그리드 배치 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">주소 <span class="text-rose-500">*</span></label>
+              <input 
+                type="text" 
+                id="address" 
+                required 
+                placeholder="거주 지역 또는 주소" 
+                class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+              >
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">이메일 <span class="text-xs font-normal text-slate-400">(선택)</span></label>
+              <input 
+                type="email" 
+                id="email" 
+                placeholder="example@email.com (선택입력)" 
+                class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white text-slate-800 placeholder-slate-300 text-sm focus:outline-none focus:border-[#0d9488] focus:ring-4 focus:ring-teal-500/10 transition"
+              >
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 카드 2: 반려동물 정보 (요청하신 조밀하고 직관적인 3단 구조) -->
+      <!-- 카드 2: 반려동물 정보 (조밀하고 직관적인 3단 구조 유지) -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center font-bold">
@@ -380,7 +396,7 @@
         </div>
       </div>
 
-      <!-- 카드 5: 안내 및 동의 + 동적 서명 패드 -->
+      <!-- 카드 5: 안내 및 동의 + 서명 패드 -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border border-slate-200/80 shadow-sm space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
@@ -450,7 +466,6 @@
 
       <!-- 4. 하단 버튼 바 (소프트 인디고 / 앰버 / 에메랄드 그린 컬러) -->
       <div class="pt-2 flex items-center gap-2.5 w-full">
-        <!-- 홈으로 -->
         <a 
           href="index.html" 
           style="flex: 2.5;"
@@ -462,7 +477,6 @@
           <span>홈으로</span>
         </a>
 
-        <!-- 다시 작성 -->
         <button 
           type="button" 
           onclick="resetFormWithConfirm()" 
@@ -475,7 +489,6 @@
           <span>다시 작성</span>
         </button>
 
-        <!-- 접수서 제출하기 -->
         <button 
           type="submit" 
           id="submitBtn"
@@ -507,7 +520,6 @@
 
       const currentYear = new Date().getFullYear();
 
-      // 년도 채우기 (현재 연도부터 과거 30년)
       yearSel.innerHTML = '<option value="">년도 선택</option>';
       for (let y = currentYear; y >= currentYear - 30; y--) {
         const opt = document.createElement('option');
@@ -516,7 +528,6 @@
         yearSel.appendChild(opt);
       }
 
-      // 월 채우기 (1~12월)
       monthSel.innerHTML = '<option value="">월 선택</option>';
       for (let m = 1; m <= 12; m++) {
         const opt = document.createElement('option');
@@ -526,7 +537,6 @@
         monthSel.appendChild(opt);
       }
 
-      // 일 채우기 (1~31일)
       daySel.innerHTML = '<option value="">일 선택</option>';
       for (let d = 1; d <= 31; d++) {
         const opt = document.createElement('option');
@@ -586,7 +596,7 @@
       monthsInput.value = diffMonths % 12;
     }
 
-    // 캔버스 서명 패드 설정
+    // 서명 패드
     const canvas = document.getElementById('signaturePad');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
@@ -606,12 +616,10 @@
       if (!isSigned) resizeCanvas();
     });
 
-    // 마우스 이벤트
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mousemove', draw);
     window.addEventListener('mouseup', stopDrawing);
 
-    // 터치 이벤트
     canvas.addEventListener('touchstart', (e) => {
       const touch = e.touches[0];
       const mouseEvent = new MouseEvent('mousedown', {
@@ -639,10 +647,7 @@
 
     function getPos(e) {
       const rect = canvas.getBoundingClientRect();
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      };
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
     }
 
     function startDrawing(e) {
@@ -687,7 +692,6 @@
       }
     }
 
-    // 동의 체크 확인 시 서명 패드 펼침
     function checkAgreements() {
       const p1 = document.getElementById('agreePrivacy').checked;
       const p2 = document.getElementById('agreeSafety').checked;
@@ -701,7 +705,6 @@
       }
     }
 
-    // 전화번호 포맷팅
     function formatPhone(input) {
       let val = input.value.replace(/[^0-9]/g, '');
       if (val.length < 4) input.value = val;
@@ -709,7 +712,6 @@
       else input.value = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7, 11);
     }
 
-    // 칩 선택 토글 함수들
     function selectSpecies(spec) {
       selectedSpecies = spec;
       document.querySelectorAll('.species-btn').forEach(btn => {
@@ -751,7 +753,6 @@
       });
     }
 
-    // 체크박스 선택 시 테두리 반응
     document.querySelectorAll('.treatment-card input[type="checkbox"]').forEach(chk => {
       chk.addEventListener('change', function() {
         const card = this.closest('.treatment-card');
@@ -805,7 +806,7 @@
       }
       const birthDate = `${birthYear}-${birthMonth}-${birthDay}`;
 
-      // 3. 전자 서명 필수 검증
+      // 3. 서명 검증
       if (!isSigned) {
         alert('✍ 안전한 진료를 위해 안내 및 동의 하단에 서명을 완료해 주세요.');
         document.getElementById('signaturePad').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -818,6 +819,7 @@
       const guardianName = document.getElementById('guardianName').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const address = document.getElementById('address').value.trim();
+      const email = document.getElementById('email').value.trim();
       const petName = document.getElementById('petName').value.trim();
       const breed = document.getElementById('breed').value.trim();
       const weight = document.getElementById('weight').value;
@@ -833,6 +835,7 @@
       const payloadData = {
         guardian_name: guardianName,
         address: address,
+        email: email,
         breed: breed || '믹스/미기재',
         species: selectedSpecies,
         gender: selectedGender,
@@ -857,6 +860,7 @@
         owner_name: guardianName,
         pet_name: petName,
         phone: phone,
+        email: email,
         symptom: reason || '초진 신규 접수',
         payload: payloadData
       };
@@ -873,7 +877,7 @@
 
         if (!res.ok) throw new Error('서버 응답 오류 (' + res.status + ')');
 
-        // [카카오톡 알림 발송 - 테스트 완료된 토큰 적용]
+        // [카카오톡 알림 발송 - 연동 성공 토큰 적용]
         await sendKakaoAlert(guardianName, phone, petName, breed, reason);
 
         alert('✅ 초진 접수와 전자 서명이 정상적으로 완료되었습니다!\n진료실 대기 현황판에 등록되었습니다.');
@@ -887,7 +891,7 @@
       }
     }
 
-    // [카카오톡 알림 발송 전용 함수]
+    // [카카오톡 알림 발송 함수]
     async function sendKakaoAlert(guardianName, phone, petName, breed, reason) {
       const KAKAO_TOKEN = "zfqml2on40HQw3Dxcg35WSdUqVw-CTj6AAAAAQoNGZAAAAGhF2oHZXLErHmNOyL0";
 
