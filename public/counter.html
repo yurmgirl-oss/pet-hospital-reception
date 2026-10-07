@@ -218,14 +218,15 @@
     let soundEnabled = false;
     let knownIds = new Set();
     let isFirstLoad = true;
+    let currentList = []; // 실시간 데이터 저장소
 
-    // 통합 클립보드 복사 함수 (전화번호, 이메일 모두 지원)
+    // 통합 클립보드 복사 함수
     function copyText(text, label = '텍스트') {
       if (!text || text === '-' || text === '미기재') return;
 
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
-          showToast(`📋 ${label} [${text}] 복사 완료!`);
+          showToast(`📋 ${label} 복사 완료!`);
         }).catch(() => fallbackCopy(text, label));
       } else {
         fallbackCopy(text, label);
@@ -241,11 +242,28 @@
       ta.select();
       try {
         document.execCommand('copy');
-        showToast(`📋 ${label} [${text}] 복사 완료!`);
+        showToast(`📋 ${label} 복사 완료!`);
       } catch (err) {
-        alert('복사에 실패했습니다. 번호나 이메일을 직접 드래그해 주세요.');
+        alert('복사에 실패했습니다. 내용을 직접 드래그해 주세요.');
       }
       document.body.removeChild(ta);
+    }
+
+    // 내원 사유 전용 원클릭 복사 함수
+    function copyReason(id) {
+      const item = currentList.find(x => x.id === id);
+      if (!item) return;
+      const payload = unwrapPayload(item.payload);
+      const reason = (payload.reason && payload.reason.trim())
+        || (item.symptom && item.symptom.trim())
+        || (item.symptoms && item.symptoms.trim())
+        || '';
+
+      if (!reason || reason === '작성된 내원 사유가 없습니다.') {
+        showToast('복사할 내원 사유가 없습니다.');
+        return;
+      }
+      copyText(reason, '내원 사유');
     }
 
     // 플로팅 토스트 표시 함수
@@ -265,7 +283,7 @@
       }, 2200);
     }
 
-    // 접수 내역 삭제 함수 (복원 완료)
+    // 접수 내역 삭제 함수
     async function deleteReception(id, petName) {
       if (!confirm(`[${petName}] 환자의 접수 내역을 정말 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) {
         return;
@@ -340,280 +358,7 @@
         const data = await res.json();
         if (!Array.isArray(data)) return;
 
+        currentList = data; // 최신 데이터 동기화
+
         let waiting = 0, progress = 0, done = 0;
-        let hasNew = false;
-
-        data.forEach(item => {
-          const isWait = (item.status === '접수대기' || item.status === '대기');
-          const isProg = (item.status === '진료중');
-          const isComp = (item.status === '완료');
-
-          if (isWait) waiting++;
-          else if (isProg) progress++;
-          else if (isComp) done++;
-
-          if (!isFirstLoad && !knownIds.has(item.id) && isWait) {
-            hasNew = true;
-          }
-        });
-
-        document.getElementById('count-waiting').innerText = waiting;
-        document.getElementById('count-progress').innerText = progress;
-        document.getElementById('count-done').innerText = done;
-
-        if (hasNew) playDingDong();
-
-        knownIds = new Set(data.map(d => d.id));
-        isFirstLoad = false;
-
-        renderList(data);
-      } catch (e) {
-        console.error("조회 실패:", e);
-      }
-    }
-
-    function unwrapPayload(raw) {
-      if (!raw) return {};
-      let current = raw;
-      try {
-        while (typeof current === 'string') {
-          current = JSON.parse(current);
-        }
-      } catch (e) {}
-      return (current && typeof current === 'object') ? current : {};
-    }
-
-    function renderList(list) {
-      const container = document.getElementById('list-container');
-      if (list.length === 0) {
-        container.innerHTML = `<div class="bg-white p-12 text-center rounded-2xl border border-slate-200 text-slate-400 text-sm">현재 대기 중인 접수 환자가 없습니다.</div>`;
-        return;
-      }
-
-      container.innerHTML = list.map(item => {
-        const payload = unwrapPayload(item.payload);
-
-        const isFirst = item.type === 'FIRST' || item.type === '초진';
-        const typeBadge = isFirst
-          ? `<span class="bg-sky-100 text-sky-800 text-xs px-2.5 py-1 rounded-md font-bold">초진</span>`
-          : `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-bold">재진</span>`;
-
-        const isWait = (item.status === '접수대기' || item.status === '대기');
-        const isProg = (item.status === '진료중');
-        const isComp = (item.status === '완료');
-
-        let statusClass = "bg-amber-50 text-amber-700 border-amber-200";
-        if (isProg) statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-        if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
-
-        const downloadBtn = isFirst ? `
-          <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition flex items-center gap-1 border border-sky-200 shadow-sm">
-            📄 A4 초진·동의서 저장
-          </button>
-        ` : '';
-
-        const dateStrRaw = item.created_at ? item.created_at.replace(' ', 'T') : '';
-        const timeStr = dateStrRaw ? new Date(dateStrRaw).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
-        const phone = item.phone || item.owner_phone || '-';
-        const email = (payload.email || item.email || '').trim();
-
-        const displayReason = (payload.reason && payload.reason.trim())
-          || (item.symptom && item.symptom.trim())
-          || (item.symptoms && item.symptoms.trim())
-          || '기재된 내원 사유가 없습니다.';
-
-        let scheduleBadge = '';
-        if (payload.expected_date || payload.expected_time) {
-          const dStr = payload.expected_date || '';
-          const tSlot = payload.expected_time ? `(${payload.expected_time})` : '';
-          scheduleBadge = `
-            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              📅 내원예정: ${dStr} ${tSlot}
-            </span>
-          `;
-        }
-
-        let treatmentsArray = [];
-        if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
-        else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
-
-        let treatmentsHtml = '';
-        if (treatmentsArray.length > 0) {
-          treatmentsHtml = `
-            <div class="flex flex-wrap items-center gap-1.5 mt-2">
-              <span class="text-[11px] font-bold text-slate-500 mr-0.5">추가 의뢰:</span>
-              ${treatmentsArray.map(t => `
-                <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-teal-50 text-[#0d9488] border border-teal-200">
-                  + ${t}
-                </span>
-              `).join('')}
-            </div>
-          `;
-        }
-
-        // 전화번호 원클릭 복사 버튼
-        const phoneButtonHtml = (phone && phone !== '-') ? `
-          <button 
-            type="button" 
-            onclick="copyText('${phone}', '전화번호')" 
-            title="클릭 시 전화번호가 복사됩니다"
-            class="inline-flex items-center gap-1 font-mono font-bold text-slate-900 bg-slate-100 hover:bg-teal-50 hover:text-teal-800 px-2 py-0.5 rounded-lg border border-slate-200 hover:border-teal-300 transition group cursor-pointer"
-          >
-            <span>${phone}</span>
-            <svg class="w-3 h-3 text-slate-400 group-hover:text-teal-600 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-          </button>
-        ` : `<strong>-</strong>`;
-
-        // 이메일 원클릭 복사 버튼 (기재된 경우만 노출)
-        const emailButtonHtml = email ? `
-          <button 
-            type="button" 
-            onclick="copyText('${email}', '이메일')" 
-            title="클릭 시 이메일이 복사됩니다"
-            class="inline-flex items-center gap-1 font-mono text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-sky-50 hover:text-sky-800 px-2 py-0.5 rounded-lg border border-slate-200 hover:border-sky-300 transition group cursor-pointer"
-          >
-            <span>✉️ ${email}</span>
-            <svg class="w-3 h-3 text-slate-400 group-hover:text-sky-600 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-          </button>
-        ` : '';
-
-        const safePetName = (item.pet_name || '환자').replace(/'/g, "\\'");
-
-        return `
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-slate-300 transition">
-            <div class="space-y-1.5 flex-1">
-              <div class="flex flex-wrap items-center gap-2">
-                ${typeBadge}
-                <h3 class="text-lg font-bold text-slate-900">${item.pet_name || '이름 없음'}</h3>
-                <span class="text-xs text-slate-400 font-mono">${timeStr}</span>
-                ${scheduleBadge}
-                ${downloadBtn}
-              </div>
-
-              <div class="text-sm text-slate-600 flex flex-wrap items-center gap-1.5">
-                <span>보호자:</span>
-                ${phoneButtonHtml}
-                ${emailButtonHtml}
-                <span>${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}</span>
-                <span class="text-slate-400">${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
-              </div>
-
-              <div class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 leading-relaxed whitespace-pre-line">
-                <strong class="text-slate-800">[내원 사유]</strong> ${displayReason}
-              </div>
-
-              ${treatmentsHtml}
-            </div>
-
-            <!-- 우측 액션: 상태 선택 셀렉트박스 & [삭제] 버튼 -->
-            <div class="flex items-center gap-2 self-end md:self-center">
-              <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border ${statusClass} focus:outline-none cursor-pointer">
-                <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
-                <option value="진료중" ${isProg ? 'selected' : ''}>🩺 진료 중</option>
-                <option value="완료" ${isComp ? 'selected' : ''}>✅ 진료 완료</option>
-              </select>
-
-              <!-- 복원된 삭제 버튼 -->
-              <button 
-                type="button" 
-                onclick="deleteReception(${item.id}, '${safePetName}')" 
-                title="접수 내역 삭제"
-                class="px-2.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center gap-1 transition shadow-sm"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <span>삭제</span>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function updateStatus(id, newStatus) {
-      try {
-        await fetch('/api/receptions', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, status: newStatus })
-        });
-        fetchReceptions();
-      } catch (err) {
-        alert('상태 변경 실패: ' + err.message);
-      }
-    }
-
-    async function downloadIntakeSheet(item) {
-      const payload = unwrapPayload(item.payload);
-
-      document.getElementById('doc-id').innerText = `접수번호: #${item.id}`;
-      document.getElementById('doc-date').innerText = `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`;
-      
-      const guardian = payload.guardian_name || item.owner_name || '미기재';
-      document.getElementById('doc-guardian').innerText = guardian;
-      document.getElementById('doc-sign-guardian').innerText = guardian;
-      
-      document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
-      document.getElementById('doc-address').innerText = payload.address || '미기재';
-
-      const email = payload.email || item.email || '';
-      document.getElementById('doc-email').innerText = email.trim();
-
-      document.getElementById('doc-pet').innerText = item.pet_name || '-';
-      document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
-      
-      const neuterText = payload.neutered ? '(중성화 완료)' : '(중성화 미실시)';
-      document.getElementById('doc-gender').innerText = `${payload.gender || '미선택'} ${neuterText}`;
-
-      const bDate = payload.birth_date ? payload.birth_date : '미기재';
-      const wt = payload.weight ? `${payload.weight} kg` : '미기재';
-      document.getElementById('doc-birth-weight').innerText = `${bDate}  /  ${wt}`;
-
-      document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
-
-      let treatmentsArray = [];
-      if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
-      else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
-      document.getElementById('doc-treatments').innerText = treatmentsArray.length > 0 ? treatmentsArray.join('  |  ') : '선택 처치 없음';
-
-      const sigImg = document.getElementById('doc-signature-img');
-      const noSigText = document.getElementById('doc-no-sign');
-
-      if (payload.signature && payload.signature.startsWith('data:image')) {
-        sigImg.src = payload.signature;
-        sigImg.classList.remove('hidden');
-        noSigText.classList.add('hidden');
-      } else {
-        sigImg.classList.add('hidden');
-        noSigText.classList.remove('hidden');
-      }
-
-      const sheetElement = document.getElementById('print-sheet');
-
-      try {
-        const canvas = await html2canvas(sheetElement, { 
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff'
-        });
-        const imageURL = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        const cleanPhone = (item.phone || '0000').slice(-4);
-        link.download = `[초진접수·동의서]_${item.pet_name || '환자'}_${cleanPhone}.png`;
-        link.href = imageURL;
-        link.click();
-      } catch (err) {
-        alert('동의서 이미지 생성 실패: ' + err.message);
-      }
-    }
-
-    fetchReceptions();
-    setInterval(() => fetchReceptions(), 5000);
-  </script>
-</body>
-</html>
+        let hasNew = false
