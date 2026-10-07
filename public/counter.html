@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>23시 동물병원 - 데스크 접수 현황판</title>
+  <title>23시 하단오거리동물병원 - 데스크 접수 현황판</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- 고해상도 캡처를 위한 html2canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -25,6 +25,16 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+    }
+
+    /* 모든 표의 텍스트를 정확하게 수직 중앙 정렬 */
+    #print-sheet table {
+      border-collapse: collapse;
+    }
+    #print-sheet table th,
+    #print-sheet table td {
+      vertical-align: middle !important;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -77,59 +87,50 @@
   <!-- A4 맞춤형 초진접수 및 개인정보 동의서 템플릿 (화면 밖 렌더링) -->
   <div id="print-sheet">
     <div>
-      <!-- 1. 타이틀 & 병원 확인 결재란 -->
-      <div class="flex justify-between items-start border-b-2 border-slate-900 pb-2.5">
+      <!-- 1. 타이틀 & 크고 진한 접수일시 (결재 도장란 삭제 및 상단 우측 정렬) -->
+      <div class="flex justify-between items-end border-b-2 border-slate-900 pb-3">
         <div>
-          <span class="text-xs font-bold tracking-widest text-[#0d9488]">23시 동물병원 · CLINIC FLOW</span>
+          <span class="text-xs font-bold tracking-widest text-[#006257]">23시 하단오거리동물병원 · CLINIC FLOW</span>
           <h2 class="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">초진접수 및 개인정보 동의서</h2>
           <p class="text-[11px] text-slate-500 mt-0.5">본 서식은 내원 시 보호자가 직접 작성한 전자 접수 및 법적 동의서 원본입니다.</p>
         </div>
         
-        <table class="border-collapse border border-slate-400 text-xs text-center w-36">
-          <tr class="bg-slate-100 font-semibold text-slate-700">
-            <td class="border border-slate-400 py-1 w-1/2">원무확인</td>
-            <td class="border border-slate-400 py-1 w-1/2">담당의사</td>
-          </tr>
-          <tr>
-            <td class="border border-slate-400 h-9"></td>
-            <td class="border border-slate-400 h-9"></td>
-          </tr>
-        </table>
+        <!-- 접수번호 및 크고 진한 접수일시 -->
+        <div class="text-right pb-0.5">
+          <div class="text-xs font-mono font-bold text-slate-500" id="doc-id">접수번호: #0</div>
+          <div class="text-sm font-black text-slate-900 mt-0.5 tracking-tight" id="doc-date">접수일시: 2026-00-00 00:00:00</div>
+        </div>
       </div>
 
-      <!-- 접수 번호 및 일시 -->
-      <div class="flex justify-between text-xs text-slate-600 font-mono mt-1.5 mb-3 px-1">
-        <span id="doc-id">접수번호: #0</span>
-        <span id="doc-date">접수일시: 2026-00-00 00:00:00</span>
-      </div>
-
-      <!-- 2. 보호자 및 환자 기본 정보 표 -->
-      <div class="mb-3">
+      <!-- 2. 보호자 및 환자 기본 정보 표 (주소 / 이메일 5:5 분할 및 수직 중앙정렬) -->
+      <div class="mt-4 mb-3">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-[#0d9488] rounded-sm"></span> 1. 보호자 및 반려동물 인적사항
+          <span class="w-1.5 h-3 bg-[#006257] rounded-sm"></span> 1. 보호자 및 반려동물 인적사항
         </h3>
         <table class="w-full border-collapse border border-slate-300 text-xs">
           <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 w-24 text-left">보호자 성함</th>
-            <td class="border border-slate-300 py-1.5 px-3 font-semibold w-56" id="doc-guardian">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 w-24 text-left">연락처</th>
-            <td class="border border-slate-300 py-1.5 px-3 font-mono font-semibold" id="doc-phone">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 w-24 text-left align-middle font-bold">보호자 성함</th>
+            <td class="border border-slate-300 py-2 px-3 font-semibold w-56 align-middle" id="doc-guardian">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 w-24 text-left align-middle font-bold">연락처</th>
+            <td class="border border-slate-300 py-2 px-3 font-mono font-semibold align-middle" id="doc-phone">-</td>
           </tr>
           <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">주소</th>
-            <td colspan="3" class="border border-slate-300 py-1.5 px-3 text-slate-800" id="doc-address">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">주소</th>
+            <td class="border border-slate-300 py-2 px-3 text-slate-800 align-middle" id="doc-address">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">이메일</th>
+            <td class="border border-slate-300 py-2 px-3 font-mono text-slate-800 align-middle" id="doc-email"></td>
           </tr>
           <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">동물 이름</th>
-            <td class="border border-slate-300 py-1.5 px-3 font-bold text-teal-800 text-sm" id="doc-pet">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">축종 / 품종</th>
-            <td class="border border-slate-300 py-1.5 px-3" id="doc-species">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">동물 이름</th>
+            <td class="border border-slate-300 py-2 px-3 font-bold text-teal-800 text-sm align-middle" id="doc-pet">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">축종 / 품종</th>
+            <td class="border border-slate-300 py-2 px-3 align-middle" id="doc-species">-</td>
           </tr>
           <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">성별 / 중성화</th>
-            <td class="border border-slate-300 py-1.5 px-3 font-medium" id="doc-gender">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-1.5 px-3 text-left">생년월일 / 체중</th>
-            <td class="border border-slate-300 py-1.5 px-3 font-medium" id="doc-birth-weight">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">성별 / 중성화</th>
+            <td class="border border-slate-300 py-2 px-3 font-medium align-middle" id="doc-gender">-</td>
+            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">생년월일 / 체중</th>
+            <td class="border border-slate-300 py-2 px-3 font-medium align-middle" id="doc-birth-weight">-</td>
           </tr>
         </table>
       </div>
@@ -137,9 +138,9 @@
       <!-- 3. 주 증상 및 내원 사유 -->
       <div class="mb-3">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-[#0d9488] rounded-sm"></span> 2. 주요 증상 및 내원 사유
+          <span class="w-1.5 h-3 bg-[#006257] rounded-sm"></span> 2. 주요 증상 및 내원 사유
         </h3>
-        <div class="border border-slate-300 rounded p-2.5 min-h-[75px] text-xs leading-relaxed text-slate-800 whitespace-pre-wrap bg-slate-50/50" id="doc-reason">
+        <div class="border border-slate-300 rounded p-3 min-h-[78px] text-xs leading-relaxed text-slate-800 whitespace-pre-wrap bg-slate-50/50 flex items-center" id="doc-reason">
           -
         </div>
       </div>
@@ -147,14 +148,14 @@
       <!-- 4. 추가 처치 희망 내역 -->
       <div class="mb-3">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-[#0d9488] rounded-sm"></span> 3. 추가 처치 희망 항목
+          <span class="w-1.5 h-3 bg-[#006257] rounded-sm"></span> 3. 추가 처치 희망 항목
         </h3>
-        <div class="border border-slate-300 rounded p-2 px-3 text-xs font-medium text-slate-800 bg-white" id="doc-treatments">
+        <div class="border border-slate-300 rounded p-2.5 px-3 text-xs font-medium text-slate-800 bg-white min-h-[36px] flex items-center" id="doc-treatments">
           선택 처치 없음
         </div>
       </div>
 
-      <!-- 5. 개인정보 활용 및 안전사고 책임 안내 동의 + 서명 -->
+      <!-- 5. 개인정보 활용 및 안전사고 책임 안내 동의 + 실제 사인 인자 -->
       <div class="border-2 border-slate-300 rounded-xl p-3.5 bg-slate-50/70">
         <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center justify-between">
           <span class="flex items-center gap-1">
@@ -170,7 +171,7 @@
               <span>① 개인정보 수집 및 활용 동의</span>
               <span class="text-emerald-600 font-semibold">[동의함]</span>
             </p>
-            <p class="text-slate-500 mt-0.5">수집항목: 보호자 성명, 연락처, 주소, 환자 정보 / 이용목적: 동물병원 진료기록부 작성, 처방 관리, 휴일 및 진료 알림 SMS 발송</p>
+            <p class="text-slate-500 mt-0.5">수집항목: 보호자 성명, 연락처, 주소, 이메일, 환자 정보 / 이용목적: 동물병원 진료기록부 작성, 처방 관리, 휴일 및 진료 알림 SMS 발송</p>
           </div>
 
           <div class="bg-white p-2.5 rounded-lg border border-slate-200">
@@ -203,7 +204,7 @@
 
     <!-- 하단 푸터 -->
     <div class="border-t border-slate-300 pt-2 text-[10px] text-slate-400 flex justify-between items-center">
-      <span>• 23시 동물병원 전자 의무기록 관리 시스템 (CLINIC FLOW)</span>
+      <span>• 23시 하단오거리동물병원 전자 의무기록 관리 시스템 (CLINIC FLOW)</span>
       <span>인쇄일시: <script>document.write(new Date().toLocaleDateString('ko-KR'))</script></span>
     </div>
   </div>
@@ -223,7 +224,7 @@
         const gain1 = audioCtx.createGain();
         osc1.frequency.setValueAtTime(659.25, now);
         gain1.gain.setValueAtTime(0.2, now);
-        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        gain1.exponentialRampToValueAtTime(0.001, now + 0.45);
         osc1.connect(gain1);
         gain1.connect(audioCtx.destination);
         osc1.start(now);
@@ -233,7 +234,7 @@
         const gain2 = audioCtx.createGain();
         osc2.frequency.setValueAtTime(523.25, now + 0.22);
         gain2.gain.setValueAtTime(0.25, now + 0.22);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+        gain2.exponentialRampToValueAtTime(0.001, now + 0.85);
         osc2.connect(gain2);
         gain2.connect(audioCtx.destination);
         osc2.start(now + 0.22);
@@ -330,7 +331,6 @@
         if (isProg) statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
         if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
 
-        // 초진일 때 A4 동의서 다운로드 버튼 제공
         const downloadBtn = isFirst ? `
           <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition flex items-center gap-1 border border-sky-200 shadow-sm">
             📄 A4 초진·동의서 저장
@@ -398,16 +398,12 @@
               ${treatmentsHtml}
             </div>
 
-            <!-- 상태 변경 및 삭제 컨트롤 영역 -->
             <div class="flex items-center gap-2 self-end md:self-center">
               <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border ${statusClass} focus:outline-none cursor-pointer">
                 <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
                 <option value="진료중" ${isProg ? 'selected' : ''}>🩺 진료 중</option>
                 <option value="완료" ${isComp ? 'selected' : ''}>✅ 진료 완료</option>
               </select>
-              <button onclick="deleteReception(${item.id})" class="px-2.5 py-2 text-xs font-semibold rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition flex items-center gap-1 shadow-sm" title="접수 삭제">
-                🗑️ 삭제
-              </button>
             </div>
           </div>
         `;
@@ -427,24 +423,6 @@
       }
     }
 
-    // 신규 추가: 접수 내역 삭제 함수
-    async function deleteReception(id) {
-      if (!confirm('정말 이 환자의 접수 내역을 삭제하시겠습니까?')) return;
-      try {
-        const res = await fetch('/api/receptions', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id })
-        });
-        if (!res.ok) {
-          throw new Error('서버 처리 오류 (' + res.status + ')');
-        }
-        fetchReceptions();
-      } catch (err) {
-        alert('삭제 실패: ' + err.message);
-      }
-    }
-
     // A4 동의서 및 서명 인자 다운로드 함수
     async function downloadIntakeSheet(item) {
       const payload = unwrapPayload(item.payload);
@@ -458,28 +436,28 @@
       
       document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
       document.getElementById('doc-address').innerText = payload.address || '미기재';
+
+      // 이메일: 기재 시 출력, 미기재 시 완전한 빈 칸 처리
+      const email = payload.email || item.email || '';
+      document.getElementById('doc-email').innerText = email.trim();
+
       document.getElementById('doc-pet').innerText = item.pet_name || '-';
       document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
       
-      // 성별 및 중성화 표기
       const neuterText = payload.neutered ? '(중성화 완료)' : '(중성화 미실시)';
       document.getElementById('doc-gender').innerText = `${payload.gender || '미선택'} ${neuterText}`;
 
-      // 생년월일 및 체중
       const bDate = payload.birth_date ? payload.birth_date : '미기재';
       const wt = payload.weight ? `${payload.weight} kg` : '미기재';
       document.getElementById('doc-birth-weight').innerText = `${bDate}  /  ${wt}`;
 
-      // 내원 사유
       document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
 
-      // 추가 처치 항목
       let treatmentsArray = [];
       if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
       else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
       document.getElementById('doc-treatments').innerText = treatmentsArray.length > 0 ? treatmentsArray.join('  |  ') : '선택 처치 없음';
 
-      // 전자 서명 이미지 바인딩
       const sigImg = document.getElementById('doc-signature-img');
       const noSigText = document.getElementById('doc-no-sign');
 
