@@ -84,10 +84,16 @@
     </div>
   </div>
 
+  <!-- 번호 복사 시 뜨는 플로팅 토스트 알림 -->
+  <div id="copyToast" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 opacity-0 translate-y-4 pointer-events-none bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-slate-700">
+    <span class="text-emerald-400">✓</span>
+    <span id="toastMsg">전화번호가 복사되었습니다!</span>
+  </div>
+
   <!-- A4 맞춤형 초진접수 및 개인정보 동의서 템플릿 (화면 밖 렌더링) -->
   <div id="print-sheet">
     <div>
-      <!-- 1. 타이틀 & 크고 진한 접수일시 (결재 도장란 삭제 및 상단 우측 정렬) -->
+      <!-- 1. 타이틀 & 진한 접수일시 -->
       <div class="flex justify-between items-end border-b-2 border-slate-900 pb-3">
         <div>
           <span class="text-xs font-bold tracking-widest text-[#006257]">23시 하단오거리동물병원 · CLINIC FLOW</span>
@@ -95,7 +101,6 @@
           <p class="text-[11px] text-slate-500 mt-0.5">본 서식은 내원 시 보호자가 직접 작성한 전자 접수 및 법적 동의서 원본입니다.</p>
         </div>
         
-        <!-- 접수번호 및 크고 진한 접수일시 -->
         <div class="text-right pb-0.5">
           <div class="text-xs font-mono font-bold text-slate-500" id="doc-id">접수번호: #0</div>
           <div class="text-sm font-black text-slate-900 mt-0.5 tracking-tight" id="doc-date">접수일시: 2026-00-00 00:00:00</div>
@@ -214,6 +219,53 @@
     let knownIds = new Set();
     let isFirstLoad = true;
 
+    // 전화번호 원클릭 복사 함수
+    function copyPhoneNumber(phone) {
+      if (!phone || phone === '-' || phone === '미기재') return;
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(phone).then(() => {
+          showToast(`📋 ${phone} 복사 완료!`);
+        }).catch(() => fallbackCopy(phone));
+      } else {
+        fallbackCopy(phone);
+      }
+    }
+
+    // 복사 대체 호환 로직 (HTTP/특수 브라우저 대비)
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(`📋 ${text} 복사 완료!`);
+      } catch (err) {
+        alert('복사에 실패했습니다. 번호를 직접 드래그해 주세요.');
+      }
+      document.body.removeChild(ta);
+    }
+
+    // 플로팅 토스트 표시 함수
+    function showToast(msg) {
+      const toast = document.getElementById('copyToast');
+      const toastMsg = document.getElementById('toastMsg');
+      if (!toast) return;
+
+      toastMsg.innerText = msg;
+      toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2000);
+    }
+
     function playDingDong() {
       if (!soundEnabled) return;
       try {
@@ -224,7 +276,7 @@
         const gain1 = audioCtx.createGain();
         osc1.frequency.setValueAtTime(659.25, now);
         gain1.gain.setValueAtTime(0.2, now);
-        gain1.exponentialRampToValueAtTime(0.001, now + 0.45);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
         osc1.connect(gain1);
         gain1.connect(audioCtx.destination);
         osc1.start(now);
@@ -234,7 +286,7 @@
         const gain2 = audioCtx.createGain();
         osc2.frequency.setValueAtTime(523.25, now + 0.22);
         gain2.gain.setValueAtTime(0.25, now + 0.22);
-        gain2.exponentialRampToValueAtTime(0.001, now + 0.85);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
         osc2.connect(gain2);
         gain2.connect(audioCtx.destination);
         osc2.start(now + 0.22);
@@ -375,6 +427,21 @@
           `;
         }
 
+        // 클릭하여 전화번호 복사 가능한 인터랙티브 버튼 UI
+        const phoneButtonHtml = (phone && phone !== '-') ? `
+          <button 
+            type="button" 
+            onclick="copyPhoneNumber('${phone}')" 
+            title="클릭 시 전화번호가 복사됩니다"
+            class="inline-flex items-center gap-1 font-mono font-bold text-slate-900 bg-slate-100 hover:bg-teal-50 hover:text-teal-800 px-2 py-0.5 rounded-lg border border-slate-200 hover:border-teal-300 transition group cursor-pointer"
+          >
+            <span>${phone}</span>
+            <svg class="w-3 h-3 text-slate-400 group-hover:text-teal-600 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+          </button>
+        ` : `<strong>-</strong>`;
+
         return `
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-slate-300 transition">
             <div class="space-y-1.5 flex-1">
@@ -386,10 +453,12 @@
                 ${downloadBtn}
               </div>
 
-              <p class="text-sm text-slate-600">
-                보호자: <strong>${phone}</strong> ${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}
-                ${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}
-              </p>
+              <div class="text-sm text-slate-600 flex flex-wrap items-center gap-1.5">
+                <span>보호자:</span>
+                ${phoneButtonHtml}
+                <span>${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}</span>
+                <span class="text-slate-400">${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
+              </div>
 
               <div class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 leading-relaxed whitespace-pre-line">
                 <strong class="text-slate-800">[내원 사유]</strong> ${displayReason}
@@ -437,7 +506,6 @@
       document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
       document.getElementById('doc-address').innerText = payload.address || '미기재';
 
-      // 이메일: 기재 시 출력, 미기재 시 완전한 빈 칸 처리
       const email = payload.email || item.email || '';
       document.getElementById('doc-email').innerText = email.trim();
 
