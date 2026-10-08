@@ -878,7 +878,7 @@
         if (!res.ok) throw new Error('서버 응답 오류 (' + res.status + ')');
 
         // [카카오톡 알림 발송 - 연동 성공 토큰 적용]
-        await sendKakaoAlert(guardianName, phone, petName, breed, reason);
+        
 
         alert('✅ 초진 접수와 전자 서명이 정상적으로 완료되었습니다!\n진료실 대기 현황판에 등록되었습니다.');
         window.location.href = 'index.html';
@@ -891,34 +891,7 @@
       }
     }
 
-    // [카카오톡 알림 발송 함수]
-    async function sendKakaoAlert(guardianName, phone, petName, breed, reason) {
-      const KAKAO_TOKEN = "P5kRm75VyOgykfsctAHqJRPmDe6FlfF5AAAAAQoNDF4AAAGhGSMWH3LErHmNOyL0";
-
-      const messageText = `[23시 신규 초진 접수]\n- 보호자: ${guardianName} (${phone})\n- 환자: ${petName} (${breed || selectedSpecies})\n- 내원사유: ${reason || '미입력'}`;
-
-      try {
-        await fetch("https://kapi.kakao.com/v2/api/talk/memo/default/send", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${KAKAO_TOKEN}`,
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
-          },
-          body: new URLSearchParams({
-            template_object: JSON.stringify({
-              object_type: "text",
-              text: messageText,
-              link: {
-                web_url: "https://23si.net",
-                mobile_web_url: "https://23si.net"
-              }
-            })
-          })
-        });
-      } catch (err) {
-        console.error("카카오톡 알림 전송 에러:", err);
-      }
-    }
+    
   </script>
 </body>
 </html>
