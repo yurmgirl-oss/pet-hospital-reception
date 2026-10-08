@@ -149,6 +149,58 @@ async function sendKakaoAlert(env, petName, phone, reason) {
 
 
 // ============================================
+// 이메일 알림 발송 - Resend
+// ============================================
+
+async function sendEmailAlert(env, petName, phone, reason) {
+
+  if (!env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY가 설정되지 않았습니다.");
+  }
+
+  const subject =
+    "🔔 신규 재진 접수 - " +
+    (petName || "환자명 미입력");
+
+  const text =
+    "🐾 23시 하단오거리 동물병원\n\n" +
+    "🔔 신규 재진 접수\n\n" +
+    "환자명: " + (petName || "미입력") + "\n" +
+    "연락처: " + (phone || "미입력") + "\n" +
+    "내원사유: " + (reason || "미입력") + "\n\n" +
+    "접수 확인: https://23si.net";
+
+  const response = await fetch(
+    "https://api.resend.com/emails",
+    {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + env.RESEND_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "23시 하단오거리 동물병원 <admin@23si.net>",
+        to: ["yurmgirl@naver.com"],
+        subject: subject,
+        text: text
+      })
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      "이메일 발송 실패: " +
+      JSON.stringify(result)
+    );
+  }
+
+  return true;
+}
+
+
+// ============================================
 // 기존 접수 목록 조회
 // ============================================
 
@@ -177,7 +229,7 @@ export async function onRequestGet({ env }) {
 
 
 // ============================================
-// 신규 접수 저장 + 카카오톡 자동 발송
+// 신규 접수 저장 + 카카오톡 + 이메일 자동 발송
 // ============================================
 
 export async function onRequestPost({ request, env }) {
@@ -199,7 +251,7 @@ export async function onRequestPost({ request, env }) {
       "DELETE FROM receptions WHERE created_at < datetime('now', '+9 hours', '-3 days')"
     ).run();
 
-    // 기존 접수 저장 기능
+    // 접수 저장
     const result = await env.DB.prepare(
       `INSERT INTO receptions
        (type, owner_name, pet_name, phone, symptom, payload)
@@ -213,33 +265,61 @@ export async function onRequestPost({ request, env }) {
       JSON.stringify(payload || {})
     ).run();
 
-    // 접수 저장 성공 후 카카오톡 발송
-    // 카카오톡 오류가 발생해도 접수는 유지
-    let kakaoSent = false;
 
-    try {
+    // ============================================
+    // 카카오톡 + 이메일 동시 발송
+    // ============================================
 
-      await sendKakaoAlert(
+    const [kakaoResult, emailResult] = await Promise.allSettled([
+
+      sendKakaoAlert(
         env,
         pet_name,
         phone,
         symptom
-      );
+      ),
 
-      kakaoSent = true;
+      sendEmailAlert(
+        env,
+        pet_name,
+        phone,
+        symptom
+      )
 
-    } catch (kakaoError) {
+    ]);
 
+
+    // 카카오 결과
+    const kakaoSent =
+      kakaoResult.status === "fulfilled";
+
+    if (!kakaoSent) {
       console.error(
         "카카오톡 알림 발송 오류:",
-        kakaoError.message
+        kakaoResult.reason?.message ||
+        kakaoResult.reason
       );
     }
+
+
+    // 이메일 결과
+    const emailSent =
+      emailResult.status === "fulfilled";
+
+    if (!emailSent) {
+      console.error(
+        "이메일 알림 발송 오류:",
+        emailResult.reason?.message ||
+        emailResult.reason
+      );
+    }
+
 
     return Response.json({
       success: true,
       id: result.meta.last_row_id,
-      kakao_sent: kakaoSent
+      kakao_sent: kakaoSent,
+      email_sent: emailSent
     });
 
   } catch (err) {
