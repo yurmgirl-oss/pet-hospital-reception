@@ -375,7 +375,7 @@
         }
 
         // [카카오톡 알림 발송]
-        await sendKakaoAlert(phone, petName, reason);
+        
 
         alert('✅ 재진 접수가 완료되었습니다!\n카운터 화면에서 확인해 보세요.');
         window.location.href = 'index.html';
@@ -388,33 +388,7 @@
       }
     }
 
-    // [카카오톡 '나에게 보내기' 발송 함수 - 토큰 적용 완료]
-    async function sendKakaoAlert(phone, petName, reason) {
-      const KAKAO_TOKEN = "P5kRm75VyOgykfsctAHqJRPmDe6FlfF5AAAAAQoNDF4AAAGhGSMWH3LErHmNOyL0";
-
-      const messageText = `[23시 신규 재진 접수]\n- 환자: ${petName}\n- 연락처: ${phone}\n- 내원사유: ${reason || '미입력'}`;
-
-      try {
-        await fetch("https://kapi.kakao.com/v2/api/talk/memo/default/send", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${KAKAO_TOKEN}`,
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
-          },
-          body: new URLSearchParams({
-            template_object: JSON.stringify({
-              object_type: "text",
-              text: messageText,
-              link: {
-                web_url: "https://23si.net",
-                mobile_web_url: "https://23si.net"
-              }
-            })
-          })
-        });
-      } catch (err) {
-        console.error("카카오톡 알림 전송 에러:", err);
-      }
+  
     }
   </script>
 </body>
