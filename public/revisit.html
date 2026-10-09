@@ -109,6 +109,7 @@
           </div>
           <div>
             <h2 class="text-sm font-bold text-slate-900 leading-tight">보호자 정보</h2>
+            <p class="text-[11px] text-slate-400">이전에 등록하신 정보로 빠르게 접수해 드려요.</p>
           </div>
         </div>
 
@@ -157,10 +158,8 @@
         </div>
       </div>
 
-      <!-- 카드 2: 내원 사유 & 내원 예정일 -->
+      <!-- 카드 2: 내원 사유 & 내원 예정일 (설명 전문 100% 보존) -->
       <div class="bg-white rounded-2xl p-3.5 md:p-4 border border-slate-300 shadow-sm space-y-3">
-        
-        <!-- 카드 상단: 타이틀 & 이메일 안내 버튼 컴팩트화 -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <div class="w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold flex-shrink-0">
@@ -170,18 +169,19 @@
             </div>
             <div>
               <h2 class="text-sm font-bold text-slate-900 leading-tight">내원 사유 & 내원 예정일</h2>
+              <p class="text-[11px] text-slate-400">지금 가장 걱정되는 점을 상세히 적어주세요.</p>
             </div>
           </div>
 
-          <a href="mailto:admin@23si.net?subject=[23시 동물병원] 진료 참고자료 제출" class="bg-indigo-50 border border-indigo-200 hover:border-indigo-400 px-3 py-1.5 rounded-xl flex items-center justify-between gap-2 shadow-sm transition">
-            <span class="text-[11px] font-semibold text-slate-600">진료 자료/사진 발송</span>
-            <span class="text-xs font-bold text-indigo-700 tracking-tight">📧 admin@23si.net</span>
+          <a href="mailto:admin@23si.net?subject=[23시 동물병원] 진료 참고자료 제출" class="bg-indigo-50 border border-indigo-200 hover:border-indigo-400 px-3 py-1.5 rounded-xl block text-left sm:text-right shadow-sm transition">
+            <span class="text-[11px] font-bold text-slate-700 block leading-tight">다른 병원 자료나 사진자료 등은 메일로 보내주세요</span>
+            <span class="text-xs font-black text-indigo-700 tracking-wide block mt-0.5">📧 admin@23si.net</span>
           </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-10 gap-3 items-stretch">
           
-          <!-- 좌측 65%: 내원 사유 -->
+          <!-- 좌측 60%: 내원 사유 (원본 상세 안내 플레이스홀더 유지) -->
           <div class="md:col-span-6 flex flex-col">
             <div class="flex items-center justify-between mb-1">
               <label class="flex items-center">
@@ -193,12 +193,12 @@
               id="reason" 
               required
               rows="4"
-              placeholder="증상, 발생 시기, 현재 상태 등을 가능한 구체적으로 적어주시면 빠른 진료 준비에 도움이 됩니다." 
-              class="required-field w-full p-2.5 rounded-xl placeholder-slate-400 text-xs sm:text-sm leading-relaxed transition resize-none flex-1 min-h-[95px]"
+              placeholder="💚 원활한 진료와 정확한 대기시간 안내를 위해 내원 사유를 조금 더 구체적으로 작성해 주세요. ‘아파요’, ‘피부염’보다는 증상, 발생 시기, 현재 상태 등을 자세히 적어주시면 필요한 검사와 진료를 미리 준비하는 데 큰 도움이 됩니다. 보호자님의 협조에 감사드립니다." 
+              class="required-field w-full p-2.5 rounded-xl placeholder-slate-400 text-xs sm:text-sm leading-relaxed transition resize-none flex-1 min-h-[110px]"
             ></textarea>
           </div>
 
-          <!-- 우측 35%: 내원 예정일 및 희망시간 -->
+          <!-- 우측 40%: 내원 예정일 및 희망시간 -->
           <div class="md:col-span-4 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-1">
               <label class="text-xs font-bold text-slate-700">내원 예정일</label>
@@ -207,24 +207,24 @@
 
             <div class="flex flex-col justify-center bg-slate-50 p-2.5 rounded-xl border border-slate-300 flex-1 space-y-2">
               <div>
-                <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">날짜</label>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">날짜 선택</label>
                 <input 
                   type="date" 
                   id="expectedDate" 
-                  class="w-full px-2 py-1.5 rounded-lg text-xs font-medium"
+                  class="w-full px-2 py-1.5 rounded-lg text-xs font-semibold"
                 >
               </div>
 
               <div class="pt-1.5 border-t border-slate-200">
-                <label class="block text-[10px] font-semibold text-slate-500 mb-1">시간대</label>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">시간대 선택</label>
                 <div class="grid grid-cols-3 gap-1">
-                  <button type="button" onclick="selectTimeSlot('오전')" id="slot-오전" class="time-slot-btn py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
+                  <button type="button" onclick="selectTimeSlot('오전')" id="slot-오전" class="time-slot-btn py-1.5 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
                     오전
                   </button>
-                  <button type="button" onclick="selectTimeSlot('오후')" id="slot-오후" class="time-slot-btn py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
+                  <button type="button" onclick="selectTimeSlot('오후')" id="slot-오후" class="time-slot-btn py-1.5 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
                     오후
                   </button>
-                  <button type="button" onclick="selectTimeSlot('야간')" id="slot-야간" class="time-slot-btn py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
+                  <button type="button" onclick="selectTimeSlot('야간')" id="slot-야간" class="time-slot-btn py-1.5 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
                     야간
                   </button>
                 </div>
@@ -244,9 +244,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
               </svg>
             </div>
-            <h2 class="text-sm font-bold text-slate-900 leading-tight">추가 처치 의뢰</h2>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 leading-tight">추가 처치 의뢰</h2>
+              <p class="text-[11px] text-slate-400">원하시는 항목을 선택해주세요. 여러 항목을 선택할 수 있어요.</p>
+            </div>
           </div>
-          <span class="text-[11px] text-slate-400">중복 선택 가능</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -319,6 +321,66 @@
         </div>
       </div>
 
+      <!-- 카드 4: 안내 및 동의 (초진과 내용 통일) -->
+      <div class="bg-white rounded-2xl p-3.5 md:p-4 border border-slate-300 shadow-sm space-y-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold flex-shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center">
+              <h2 class="text-sm font-bold text-slate-900 leading-tight">
+                <span class="highlight-pen">안내 및 동의</span>
+              </h2>
+              <span class="badge-required">필수</span>
+            </div>
+            <p class="text-[11px] text-slate-400">안전한 진료를 위해 내용을 확인해주세요.</p>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <!-- 1. 개인정보 수집 및 이용 동의 -->
+          <div class="p-2.5 rounded-xl border border-slate-300 bg-white space-y-1.5">
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" id="agreePrivacy" required class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
+              <div class="flex items-center">
+                <span class="highlight-pen text-xs font-bold text-slate-800">개인정보 수집 및 이용 동의</span>
+                <span class="badge-required">필수</span>
+              </div>
+            </label>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] leading-relaxed text-slate-600 space-y-1">
+              <p class="font-bold text-slate-800">개인정보 수집 및 이용 동의</p>
+              <ul class="list-disc pl-4 space-y-0.5 text-slate-600">
+                <li><strong class="text-slate-700">수집 항목:</strong> 보호자 성명, 연락처, 접수 정보</li>
+                <li><strong class="text-slate-700">이용 목적:</strong> 진료기록 관리, 접수·예약 및 재진 안내, 휴진·공휴일 관련 SMS·알림톡 발송</li>
+                <li><strong class="text-slate-700">보유 기간:</strong> 목적 달성 시까지 또는 관련 법령에 따른 보존 기간</li>
+                <li><strong class="text-slate-700">동의 거부:</strong> 동의를 거부할 수 있으나, 일부 서비스 이용이 제한될 수 있습니다.</li>
+              </ul>
+              <p class="font-medium text-teal-800 pt-0.5">본원은 개인정보를 명시된 목적에 따라 안전하게 관리합니다.</p>
+            </div>
+          </div>
+
+          <!-- 2. 병원 내 안전 및 유의사항 안내 동의 -->
+          <div class="p-2.5 rounded-xl border border-slate-300 bg-white space-y-1.5">
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" id="agreeSafety" required class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
+              <div class="flex items-center">
+                <span class="highlight-pen text-xs font-bold text-slate-800">병원 내 안전 및 유의사항 안내 동의</span>
+                <span class="badge-required">필수</span>
+              </div>
+            </label>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] leading-relaxed text-slate-600 space-y-1">
+              <p class="font-bold text-slate-800">병원 내 안전 및 유의사항 안내</p>
+              <p>병원 내에서는 사람과 동물 간의 접촉이나 예기치 못한 상황으로 다툼, 상해, 물품 파손 등이 발생할 수 있습니다. 보호자님께서는 반려동물을 안전하게 관리해 주시고, 다른 보호자와 동물을 배려해 주시기 바랍니다.</p>
+              <p>개인 간 분쟁이나 피해가 발생한 경우 당사자 간의 원만한 해결을 원칙으로 하며, 병원은 관련 상황과 책임 범위에 따라 필요한 조치를 취합니다.</p>
+              <p class="font-bold text-teal-700">모두의 안전하고 편안한 진료 환경을 위해 보호자님의 협조와 배려를 부탁드립니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 하단 버튼 바 (2 : 2 : 6 비율, 패딩 축소) -->
       <div class="pt-1 flex items-center gap-2 w-full">
         <a href="index.html" style="flex: 2;" class="py-3 px-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center justify-center gap-1 transition shadow-sm text-center">
@@ -331,7 +393,7 @@
         <button 
           type="button" 
           onclick="resetFormWithConfirm()" 
-          style="flex: 2;"
+          style="flex: 2;" 
           class="py-3 px-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-1 transition shadow-sm"
         >
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -343,13 +405,14 @@
         <button 
           type="submit" 
           id="submitBtn" 
-          style="flex: 6;"
+          style="flex: 6;" 
           class="py-3 px-3 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] active:scale-[0.99] text-white font-bold text-sm shadow-md shadow-teal-700/10 flex items-center justify-center gap-1.5 transition"
         >
           <span>재진 접수 제출하기</span>
           <span>→</span>
         </button>
       </div>
+      <p class="text-[10px] text-slate-500 text-center font-medium pt-0.5">제출 버튼을 누르면 병원에 접수 내용이 전달됩니다.</p>
 
     </form>
   </div>
@@ -428,6 +491,15 @@
 
     async function submitForm(e) {
       e.preventDefault();
+
+      const p1 = document.getElementById('agreePrivacy').checked;
+      const p2 = document.getElementById('agreeSafety').checked;
+      if (!p1 || !p2) {
+        alert('⚠️ 안내 및 동의 항목에 모두 체크해 주셔야 접수를 진행할 수 있습니다.');
+        document.getElementById('agreePrivacy').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       const submitBtn = document.getElementById('submitBtn');
       const originalText = submitBtn.innerHTML;
 
@@ -445,7 +517,9 @@
         reason: reason,
         expected_date: expectedDate,
         expected_time: selectedTimeSlot,
-        treatments: treatments
+        treatments: treatments,
+        privacy_agreed: true,
+        safety_agreed: true
       };
 
       const requestBody = {
