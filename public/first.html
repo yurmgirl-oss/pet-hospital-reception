@@ -48,7 +48,7 @@
       background-color: #fffdf5 !important;
     }
 
-    /* 터치/포커스 */
+    /* 터치/포커스 시 */
     input[type="tel"]:focus,
     input[type="text"]:focus,
     input[type="number"]:focus,
@@ -80,7 +80,7 @@
       color: #0f172a;
     }
 
-    /* 필수 뱃지 */
+    /* 필수 뱃지 스타일 */
     .badge-required {
       display: inline-flex;
       align-items: center;
@@ -101,22 +101,37 @@
     
     <!-- 1. 헤더 영역 -->
     <header class="space-y-1">
-      <div class="flex items-center justify-between">
+      <div>
         <span class="inline-block text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-300">처음 방문하신 보호자님</span>
-        
-        <!-- 재진 간편 접수 링크 (컴팩트 배지 형태) -->
-        <a 
-          href="revisit.html" 
-          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] text-white shadow-sm transition text-xs font-bold"
-        >
-          <span>재진 접수 바로가기</span>
-          <span class="text-[10px]">→</span>
-        </a>
       </div>
 
-      <div class="flex items-baseline justify-between pt-0.5">
-        <h1 class="text-2xl md:text-3xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">초진 접수서</h1>
-        <p class="text-xs text-slate-500 font-medium">아는 만큼 편안하게 작성해 주세요.</p>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-0.5">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">초진 접수서</h1>
+          <p class="text-xs text-slate-500 font-medium mt-0.5">아이를 더 잘 살피기 위해, 아는 만큼 천천히 적어주세요.</p>
+        </div>
+
+        <!-- 재진 간편 접수 버튼 -->
+        <div class="flex-shrink-0">
+          <a 
+            href="revisit.html" 
+            class="group inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] text-white shadow-sm transition-all border border-amber-300/60"
+          >
+            <div class="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+              <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+              </svg>
+            </div>
+            <div class="text-left">
+              <span class="text-[9px] font-medium text-amber-100 block leading-tight">이전에 오신 적이 있나요?</span>
+              <span class="text-xs font-extrabold text-white leading-tight">재진 (간편 접수) 바로가기</span>
+            </div>
+            <div class="flex items-center gap-1 pl-0.5">
+              <span class="text-[9px] font-black bg-white text-amber-800 px-1 py-0.2 rounded-full">빠른접수</span>
+              <span class="text-xs font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+            </div>
+          </a>
+        </div>
       </div>
 
       <div class="h-1 w-full bg-[#0d9488] rounded-full mt-1.5"></div>
@@ -135,6 +150,7 @@
           </div>
           <div>
             <h2 class="text-sm font-bold text-slate-900 leading-tight">보호자 인적사항</h2>
+            <p class="text-[11px] text-slate-400">진료 기록부와 안내에 사용돼요.</p>
           </div>
         </div>
 
@@ -189,7 +205,7 @@
               <input 
                 type="email" 
                 id="email" 
-                placeholder="example@email.com" 
+                placeholder="example@email.com (선택입력)" 
                 class="w-full px-3 py-2 rounded-xl placeholder-slate-400 text-sm transition"
               >
             </div>
@@ -207,6 +223,7 @@
           </div>
           <div>
             <h2 class="text-sm font-bold text-slate-900 leading-tight">반려동물 정보</h2>
+            <p class="text-[11px] text-slate-400">성격은 진료실의 안전을 위해 꼭 체크해주세요.</p>
           </div>
         </div>
 
@@ -241,7 +258,7 @@
                   type="text" 
                   id="petName" 
                   required 
-                  placeholder="이름" 
+                  placeholder="아이의 이름" 
                   class="required-field w-full px-2 py-1.5 rounded-lg placeholder-slate-400 text-xs sm:text-sm transition text-center"
                 >
               </div>
@@ -251,7 +268,7 @@
                 <input 
                   type="text" 
                   id="breed" 
-                  placeholder="말티즈" 
+                  placeholder="예: 말티즈" 
                   class="w-full px-2 py-1.5 rounded-lg placeholder-slate-400 text-xs sm:text-sm transition text-center"
                 >
               </div>
@@ -348,7 +365,7 @@
         </div>
       </div>
 
-      <!-- 카드 3: 내원 사유 & 내원 예정일 -->
+      <!-- 카드 3: 내원 사유 & 내원 예정일 (설명문 원본 100% 보존) -->
       <div class="bg-white rounded-2xl p-3.5 md:p-4 border border-slate-300 shadow-sm space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="flex items-center gap-2">
@@ -359,18 +376,20 @@
             </div>
             <div>
               <h2 class="text-sm font-bold text-slate-900 leading-tight">내원 사유 & 내원 예정일</h2>
+              <p class="text-[11px] text-slate-400">지금 가장 걱정되는 점을 상세히 적어주세요.</p>
             </div>
           </div>
 
-          <a href="mailto:admin@23si.net?subject=[23시 동물병원] 진료 참고자료 제출" class="bg-indigo-50 border border-indigo-200 hover:border-indigo-400 px-3 py-1.5 rounded-xl flex items-center justify-between gap-2 shadow-sm transition">
-            <span class="text-[11px] font-semibold text-slate-600">진료 자료/사진 발송</span>
-            <span class="text-xs font-bold text-indigo-700 tracking-tight">📧 admin@23si.net</span>
+          <!-- 자료 발송 안내 박스 (내용 100% 원본 유지) -->
+          <a href="mailto:admin@23si.net?subject=[23시 동물병원] 진료 참고자료 제출" class="bg-indigo-50 border border-indigo-200 hover:border-indigo-400 px-3 py-1.5 rounded-xl block text-left sm:text-right shadow-sm transition">
+            <span class="text-[11px] font-bold text-slate-700 block leading-tight">다른 병원 자료나 사진자료 등은 메일로 보내주세요</span>
+            <span class="text-xs font-black text-indigo-700 tracking-wide block mt-0.5">📧 admin@23si.net</span>
           </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-10 gap-3 items-stretch">
           
-          <!-- 좌측 60%: 내원 사유 -->
+          <!-- 좌측 60%: 내원 사유 (원본 플레이스홀더 텍스트 100% 유지) -->
           <div class="md:col-span-6 flex flex-col">
             <div class="flex items-center justify-between mb-1">
               <label class="flex items-center">
@@ -382,8 +401,8 @@
               id="reason" 
               required
               rows="4"
-              placeholder="증상, 발생 시기, 현재 상태 등을 가능한 구체적으로 적어주시면 준비에 큰 도움이 됩니다." 
-              class="required-field w-full p-2.5 rounded-xl placeholder-slate-400 text-xs sm:text-sm leading-relaxed transition resize-none flex-1 min-h-[95px]"
+              placeholder="💚 원활한 진료와 정확한 대기시간 안내를 위해 내원 사유를 조금 더 구체적으로 작성해 주세요. ‘아파요’, ‘피부염’보다는 증상, 발생 시기, 현재 상태 등을 자세히 적어주시면 필요한 검사와 진료를 미리 준비하는 데 큰 도움이 됩니다. 보호자님의 협조에 감사드립니다." 
+              class="required-field w-full p-2.5 rounded-xl placeholder-slate-400 text-xs sm:text-sm leading-relaxed transition resize-none flex-1 min-h-[110px]"
             ></textarea>
           </div>
 
@@ -396,24 +415,24 @@
 
             <div class="flex flex-col justify-center bg-slate-50 p-2.5 rounded-xl border border-slate-300 flex-1 space-y-2">
               <div>
-                <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">날짜</label>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-0.5">날짜 선택</label>
                 <input 
                   type="date" 
                   id="expectedDate" 
-                  class="w-full px-2 py-1.5 rounded-lg text-xs font-medium"
+                  class="w-full px-2 py-1.5 rounded-lg text-xs font-semibold"
                 >
               </div>
 
               <div class="pt-1.5 border-t border-slate-200">
-                <label class="block text-[10px] font-semibold text-slate-500 mb-1">시간대</label>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">시간대 선택</label>
                 <div class="grid grid-cols-3 gap-1">
-                  <button type="button" onclick="selectTimeSlot('오전')" id="slot-오전" class="time-slot-btn py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
+                  <button type="button" onclick="selectTimeSlot('오전')" id="slot-오전" class="time-slot-btn py-1.5 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
                     오전
                   </button>
-                  <button type="button" onclick="selectTimeSlot('오후')" id="slot-오후" class="time-slot-btn py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
+                  <button type="button" onclick="selectTimeSlot('오후')" id="slot-오후" class="time-slot-btn py-1.5 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
                     오후
                   </button>
-                  <button type="button" onclick="selectTimeSlot('야간')" id="slot-야간" class="time-slot-btn py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
+                  <button type="button" onclick="selectTimeSlot('야간')" id="slot-야간" class="time-slot-btn py-1.5 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 transition">
                     야간
                   </button>
                 </div>
@@ -433,9 +452,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
               </svg>
             </div>
-            <h2 class="text-sm font-bold text-slate-900 leading-tight">추가 처치 의뢰</h2>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 leading-tight">추가 처치 의뢰</h2>
+              <p class="text-[11px] text-slate-400">원하시는 항목을 선택해주세요. 여러 항목을 선택할 수 있어요.</p>
+            </div>
           </div>
-          <span class="text-[11px] text-slate-400">중복 선택 가능</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -508,7 +529,7 @@
         </div>
       </div>
 
-      <!-- 카드 5: 안내 및 동의 + 서명 패드 -->
+      <!-- 카드 5: 안내 및 동의 + 서명 패드 (원본 문구 전문 100% 보존) -->
       <div class="bg-white rounded-2xl p-3.5 md:p-4 border border-slate-300 shadow-sm space-y-3">
         <div class="flex items-center gap-2">
           <div class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold flex-shrink-0">
@@ -516,16 +537,19 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
             </svg>
           </div>
-          <div class="flex items-center">
-            <h2 class="text-sm font-bold text-slate-900 leading-tight">
-              <span class="highlight-pen">안내 및 동의</span>
-            </h2>
-            <span class="badge-required">필수</span>
+          <div>
+            <div class="flex items-center">
+              <h2 class="text-sm font-bold text-slate-900 leading-tight">
+                <span class="highlight-pen">안내 및 동의</span>
+              </h2>
+              <span class="badge-required">필수</span>
+            </div>
+            <p class="text-[11px] text-slate-400">안전한 진료를 위해 내용을 확인해주세요.</p>
           </div>
         </div>
 
         <div class="space-y-2">
-          <!-- 1. 개인정보 수집 및 이용 동의 -->
+          <!-- 1. 개인정보 수집 및 이용 동의 (원본 전문 100% 보존) -->
           <div class="p-2.5 rounded-xl border border-slate-300 bg-white space-y-1.5">
             <label class="flex items-center gap-2 cursor-pointer select-none">
               <input type="checkbox" id="agreePrivacy" onchange="checkAgreements()" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
@@ -534,16 +558,19 @@
                 <span class="badge-required">필수</span>
               </div>
             </label>
-            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200 text-[10px] leading-relaxed text-slate-600 space-y-0.5">
-              <ul class="list-disc pl-3.5 space-y-0.5 text-slate-600">
-                <li><strong class="text-slate-700">항목:</strong> 성명, 연락처, 접수 정보</li>
-                <li><strong class="text-slate-700">목적:</strong> 진료기록 관리 및 접수/안내 발송</li>
-                <li><strong class="text-slate-700">보유:</strong> 목적 달성 시 또는 관련 법령 기간</li>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] leading-relaxed text-slate-600 space-y-1">
+              <p class="font-bold text-slate-800">개인정보 수집 및 이용 동의</p>
+              <ul class="list-disc pl-4 space-y-0.5 text-slate-600">
+                <li><strong class="text-slate-700">수집 항목:</strong> 보호자 성명, 연락처, 접수 정보</li>
+                <li><strong class="text-slate-700">이용 목적:</strong> 진료기록 관리, 접수·예약 및 재진 안내, 휴진·공휴일 관련 SMS·알림톡 발송</li>
+                <li><strong class="text-slate-700">보유 기간:</strong> 목적 달성 시까지 또는 관련 법령에 따른 보존 기간</li>
+                <li><strong class="text-slate-700">동의 거부:</strong> 동의를 거부할 수 있으나, 일부 서비스 이용이 제한될 수 있습니다.</li>
               </ul>
+              <p class="font-medium text-teal-800 pt-0.5">본원은 개인정보를 명시된 목적에 따라 안전하게 관리합니다.</p>
             </div>
           </div>
 
-          <!-- 2. 병원 내 안전 및 유의사항 안내 동의 -->
+          <!-- 2. 병원 내 안전 및 유의사항 안내 동의 (원본 전문 100% 보존) -->
           <div class="p-2.5 rounded-xl border border-slate-300 bg-white space-y-1.5">
             <label class="flex items-center gap-2 cursor-pointer select-none">
               <input type="checkbox" id="agreeSafety" onchange="checkAgreements()" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
@@ -552,27 +579,34 @@
                 <span class="badge-required">필수</span>
               </div>
             </label>
-            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200 text-[10px] leading-relaxed text-slate-600">
-              <p>병원 내 접촉 및 돌발상황 방지를 위해 안전한 케어를 부탁드리며, 분쟁 시 당사자 간 원만한 해결을 원칙으로 합니다.</p>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] leading-relaxed text-slate-600 space-y-1">
+              <p class="font-bold text-slate-800">병원 내 안전 및 유의사항 안내</p>
+              <p>병원 내에서는 사람과 동물 간의 접촉이나 예기치 못한 상황으로 다툼, 상해, 물품 파손 등이 발생할 수 있습니다. 보호자님께서는 반려동물을 안전하게 관리해 주시고, 다른 보호자와 동물을 배려해 주시기 바랍니다.</p>
+              <p>개인 간 분쟁이나 피해가 발생한 경우 당사자 간의 원만한 해결을 원칙으로 하며, 병원은 관련 상황과 책임 범위에 따라 필요한 조치를 취합니다.</p>
+              <p class="font-bold text-teal-700">모두의 안전하고 편안한 진료 환경을 위해 보호자님의 협조와 배려를 부탁드립니다.</p>
             </div>
           </div>
         </div>
 
-        <!-- 서명 영역 (높이 슬림화) -->
+        <!-- 서명 영역 -->
         <div id="signatureSection" class="hidden pt-2.5 border-t border-slate-200 space-y-2 transition-all duration-300">
           <div class="flex items-center gap-1.5 text-xs font-bold text-teal-800">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
             </svg>
-            <span>위 내용을 확인하였음을 서명합니다</span>
+            <span>위 내용을 확인하였음을 서명으로 확인합니다</span>
             <span class="badge-required">필수</span>
           </div>
 
-          <div class="relative w-full h-28 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 overflow-hidden flex items-center justify-center">
+          <div class="relative w-full h-32 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 overflow-hidden flex items-center justify-center">
             <canvas id="signaturePad" class="w-full h-full bg-transparent cursor-crosshair relative z-10"></canvas>
             
             <div id="signPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-slate-400 select-none z-0">
+              <svg class="w-5 h-5 mb-0.5 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"></path>
+              </svg>
               <span class="text-xs font-medium">이 칸에 서명해 주세요</span>
+              <div class="w-3/4 border-b border-slate-200 mt-2"></div>
             </div>
           </div>
 
@@ -581,14 +615,14 @@
               <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
-              다시 서명
+              다시 서명하기
             </button>
-            <span id="signatureWarning" class="font-bold text-rose-500 text-[11px]">서명을 완료해 주세요.</span>
+            <span id="signatureWarning" class="font-bold text-rose-500 text-[11px]">서명을 해주셔야 접수서를 제출할 수 있어요.</span>
           </div>
         </div>
       </div>
 
-      <!-- 6. 하단 버튼 바 (2 : 2 : 6 비율, 패딩 축소) -->
+      <!-- 6. 하단 버튼 바 (2 : 2 : 6 비율) -->
       <div class="pt-1 flex items-center gap-2 w-full">
         <a 
           href="index.html" 
@@ -598,7 +632,7 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
           </svg>
-          <span>홈</span>
+          <span>홈으로</span>
         </a>
 
         <button 
@@ -610,7 +644,7 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
-          <span>초기화</span>
+          <span>다시 작성</span>
         </button>
 
         <button 
@@ -805,10 +839,10 @@
       const warn = document.getElementById('signatureWarning');
       if (isSigned) {
         warn.className = "font-bold text-emerald-600 text-[11px]";
-        warn.innerText = "✅ 서명 완료";
+        warn.innerText = "✅ 서명이 정상 확인되었습니다.";
       } else {
         warn.className = "font-bold text-rose-500 text-[11px]";
-        warn.innerText = "서명을 완료해 주세요.";
+        warn.innerText = "서명을 해주셔야 접수서를 제출할 수 있어요.";
       }
     }
 
