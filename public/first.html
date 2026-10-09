@@ -60,13 +60,6 @@
       outline: none !important;
     }
 
-    /* 서브 박스/통합 틀 (큰 틀 스타일) */
-    .group-frame {
-      border: 2px solid #cbd5e1;
-      background-color: #f8fafc;
-      border-radius: 1.25rem;
-    }
-
     /* 버튼류 및 선택 카드 테두리 강화 (2px) */
     .species-btn,
     .gender-btn,
@@ -120,26 +113,25 @@
 
   <div class="w-full max-w-3xl space-y-5 my-3">
     
-    <!-- 1. 헤더 영역 (초진 타이틀 옆 나란히 배치 + 우측에서 약 3cm 안쪽으로 들어간 정렬) -->
-    <header class="space-y-2.5">
+    <!-- 1. 헤더 영역 (타이틀 옆 배치 + 우측 3cm 안쪽 정렬) -->
+    <header class="space-y-2">
       <div>
         <span class="inline-block text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border-2 border-teal-300">처음 방문하신 보호자님</span>
       </div>
 
-      <!-- 타이틀 옆 재진 바로가기 (우측 끝에 붙지 않고 안쪽으로 약 3cm / mr-10 여백 확보) -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-0.5">
         <div>
           <h1 class="text-4xl md:text-5xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">초진 접수서</h1>
           <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">아이를 더 잘 살피기 위해, 아는 만큼 천천히 적어주세요.</p>
         </div>
 
-        <!-- 💡 재진 간편 접수 버튼: 타이틀 옆, 우측 끝에서 안쪽으로 들여쓰기(md:mr-10) -->
-        <div class="md:mr-8 lg:mr-12 flex-shrink-0">
+        <!-- 💡 재진 간편 접수 버튼: 타이틀 옆, 우측 3cm 안쪽(mr-10) 들여쓰기 -->
+        <div class="md:mr-10 flex-shrink-0">
           <a 
             href="revisit.html" 
-            class="group inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-[0.98] text-white shadow-md hover:shadow-lg transition-all border-2 border-amber-300/60"
+            class="group inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] text-white shadow-md hover:shadow-lg transition-all border-2 border-amber-300/60"
           >
-            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+            <div class="w-7 h-7 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
               <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
               </svg>
@@ -149,7 +141,7 @@
               <span class="text-xs sm:text-sm font-extrabold text-white leading-tight">재진 (간편 접수) 바로가기</span>
             </div>
             <div class="flex items-center gap-1 pl-1">
-              <span class="text-[10px] font-black bg-white text-amber-800 px-1.5 py-0.5 rounded-full shadow-sm">빠른 접수</span>
+              <span class="text-[10px] font-black bg-white text-amber-800 px-1.5 py-0.5 rounded-full">빠른접수</span>
               <span class="text-xs font-bold group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </a>
@@ -172,7 +164,7 @@
           </div>
           <div>
             <h2 class="text-base font-bold text-slate-900">보호자 인적사항</h2>
-            <p class="text-xs text-slate-400">진료 기록부와 알림톡 안내에 사용돼요.</p>
+            <p class="text-xs text-slate-400">진료 기록부와 안내에 사용돼요.</p>
           </div>
         </div>
 
@@ -188,7 +180,7 @@
                 id="guardianName" 
                 required 
                 placeholder="성함을 입력해주세요" 
-                class="required-field w-full px-3.5 py-3 rounded-2xl placeholder-slate-400 text-sm transition"
+                class="required-field w-full px-4 py-3 rounded-2xl placeholder-slate-400 text-sm transition"
               >
             </div>
             <div>
@@ -203,7 +195,7 @@
                 maxlength="13" 
                 placeholder="010-0000-0000" 
                 oninput="formatPhone(this)" 
-                class="required-field w-full px-3.5 py-3 rounded-2xl placeholder-slate-400 text-sm transition"
+                class="required-field w-full px-4 py-3 rounded-2xl placeholder-slate-400 text-sm transition"
               >
             </div>
           </div>
@@ -219,7 +211,7 @@
                 id="address" 
                 required 
                 placeholder="거주 지역 또는 주소" 
-                class="required-field w-full px-3.5 py-3 rounded-2xl placeholder-slate-400 text-sm transition"
+                class="required-field w-full px-4 py-3 rounded-2xl placeholder-slate-400 text-sm transition"
               >
             </div>
             <div>
@@ -228,14 +220,14 @@
                 type="email" 
                 id="email" 
                 placeholder="example@email.com (선택입력)" 
-                class="w-full px-3.5 py-3 rounded-2xl placeholder-slate-400 text-sm transition"
+                class="w-full px-4 py-3 rounded-2xl placeholder-slate-400 text-sm transition"
               >
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 카드 2: 반려동물 정보 (통합 프레임 및 내부 그룹화) -->
+      <!-- 카드 2: 반려동물 정보 (60% : 40% 한 줄 분할 배치) -->
       <div class="bg-white rounded-3xl p-5 md:p-6 border-2 border-slate-300 shadow-md space-y-4">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center font-bold">
@@ -245,102 +237,103 @@
           </div>
           <div>
             <h2 class="text-base font-bold text-slate-900">반려동물 정보</h2>
-            <p class="text-xs text-slate-400">아래의 항목들을 차례대로 확인해 주세요.</p>
+            <p class="text-xs text-slate-400">성격은 진료실의 안전을 위해 꼭 체크해주세요.</p>
           </div>
         </div>
 
-        <div class="space-y-3.5">
+        <div class="space-y-4">
           
-          <!-- [그룹 1] 동물 종류 통합 틀 -->
-          <div class="group-frame p-3 sm:p-3.5">
+          <!-- [1번째 칸] 동물 종류 -->
+          <div>
             <label class="block text-xs mb-2 text-center flex items-center justify-center">
               <span class="highlight-pen">동물 종류</span>
               <span class="badge-required">필수</span>
             </label>
-            <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5 sm:gap-2">
-              <button type="button" onclick="selectSpecies('강아지')" id="spec-강아지" class="species-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">강아지</button>
-              <button type="button" onclick="selectSpecies('고양이')" id="spec-고양이" class="species-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">고양이</button>
-              <button type="button" onclick="selectSpecies('햄스터')" id="spec-햄스터" class="species-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">햄스터</button>
-              <button type="button" onclick="selectSpecies('앵무새')" id="spec-앵무새" class="species-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">앵무새</button>
-              <button type="button" onclick="selectSpecies('파충류')" id="spec-파충류" class="species-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">파충류</button>
-              <button type="button" onclick="selectSpecies('토끼')" id="spec-토끼" class="species-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">토끼</button>
-              <button type="button" onclick="selectSpecies('기타')" id="spec-기타" class="species-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">기타</button>
+            <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
+              <button type="button" onclick="selectSpecies('강아지')" id="spec-강아지" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">강아지</button>
+              <button type="button" onclick="selectSpecies('고양이')" id="spec-고양이" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">고양이</button>
+              <button type="button" onclick="selectSpecies('햄스터')" id="spec-햄스터" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">햄스터</button>
+              <button type="button" onclick="selectSpecies('앵무새')" id="spec-앵무새" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">앵무새</button>
+              <button type="button" onclick="selectSpecies('파충류')" id="spec-파충류" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">파충류</button>
+              <button type="button" onclick="selectSpecies('토끼')" id="spec-토끼" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">토끼</button>
+              <button type="button" onclick="selectSpecies('기타')" id="spec-기타" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">기타</button>
             </div>
           </div>
 
-          <!-- [그룹 2] 프로필 & 성별 통합 틀 -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch">
+          <!-- [2번째 칸] 60% (이름, 품종, 체중) : 40% (성별, 중성화) 한 줄 배치 -->
+          <div class="flex flex-col md:flex-row gap-3 items-end">
             
-            <!-- 2-1. 기본 인적 (이름, 품종, 체중) -->
-            <div class="md:col-span-7 group-frame p-3 sm:p-3.5 space-y-2.5">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-xs mb-1 flex items-center">
-                    <span class="highlight-pen">동물 이름</span>
-                    <span class="badge-required">필수</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    id="petName" 
-                    required 
-                    placeholder="아이의 이름" 
-                    class="required-field w-full px-3 py-2.5 rounded-xl placeholder-slate-400 text-xs sm:text-sm transition"
-                  >
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">품종</label>
-                  <input 
-                    type="text" 
-                    id="breed" 
-                    placeholder="예: 말티즈" 
-                    class="w-full px-3 py-2.5 rounded-xl placeholder-slate-400 text-xs sm:text-sm transition"
-                  >
-                </div>
-              </div>
+            <!-- 좌측 60%: 동물 이름, 품종, 체중 -->
+            <div class="w-full md:w-3/5 grid grid-cols-3 gap-2.5" style="flex: 6;">
+              <!-- 동물 이름 -->
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">체중 <span class="text-slate-400 font-normal">(선택)</span></label>
+                <label class="block text-xs mb-1.5 text-center flex items-center justify-center">
+                  <span class="highlight-pen">동물 이름</span>
+                  <span class="badge-required">필수</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="petName" 
+                  required 
+                  placeholder="아이의 이름" 
+                  class="required-field w-full px-3 py-3.5 rounded-2xl placeholder-slate-400 text-xs sm:text-sm transition text-center"
+                >
+              </div>
+
+              <!-- 품종 -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">품종</label>
+                <input 
+                  type="text" 
+                  id="breed" 
+                  placeholder="예: 말티즈" 
+                  class="w-full px-3 py-3.5 rounded-2xl placeholder-slate-400 text-xs sm:text-sm transition text-center"
+                >
+              </div>
+
+              <!-- 체중 -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">체중</label>
                 <div class="relative">
                   <input 
                     type="number" 
                     step="0.01" 
                     id="weight" 
                     placeholder="0.0" 
-                    class="w-full pl-3 pr-8 py-2.5 rounded-xl placeholder-slate-400 text-xs sm:text-sm transition"
+                    class="w-full pl-3 pr-7 py-3.5 rounded-2xl placeholder-slate-400 text-xs sm:text-sm transition text-center"
                   >
-                  <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-500">kg</span>
+                  <span class="absolute right-2.5 top-3.5 text-xs font-bold text-slate-400">kg</span>
                 </div>
               </div>
             </div>
 
-            <!-- 2-2. 성별 & 중성화 통합 틀 -->
-            <div class="md:col-span-5 group-frame p-3 sm:p-3.5 flex flex-col justify-between">
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-2 text-center">성별 & 중성화 <span class="text-slate-400 font-normal">(선택)</span></label>
-                <div class="grid grid-cols-2 gap-2">
-                  <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">암컷</button>
-                  <button type="button" onclick="selectGender('수컷')" id="gender-수컷" class="gender-btn py-2.5 text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">수컷</button>
-                </div>
+            <!-- 우측 40%: 성별 & 중성화 (필수 제외) -->
+            <div class="w-full md:w-2/5" style="flex: 4;">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">성별 & 중성화</label>
+              <div class="flex items-center gap-1.5 h-[50px]">
+                <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn flex-1 h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">암컷</button>
+                <button type="button" onclick="selectGender('수컷')" id="gender-수컷" class="gender-btn flex-1 h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">수컷</button>
+                <label class="custom-border-box flex items-center justify-center gap-1.5 px-3 h-full rounded-2xl bg-white cursor-pointer select-none whitespace-nowrap hover:border-teal-400 transition flex-1">
+                  <input type="checkbox" id="neutered" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
+                  <span class="text-xs font-bold text-slate-700">중성화</span>
+                </label>
               </div>
-              <label class="custom-border-box mt-2 flex items-center justify-center gap-2 py-2 rounded-xl bg-white cursor-pointer select-none hover:border-teal-400 transition">
-                <input type="checkbox" id="neutered" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
-                <span class="text-xs font-bold text-slate-800">중성화 수술 완료</span>
-              </label>
             </div>
 
           </div>
 
-          <!-- [그룹 3] 생년월일/나이 & 성격 분리 통합 틀 -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch">
-            
-            <!-- 3-1. 생년월일 & 나이 틀 -->
-            <div class="md:col-span-7 group-frame p-3 sm:p-3.5 space-y-2">
-              <div class="flex items-center justify-between">
+          <!-- [3번째 칸] 생년월일 + 나이 + 성격 (간격 구분 및 독립 박스) -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-end pt-2 border-t border-slate-100">
+            <!-- 생년월일 및 나이 -->
+            <div class="md:col-span-7">
+              <div class="flex items-center justify-center gap-2 mb-1.5">
                 <label class="text-xs flex items-center">
                   <span class="highlight-pen">생년월일</span>
                   <span class="badge-required">필수</span>
                 </label>
-                <div class="flex items-center gap-1 text-[11px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-lg border border-teal-200">
-                  <span>추정나이:</span>
+                <span class="text-slate-300 text-xs">|</span>
+                <div class="flex items-center gap-1 text-xs font-bold text-teal-800">
+                  <span>나이:</span>
                   <input 
                     type="number" 
                     id="petAgeYears" 
@@ -348,7 +341,7 @@
                     max="35" 
                     placeholder="0" 
                     oninput="handleAgeInput()" 
-                    class="w-7 h-5 px-0.5 text-center text-xs font-bold text-teal-900 bg-white border border-teal-400 rounded focus:outline-none"
+                    class="w-8 h-5 px-0.5 text-center text-xs font-bold text-teal-900 bg-white border border-teal-400 rounded focus:outline-none"
                   >
                   <span>년</span>
                   <input 
@@ -358,44 +351,44 @@
                     max="11" 
                     placeholder="0" 
                     oninput="handleAgeInput()" 
-                    class="w-7 h-5 px-0.5 text-center text-xs font-bold text-teal-900 bg-white border border-teal-400 rounded focus:outline-none"
+                    class="w-8 h-5 px-0.5 text-center text-xs font-bold text-teal-900 bg-white border border-teal-400 rounded focus:outline-none"
                   >
                   <span>개월</span>
                 </div>
               </div>
 
-              <div class="grid grid-cols-3 gap-1.5">
-                <select id="birthYear" onchange="handleDateSelect()" class="required-field w-full px-2 py-2 rounded-xl text-xs font-semibold transition">
-                  <option value="">년도</option>
+              <!-- 년, 월, 일 드롭다운 -->
+              <div class="grid grid-cols-3 gap-2">
+                <select id="birthYear" onchange="handleDateSelect()" class="required-field w-full px-2 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition">
+                  <option value="">년도 선택</option>
                 </select>
-                <select id="birthMonth" onchange="handleDateSelect()" class="required-field w-full px-2 py-2 rounded-xl text-xs font-semibold transition">
-                  <option value="">월</option>
+                <select id="birthMonth" onchange="handleDateSelect()" class="required-field w-full px-2 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition">
+                  <option value="">월 선택</option>
                 </select>
-                <select id="birthDay" onchange="handleDateSelect()" class="required-field w-full px-2 py-2 rounded-xl text-xs font-semibold transition">
-                  <option value="">일</option>
+                <select id="birthDay" onchange="handleDateSelect()" class="required-field w-full px-2 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition">
+                  <option value="">일 선택</option>
                 </select>
               </div>
             </div>
 
-            <!-- 3-2. 성격 선택 틀 -->
-            <div class="md:col-span-5 group-frame p-3 sm:p-3.5 flex flex-col justify-between">
-              <label class="block text-xs mb-2 text-center flex items-center justify-center">
+            <!-- 성격 선택 -->
+            <div class="md:col-span-5 md:border-l md:border-slate-200 md:pl-4">
+              <label class="block text-xs mb-1.5 text-center flex items-center justify-center">
                 <span class="highlight-pen">성격</span>
                 <span class="badge-required">필수</span>
               </label>
-              <div class="grid grid-cols-3 gap-1.5 h-[42px]">
-                <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn h-full text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">온순</button>
-                <button type="button" onclick="selectPersonality('활발')" id="pers-활발" class="personality-btn h-full text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">활발</button>
-                <button type="button" onclick="selectPersonality('예민')" id="pers-예민" class="personality-btn h-full text-xs font-semibold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition">예민</button>
+              <div class="grid grid-cols-3 gap-2 h-[48px]">
+                <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">온순</button>
+                <button type="button" onclick="selectPersonality('활발')" id="pers-활발" class="personality-btn h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">활발</button>
+                <button type="button" onclick="selectPersonality('예민')" id="pers-예민" class="personality-btn h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">예민</button>
               </div>
             </div>
-
           </div>
 
         </div>
       </div>
 
-      <!-- 카드 3: 내원 사유 & 내원 예정일 (7:3 비율 레이아웃) -->
+      <!-- 카드 3: 내원 사유 & 내원 예정일 (원래 문구 그대로 100% 복구) -->
       <div class="bg-white rounded-3xl p-5 md:p-6 border-2 border-slate-300 shadow-md space-y-4">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
@@ -405,15 +398,15 @@
           </div>
           <div>
             <h2 class="text-base font-bold text-slate-900">내원 사유 & 내원 예정일</h2>
-            <p class="text-xs text-slate-400">증상 내용과 방문 일정을 간단히 알려주세요.</p>
+            <p class="text-xs text-slate-400">지금 가장 걱정되는 점을 상세히 적어주세요.</p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-10 gap-3.5 items-stretch">
           
-          <!-- 좌측 70%: 내원 사유 -->
+          <!-- 좌측 70%: 내원 사유 (원래 플레이스홀더 원문 복구) -->
           <div class="md:col-span-7 flex flex-col">
-            <div class="flex items-center h-6 mb-1">
+            <div class="flex items-center h-6 mb-1.5">
               <label class="text-xs flex items-center">
                 <span class="highlight-pen">내원 사유</span>
                 <span class="badge-required">필수</span>
@@ -422,23 +415,23 @@
             <textarea 
               id="reason" 
               required
-              placeholder="증상과 불편한 점을 자세히 작성해 주세요.&#10;정확한 진료 준비를 위해 필요한 내용입니다." 
-              class="required-field w-full h-[135px] md:h-full p-3.5 rounded-2xl placeholder-slate-400 text-xs sm:text-sm leading-relaxed transition resize-none flex-1"
+              placeholder="증상과 불편한 점을 자세히 작성해 주세요.정확한 진료 준비를 위해 필요한 내용입니다.접수 후 추가 요청은 다음 순번으로 배정될 수 있습니다." 
+              class="required-field w-full h-[145px] md:h-full p-3.5 rounded-2xl placeholder-slate-400 text-xs md:text-sm leading-relaxed transition resize-none flex-1"
             ></textarea>
           </div>
 
           <!-- 우측 30%: 내원 예정일 및 희망시간 -->
           <div class="md:col-span-3 flex flex-col">
-            <div class="flex items-center justify-between h-6 mb-1">
+            <div class="flex items-center justify-between h-6 mb-1.5">
               <label class="text-xs font-bold text-slate-700">내원 예정일</label>
-              <span class="text-[11px] text-slate-400">선택</span>
+              <span class="text-[11px] text-slate-400">선택사항</span>
             </div>
             <div class="flex flex-col justify-between bg-slate-50 p-3 rounded-2xl border-2 border-slate-300 flex-1 space-y-2">
               <div>
                 <input 
                   type="date" 
                   id="expectedDate" 
-                  class="w-full px-2 py-2 rounded-xl text-xs font-semibold"
+                  class="w-full px-2.5 py-2 rounded-xl text-xs font-semibold"
                 >
               </div>
 
@@ -454,7 +447,7 @@
                     야간
                   </button>
                 </div>
-                <p class="text-[10px] text-slate-400 text-center mt-1">시간대 선택</p>
+                <p class="text-[10px] text-slate-400 text-center mt-1">선택사항</p>
               </div>
             </div>
           </div>
@@ -515,8 +508,9 @@
           <label class="treatment-card flex items-center justify-between p-3 rounded-2xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
             <div class="flex items-center gap-2">
               <input type="checkbox" name="treatment" value="심장사상충 키트검사" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
-              <span class="font-extrabold text-[#0d9488]">38,500원</span>
+              <span class="font-bold text-slate-800">심장사상충 키트검사</span>
             </div>
+            <span class="font-extrabold text-[#0d9488]">38,500원</span>
           </label>
 
           <label class="treatment-card flex items-center justify-between p-3 rounded-2xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
@@ -545,7 +539,7 @@
         </div>
       </div>
 
-      <!-- 카드 5: 안내 및 동의 + 서명 패드 -->
+      <!-- 카드 5: 안내 및 동의 + 서명 패드 (원문 100% 복구) -->
       <div class="bg-white rounded-3xl p-5 md:p-6 border-2 border-emerald-500/80 shadow-lg space-y-4">
         <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-3">
@@ -561,70 +555,68 @@
                 </h2>
                 <span class="badge-required">필수</span>
               </div>
-              <p class="text-xs text-slate-500">안전한 진료를 위해 확인 및 동의 후 서명해 주세요.</p>
+              <p class="text-xs text-slate-400">안전한 진료를 위해 내용을 확인해주세요.</p>
             </div>
           </div>
-
-          <span class="hidden sm:inline-block text-[11px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
-            미동의 시 접수 불가
-          </span>
         </div>
 
         <div class="space-y-3">
+          <!-- 개인정보 활용 동의 (원문 복구) -->
           <label id="boxAgreePrivacy" class="agreement-card-box flex items-start gap-3 p-3.5 rounded-2xl bg-amber-50/30 hover:border-emerald-500 transition cursor-pointer select-none">
-            <input type="checkbox" id="agreePrivacy" onchange="checkAgreements()" class="mt-1 w-5 h-5 rounded text-[#0d9488] focus:ring-0">
+            <input type="checkbox" id="agreePrivacy" onchange="checkAgreements()" class="mt-0.5 w-4 h-4 rounded text-[#0d9488] focus:ring-0">
             <div>
               <div class="flex items-center">
-                <span class="highlight-pen text-xs font-bold text-slate-900">개인정보 활용에 동의합니다</span>
+                <span class="highlight-pen text-xs font-bold text-slate-800">개인정보 활용에 동의합니다</span>
                 <span class="badge-required">필수</span>
               </div>
-              <p class="text-[11px] text-slate-500 mt-1">진료기록부 작성 및 예약/휴일 안내 SMS·알림톡 발송에 이용됩니다.</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">진료기록부 작성과 휴일 안내 SMS 발송에 이용됩니다.</p>
             </div>
           </label>
 
-          <div id="boxAgreeSafety" class="agreement-card-box p-3.5 rounded-2xl bg-amber-50/30 space-y-2.5">
+          <!-- 안전사고 예방 동의 (원문 복구) -->
+          <div id="boxAgreeSafety" class="agreement-card-box p-3.5 rounded-2xl bg-amber-50/30 space-y-3">
             <label class="flex items-center gap-3 cursor-pointer select-none">
-              <input type="checkbox" id="agreeSafety" onchange="checkAgreements()" class="w-5 h-5 rounded text-[#0d9488] focus:ring-0">
+              <input type="checkbox" id="agreeSafety" onchange="checkAgreements()" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
               <div class="flex items-center">
-                <span class="highlight-pen text-xs font-bold text-slate-900">안전사고 예방 및 책임 안내에 동의합니다</span>
+                <span class="highlight-pen text-xs font-bold text-slate-800">안전사고 예방 및 책임 안내에 동의합니다</span>
                 <span class="badge-required">필수</span>
               </div>
             </label>
-            <div class="bg-white p-3 rounded-xl border-2 border-slate-200 text-[11px] leading-relaxed text-slate-700 space-y-1 shadow-inner">
-              <p>본인은 병원 내에서 사람과 동물 간의 접촉이나 예기치 못한 상황으로 인해 인적·물적 피해가 발생할 수 있음을 이해하였으며, 이로 인해 발생하는 개인 간 분쟁에 대해 병원이 개입하지 않음을 확인하였습니다.</p>
-              <p class="font-bold text-teal-800">모두의 안전을 위해 보호자님의 각별한 주의와 배려 부탁드립니다.</p>
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-[11px] leading-relaxed text-slate-600 space-y-1.5">
+              <p>본인은 병원 내에서 사람과 동물 간의 접촉이나 예기치 못한 상황으로 인해 인적·물적 피해(예: 다툼, 상해, 물품 파손)가 발생할 수 있음을 이해하였으며, 이로 인해 발생하는 개인 간의 분쟁 및 보상 문제에 대해 병원이 개입하지 않음을 확인하였습니다.</p>
+              <p class="font-bold text-teal-700">주의와 배려 부탁드립니다.</p>
             </div>
           </div>
         </div>
 
-        <!-- 서명 영역 -->
-        <div id="signatureSection" class="hidden pt-3 border-t-2 border-slate-200 space-y-2.5 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <span class="highlight-pen text-xs font-bold text-slate-900">보호자 전자 서명</span>
-              <span class="badge-required">필수</span>
-            </div>
-            <span class="text-[11px] text-slate-500">위 내용을 모두 확인하였음을 서명합니다</span>
+        <!-- 서명 영역 (원문 복구) -->
+        <div id="signatureSection" class="hidden pt-4 border-t border-slate-200/80 space-y-3 transition-all duration-300">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-teal-800">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            </svg>
+            <span>위 내용을 확인하였음을 서명으로 확인합니다</span>
+            <span class="badge-required">필수</span>
           </div>
 
-          <div class="relative w-full h-40 rounded-2xl border-2 border-dashed border-slate-400 bg-slate-50 overflow-hidden flex items-center justify-center">
+          <div class="relative w-full h-44 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 overflow-hidden flex items-center justify-center">
             <canvas id="signaturePad" class="w-full h-full bg-transparent cursor-crosshair relative z-10"></canvas>
             
             <div id="signPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-slate-400 select-none z-0">
-              <svg class="w-6 h-6 mb-1 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <svg class="w-6 h-6 mb-1 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"></path>
               </svg>
-              <span class="text-xs font-bold text-slate-500">이 박스 안을 터치하여 서명해 주세요</span>
-              <div class="w-2/3 border-b-2 border-slate-300 mt-2.5"></div>
+              <span class="text-xs font-medium">이 칸에 서명해 주세요</span>
+              <div class="w-3/4 border-b border-slate-200 mt-4"></div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between text-xs pt-0.5">
-            <button type="button" onclick="clearSignature()" class="text-slate-600 hover:text-slate-900 font-bold flex items-center gap-1.5 transition px-2 py-1 rounded-lg bg-slate-100 border border-slate-300">
+          <div class="flex items-center justify-between text-xs pt-1">
+            <button type="button" onclick="clearSignature()" class="text-slate-500 hover:text-slate-800 font-bold flex items-center gap-1 transition">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
-              서명 지우기
+              다시 서명하기
             </button>
             <span id="signatureWarning" class="font-bold text-rose-500">서명을 해주셔야 접수서를 제출할 수 있어요.</span>
           </div>
@@ -686,7 +678,7 @@
 
       const currentYear = new Date().getFullYear();
 
-      yearSel.innerHTML = '<option value="">년도</option>';
+      yearSel.innerHTML = '<option value="">년도 선택</option>';
       for (let y = currentYear; y >= currentYear - 30; y--) {
         const opt = document.createElement('option');
         opt.value = y;
@@ -694,7 +686,7 @@
         yearSel.appendChild(opt);
       }
 
-      monthSel.innerHTML = '<option value="">월</option>';
+      monthSel.innerHTML = '<option value="">월 선택</option>';
       for (let m = 1; m <= 12; m++) {
         const opt = document.createElement('option');
         const val = String(m).padStart(2, '0');
@@ -703,7 +695,7 @@
         monthSel.appendChild(opt);
       }
 
-      daySel.innerHTML = '<option value="">일</option>';
+      daySel.innerHTML = '<option value="">일 선택</option>';
       for (let d = 1; d <= 31; d++) {
         const opt = document.createElement('option');
         const val = String(d).padStart(2, '0');
@@ -1052,13 +1044,13 @@
       const p1 = document.getElementById('agreePrivacy').checked;
       const p2 = document.getElementById('agreeSafety').checked;
       if (!p1 || !p2) {
-        alert('⚠️ [필수 항목] 안내 및 동의 항목에 모두 동의해 주셔야 접수를 진행할 수 있습니다.');
+        alert('⚠️ 안내 및 동의 항목에 모두 체크해 주셔야 접수를 진행할 수 있습니다.');
         document.getElementById('agreePrivacy').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
       if (!isSigned) {
-        alert('✍ [필수 항목] 안전한 진료를 위해 안내 및 동의 하단에 서명을 완료해 주세요.');
+        alert('✍ 안전한 진료를 위해 안내 및 동의 하단에 서명을 완료해 주세요.');
         document.getElementById('signaturePad').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
@@ -1111,7 +1103,7 @@
         pet_name: petName,
         phone: phone,
         email: email,
-        symptom: reason,
+        symptom: reason || '초진 신규 접수',
         payload: payloadData
       };
 
