@@ -32,7 +32,7 @@
   <!-- 상단 간격 조절용 공간 -->
   <div class="h-1"></div>
 
-  <!-- 메인 인터랙션 컨테이너 (스크롤 없이 원스크린 집중) -->
+  <!-- 메인 인터랙션 컨테이너 -->
   <main class="w-full max-w-md flex flex-col items-center gap-3.5 sm:gap-6 my-auto">
     
     <!-- 병원 타이틀 헤더 -->
@@ -49,7 +49,7 @@
       <div class="h-1 w-14 sm:w-16 bg-[#0d9488] rounded-full mx-auto mt-2"></div>
     </header>
 
-    <!-- 초진 / 재진 2개 프레임 좌우 나란히 배치 (grid-cols-2 유지) -->
+    <!-- 초진 / 재진 2개 프레임 좌우 나란히 배치 -->
     <section class="w-full grid grid-cols-2 gap-3 sm:gap-4.5" aria-label="진료 접수 구분 선택">
       
       <!-- 1. 초진 접수 카드 -->
@@ -58,24 +58,20 @@
         class="group relative bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border-2 border-teal-100 hover:border-teal-500 active:scale-[0.98] shadow-lg shadow-teal-900/5 flex flex-col items-center justify-between text-center transition-all duration-200"
       >
         <div class="w-full flex flex-col items-center">
-          <!-- 1) 크게 키운 '첫 방문' 뱃지 -->
           <span class="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-teal-800 bg-teal-100/80 border border-teal-200 px-3 py-1 rounded-full mb-2.5 shadow-2xs">
             <span>✨</span> 첫 방문
           </span>
           
-          <!-- 아이콘 -->
           <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-teal-50 text-[#0d9488] group-hover:bg-[#0d9488] group-hover:text-white flex items-center justify-center mb-1.5 transition-colors duration-200 shadow-xs">
             <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
             </svg>
           </div>
           
-          <!-- 2) 큼직하게 강조된 제목 '초진' -->
           <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
             초진
           </h2>
           
-          <!-- 3) '오랜만인 경우'가 큼직하게 돋보이는 설명 박스 -->
           <div class="w-full bg-slate-50/90 rounded-xl py-2 px-1 border border-slate-100/90 mb-3 space-y-0.5">
             <p class="text-[11px] sm:text-xs text-slate-500 font-medium leading-none">
               첫 방문이거나
@@ -86,7 +82,6 @@
           </div>
         </div>
         
-        <!-- 4) '작성하기' -> '초진 접수하기 →' 로 변경된 버튼 -->
         <div class="w-full py-2.5 sm:py-3 rounded-xl bg-teal-600 text-white font-extrabold text-xs sm:text-sm tracking-tight group-hover:bg-teal-700 shadow-md shadow-teal-600/20 transition">
           초진 접수하기 →
         </div>
@@ -98,24 +93,20 @@
         class="group relative bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border-2 border-indigo-100 hover:border-indigo-500 active:scale-[0.98] shadow-lg shadow-indigo-900/5 flex flex-col items-center justify-between text-center transition-all duration-200"
       >
         <div class="w-full flex flex-col items-center">
-          <!-- 1) 크게 키운 '재방문' 뱃지 -->
           <span class="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-indigo-800 bg-indigo-100/80 border border-indigo-200 px-3 py-1 rounded-full mb-2.5 shadow-2xs">
             <span>🔄</span> 재방문
           </span>
           
-          <!-- 아이콘 -->
           <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center mb-1.5 transition-colors duration-200 shadow-xs">
             <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
           </div>
           
-          <!-- 2) 큼직하게 강조된 제목 '재진' -->
           <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
             재진
           </h2>
           
-          <!-- 3) '다시 오신 경우'가 큼직하게 돋보이는 설명 박스 -->
           <div class="w-full bg-slate-50/90 rounded-xl py-2 px-1 border border-slate-100/90 mb-3 space-y-0.5">
             <p class="text-[11px] sm:text-xs text-slate-500 font-medium leading-none">
               차트가 있고
@@ -126,21 +117,25 @@
           </div>
         </div>
 
-        <!-- 4) '작성하기' -> '재진 접수하기 →' 로 변경된 버튼 -->
         <div class="w-full py-2.5 sm:py-3 rounded-xl bg-indigo-600 text-white font-extrabold text-xs sm:text-sm tracking-tight group-hover:bg-indigo-700 shadow-md shadow-indigo-600/20 transition">
           재진 접수하기 →
         </div>
       </a>
 
     </section>
-    <!-- 💡 기존 대비 2배 크기로 시원하게 확대한 자료 발송 안내 박스 -->
-          <div class="bg-indigo-50 border-2 border-indigo-200 px-4 py-2.5 rounded-2xl text-left sm:text-right shadow-sm">
-            <span class="text-xs sm:text-sm font-bold text-slate-700 block leading-tight">다른 병원 자료나 사진자료 등은 메일로 보내주세요</span>
-            <span class="text-sm sm:text-base md:text-lg font-black text-indigo-700 tracking-wide block mt-0.5">📧 admin@23si.net</span>
-          </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-10 gap-3.5 items-stretch pt-1">
+    <!-- 💡 수정된 자료 발송 안내 박스 (클릭 시 메일 앱 연결) -->
+    <a 
+      href="mailto:admin@23si.net?subject=[23시 동물병원] 진료 참고자료 제출"
+      class="w-full bg-indigo-50/90 border-2 border-indigo-200 hover:border-indigo-400 active:scale-[0.99] px-4 py-2.5 rounded-2xl text-center shadow-xs block transition duration-150"
+    >
+      <span class="text-xs sm:text-sm font-bold text-slate-700 block leading-tight">
+        다른 병원 자료나 사진자료 등은 메일로 보내주세요
+      </span>
+      <span class="text-sm sm:text-base font-black text-indigo-700 tracking-wide inline-flex items-center gap-1 mt-1">
+        📧 admin@23si.net
+      </span>
+    </a>
 
   </main>
 
@@ -172,7 +167,7 @@
           id="deskPwInput" 
           inputmode="numeric" 
           pattern="[0-9]*" 
-          maxlength="6"
+          maxlength="6" 
           placeholder="비밀번호" 
           class="w-full px-3 py-2.5 text-center text-lg font-bold tracking-widest border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
           onkeydown="if(event.key==='Enter') verifyPassword()"
@@ -199,7 +194,6 @@
   </div>
 
   <script>
-    // 카운터 모달 제어 로직
     function openPasswordModal() {
       const modal = document.getElementById('passwordModal');
       const input = document.getElementById('deskPwInput');
@@ -217,7 +211,6 @@
       modal.classList.remove('flex');
     }
 
-    // 비밀번호 '52' 검증 로직
     function verifyPassword() {
       const pwInput = document.getElementById('deskPwInput');
       const err = document.getElementById('pwError');
