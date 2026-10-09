@@ -115,26 +115,41 @@
 
   <div class="w-full max-w-3xl space-y-6 my-4">
     
-    <!-- 1. 헤더 영역 -->
+    <!-- 1. 헤더 영역 (재진 간편접수 자연스러운 연결) -->
     <header class="space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="inline-block text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border-2 border-teal-300">처음 방문하신 보호자님</span>
+      </div>
+
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-3 pt-1">
         <div>
-          <span class="inline-block text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full mb-1 border-2 border-teal-300">처음 방문하신 보호자님</span>
           <h1 class="text-4xl md:text-5xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">초진 접수서</h1>
+          <p class="text-sm text-slate-500 font-medium mt-1.5">아이를 더 잘 살피기 위해, 아는 만큼 천천히 적어주세요.</p>
         </div>
-        
-        <!-- 재진 접수서 바로가기 버튼 -->
+
+        <!-- 💡 재진 간편접수 안내 버튼 (오렌지/앰버 톤으로 눈에 띄게 배치) -->
         <a 
           href="revisit.html" 
-          class="inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-[#0d9488] hover:bg-[#0f766e] active:scale-[0.98] text-white text-base md:text-lg font-black transition-all shadow-lg hover:shadow-xl w-full sm:w-auto border-2 border-teal-400/40"
+          class="group flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] text-white shadow-md hover:shadow-lg transition-all border-2 border-amber-300/50"
         >
-          <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-          </svg>
-          <span>재진 접수서 (2번째 방문)</span>
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-medium text-amber-100">이전에 오신 적이 있나요?</span>
+              <span class="text-[10px] font-bold bg-white text-amber-800 px-1.5 py-0.5 rounded-full">빠른입력</span>
+            </div>
+            <div class="text-sm md:text-base font-extrabold text-white flex items-center gap-1 mt-0.5">
+              <span>재진 (간편 접수) 바로가기</span>
+              <span class="text-xs group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+          </div>
         </a>
       </div>
-      <p class="text-sm text-slate-600 font-medium">아이를 더 잘 살피기 위해, 아는 만큼 천천히 적어주세요.</p>
+
       <div class="h-1.5 w-full bg-[#0d9488] rounded-full mt-3"></div>
     </header>
 
@@ -187,11 +202,10 @@
             </div>
           </div>
 
-          <!-- 주소 및 이메일 5:5 그리드 배치 -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs mb-1.5 flex items-center">
-                <span class="highlight-pen">주소(상세)</span>
+                <span class="highlight-pen">주소</span>
                 <span class="badge-required">필수</span>
               </label>
               <input 
@@ -229,16 +243,16 @@
           </div>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-5">
           
-          <!-- [1번째 칸] 동물 종류 -->
+          <!-- [1번째 칸] 동물 종류 (초기 선택 색상 제거 -> 흰색 기본 상태) -->
           <div>
             <label class="block text-xs mb-2 text-center flex items-center justify-center">
               <span class="highlight-pen">동물 종류</span>
               <span class="badge-required">필수</span>
             </label>
             <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
-              <button type="button" onclick="selectSpecies('강아지')" id="spec-강아지" class="species-btn py-3 text-xs font-bold rounded-2xl border-2 border-[#0d9488] bg-[#0d9488] text-white transition">강아지</button>
+              <button type="button" onclick="selectSpecies('강아지')" id="spec-강아지" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">강아지</button>
               <button type="button" onclick="selectSpecies('고양이')" id="spec-고양이" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">고양이</button>
               <button type="button" onclick="selectSpecies('햄스터')" id="spec-햄스터" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">햄스터</button>
               <button type="button" onclick="selectSpecies('앵무새')" id="spec-앵무새" class="species-btn py-3 text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">앵무새</button>
@@ -248,7 +262,7 @@
             </div>
           </div>
 
-          <!-- [2번째 칸] 동물 이름, 품종, 성별, 체중 -->
+          <!-- [2번째 칸] 동물 이름, 품종, 성별(필수 제외), 체중 -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
             <!-- 1. 동물 이름 -->
             <div class="md:col-span-3">
@@ -276,14 +290,11 @@
               >
             </div>
 
-            <!-- 3. 성별 & 중성화 -->
+            <!-- 3. 성별 (필수 제거됨, 초기 초록색 제거) -->
             <div class="md:col-span-4">
-              <label class="block text-xs mb-1.5 text-center flex items-center justify-center">
-                <span class="highlight-pen">성별</span>
-                <span class="badge-required">필수</span>
-              </label>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5 text-center">성별 <span class="text-slate-400 font-normal">(선택)</span></label>
               <div class="flex items-center gap-1.5 h-[50px]">
-                <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn flex-1 h-full text-xs font-bold rounded-2xl bg-[#0d9488] text-white transition">암컷</button>
+                <button type="button" onclick="selectGender('암컷')" id="gender-암컷" class="gender-btn flex-1 h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">암컷</button>
                 <button type="button" onclick="selectGender('수컷')" id="gender-수컷" class="gender-btn flex-1 h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">수컷</button>
                 <label class="custom-border-box flex items-center gap-1.5 px-3 h-full rounded-2xl bg-white cursor-pointer select-none whitespace-nowrap hover:border-teal-400 transition">
                   <input type="checkbox" id="neutered" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
@@ -308,18 +319,18 @@
             </div>
           </div>
 
-          <!-- [3번째 칸] 생년월일 + 나이 + 성격 -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end pt-1">
-            <!-- 생년월일 및 나이 -->
-            <div class="md:col-span-7">
-              <div class="flex items-center justify-center gap-2 mb-1.5">
+          <!-- [3번째 칸] 생년월일과 성격 사이 간격(md:gap-6) 및 명확한 분리 배치 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-end pt-2 border-t border-slate-100">
+            
+            <!-- 좌측: 생년월일 및 나이 -->
+            <div class="md:col-span-7 space-y-1.5">
+              <div class="flex items-center justify-between px-1">
                 <label class="text-xs flex items-center">
                   <span class="highlight-pen">생년월일</span>
                   <span class="badge-required">필수</span>
                 </label>
-                <span class="text-slate-300 text-xs">|</span>
-                <div class="flex items-center gap-1 text-xs font-bold text-teal-800">
-                  <span>나이:</span>
+                <div class="flex items-center gap-1 text-xs font-bold text-teal-800 bg-teal-50/80 px-2 py-0.5 rounded-lg border border-teal-200">
+                  <span>추정나이:</span>
                   <input 
                     type="number" 
                     id="petAgeYears" 
@@ -327,7 +338,7 @@
                     max="35" 
                     placeholder="0" 
                     oninput="handleAgeInput()" 
-                    class="w-9 h-6 px-1 text-center text-xs font-bold text-teal-900 bg-teal-50 border-2 border-teal-500 rounded-lg focus:outline-none"
+                    class="w-8 h-5 px-0.5 text-center text-xs font-bold text-teal-900 bg-white border border-teal-400 rounded focus:outline-none"
                   >
                   <span>년</span>
                   <input 
@@ -337,7 +348,7 @@
                     max="11" 
                     placeholder="0" 
                     oninput="handleAgeInput()" 
-                    class="w-9 h-6 px-1 text-center text-xs font-bold text-teal-900 bg-teal-50 border-2 border-teal-500 rounded-lg focus:outline-none"
+                    class="w-8 h-5 px-0.5 text-center text-xs font-bold text-teal-900 bg-white border border-teal-400 rounded focus:outline-none"
                   >
                   <span>개월</span>
                 </div>
@@ -357,24 +368,25 @@
               </div>
             </div>
 
-            <!-- 성격 선택 -->
-            <div class="md:col-span-5">
+            <!-- 우측: 성격 선택 (초기 초록색 제거 -> 흰색 기본 상태, 독립된 칸으로 명확히 구분) -->
+            <div class="md:col-span-5 space-y-1.5 md:border-l md:border-slate-200 md:pl-5">
               <label class="block text-xs mb-1.5 text-center flex items-center justify-center">
                 <span class="highlight-pen">성격</span>
                 <span class="badge-required">필수</span>
               </label>
               <div class="grid grid-cols-3 gap-2 h-[48px]">
-                <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn h-full text-xs font-bold rounded-2xl bg-[#0d9488] text-white transition">온순</button>
+                <button type="button" onclick="selectPersonality('온순')" id="pers-온순" class="personality-btn h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">온순</button>
                 <button type="button" onclick="selectPersonality('활발')" id="pers-활발" class="personality-btn h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">활발</button>
                 <button type="button" onclick="selectPersonality('예민')" id="pers-예민" class="personality-btn h-full text-xs font-semibold rounded-2xl bg-white text-slate-700 hover:bg-slate-50 transition">예민</button>
               </div>
             </div>
+
           </div>
 
         </div>
       </div>
 
-      <!-- 카드 3: 내원 사유 & 내원 예정일 (7:3 높이 일치) -->
+      <!-- 카드 3: 내원 사유 & 내원 예정일 (7:3 높이 일치 레이아웃) -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-300 shadow-md space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
@@ -401,7 +413,7 @@
             <textarea 
               id="reason" 
               required
-              placeholder="💚 원활한 진료와 정확한 대기시간 안내를 위해 내원 사유를 조금 더 구체적으로 작성해 주세요. ‘아파요’, ‘피부염’보다는 증상, 발생 시기, 현재 상태 등을 자세히 적어주시면 필요한 검사와 진료를 미리 준비하는 데 큰 도움이 됩니다. 보호자님의 협조에 감사드립니다." 
+              placeholder="증상과 불편한 점을 자세히 작성해 주세요.&#10;정확한 진료 준비를 위해 필요한 내용입니다." 
               class="required-field w-full h-[145px] md:h-full p-3.5 rounded-2xl placeholder-slate-400 text-xs md:text-sm leading-relaxed transition resize-none flex-1"
             ></textarea>
           </div>
@@ -525,7 +537,7 @@
         </div>
       </div>
 
-      <!-- 카드 5: 안내 및 동의 + 서명 패드 (★ 핵심 필수 섹션으로 강화) -->
+      <!-- 카드 5: 안내 및 동의 + 서명 패드 (핵심 필수 섹션) -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border-2 border-emerald-500/80 shadow-lg space-y-5">
         <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-3">
@@ -545,7 +557,6 @@
             </div>
           </div>
 
-          <!-- 중요 안내 뱃지 -->
           <span class="hidden sm:inline-block text-[11px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
             미동의 시 접수 불가
           </span>
@@ -560,14 +571,7 @@
                 <span class="highlight-pen text-xs font-bold text-slate-900">개인정보 활용에 동의합니다</span>
                 <span class="badge-required">필수</span>
               </div>
-              <p class="text-[11px] text-slate-500 mt-1 leading-normal">**개인정보 수집 및 이용 동의**
-
-- **수집 항목:** 보호자 성명, 연락처, 접수 정보
-- **이용 목적:** 진료기록 관리, 접수·예약 및 재진 안내, 휴진·공휴일 관련 SMS·알림톡 발송
-- **보유 기간:** 목적 달성 시까지 또는 관련 법령에 따른 보존 기간
-- **동의 거부:** 동의를 거부할 수 있으나, 일부 서비스 이용이 제한될 수 있습니다.
-
-본원은 개인정보를 명시된 목적에 따라 안전하게 관리합니다..</p>
+              <p class="text-[11px] text-slate-500 mt-1 leading-normal">진료기록부 작성 및 예약/휴일 안내 SMS·알림톡 발송에 이용됩니다.</p>
             </div>
           </label>
 
@@ -581,13 +585,8 @@
               </div>
             </label>
             <div class="bg-white p-3.5 rounded-xl border-2 border-slate-200 text-[11px] leading-relaxed text-slate-700 space-y-1.5 shadow-inner">
-              <p>**병원 내 안전 및 유의사항 안내**
-
-병원 내에서는 사람과 동물 간의 접촉이나 예기치 못한 상황으로 다툼, 상해, 물품 파손 등이 발생할 수 있습니다. 보호자님께서는 반려동물을 안전하게 관리해 주시고, 다른 보호자와 동물을 배려해 주시기 바랍니다.
-
-개인 간 분쟁이나 피해가 발생한 경우 당사자 간의 원만한 해결을 원칙으로 하며, 병원은 관련 상황과 책임 범위에 따라 필요한 조치를 취합니다.
-
-**모두의 안전하고 편안한 진료 환경을 위해 보호자님의 협조와 배려를 부탁드립니다.**.</p>
+              <p>본인은 병원 내에서 사람과 동물 간의 접촉이나 예기치 못한 상황으로 인해 인적·물적 피해(예: 다툼, 상해, 물품 파손)가 발생할 수 있음을 이해하였으며, 이로 인해 발생하는 개인 간의 분쟁 및 보상 문제에 대해 병원이 개입하지 않음을 확인하였습니다.</p>
+              <p class="font-bold text-teal-800">모두의 안전을 위해 보호자님의 각별한 주의와 배려 부탁드립니다.</p>
             </div>
           </div>
         </div>
@@ -667,9 +666,10 @@
   </div>
 
   <script>
-    let selectedSpecies = '강아지';
-    let selectedGender = '암컷';
-    let selectedPersonality = '온순';
+    // 💡 초기 선택 상태를 비워두어 처음 열었을 때 초록색이 칠해지지 않도록 설정
+    let selectedSpecies = '';
+    let selectedGender = '';
+    let selectedPersonality = '';
     let selectedTimeSlot = '';
     let isSigned = false;
 
@@ -854,7 +854,6 @@
       }
     }
 
-    // 동의 상태 체크 및 박스 스타일 실시간 반영
     function checkAgreements() {
       const p1 = document.getElementById('agreePrivacy').checked;
       const p2 = document.getElementById('agreeSafety').checked;
@@ -883,33 +882,53 @@
       else input.value = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7, 11);
     }
 
+    // 터치 시에만 초록색으로 활성화되는 함수
     function selectSpecies(spec) {
       selectedSpecies = spec;
       document.querySelectorAll('.species-btn').forEach(btn => {
         btn.style.borderColor = '#94a3b8';
         btn.style.backgroundColor = '#ffffff';
         btn.style.color = '#334155';
+        btn.classList.remove('font-bold');
+        btn.classList.add('font-semibold');
       });
       const activeBtn = document.getElementById(`spec-${spec}`);
       if (activeBtn) {
         activeBtn.style.borderColor = '#0d9488';
         activeBtn.style.backgroundColor = '#0d9488';
         activeBtn.style.color = '#ffffff';
+        activeBtn.classList.remove('font-semibold');
+        activeBtn.classList.add('font-bold');
       }
     }
 
     function selectGender(gen) {
+      if (selectedGender === gen) {
+        selectedGender = '';
+        document.querySelectorAll('.gender-btn').forEach(btn => {
+          btn.style.borderColor = '#94a3b8';
+          btn.style.backgroundColor = '#ffffff';
+          btn.style.color = '#334155';
+          btn.classList.remove('font-bold');
+          btn.classList.add('font-semibold');
+        });
+        return;
+      }
       selectedGender = gen;
       document.querySelectorAll('.gender-btn').forEach(btn => {
         btn.style.borderColor = '#94a3b8';
         btn.style.backgroundColor = '#ffffff';
         btn.style.color = '#334155';
+        btn.classList.remove('font-bold');
+        btn.classList.add('font-semibold');
       });
       const activeBtn = document.getElementById(`gender-${gen}`);
       if (activeBtn) {
         activeBtn.style.borderColor = '#0d9488';
         activeBtn.style.backgroundColor = '#0d9488';
         activeBtn.style.color = '#ffffff';
+        activeBtn.classList.remove('font-semibold');
+        activeBtn.classList.add('font-bold');
       }
     }
 
@@ -919,12 +938,16 @@
         btn.style.borderColor = '#94a3b8';
         btn.style.backgroundColor = '#ffffff';
         btn.style.color = '#334155';
+        btn.classList.remove('font-bold');
+        btn.classList.add('font-semibold');
       });
       const activeBtn = document.getElementById(`pers-${pers}`);
       if (activeBtn) {
         activeBtn.style.borderColor = '#0d9488';
         activeBtn.style.backgroundColor = '#0d9488';
         activeBtn.style.color = '#ffffff';
+        activeBtn.classList.remove('font-semibold');
+        activeBtn.classList.add('font-bold');
       }
     }
 
@@ -977,19 +1000,25 @@
         document.getElementById('birthYear').value = '';
         document.getElementById('birthMonth').value = '';
         document.getElementById('birthDay').value = '';
-        selectSpecies('강아지');
-        selectGender('암컷');
-        selectPersonality('온순');
+        
+        selectedSpecies = '';
+        selectedGender = '';
+        selectedPersonality = '';
         selectedTimeSlot = '';
-        document.querySelectorAll('.time-slot-btn').forEach(btn => {
+
+        document.querySelectorAll('.species-btn, .gender-btn, .personality-btn, .time-slot-btn').forEach(btn => {
           btn.style.borderColor = '#94a3b8';
           btn.style.backgroundColor = '#ffffff';
           btn.style.color = '#334155';
+          btn.classList.remove('font-bold');
+          btn.classList.add('font-semibold');
         });
+
         document.querySelectorAll('.treatment-card').forEach(card => {
           card.style.borderColor = '#94a3b8';
           card.style.backgroundColor = '#ffffff';
         });
+
         clearSignature();
         checkAgreements();
       }
@@ -999,16 +1028,14 @@
     async function submitForm(e) {
       e.preventDefault();
 
-      // 1. 안내 및 동의 확인
-      const p1 = document.getElementById('agreePrivacy').checked;
-      const p2 = document.getElementById('agreeSafety').checked;
-      if (!p1 || !p2) {
-        alert('⚠️ [필수 항목] 안내 및 동의 항목에 모두 동의해 주셔야 접수를 진행할 수 있습니다.');
-        document.getElementById('agreePrivacy').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // 1. 동물 종류 선택 검증 (필수)
+      if (!selectedSpecies) {
+        alert('🐾 동물 종류(강아지, 고양이 등)를 선택해 주세요.');
+        document.getElementById('spec-강아지').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
-      // 2. 생년월일 검증
+      // 2. 생년월일 검증 (필수)
       const birthYear = document.getElementById('birthYear').value;
       const birthMonth = document.getElementById('birthMonth').value || '01';
       const birthDay = document.getElementById('birthDay').value || '01';
@@ -1019,7 +1046,23 @@
       }
       const birthDate = `${birthYear}-${birthMonth}-${birthDay}`;
 
-      // 3. 서명 검증
+      // 3. 성격 선택 검증 (필수)
+      if (!selectedPersonality) {
+        alert('🐶 성격(온순, 활발, 예민) 중 하나를 선택해 주세요.');
+        document.getElementById('pers-온순').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // 4. 안내 및 동의 확인 (필수)
+      const p1 = document.getElementById('agreePrivacy').checked;
+      const p2 = document.getElementById('agreeSafety').checked;
+      if (!p1 || !p2) {
+        alert('⚠️ [필수 항목] 안내 및 동의 항목에 모두 동의해 주셔야 접수를 진행할 수 있습니다.');
+        document.getElementById('agreePrivacy').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // 5. 서명 검증 (필수)
       if (!isSigned) {
         alert('✍ [필수 항목] 안전한 진료를 위해 안내 및 동의 하단에 서명을 완료해 주세요.');
         document.getElementById('signaturePad').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1051,7 +1094,7 @@
         email: email,
         breed: breed || '믹스/미기재',
         species: selectedSpecies,
-        gender: selectedGender,
+        gender: selectedGender || '미기재',
         neutered: isNeutered,
         birth_date: birthDate,
         age_years: document.getElementById('petAgeYears').value,
