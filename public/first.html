@@ -379,36 +379,36 @@
         </div>
       </div>
 
-      <!-- 카드 3: 내원 사유 & 내원 예정일 (이메일 발송 안내 문구 추가 및 내원예정일 세로 중앙 배치) -->
+     <!-- 카드 3: 내원 사유 & 내원 예정일 (이메일 2배 확대 + 라벨 우측 이동 반영) -->
       <div class="bg-white rounded-3xl p-5 md:p-6 border-2 border-slate-300 shadow-md space-y-4">
         
-        <!-- 카드 헤더: 타이틀 옆 공백에 이메일 자료 접수 안내 문구 배치 -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <!-- 카드 헤더: 타이틀 + 2배로 커진 자료 발송 안내 태그 -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold flex-shrink-0">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
             </div>
             <div>
-              <h2 class="text-base font-bold text-slate-900">내원 사유 & 내원 예정일</h2>
+              <h2 class="text-base md:text-lg font-bold text-slate-900">내원 사유 & 내원 예정일</h2>
               <p class="text-xs text-slate-400">지금 가장 걱정되는 점을 상세히 적어주세요.</p>
             </div>
           </div>
 
-          <!-- 💡 옆 공백에 추가된 자료 발송 안내 태그 -->
-          <div class="bg-indigo-50/80 border border-indigo-200/90 px-3 py-1.5 rounded-xl text-left sm:text-right">
-            <span class="text-[11px] font-medium text-slate-600 block">다른 병원 자료나 사진자료 등은 메일로 보내주세요</span>
-            <span class="text-xs font-extrabold text-indigo-700 tracking-wide">📧 admin@23si.net</span>
+          <!-- 💡 기존 대비 2배 크기로 시원하게 확대한 자료 발송 안내 박스 -->
+          <div class="bg-indigo-50 border-2 border-indigo-200 px-4 py-2.5 rounded-2xl text-left sm:text-right shadow-sm">
+            <span class="text-xs sm:text-sm font-bold text-slate-700 block leading-tight">다른 병원 자료나 사진자료 등은 메일로 보내주세요</span>
+            <span class="text-sm sm:text-base md:text-lg font-black text-indigo-700 tracking-wide block mt-0.5">📧 admin@23si.net</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-10 gap-3.5 items-stretch">
+        <div class="grid grid-cols-1 md:grid-cols-10 gap-3.5 items-stretch pt-1">
           
-          <!-- 좌측 70%: 내원 사유 (라벨 글자 크기 확대: text-sm md:text-base) -->
+          <!-- 좌측 70%: 내원 사유 (라벨을 우측으로 3cm 이동) -->
           <div class="md:col-span-7 flex flex-col">
-            <div class="flex items-center h-7 mb-1.5">
-              <label class="flex items-center">
+            <div class="flex items-center h-8 mb-1">
+              <label class="flex items-center" style="margin-left: 3cm;">
                 <span class="highlight-pen text-sm md:text-base font-extrabold">내원 사유</span>
                 <span class="badge-required">필수</span>
               </label>
@@ -422,15 +422,15 @@
             ></textarea>
           </div>
 
-          <!-- 우측 30%: 내원 예정일 및 희망시간 (프레임 내 세로 중간 배치: justify-center) -->
+          <!-- 우측 30%: 내원 예정일 및 희망시간 (라벨을 우측으로 2cm 이동) -->
           <div class="md:col-span-3 flex flex-col justify-end">
-            <!-- 좌측 라벨과 상단 라인 맞춤 -->
-            <div class="flex items-center justify-between h-7 mb-1.5 px-0.5">
-              <label class="text-xs font-bold text-slate-700">내원 예정일</label>
-              <span class="text-[11px] text-slate-400">선택사항</span>
+            <!-- 라벨 우측으로 2cm 이동 -->
+            <div class="flex items-center justify-between h-8 mb-1">
+              <label class="text-xs md:text-sm font-bold text-slate-700" style="margin-left: 2cm;">내원 예정일</label>
+              <span class="text-[11px] text-slate-400 pr-1">선택사항</span>
             </div>
 
-            <!-- 내부 박스: justify-center로 요소를 박스 세로 중간에 안정감 있게 정렬 -->
+            <!-- 내부 박스 (세로 중앙 정렬 유지) -->
             <div class="flex flex-col justify-center bg-slate-50 p-3.5 rounded-2xl border-2 border-slate-300 flex-1 space-y-3 min-h-[160px]">
               <div>
                 <label class="block text-[11px] font-semibold text-slate-500 mb-1">날짜 선택</label>
@@ -459,6 +459,7 @@
           </div>
 
         </div>
+   
       </div>
 
       <!-- 카드 4: 추가 처치 의뢰 -->
