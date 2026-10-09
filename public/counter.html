@@ -160,7 +160,7 @@
         </div>
       </div>
 
-      <!-- 5. 개인정보 활용 및 안전사고 책임 안내 동의 + 서명 -->
+      <!-- 5. 개인정보 활용 및 안전사고 책임 안내 동의 + 실제 서명 -->
       <div class="border-2 border-slate-300 rounded-xl p-3.5 bg-slate-50/70">
         <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center justify-between">
           <span class="flex items-center gap-1">
@@ -400,9 +400,25 @@
       return (current && typeof current === 'object') ? current : {};
     }
 
-    // 생년월일 추출 헬퍼 함수
+    // 생년월일 추출 함수
     function getBirthDate(payload, item) {
       return payload.birth_date || payload.birthDate || payload.birth || payload.birthday || item.birth_date || item.birthday || '';
+    }
+
+    // 성별/중성화 정보 포맷 함수
+    function getGenderText(payload, item) {
+      const g = (payload.gender || item.gender || '').trim();
+      const neutered = payload.neutered ?? payload.is_neutered ?? item.neutered;
+      
+      let neuterTag = '';
+      if (neutered === true || neutered === 'true' || neutered === 'Y' || neutered === 1) {
+        neuterTag = '(중)';
+      }
+
+      if (g) {
+        return `${g}${neuterTag}`;
+      }
+      return neuterTag ? `중성화${neuterTag}` : '';
     }
 
     function renderList(list) {
@@ -439,9 +455,11 @@
         const phone = item.phone || item.owner_phone || '-';
         const email = (payload.email || item.email || '').trim();
 
-        // 생년월일 가져오기
+        // 생년월일 및 성별 가져오기
         const birthDateVal = getBirthDate(payload, item);
         const birthBadge = birthDateVal ? ` · 🎂 ${birthDateVal}` : '';
+        const genderVal = getGenderText(payload, item);
+        const genderBadge = genderVal ? ` · ${genderVal}` : '';
 
         const displayReason = (payload.reason && payload.reason.trim())
           || (item.symptom && item.symptom.trim())
@@ -525,7 +543,7 @@
                 ${phoneButtonHtml}
                 ${emailButtonHtml}
                 <span>${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}</span>
-                <span class="text-slate-500 font-medium">${payload.breed ? ` · ${payload.breed}` : ''}${birthBadge}${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
+                <span class="text-slate-500 font-medium">${payload.breed ? ` · ${payload.breed}` : ''}${genderBadge}${birthBadge}${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
               </div>
 
               <!-- 내원 사유 상자 -->
@@ -607,10 +625,9 @@
       document.getElementById('doc-pet').innerText = item.pet_name || '-';
       document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
       
-      const neuterText = payload.neutered ? '(중성화 완료)' : '(중성화 미실시)';
+      const neuterText = (payload.neutered === true || payload.neutered === 'true' || payload.neutered === 1) ? '(중성화 완료)' : '(중성화 미실시)';
       document.getElementById('doc-gender').innerText = `${payload.gender || '미선택'} ${neuterText}`;
 
-      // 생년월일 처리 (여러 필드명 대응)
       const bDate = getBirthDate(payload, item) || '미기재';
       const wt = payload.weight ? `${payload.weight} kg` : '미기재';
       document.getElementById('doc-birth-weight').innerText = `${bDate}  /  ${wt}`;
