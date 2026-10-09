@@ -107,7 +107,7 @@
         </div>
       </div>
 
-      <!-- 2. 보호자 및 환자 기본 정보 표 (주소 / 이메일 5:5 분할 및 수직 중앙정렬) -->
+      <!-- 2. 보호자 및 환자 기본 정보 표 -->
       <div class="mt-4 mb-3">
         <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
           <span class="w-1.5 h-3 bg-[#006257] rounded-sm"></span> 1. 보호자 및 반려동물 인적사항
@@ -160,7 +160,7 @@
         </div>
       </div>
 
-      <!-- 5. 개인정보 활용 및 안전사고 책임 안내 동의 + 실제 사인 인자 -->
+      <!-- 5. 개인정보 활용 및 안전사고 책임 안내 동의 + 서명 -->
       <div class="border-2 border-slate-300 rounded-xl p-3.5 bg-slate-50/70">
         <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center justify-between">
           <span class="flex items-center gap-1">
@@ -169,7 +169,6 @@
           <span class="text-[11px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">✓ 보호자 전자 서명 완료</span>
         </h3>
 
-        <!-- 동의 조항 2종 -->
         <div class="space-y-2 text-[11px] leading-relaxed text-slate-700">
           <div class="bg-white p-2.5 rounded-lg border border-slate-200">
             <p class="font-bold text-slate-800 flex items-center justify-between">
@@ -188,14 +187,12 @@
           </div>
         </div>
 
-        <!-- 서명 렌더링 박스 -->
         <div class="mt-3 pt-3 border-t border-slate-300 flex justify-between items-center px-1">
           <div class="text-xs space-y-0.5">
             <p class="text-slate-600">위 안내 및 동의 조항을 충분히 숙지하였으며, 이에 정식 동의합니다.</p>
             <p class="text-slate-800 font-bold">동의자(보호자 성함): <span id="doc-sign-guardian" class="text-teal-900">-</span></p>
           </div>
 
-          <!-- 실제 사인 이미지 출력 -->
           <div class="flex items-center gap-2">
             <span class="text-xs font-bold text-slate-500">서명 (인):</span>
             <div class="w-36 h-16 border border-slate-300 bg-white rounded-lg flex items-center justify-center p-1 shadow-inner overflow-hidden">
@@ -218,7 +215,7 @@
     let soundEnabled = false;
     let knownIds = new Set();
     let isFirstLoad = true;
-    let currentList = []; // 실시간 데이터 저장소
+    let currentList = [];
 
     // 통합 클립보드 복사 함수
     function copyText(text, label = '텍스트') {
@@ -249,7 +246,7 @@
       document.body.removeChild(ta);
     }
 
-    // 내원 사유 전용 원클릭 복사 함수
+    // 내원 사유 원클릭 복사
     function copyReason(id) {
       const item = currentList.find(x => x.id === id);
       if (!item) return;
@@ -266,7 +263,7 @@
       copyText(reason, '내원 사유');
     }
 
-    // 플로팅 토스트 표시 함수
+    // 토스트 알림
     function showToast(msg) {
       const toast = document.getElementById('copyToast');
       const toastMsg = document.getElementById('toastMsg');
@@ -283,7 +280,7 @@
       }, 2200);
     }
 
-    // 접수 내역 삭제 함수
+    // 접수 내역 삭제
     async function deleteReception(id, petName) {
       if (!confirm(`[${petName}] 환자의 접수 내역을 정말 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) {
         return;
@@ -358,7 +355,7 @@
         const data = await res.json();
         if (!Array.isArray(data)) return;
 
-        currentList = data; // 최신 데이터 동기화
+        currentList = data;
 
         let waiting = 0, progress = 0, done = 0;
         let hasNew = false;
@@ -403,6 +400,11 @@
       return (current && typeof current === 'object') ? current : {};
     }
 
+    // 생년월일 추출 헬퍼 함수
+    function getBirthDate(payload, item) {
+      return payload.birth_date || payload.birthDate || payload.birth || payload.birthday || item.birth_date || item.birthday || '';
+    }
+
     function renderList(list) {
       const container = document.getElementById('list-container');
       if (list.length === 0) {
@@ -436,6 +438,10 @@
         const timeStr = dateStrRaw ? new Date(dateStrRaw).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
         const phone = item.phone || item.owner_phone || '-';
         const email = (payload.email || item.email || '').trim();
+
+        // 생년월일 가져오기
+        const birthDateVal = getBirthDate(payload, item);
+        const birthBadge = birthDateVal ? ` · 🎂 ${birthDateVal}` : '';
 
         const displayReason = (payload.reason && payload.reason.trim())
           || (item.symptom && item.symptom.trim())
@@ -471,7 +477,7 @@
           `;
         }
 
-        // 전화번호 원클릭 복사 버튼
+        // 전화번호 복사 버튼
         const phoneButtonHtml = (phone && phone !== '-') ? `
           <button 
             type="button" 
@@ -486,7 +492,7 @@
           </button>
         ` : `<strong>-</strong>`;
 
-        // 이메일 원클릭 복사 버튼
+        // 이메일 복사 버튼
         const emailButtonHtml = email ? `
           <button 
             type="button" 
@@ -519,10 +525,10 @@
                 ${phoneButtonHtml}
                 ${emailButtonHtml}
                 <span>${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}</span>
-                <span class="text-slate-400">${payload.breed ? ` · ${payload.breed}` : ''} ${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
+                <span class="text-slate-500 font-medium">${payload.breed ? ` · ${payload.breed}` : ''}${birthBadge}${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
               </div>
 
-              <!-- 내원 사유 상자: 클릭 시 바로 복사 기능 탑재 -->
+              <!-- 내원 사유 상자 -->
               <div 
                 onclick="copyReason(${item.id})" 
                 title="클릭 시 내원 사유가 복사됩니다"
@@ -543,7 +549,7 @@
               ${treatmentsHtml}
             </div>
 
-            <!-- 우측 액션: 상태 선택 셀렉트박스 & [삭제] 버튼 -->
+            <!-- 우측 액션: 상태 셀렉트박스 & 삭제 버튼 -->
             <div class="flex items-center gap-2 self-end md:self-center">
               <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border ${statusClass} focus:outline-none cursor-pointer">
                 <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
@@ -581,7 +587,7 @@
       }
     }
 
-    // A4 동의서 다운로드 (아이 이름이 파일명 맨 앞에 오도록 수정 완료)
+    // A4 동의서 다운로드
     async function downloadIntakeSheet(item) {
       const payload = unwrapPayload(item.payload);
 
@@ -604,7 +610,8 @@
       const neuterText = payload.neutered ? '(중성화 완료)' : '(중성화 미실시)';
       document.getElementById('doc-gender').innerText = `${payload.gender || '미선택'} ${neuterText}`;
 
-      const bDate = payload.birth_date ? payload.birth_date : '미기재';
+      // 생년월일 처리 (여러 필드명 대응)
+      const bDate = getBirthDate(payload, item) || '미기재';
       const wt = payload.weight ? `${payload.weight} kg` : '미기재';
       document.getElementById('doc-birth-weight').innerText = `${bDate}  /  ${wt}`;
 
@@ -638,7 +645,6 @@
         const imageURL = canvas.toDataURL('image/png');
         const link = document.createElement('a');
         
-        // [수정 핵심] 아이 이름과 전화번호 뒷자리를 맨 앞에 배치하여 작은 화면에서도 즉시 식별 가능
         const petName = (item.pet_name || '환자').trim();
         const cleanPhone = (item.phone || item.owner_phone || '0000').slice(-4);
         link.download = `${petName}_${cleanPhone}_초진동의서.png`;
