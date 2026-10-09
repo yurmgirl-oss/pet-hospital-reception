@@ -95,6 +95,16 @@
       animation: pulse-subtle 2s infinite ease-in-out;
     }
 
+    /* 안내 및 동의 카드 전용 강조 테두리 */
+    .agreement-card-box {
+      border: 2px solid #cbd5e1;
+      transition: all 0.2s ease;
+    }
+    .agreement-card-box.checked-active {
+      border-color: #0d9488 !important;
+      background-color: #f0fdfa !important;
+    }
+
     @keyframes pulse-subtle {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.88; transform: scale(1.04); }
@@ -364,7 +374,7 @@
         </div>
       </div>
 
-      <!-- 카드 3: 내원 사유 & 내원 예정일 (재진과 동일한 7:3 높이 일치 레이아웃) -->
+      <!-- 카드 3: 내원 사유 & 내원 예정일 (7:3 높이 일치) -->
       <div class="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-300 shadow-md space-y-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
@@ -378,7 +388,6 @@
           </div>
         </div>
 
-        <!-- 10열 그리드로 7:3 분할 및 items-stretch로 높이 일치 -->
         <div class="grid grid-cols-1 md:grid-cols-10 gap-4 items-stretch">
           
           <!-- 좌측 70%: 내원 사유 (필수) -->
@@ -516,75 +525,96 @@
         </div>
       </div>
 
-      <!-- 카드 5: 안내 및 동의 + 서명 패드 -->
-      <div class="bg-white rounded-3xl p-6 md:p-7 border-2 border-slate-300 shadow-md space-y-5">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-            </svg>
+      <!-- 카드 5: 안내 및 동의 + 서명 패드 (★ 핵심 필수 섹션으로 강화) -->
+      <div class="bg-white rounded-3xl p-6 md:p-7 border-2 border-emerald-500/80 shadow-lg space-y-5">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center">
+                <h2 class="text-base font-bold text-slate-900">
+                  <span class="highlight-pen">안내 및 동의</span>
+                </h2>
+                <span class="badge-required">필수</span>
+              </div>
+              <p class="text-xs text-slate-500">안전한 진료를 위해 반드시 확인 및 동의 후 서명해 주세요.</p>
+            </div>
           </div>
-          <div>
-            <h2 class="text-base font-bold text-slate-900">안내 및 동의</h2>
-            <p class="text-xs text-slate-500">안전한 진료를 위해 내용을 확인해주세요.</p>
-          </div>
+
+          <!-- 중요 안내 뱃지 -->
+          <span class="hidden sm:inline-block text-[11px] font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+            미동의 시 접수 불가
+          </span>
         </div>
 
-        <div class="space-y-3">
-          <label class="custom-border-box flex items-start gap-3 p-4 rounded-2xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
-            <input type="checkbox" id="agreePrivacy" onchange="checkAgreements()" class="mt-0.5 w-4 h-4 rounded text-[#0d9488] focus:ring-0">
+        <div class="space-y-3.5">
+          <!-- 1. 개인정보 동의 (필수) -->
+          <label id="boxAgreePrivacy" class="agreement-card-box flex items-start gap-3.5 p-4 rounded-2xl bg-amber-50/30 hover:border-emerald-500 transition cursor-pointer select-none">
+            <input type="checkbox" id="agreePrivacy" onchange="checkAgreements()" class="mt-1 w-5 h-5 rounded text-[#0d9488] focus:ring-0">
             <div>
-              <p class="text-xs font-bold text-slate-800">개인정보 활용에 동의합니다</p>
-              <p class="text-[11px] text-slate-500 mt-0.5">진료기록부 작성과 휴일 안내 SMS 발송에 이용됩니다.</p>
+              <div class="flex items-center">
+                <span class="highlight-pen text-xs font-bold text-slate-900">개인정보 활용에 동의합니다</span>
+                <span class="badge-required">필수</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1 leading-normal">진료기록부 작성 및 예약/휴일 안내 SMS·알림톡 발송에 이용됩니다.</p>
             </div>
           </label>
 
-          <div class="custom-border-box p-4 rounded-2xl bg-white space-y-3">
-            <label class="flex items-center gap-3 cursor-pointer select-none">
-              <input type="checkbox" id="agreeSafety" onchange="checkAgreements()" class="w-4 h-4 rounded text-[#0d9488] focus:ring-0">
-              <p class="text-xs font-bold text-slate-800">안전사고 예방 및 책임 안내에 동의합니다</p>
+          <!-- 2. 안전사고 예방 책임 동의 (필수) -->
+          <div id="boxAgreeSafety" class="agreement-card-box p-4 rounded-2xl bg-amber-50/30 space-y-3">
+            <label class="flex items-center gap-3.5 cursor-pointer select-none">
+              <input type="checkbox" id="agreeSafety" onchange="checkAgreements()" class="w-5 h-5 rounded text-[#0d9488] focus:ring-0">
+              <div class="flex items-center">
+                <span class="highlight-pen text-xs font-bold text-slate-900">안전사고 예방 및 책임 안내에 동의합니다</span>
+                <span class="badge-required">필수</span>
+              </div>
             </label>
-            <div class="bg-slate-100 p-3.5 rounded-xl border border-slate-300 text-[11px] leading-relaxed text-slate-700 space-y-1.5">
+            <div class="bg-white p-3.5 rounded-xl border-2 border-slate-200 text-[11px] leading-relaxed text-slate-700 space-y-1.5 shadow-inner">
               <p>본인은 병원 내에서 사람과 동물 간의 접촉이나 예기치 못한 상황으로 인해 인적·물적 피해(예: 다툼, 상해, 물품 파손)가 발생할 수 있음을 이해하였으며, 이로 인해 발생하는 개인 간의 분쟁 및 보상 문제에 대해 병원이 개입하지 않음을 확인하였습니다.</p>
-              <p class="font-bold text-teal-800">주의와 배려 부탁드립니다.</p>
+              <p class="font-bold text-teal-800">모두의 안전을 위해 보호자님의 각별한 주의와 배려 부탁드립니다.</p>
             </div>
           </div>
         </div>
 
-        <!-- 서명 영역 -->
+        <!-- 3. 서명 영역 (필수) -->
         <div id="signatureSection" class="hidden pt-4 border-t-2 border-slate-200 space-y-3 transition-all duration-300">
-          <div class="flex items-center gap-1.5 text-xs font-bold text-teal-800">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-            </svg>
-            <span>위 내용을 확인하였음을 서명으로 확인합니다</span>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <span class="highlight-pen text-xs font-bold text-slate-900">보호자 전자 서명</span>
+              <span class="badge-required">필수</span>
+            </div>
+            <span class="text-[11px] text-slate-500 font-medium">위 내용을 모두 확인하였음을 서명합니다</span>
           </div>
 
           <div class="relative w-full h-44 rounded-2xl border-2 border-dashed border-slate-400 bg-slate-50 overflow-hidden flex items-center justify-center">
             <canvas id="signaturePad" class="w-full h-full bg-transparent cursor-crosshair relative z-10"></canvas>
             
             <div id="signPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-slate-400 select-none z-0">
-              <svg class="w-6 h-6 mb-1 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <svg class="w-7 h-7 mb-1 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"></path>
               </svg>
-              <span class="text-xs font-bold text-slate-500">이 칸에 서명해 주세요</span>
-              <div class="w-3/4 border-b-2 border-slate-300 mt-4"></div>
+              <span class="text-xs font-bold text-slate-500">이 박스 안을 터치하여 서명해 주세요</span>
+              <div class="w-2/3 border-b-2 border-slate-300 mt-3"></div>
             </div>
           </div>
 
           <div class="flex items-center justify-between text-xs pt-1">
-            <button type="button" onclick="clearSignature()" class="text-slate-600 hover:text-slate-900 font-bold flex items-center gap-1 transition">
+            <button type="button" onclick="clearSignature()" class="text-slate-600 hover:text-slate-900 font-bold flex items-center gap-1.5 transition px-2 py-1 rounded-lg bg-slate-100 border border-slate-300">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
-              다시 서명하기
+              서명 지우기
             </button>
             <span id="signatureWarning" class="font-bold text-rose-500">서명을 해주셔야 접수서를 제출할 수 있어요.</span>
           </div>
         </div>
       </div>
 
-      <!-- 4. 하단 버튼 바 (2.5 : 2.5 : 5 비율) -->
+      <!-- 6. 하단 버튼 바 (2.5 : 2.5 : 5 비율) -->
       <div class="pt-2 flex items-center gap-2.5 w-full">
         <a 
           href="index.html" 
@@ -812,10 +842,19 @@
       }
     }
 
+    // 동의 상태 체크 및 박스 스타일 실시간 반영
     function checkAgreements() {
       const p1 = document.getElementById('agreePrivacy').checked;
       const p2 = document.getElementById('agreeSafety').checked;
+      const box1 = document.getElementById('boxAgreePrivacy');
+      const box2 = document.getElementById('boxAgreeSafety');
       const sigSection = document.getElementById('signatureSection');
+
+      if (p1) box1.classList.add('checked-active');
+      else box1.classList.remove('checked-active');
+
+      if (p2) box2.classList.add('checked-active');
+      else box2.classList.remove('checked-active');
 
       if (p1 && p2) {
         sigSection.classList.remove('hidden');
@@ -952,7 +991,8 @@
       const p1 = document.getElementById('agreePrivacy').checked;
       const p2 = document.getElementById('agreeSafety').checked;
       if (!p1 || !p2) {
-        alert('⚠️ 안내 및 동의 항목에 모두 체크해 주셔야 접수를 진행할 수 있습니다.');
+        alert('⚠️ [필수 항목] 안내 및 동의 항목에 모두 동의해 주셔야 접수를 진행할 수 있습니다.');
+        document.getElementById('agreePrivacy').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
@@ -969,7 +1009,7 @@
 
       // 3. 서명 검증
       if (!isSigned) {
-        alert('✍ 안전한 진료를 위해 안내 및 동의 하단에 서명을 완료해 주세요.');
+        alert('✍ [필수 항목] 안전한 진료를 위해 안내 및 동의 하단에 서명을 완료해 주세요.');
         document.getElementById('signaturePad').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
