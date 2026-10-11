@@ -159,7 +159,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 <div class="grid3">
 <div><label>보호자명</label><input id="ownerName" autocomplete="name" placeholder="보호자 성함"/></div>
 <div><label>전화번호 뒤 4자리</label><input id="phoneLast4" inputmode="numeric" maxlength="4" placeholder="예: 1234"/></div>
-<div style="display:flex;align-items:end;gap:6px;flex-wrap:wrap"><button type="button" onclick="saveMedicationPlan()">서버에 저장</button><button type="button" onclick="loadMedicationPlan()">번호로 불러오기</button></div>
+<div style="display:flex;align-items:end;gap:6px;flex-wrap:wrap"><button type="button" onclick="saveMedicationPlan()">서버에 저장</button><button type="button" onclick="loadMedicationPlan()">번호로 불러오기</button><button type="button" onclick="copyLookupNotice()">조회 안내문 복사</button></div>
 </div>
 <div class="small" id="serverPlanStatus" role="status" style="margin-top:7px">저장하면 서버에서 5자리 조회번호를 발급합니다. 조회 시 전화번호 뒤 4자리도 필요합니다.</div>
 </div>
@@ -520,6 +520,22 @@ function setServerStatus(message, error=false){
  const el=document.getElementById('serverPlanStatus');
  if(el){el.textContent=message;el.style.color=error?'#b42318':'#245b3e';}
 }
+let lastLookupCode='';
+async function copyLookupNotice(){
+ const code=lastLookupCode || (document.getElementById('outputIdValue')?.textContent||'').trim();
+ const owner=(document.getElementById('ownerName')?.value||'').trim();
+ const petName=(document.getElementById('pet')?.value||'').trim();
+ const phone=(document.getElementById('phoneLast4')?.value||'').replace(/\D/g,'');
+ if(!/^\d{5}$/.test(code)) return alert('먼저 서버에 저장하거나 번호로 불러와 주세요.');
+ if(!/^\d{4}$/.test(phone)) return alert('전화번호 뒤 4자리를 확인해 주세요.');
+ const notice='[23시 하단오거리 동물병원 복약지도]\n보호자: '+owner+'\n환자: '+petName+'\n조회번호: '+code+'\n조회 시 전화번호 뒤 4자리: '+phone+'\n복약지도 조회 페이지: https://23si.net/medication.html';
+ try{
+  if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(notice);}
+  else {const area=document.createElement('textarea');area.value=notice;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();const ok=document.execCommand('copy');area.remove();if(!ok)throw new Error('복사할 수 없습니다.');}
+  setServerStatus('조회 안내문을 복사했습니다. 보호자에게 문자나 카카오톡으로 붙여넣어 보내세요.');
+  alert('조회 안내문을 복사했습니다. 보호자에게 문자나 카카오톡으로 붙여넣어 보내세요.');
+ }catch(e){prompt('아래 안내문을 복사해 보호자에게 보내세요.',notice);}
+}
 function buildPlanData(){
  return {
   version:1,
@@ -562,6 +578,7 @@ async function saveMedicationPlan(){
   const response=await fetch('/api/medication-plans',{method:'POST',headers:{'Content-Type':'application/json','X-Clinic-Pin':pin},body:JSON.stringify({owner_name:owner,phone_last4:phone,pet_name:pet.value.trim(),plan:buildPlanData()})});
   const result=await response.json();
   if(!response.ok)throw new Error(result.error||'저장에 실패했습니다.');
+  lastLookupCode=String(result.lookup_code||'');
   document.getElementById('outputIdValue').textContent=result.lookup_code;
   setServerStatus('저장 완료! 복약지도 조회번호: '+result.lookup_code+' · 보호자에게 조회번호와 전화번호 뒤 4자리를 안내해 주세요.');
   alert('복약지도가 서버에 저장되었습니다.\n조회번호: '+result.lookup_code);
@@ -581,6 +598,7 @@ async function loadMedicationPlan(){
   if(!response.ok)throw new Error(result.error||'조회에 실패했습니다.');
   document.getElementById('ownerName').value=result.owner_name||'';
   restorePlanData(result.plan);
+  lastLookupCode=String(result.lookup_code||code.trim());
   document.getElementById('outputIdValue').textContent=result.lookup_code||code.trim();
   setServerStatus('불러오기 완료 · 보호자: '+(result.owner_name||'')+' · 환자: '+(result.pet_name||''));
  }catch(err){setServerStatus(err.message||'조회 중 오류가 발생했습니다.',true);alert(err.message||'조회 중 오류가 발생했습니다.');}
