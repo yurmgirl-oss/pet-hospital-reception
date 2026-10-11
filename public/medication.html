@@ -360,7 +360,8 @@ function refresh(){
    div.innerHTML=`<b>${date.slice(5)}</b><div class=small>${texts.map(t=>'☐ '+t).join('<br>')}</div>`;
    days.appendChild(div);
  });
- list.innerHTML=events.map(e=>`• ${e.date} - ${e.text}`).join("<br>")||"아직 일정이 없습니다.";
+ const listEl=document.getElementById("list");
+ if(listEl) listEl.innerHTML=events.map(e=>`• ${e.date} - ${e.text}`).join("<br>")||"아직 일정이 없습니다.";
 }
 let lastSelectedDates=new Set();
 function clearSel(){selected.clear();count.textContent=0;renderMonths();}
