@@ -12,6 +12,9 @@ body{margin:0;background:#eef3ef;font-family:"Malgun Gothic",sans-serif}
 .panel{background:#fff;border-radius:18px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,.08);height:calc(100vh - 36px);overflow:auto}
 .grid3{display:grid;grid-template-columns:150px 200px 180px;gap:38px;justify-content:start}
 label{font-size:12px;font-weight:bold;color:#345}
+/* 주의사항: 체크박스를 문장 앞에 두고 글자와 수직 정렬 */
+.cautionOptions label{display:flex;align-items:center;gap:9px;font-size:15px;line-height:1.45;min-height:30px;cursor:pointer}
+.cautionOptions input[type="checkbox"]{width:18px;height:18px;min-width:18px;margin:0;flex:0 0 18px;padding:0;accent-color:#2f8f68}
 input,select{width:100%;padding:8px;border:1px solid #b8c8be;border-radius:8px}
 .section{margin-top:36px}
 .calendarWrap{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -162,7 +165,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 <div class="section" id="promisePlanSection" style="border:2px solid #e0ad00;background:#fff8cc">
 <h3 style="margin-top:0">📋 약속처방 · 일정 자동 입력</h3>
 <div class="row" style="grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end">
-<div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option><option value="sevenDay">7일 집중관리 · 매일 아침/저녁 복약 · 3일째 사진 · 7일 후 재내원</option><option value="specialAnimal">특수동물 기본처방</option><option value="dermatitis">피부염</option><option value="conjunctivitis">결막염</option><option value="otitis">외이염</option><option value="arthritisPain">관절염/진통</option><option value="specialAnimalDisinfection">특수동물(소독)</option></select></div>
+<div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option><option value="sevenDay">7일 집중관리 · 매일 아침/저녁 복약 · 3일째 사진 · 7일 후 재내원</option><option value="specialAnimal">특수동물 기본처방</option><option value="dermatitis">피부염</option><option value="conjunctivitis">결막염</option><option value="otitis">외이염</option><option value="arthritisPain">관절염/진통</option><option value="specialAnimalDisinfection">특수동물(소독)</option><option value="renalFailure">신부전</option><option value="liverLipid">간/고지혈증</option><option value="gastroenteritis">장염처치</option><option value="postOpCare">수술후처치</option></select></div>
 <div><button type="button" onclick="applyPromisePlan()" style="background:#f4b400;color:#111">일정 적용</button></div>
 </div>
 
@@ -230,7 +233,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 <label><input type="checkbox" class="cautionCheck" value="물약은 7일 후 폐기"/> 물약은 7일 후 폐기</label>
 <label><input type="checkbox" class="cautionCheck" value="용기 표기명 확인 후 사용"/> 용기 표기명 확인 후 사용</label>
 <label><input type="checkbox" class="cautionCheck" value="소염제 복용 시 물·소변 증가 가능"/> 소염제 복용 시 물·소변 증가 가능</label>
-<label><input type="checkbox" class="cautionCheck" value="귀·안약 처치 후 긁으면 카라 착용"/> 귀·안약 처치 후 긁으면 카라 착용</label>
+<label><input type="checkbox" class="cautionCheck" value="카라 목보호대 착용 (상처부위, 눈, 귀, 붕대보호)"/> 카라 목보호대 착용 (상처부위, 눈, 귀, 붕대보호)</label>
 <label><input type="checkbox" class="cautionCheck" value="사진촬영 후 admin@23si.net 으로 전송"/> 사진촬영 후 admin@23si.net 으로 전송</label>
 <label><input type="checkbox" class="cautionCheck" value="특수동물(소독)"/> 특수동물(소독)</label>
 <label><input type="checkbox" class="cautionCheck" value="재내원 시 위 QR코드로 빠른 접수"/> 재내원 시 QR코드로 빠른 접수</label>
@@ -543,7 +546,7 @@ function applyPromisePlan(){
  if(!start.value)return alert('시작일을 먼저 선택해 주세요.');
  const base=new Date(start.value+'T12:00:00');
  const dateAt=(offset)=>{const d=new Date(base);d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
- if(choice==='sevenDay' || choice==='specialAnimal' || choice==='dermatitis' || choice==='conjunctivitis' || choice==='otitis' || choice==='arthritisPain' || choice==='specialAnimalDisinfection'){
+ if(choice==='sevenDay' || choice==='specialAnimal' || choice==='dermatitis' || choice==='conjunctivitis' || choice==='otitis' || choice==='arthritisPain' || choice==='specialAnimalDisinfection' || choice==='renalFailure' || choice==='liverLipid' || choice==='gastroenteritis' || choice==='postOpCare'){
    const template=choice;
    // 같은 약속처방을 다시 적용할 때 해당 템플릿 일정만 교체합니다.
    for(let i=events.length-1;i>=0;i--){if(events[i].template===template)events.splice(i,1);}
@@ -570,6 +573,62 @@ function applyPromisePlan(){
      [2,5,8,14,29].forEach(day=>events.push({date:dateAt(day),text:'사진촬영',color:'none',template}));
      events.push({date:dateAt(7),text:'병원내원',color:'yellow',template});
      events.push({date:dateAt(7),text:'내복약 추가처방예정',color:'none',template});
+   } else if(choice==='liverLipid'){
+     // 간/고지혈증: 당일부터 15일째까지 저녁 내복약, 15일째 추가처방 및 장기 혈액검사
+     for(let day=0;day<15;day++) events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
+     events.push({date:dateAt(14),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(14),text:'내복약 추가처방예정',color:'none',template});
+     [14,29,89,179,269].forEach(day=>events.push({date:dateAt(day),text:'혈액검사',color:'none',template}));
+   } else if(choice==='postOpCare'){
+     // 수술후처치: 당일 잠재우기, 이후 후처치·복약·소독, 실밥 제거 및 CRP 검사
+     events.push({date:dateAt(0),text:'잠재우기',color:'none',template});
+     // 다음날부터 3일까지 병원 내원 및 후처치
+     for(let day=1;day<=3;day++){
+       events.push({date:dateAt(day),text:'병원내원-후처치',color:'yellow',template});
+     }
+     // 2~4일째는 병원내원-후처치만 표시하고, 5~11일째 7일간 내복약·소독
+     for(let day=4;day<=10;day++){
+       events.push({date:dateAt(day),text:'내복약(아침,저녁)',color:'none',template});
+       events.push({date:dateAt(day),text:'소독',color:'none',template});
+     }
+     events.push({date:dateAt(4),text:'사진촬영',color:'none',template});
+     events.push({date:dateAt(7),text:'사진촬영',color:'none',template});
+     events.push({date:dateAt(10),text:'병원내원-실밥제거',color:'yellow',template});
+     events.push({date:dateAt(14),text:'혈액검사(CRP)',color:'none',template});
+   } else if(choice==='gastroenteritis'){
+     // 장염처치: 당일 저녁 복약, 7일 관리, 초기 수액·식이 관리 및 추적 내원/검사
+     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
+     for(let day=1;day<7;day++){
+       events.push({date:dateAt(day),text:'내복약(아침,저녁)',color:'none',template});
+     }
+     // 2~4일째: 병원 내원, 피하수액 처치, 내복약 및 유동식(처방식캔)
+     for(let day=1;day<4;day++){
+       events.push({date:dateAt(day),text:'병원내원',color:'yellow',template});
+       events.push({date:dateAt(day),text:'피하수액처치',color:'none',template});
+       events.push({date:dateAt(day),text:'유동식(처방식캔) 2회',color:'none',template});
+     }
+     events.push({date:dateAt(4),text:'처방식 위장사료(불려서) 2회',color:'none',template});
+     events.push({date:dateAt(5),text:'처방식 위장사료 급여시작',color:'none',template});
+     [6,14,29].forEach(day=>{
+       events.push({date:dateAt(day),text:'병원내원',color:'yellow',template});
+       events.push({date:dateAt(day),text:'혈액검사',color:'none',template});
+     });
+   } else if(choice==='renalFailure'){
+     // 신부전: 당일 저녁 레나메진, 15일간 아조딜·레나메진 및 내복약, 수액·검사 일정
+     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
+     events.push({date:dateAt(0),text:'아조딜(아침)',color:'none',template});
+     events.push({date:dateAt(0),text:'레나메진(저녁)',color:'none',template});
+     for(let day=1;day<15;day++){
+       events.push({date:dateAt(day),text:'내복약(아침,저녁)',color:'none',template});
+       events.push({date:dateAt(day),text:'아조딜(아침)',color:'none',template});
+       events.push({date:dateAt(day),text:'레나메진(저녁)',color:'none',template});
+     }
+     // 당일 포함 3일간 병원 수액처치
+     for(let day=0;day<3;day++) events.push({date:dateAt(day),text:'수액처치(병원)',color:'none',template});
+     // 3일째부터 15일째까지 피하수액(집)
+     for(let day=2;day<15;day++) events.push({date:dateAt(day),text:'피하수액(집)',color:'none',template});
+     [2,6,14,29].forEach(day=>events.push({date:dateAt(day),text:'혈액검사(신장)',color:'none',template}));
+     events.push({date:dateAt(14),text:'병원내원',color:'yellow',template});
    } else if(choice==='dermatitis'){
      // 피부염: 7일 집중관리, 이후 3개월간 추적관리
      // 당일은 저녁 처치 2항목만, 2일째부터 7일째 전까지 아침·저녁 관리
