@@ -114,14 +114,14 @@ button.yellow{background:#f4b400;color:#111}
 
 /* 통합 화면: 왼쪽 접수 현황판 + 오른쪽 기존 복약관리 */
 html,body{width:100%;height:100%;overflow:hidden}
-#integratedShell{display:grid;grid-template-columns:minmax(360px,4fr) minmax(0,6fr);gap:10px;width:100vw;height:100vh;box-sizing:border-box;padding:10px;background:#eef3ef}
+#integratedShell{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100vw;height:100vh;box-sizing:border-box;padding:10px;background:#eef3ef}
 #counterPanel{min-width:0;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #dce6ee;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)}
 #counterHeader{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;border-bottom:1px solid #e5eaf0;font-size:14px}
 #counterHeader a,#counterFallback a{font-size:12px;color:#1769aa;text-decoration:none;white-space:nowrap}
 #counterFrame{border:0;width:100%;height:100%;flex:1;min-height:0;background:#f7f9fc}
 #counterFallback{padding:12px;font-size:13px;color:#8a3b2f}
-#medicationPanel{min-width:0;min-height:0;overflow:auto}
-#medicationPanel .wrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:0;max-width:none;margin:0;min-width:0}
+#medicationPanel{display:contents}
+#medicationPanel .wrap{display:contents}
 #medicationPanel .panel{min-width:0;padding:12px;height:calc(100vh - 44px);box-sizing:border-box;border-radius:12px}
 #medicationPanel .grid3{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 #medicationPanel .row{grid-template-columns:minmax(65px,.65fr) minmax(65px,.8fr) minmax(90px,1.4fr) 48px;gap:8px}
@@ -140,7 +140,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 #medicationPanel .banner div[style*="font-size:15px"]{font-size:10px!important}
 #medicationPanel .dayGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
 #medicationPanel .card{min-width:0;padding:4px}
-@media(max-width:1100px){#integratedShell{grid-template-columns:minmax(320px,4fr) minmax(0,6fr);gap:6px;padding:6px}#medicationPanel .panel{padding:8px}#medicationPanel h2{font-size:17px}#medicationPanel .quickItem{font-size:9px!important;padding:4px!important}}
+@media(max-width:1100px){#integratedShell{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px}#medicationPanel .panel{padding:8px}#medicationPanel h2{font-size:17px}#medicationPanel .quickItem{font-size:9px!important;padding:4px!important}}
 @media print{html,body{height:auto;overflow:visible}#integratedShell{display:block;width:auto;height:auto;padding:0;background:#fff}#counterPanel{display:none!important}#medicationPanel{overflow:visible}#medicationPanel .wrap{display:flex!important;padding:0!important}#medicationPanel .panel:first-child{display:none!important}#medicationPanel .panel:nth-child(2){display:flex!important;width:100%!important;height:auto!important;overflow:visible!important;padding:0!important}#medicationPanel .preview{width:196mm!important;height:283mm!important;max-width:196mm!important;padding:6mm!important;border:2px solid #b9cdbd!important;border-radius:16px!important;box-sizing:border-box!important;aspect-ratio:auto!important}}
 
 </style>
@@ -165,7 +165,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 <div class="section" id="promisePlanSection" style="border:2px solid #e0ad00;background:#fff8cc">
 <h3 style="margin-top:0">📋 약속처방 · 일정 자동 입력</h3>
 <div class="row" style="grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end">
-<div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option><option value="specialAnimal">특수동물 기본처방</option><option value="dermatitis">피부염</option><option value="conjunctivitis">결막염</option><option value="otitis">외이염</option><option value="arthritisPain">관절염/진통</option><option value="specialAnimalDisinfection">특수동물(소독)</option><option value="renalFailure">신부전</option><option value="liverLipid">간/고지혈증</option><option value="gastroenteritis">장염처치</option><option value="postOpCare">수술후처치</option><option value="parrotFracture">앵무새 골절</option><option value="temporaryBandage">임시붕대</option></select></div>
+<div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option><option value="specialAnimal">특수동물 기본처방</option><option value="dermatitis">피부염</option><option value="conjunctivitis">결막염</option><option value="otitis">외이염</option><option value="arthritisPain">관절염/진통</option><option value="specialAnimalDisinfection">특수동물(소독)</option><option value="renalFailure">신부전</option><option value="liverLipid">간/고지혈증</option><option value="gastroenteritis">장염처치</option><option value="postOpCare">수술후처치</option><option value="parrotFracture">앵무새 골절</option><option value="temporaryBandage">임시붕대</option><option value="catGeneralCare">고양이 일반처치</option></select></div>
 <div><button type="button" onclick="applyPromisePlan()" style="background:#f4b400;color:#111">일정 적용</button></div>
 </div>
 
@@ -546,7 +546,7 @@ function applyPromisePlan(){
  if(!start.value)return alert('시작일을 먼저 선택해 주세요.');
  const base=new Date(start.value+'T12:00:00');
  const dateAt=(offset)=>{const d=new Date(base);d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
- if(choice==='sevenDay' || choice==='specialAnimal' || choice==='dermatitis' || choice==='conjunctivitis' || choice==='otitis' || choice==='arthritisPain' || choice==='specialAnimalDisinfection' || choice==='renalFailure' || choice==='liverLipid' || choice==='gastroenteritis' || choice==='postOpCare' || choice==='parrotFracture' || choice==='temporaryBandage'){
+ if(choice==='sevenDay' || choice==='specialAnimal' || choice==='dermatitis' || choice==='conjunctivitis' || choice==='otitis' || choice==='arthritisPain' || choice==='specialAnimalDisinfection' || choice==='renalFailure' || choice==='liverLipid' || choice==='gastroenteritis' || choice==='postOpCare' || choice==='parrotFracture' || choice==='temporaryBandage' || choice==='catGeneralCare'){
    const template=choice;
    // 같은 약속처방을 다시 적용할 때 해당 템플릿 일정만 교체합니다.
    for(let i=events.length-1;i>=0;i--){if(events[i].template===template)events.splice(i,1);}
@@ -596,6 +596,12 @@ function applyPromisePlan(){
      for(let day=1;day<=7;day++) events.push({date:dateAt(day),text:'내복약(아침,저녁)',color:'none',template});
      events.push({date:dateAt(3),text:'병원내원-붕대제거',color:'yellow',template});
      for(let day=4;day<=7;day++) events.push({date:dateAt(day),text:'소독(연고)',color:'none',template});
+   } else if(choice==='catGeneralCare'){
+     // 고양이 일반처치: 당일 캡슐약 저녁, 7일까지 저녁 캡슐약, 8일째 내원 및 추가처방 안내
+     events.push({date:dateAt(0),text:'내복약캡슐-저녁',color:'none',template});
+     for(let day=1;day<=6;day++) events.push({date:dateAt(day),text:'내복캡슐약-저녁',color:'none',template});
+     events.push({date:dateAt(7),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(7),text:'캡슐약추가처방예정',color:'none',template});
    } else if(choice==='postOpCare'){
      // 수술후처치: 당일 잠재우기, 이후 후처치·복약·소독, 실밥 제거 및 CRP 검사
      events.push({date:dateAt(0),text:'잠재우기',color:'none',template});
