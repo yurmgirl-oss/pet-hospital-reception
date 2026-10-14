@@ -12,6 +12,9 @@ body{margin:0;background:#eef3ef;font-family:"Malgun Gothic",sans-serif}
 .panel{background:#fff;border-radius:18px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,.08);height:calc(100vh - 36px);overflow:auto}
 .grid3{display:grid;grid-template-columns:150px 200px 180px;gap:38px;justify-content:start}
 label{font-size:12px;font-weight:bold;color:#345}
+/* 주의사항: 체크박스를 문장 앞에 두고 글자와 수직 정렬 */
+.cautionOptions label{display:flex;align-items:center;gap:9px;font-size:15px;line-height:1.45;min-height:30px;cursor:pointer}
+.cautionOptions input[type="checkbox"]{width:18px;height:18px;min-width:18px;margin:0;flex:0 0 18px;padding:0;accent-color:#2f8f68}
 input,select{width:100%;padding:8px;border:1px solid #b8c8be;border-radius:8px}
 .section{margin-top:36px}
 .calendarWrap{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -154,19 +157,18 @@ html,body{width:100%;height:100%;overflow:hidden}
 <div class="wrap">
 <div class="panel">
 <h2>💊 복약관리 시스템</h2>
-<div class="section" id="serverPlanTools" style="border:2px solid #2f8f68;background:#f3fbf6">
-<h3 style="margin-top:0">☁️ 복약지도 서버 저장 · 불러오기</h3>
-<div class="grid3">
-<div><label>보호자명</label><input id="ownerName" autocomplete="name" placeholder="보호자 성함"/></div>
-<div><label>전화번호 뒤 4자리</label><input id="phoneLast4" inputmode="numeric" maxlength="4" placeholder="예: 1234"/></div>
-<div style="display:flex;align-items:end;gap:6px;flex-wrap:wrap"><button type="button" onclick="saveMedicationPlan()">서버에 저장</button><button type="button" onclick="loadMedicationPlan()">번호로 불러오기</button><button type="button" onclick="copyLookupNotice()">조회 안내문 복사</button></div>
-</div>
-<div class="small" id="serverPlanStatus" role="status" style="margin-top:7px">저장하면 서버에서 5자리 조회번호를 발급합니다. 조회 시 전화번호 뒤 4자리도 필요합니다.</div>
-</div>
 <div class="grid3">
 <div><label>환자명</label><input id="pet"/></div>
 <div><label>병명</label><input id="disease"/></div>
 <div><label>시작일</label><input id="start" type="date"/></div>
+</div>
+<div class="section" id="promisePlanSection" style="border:2px solid #e0ad00;background:#fff8cc">
+<h3 style="margin-top:0">📋 약속처방 · 일정 자동 입력</h3>
+<div class="row" style="grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end">
+<div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option><option value="sevenDay">7일 집중관리 · 매일 아침/저녁 복약 · 3일째 사진 · 7일 후 재내원</option><option value="specialAnimal">특수동물 기본처방</option><option value="dermatitis">피부염</option><option value="conjunctivitis">결막염</option><option value="otitis">외이염</option><option value="arthritisPain">관절염/진통</option><option value="specialAnimalDisinfection">특수동물(소독)</option><option value="renalFailure">신부전</option><option value="liverLipid">간/고지혈증</option><option value="gastroenteritis">장염처치</option><option value="postOpCare">수술후처치</option></select></div>
+<div><button type="button" onclick="applyPromisePlan()" style="background:#f4b400;color:#111">일정 적용</button></div>
+</div>
+
 </div>
 <div class="section">
 <h3>📅 2개월 달력</h3>
@@ -223,7 +225,25 @@ html,body{width:100%;height:100%;overflow:hidden}
 
 </div>
 <div class="section">
-<h3>④ 메모</h3>
+<h3>④ 주의사항 선택 · 출력에 반영</h3>
+<div class="small" style="margin-bottom:8px">해당되는 항목만 체크하세요. 선택하지 않은 주의사항은 출력물에 나타나지 않습니다.</div>
+<div class="cautionOptions" style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+<label><input type="checkbox" class="cautionCheck" value="물약·안약은 흔들어 사용"/> 물약·안약은 흔들어 사용</label>
+<label><input type="checkbox" class="cautionCheck" value="물약·안약은 냉장보관"/> 물약·안약은 냉장보관</label>
+<label><input type="checkbox" class="cautionCheck" value="물약은 7일 후 폐기"/> 물약은 7일 후 폐기</label>
+<label><input type="checkbox" class="cautionCheck" value="용기 표기명 확인 후 사용"/> 용기 표기명 확인 후 사용</label>
+<label><input type="checkbox" class="cautionCheck" value="소염제 복용 시 물·소변 증가 가능"/> 소염제 복용 시 물·소변 증가 가능</label>
+<label><input type="checkbox" class="cautionCheck" value="카라 목보호대 착용 (상처부위, 눈, 귀, 붕대보호)"/> 카라 목보호대 착용 (상처부위, 눈, 귀, 붕대보호)</label>
+<label><input type="checkbox" class="cautionCheck" value="사진촬영 후 admin@23si.net 으로 전송"/> 사진촬영 후 admin@23si.net 으로 전송</label>
+<label><input type="checkbox" class="cautionCheck" value="특수동물(소독)"/> 특수동물(소독)</label>
+<label><input type="checkbox" class="cautionCheck" value="재내원 시 위 QR코드로 빠른 접수"/> 재내원 시 QR코드로 빠른 접수</label>
+<label><input type="checkbox" class="cautionCheck" value="문의: 카카오채널 ‘23시하단오거리동물병원’"/> 카카오채널 문의 안내</label>
+<label style="grid-column:1/-1"><input type="checkbox" class="cautionCheck" value="전화(진료실직통) 010.4685.3499(1분제한콜), 이메일: admin@23si.net"/> 전화·이메일 문의 안내</label>
+</div>
+<div style="margin-top:10px"><label for="customCaution">추가 주의사항 직접 입력 (선택)</label><textarea id="customCaution" rows="2" placeholder="예: 환부가 젖지 않도록 주의해 주세요."></textarea></div>
+</div>
+<div class="section">
+<h3>⑤ 메모</h3>
 <div class="toolbar" style="padding:12px">
 <div><label>메모</label><input id="memoInput"/></div>
 </div>
@@ -255,22 +275,13 @@ html,body{width:100%;height:100%;overflow:hidden}
 </div>
 <h3 style="margin-top:14px">일정</h3>
 <div class="dayGrid" id="days"></div>
-<div class="notice" style="margin-top:12px;border:2px solid #e0a800;background:#fffdf2;padding:10px">
+<div class="notice" id="printedCautionBox" style="display:none;margin-top:12px;border:2px solid #e0a800;background:#fffdf2;padding:10px">
 <b style="color:#c62828;font-size:14pt">⚠️ 주의사항</b>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:12pt;line-height:1.4;margin-top:8px">
-<div style="background:#fff3cd;border-left:4px solid #f4b400;padding:5px 7px;border-radius:4px">① 물약·안약은 <b>흔들어 사용</b></div>
-<div style="background:#fff3cd;border-left:4px solid #f4b400;padding:5px 7px;border-radius:4px">② 물약·안약은 <b>냉장보관</b></div>
-<div style="background:#ffebee;border-left:4px solid #e53935;padding:5px 7px;border-radius:4px">③ 물약은 <b>7일 후 폐기</b></div>
-<div style="background:#f5f5f5;border-left:4px solid #757575;padding:5px 7px;border-radius:4px">④ <b>용기 표기명 확인</b> 후 사용</div>
-<div style="background:#e8f5e9;border-left:4px solid #43a047;padding:5px 7px;border-radius:4px">⑤ 소염제 복용 시 <b>물·소변 증가</b> 가능</div>
-<div style="background:#fff3e0;border-left:4px solid #fb8c00;padding:5px 7px;border-radius:4px">⑥ 귀·안약 처치 후 긁으면 <b>카라 착용</b></div>
-<div style="background:#e3f2fd;border-left:4px solid #1e88e5;padding:5px 7px;border-radius:4px">⑦ 재내원 시 <b>위 QR코드로 빠른 접수</b></div>
-<div style="background:#f3e5f5;border-left:4px solid #8e24aa;padding:5px 7px;border-radius:4px">⑧ 문의: <b>카카오채널</b> ‘23시 하단오거리동물병원’</div>
-<div style="grid-column:1 / -1;background:#ffebee;border:2px solid #e53935;padding:6px 8px;border-radius:5px;color:#b71c1c"><b>⑨ 문의: 전화(진료실직통) 010.4685.3499(1분제한콜), 이메일: admin@23si.net</b></div>
-</div>
+<div id="printedCautionList" style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:12pt;line-height:1.4;margin-top:8px"></div>
 </div>
 <div class="notice" style="margin-top:10px"><b>메모</b><div id="pmemo" style="font-size:13pt;margin-top:6px"></div></div>
 <div id="outputId" style="margin-top:8px;padding-top:5px;border-top:1px solid #9eafa4;text-align:right;font-size:9pt;color:#43564a">복약관리 출력번호: <b id="outputIdValue">발급 전</b></div>
+
 </div>
 </div>
 </div>
@@ -288,6 +299,20 @@ const painted=new Map();
 function sync(){ppet.textContent=pet.value||'—';pdisease.textContent=disease.value||'—';pstart.textContent=start.value}
 pet.oninput=disease.oninput=start.oninput=sync;sync();
 memoInput.oninput=()=>{pmemo.textContent=memoInput.value;};
+const cautionStyles=['#fff3cd|#f4b400','#fff3cd|#f4b400','#ffebee|#e53935','#f5f5f5|#757575','#e8f5e9|#43a047','#fff3e0|#fb8c00','#e3f2fd|#1e88e5','#f3e5f5|#8e24aa','#ffebee|#e53935'];
+function refreshCautions(){
+ const selectedCautions=[...document.querySelectorAll('.cautionCheck:checked')].map((el,i)=>({text:el.value,style:cautionStyles[[...document.querySelectorAll('.cautionCheck')].indexOf(el)]||cautionStyles[0]}));
+ const custom=(document.getElementById('customCaution').value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).map(text=>({text,style:'#fffdf2|#e0a800'}));
+ const all=[...selectedCautions,...custom];
+ const box=document.getElementById('printedCautionBox'),list=document.getElementById('printedCautionList');
+ list.innerHTML='';
+ all.forEach(item=>{const [bg,border]=item.style.split('|');const div=document.createElement('div');div.style.cssText=`background:${bg};border-left:4px solid ${border};padding:5px 7px;border-radius:4px;white-space:pre-wrap`;div.textContent=item.text;list.appendChild(div)});
+ if(custom.length){[...list.children].slice(selectedCautions.length).forEach(el=>el.style.gridColumn='1 / -1')}
+ box.style.display=all.length?'block':'none';
+}
+document.querySelectorAll('.cautionCheck').forEach(el=>el.addEventListener('change',refreshCautions));
+document.getElementById('customCaution').addEventListener('input',refreshCautions);
+refreshCautions();
 
 function renderMonths(){
  cals.innerHTML='';
@@ -360,8 +385,7 @@ function refresh(){
    div.innerHTML=`<b>${date.slice(5)}</b><div class=small>${texts.map(t=>'☐ '+t).join('<br>')}</div>`;
    days.appendChild(div);
  });
- const listEl=document.getElementById("list");
- if(listEl) listEl.innerHTML=events.map(e=>`• ${e.date} - ${e.text}`).join("<br>")||"아직 일정이 없습니다.";
+ list.innerHTML=events.map(e=>`• ${e.date} - ${e.text}`).join("<br>")||"아직 일정이 없습니다.";
 }
 let lastSelectedDates=new Set();
 function clearSel(){selected.clear();count.textContent=0;renderMonths();}
@@ -516,92 +540,172 @@ function savePreviewImage(){
   });
 }
 
-function setServerStatus(message, error=false){
- const el=document.getElementById('serverPlanStatus');
- if(el){el.textContent=message;el.style.color=error?'#b42318':'#245b3e';}
-}
-let lastLookupCode='';
-async function copyLookupNotice(){
- const code=lastLookupCode || (document.getElementById('outputIdValue')?.textContent||'').trim();
- const owner=(document.getElementById('ownerName')?.value||'').trim();
- const petName=(document.getElementById('pet')?.value||'').trim();
- const phone=(document.getElementById('phoneLast4')?.value||'').replace(/\D/g,'');
- if(!/^\d{5}$/.test(code)) return alert('먼저 서버에 저장하거나 번호로 불러와 주세요.');
- if(!/^\d{4}$/.test(phone)) return alert('전화번호 뒤 4자리를 확인해 주세요.');
- const notice='[23시 하단오거리 동물병원 복약지도]\n보호자: '+owner+'\n환자: '+petName+'\n조회번호: '+code+'\n조회 시 전화번호 뒤 4자리: '+phone+'\n복약지도 조회 페이지: https://23si.net/medication.html';
- try{
-  if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(notice);}
-  else {const area=document.createElement('textarea');area.value=notice;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();const ok=document.execCommand('copy');area.remove();if(!ok)throw new Error('복사할 수 없습니다.');}
-  setServerStatus('조회 안내문을 복사했습니다. 보호자에게 문자나 카카오톡으로 붙여넣어 보내세요.');
-  alert('조회 안내문을 복사했습니다. 보호자에게 문자나 카카오톡으로 붙여넣어 보내세요.');
- }catch(e){prompt('아래 안내문을 복사해 보호자에게 보내세요.',notice);}
-}
-function buildPlanData(){
- return {
-  version:1,
-  pet_name:pet.value.trim(), disease:disease.value,
-  start_date:start.value, memo:memoInput.value,
-  events:events.map(e=>({...e})), painted:Array.from(painted.entries()),
-  selected_dates:Array.from(selected), last_selected_dates:Array.from(lastSelectedDates),
-  repeat_text:repeatText.value, interval:interval.value, end_date_days:endDate.value,
-  specific_text:specificText.value, drag_text:(document.getElementById("dragText")?.value||"")
- };
-}
-function restorePlanData(plan){
- if(!plan||typeof plan!=='object') throw new Error('저장된 복약지도 형식이 올바르지 않습니다.');
- pet.value=plan.pet_name||''; disease.value=plan.disease||'';
- if(plan.start_date) start.value=plan.start_date;
- memoInput.value=plan.memo||'';
- events.splice(0,events.length,...(Array.isArray(plan.events)?plan.events.filter(e=>e&&e.date&&typeof e.text==='string'):[]));
- painted.clear();
- if(Array.isArray(plan.painted)) plan.painted.forEach(pair=>{if(Array.isArray(pair)&&pair.length===2)painted.set(pair[0],pair[1]);});
- selected.clear(); if(Array.isArray(plan.selected_dates))plan.selected_dates.forEach(d=>selected.add(d));
- lastSelectedDates=new Set(Array.isArray(plan.last_selected_dates)?plan.last_selected_dates:[]);
- if(plan.repeat_text!=null)repeatText.value=plan.repeat_text;
- if(plan.interval!=null)interval.value=plan.interval;
- if(plan.end_date_days!=null)endDate.value=plan.end_date_days;
- if(plan.specific_text!=null)specificText.value=plan.specific_text;
- const dragTextEl=document.getElementById("dragText"); if(dragTextEl&&plan.drag_text!=null)dragTextEl.value=plan.drag_text;
- sync(); pmemo.textContent=memoInput.value||''; count.textContent=selected.size;
- renderMonths();refresh();
-}
-async function saveMedicationPlan(){
- const owner=document.getElementById('ownerName').value.trim();
- const phone=document.getElementById('phoneLast4').value.replace(/\D/g,'');
- if(!owner)return alert('보호자명을 입력해 주세요.');
- if(!/^\d{4}$/.test(phone))return alert('전화번호 뒤 4자리를 숫자로 입력해 주세요.');
- if(!pet.value.trim())return alert('환자명을 먼저 입력해 주세요.');
- const pin=prompt('병원 저장 인증번호를 입력해 주세요.');
- if(pin===null)return;
- setServerStatus('서버에 저장하고 있습니다…');
- try{
-  const response=await fetch('/api/medication-plans',{method:'POST',headers:{'Content-Type':'application/json','X-Clinic-Pin':pin},body:JSON.stringify({owner_name:owner,phone_last4:phone,pet_name:pet.value.trim(),plan:buildPlanData()})});
-  const result=await response.json();
-  if(!response.ok)throw new Error(result.error||'저장에 실패했습니다.');
-  lastLookupCode=String(result.lookup_code||'');
-  document.getElementById('outputIdValue').textContent=result.lookup_code;
-  setServerStatus('저장 완료! 복약지도 조회번호: '+result.lookup_code+' · 보호자에게 조회번호와 전화번호 뒤 4자리를 안내해 주세요.');
-  alert('복약지도가 서버에 저장되었습니다.\n조회번호: '+result.lookup_code);
- }catch(err){setServerStatus(err.message||'저장 중 오류가 발생했습니다.',true);alert(err.message||'저장 중 오류가 발생했습니다.');}
-}
-async function loadMedicationPlan(){
- const code=prompt('복약지도 조회번호 5자리를 입력해 주세요.');
- if(code===null)return;
- const phone=document.getElementById('phoneLast4').value.replace(/\D/g,'');
- if(!/^\d{4}$/.test(phone))return alert('전화번호 뒤 4자리를 먼저 입력해 주세요.');
- if(!/^\d{5}$/.test(code.trim()))return alert('조회번호는 숫자 5자리입니다.');
- setServerStatus('저장된 복약지도를 조회하고 있습니다…');
- try{
-  const url='/api/medication-plans?code='+encodeURIComponent(code.trim())+'&phone_last4='+encodeURIComponent(phone);
-  const response=await fetch(url,{method:'GET',cache:'no-store'});
-  const result=await response.json();
-  if(!response.ok)throw new Error(result.error||'조회에 실패했습니다.');
-  document.getElementById('ownerName').value=result.owner_name||'';
-  restorePlanData(result.plan);
-  lastLookupCode=String(result.lookup_code||code.trim());
-  document.getElementById('outputIdValue').textContent=result.lookup_code||code.trim();
-  setServerStatus('불러오기 완료 · 보호자: '+(result.owner_name||'')+' · 환자: '+(result.pet_name||''));
- }catch(err){setServerStatus(err.message||'조회 중 오류가 발생했습니다.',true);alert(err.message||'조회 중 오류가 발생했습니다.');}
+function applyPromisePlan(){
+ const choice=document.getElementById('promisePlan')?.value;
+ if(!choice)return alert('약속처방을 선택해 주세요.');
+ if(!start.value)return alert('시작일을 먼저 선택해 주세요.');
+ const base=new Date(start.value+'T12:00:00');
+ const dateAt=(offset)=>{const d=new Date(base);d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+ if(choice==='sevenDay' || choice==='specialAnimal' || choice==='dermatitis' || choice==='conjunctivitis' || choice==='otitis' || choice==='arthritisPain' || choice==='specialAnimalDisinfection' || choice==='renalFailure' || choice==='liverLipid' || choice==='gastroenteritis' || choice==='postOpCare'){
+   const template=choice;
+   // 같은 약속처방을 다시 적용할 때 해당 템플릿 일정만 교체합니다.
+   for(let i=events.length-1;i>=0;i--){if(events[i].template===template)events.splice(i,1);}
+   if(choice==='sevenDay'){
+     for(let day=0;day<7;day++){
+       events.push({date:dateAt(day),text:'내복약(아침)',color:'none',template});
+       events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
+     }
+     events.push({date:dateAt(2),text:'사진 촬영 후 병원에 전송',color:'none',template});
+     events.push({date:dateAt(7),text:'병원 재내원',color:'none',template});
+     const note='약속처방 안내: 7일간 매일 아침·저녁 내복약을 투여해 주세요. 3일째 환부 사진을 촬영해 병원에 보내주시고, 시작일로부터 7일 후 병원에 내원해 주세요.';
+     memoInput.value=memoInput.value.trim()?memoInput.value.trim()+'\n'+note:note;
+   } else if(choice==='specialAnimal'){
+     for(let day=0;day<7;day++) events.push({date:dateAt(day),text:'물약(저녁)',color:'none',template});
+     events.push({date:dateAt(2),text:'사진촬영',color:'none',template});
+     events.push({date:dateAt(6),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(6),text:'추가처방예정(7일)',color:'none',template});
+   } else if(choice==='specialAnimalDisinfection'){
+     // 특수동물(소독): 7일간 저녁 물약과 소독, 지정일 사진촬영 및 8일째 내원
+     for(let day=0;day<7;day++){
+       events.push({date:dateAt(day),text:'물약(저녁)',color:'none',template});
+       events.push({date:dateAt(day),text:'소독(1회)',color:'none',template});
+     }
+     [2,5,8,14,29].forEach(day=>events.push({date:dateAt(day),text:'사진촬영',color:'none',template}));
+     events.push({date:dateAt(7),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(7),text:'내복약 추가처방예정',color:'none',template});
+   } else if(choice==='liverLipid'){
+     // 간/고지혈증: 당일부터 15일째까지 저녁 내복약, 15일째 추가처방 및 장기 혈액검사
+     for(let day=0;day<15;day++) events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
+     events.push({date:dateAt(14),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(14),text:'내복약 추가처방예정',color:'none',template});
+     [14,29,89,179,269].forEach(day=>events.push({date:dateAt(day),text:'혈액검사',color:'none',template}));
+   } else if(choice==='postOpCare'){
+     // 수술후처치: 당일 잠재우기, 이후 후처치·복약·소독, 실밥 제거 및 CRP 검사
+     events.push({date:dateAt(0),text:'잠재우기',color:'none',template});
+     // 다음날부터 3일까지 병원 내원 및 후처치
+     for(let day=1;day<=3;day++){
+       events.push({date:dateAt(day),text:'병원내원-후처치',color:'yellow',template});
+     }
+     // 2~4일째는 병원내원-후처치만 표시하고, 5~11일째 7일간 내복약·소독
+     for(let day=4;day<=10;day++){
+       events.push({date:dateAt(day),text:'내복약(아침,저녁)',color:'none',template});
+       events.push({date:dateAt(day),text:'소독',color:'none',template});
+     }
+     events.push({date:dateAt(4),text:'사진촬영',color:'none',template});
+     events.push({date:dateAt(7),text:'사진촬영',color:'none',template});
+     events.push({date:dateAt(10),text:'병원내원-실밥제거',color:'yellow',template});
+     events.push({date:dateAt(14),text:'혈액검사(CRP)',color:'none',template});
+   } else if(choice==='gastroenteritis'){
+     // 장염처치: 당일 저녁 복약, 7일 관리, 초기 수액·식이 관리 및 추적 내원/검사
+     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
+     for(let day=1;day<7;day++){
+       events.push({date:dateAt(day),text:'내복약(아침,저녁)',color:'none',template});
+     }
+     // 2~4일째: 병원 내원, 피하수액 처치, 내복약 및 유동식(처방식캔)
+     for(let day=1;day<4;day++){
+       events.push({date:dateAt(day),text:'병원내원',color:'yellow',template});
+       events.push({date:dateAt(day),text:'피하수액처치',color:'none',template});
+       events.push({date:dateAt(day),text:'유동식(처방식캔) 2회',color:'none',template});
+     }
+     events.push({date:dateAt(4),text:'처방식 위장사료(불려서) 2회',color:'none',template});
+     events.push({date:dateAt(5),text:'처방식 위장사료 급여시작',color:'none',template});
+     [6,14,29].forEach(day=>{
+       events.push({date:dateAt(day),text:'병원내원',color:'yellow',template});
+       events.push({date:dateAt(day),text:'혈액검사',color:'none',template});
+     });
+   } else if(choice==='renalFailure'){
+     // 신부전: 당일 저녁 레나메진, 15일간 아조딜·레나메진 및 내복약, 수액·검사 일정
+     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
+     events.push({date:dateAt(0),text:'아조딜(아침)',color:'none',template});
+     events.push({date:dateAt(0),text:'레나메진(저녁)',color:'none',template});
+     for(let day=1;day<15;day++){
+       events.push({date:dateAt(day),text:'내복약(아침,저녁)',color:'none',template});
+       events.push({date:dateAt(day),text:'아조딜(아침)',color:'none',template});
+       events.push({date:dateAt(day),text:'레나메진(저녁)',color:'none',template});
+     }
+     // 당일 포함 3일간 병원 수액처치
+     for(let day=0;day<3;day++) events.push({date:dateAt(day),text:'수액처치(병원)',color:'none',template});
+     // 3일째부터 15일째까지 피하수액(집)
+     for(let day=2;day<15;day++) events.push({date:dateAt(day),text:'피하수액(집)',color:'none',template});
+     [2,6,14,29].forEach(day=>events.push({date:dateAt(day),text:'혈액검사(신장)',color:'none',template}));
+     events.push({date:dateAt(14),text:'병원내원',color:'yellow',template});
+   } else if(choice==='dermatitis'){
+     // 피부염: 7일 집중관리, 이후 3개월간 추적관리
+     // 당일은 저녁 처치 2항목만, 2일째부터 7일째 전까지 아침·저녁 관리
+     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
+     events.push({date:dateAt(0),text:'소독, 연고(저녁)',color:'none',template});
+     for(let day=1;day<7;day++){
+       events.push({date:dateAt(day),text:'내복약(아침)',color:'none',template});
+       events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
+       events.push({date:dateAt(day),text:'소독, 연고(하루 2회)',color:'none',template});
+     }
+     events.push({date:dateAt(2),text:'사진촬영',color:'none',template});
+     events.push({date:dateAt(6),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(20),text:'처방식 사료 유지',color:'none',template});
+     for(let day=14;day<=89;day+=15) events.push({date:dateAt(day),text:'사진촬영',color:'none',template});
+     for(let day=29;day<=89;day+=30) events.push({date:dateAt(day),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(27),text:'혈액검사(간,신장)',color:'none',template});
+   } else if(choice==='conjunctivitis'){
+     // 결막염: 당일 저녁 1회 투약, 이후 7일 관리 및 지정일 촬영·내원
+     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
+     events.push({date:dateAt(0),text:'안약 세트(1회)',color:'none',template});
+     for(let day=1;day<7;day++){
+       events.push({date:dateAt(day),text:'내복약(아침)',color:'none',template});
+       events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
+       events.push({date:dateAt(day),text:'안약 세트(4회)',color:'none',template});
+     }
+     // 8~15일째 안약 세트 아침·저녁, 15~21일째 아침만
+     for(let day=7;day<=14;day++){
+       events.push({date:dateAt(day),text:'안약 세트(아침,저녁)',color:'none',template});
+     }
+     for(let day=14;day<=20;day++){
+       if(day!==14) events.push({date:dateAt(day),text:'안약 세트(아침)',color:'none',template});
+     }
+     events.push({date:dateAt(1),text:'사진촬영',color:'none',template});
+     [9,19,29].forEach(day=>events.push({date:dateAt(day),text:'사진촬영',color:'none',template}));
+     events.push({date:dateAt(2),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(7),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(7),text:'내복약 추가처방예정',color:'none',template});
+     events.push({date:dateAt(14),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(29),text:'병원내원',color:'yellow',template});
+   } else if(choice==='arthritisPain'){
+     // 관절염/진통: 당일 저녁, 첫 7일 아침·저녁, 이후 15일째까지 저녁 복약
+     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
+     for(let day=1;day<7;day++){
+       events.push({date:dateAt(day),text:'내복약(아침)',color:'none',template});
+       events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
+     }
+     for(let day=7;day<15;day++) events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
+     [4,11,18,24].forEach(day=>events.push({date:dateAt(day),text:'사진촬영',color:'none',template}));
+     [6,14,29].forEach(day=>events.push({date:dateAt(day),text:'병원내원',color:'yellow',template}));
+     events.push({date:dateAt(14),text:'내복약 추가예정',color:'none',template});
+     events.push({date:dateAt(27),text:'혈액검사(간,신장)',color:'none',template});
+   } else if(choice==='otitis'){
+     // 외이염: 첫 7일 내복약·귀연고, 이후 귀연고 간격을 늘리고 추적 촬영·내원
+     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
+     events.push({date:dateAt(0),text:'귀연고 투약(1회)',color:'none',template});
+     for(let day=1;day<7;day++){
+       events.push({date:dateAt(day),text:'내복약(아침)',color:'none',template});
+       events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
+       events.push({date:dateAt(day),text:'귀연고 투약(1회)',color:'none',template});
+     }
+     // 8~15일째 매일 1회
+     for(let day=7;day<=14;day++) events.push({date:dateAt(day),text:'귀연고 투약(1회)',color:'none',template});
+     // 15~30일째 2일에 1회 (15, 17, ... 29일째)
+     for(let day=14;day<=28;day+=2) events.push({date:dateAt(day),text:'귀연고 투약',color:'none',template});
+     // 30~60일째 4일에 1회 (30, 34, ... 58일째)
+     for(let day=29;day<=57;day+=4) events.push({date:dateAt(day),text:'귀연고 투약',color:'none',template});
+     [12,25,38,56].forEach(day=>events.push({date:dateAt(day),text:'사진촬영',color:'none',template}));
+     [14,29,44,59].forEach(day=>events.push({date:dateAt(day),text:'병원내원',color:'yellow',template}));
+     events.push({date:dateAt(2),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(7),text:'병원내원',color:'yellow',template});
+     events.push({date:dateAt(7),text:'내복약 추가처방예정',color:'none',template});
+     events.push({date:dateAt(27),text:'혈액검사(간,신장)',color:'none',template});
+   }
+   pmemo.textContent=memoInput.value;
+   renderMonths();refresh();
+   alert('약속처방 일정이 추가되었습니다. 약 종류와 용량은 환자별로 직접 입력해 주세요.');
+ }
 }
 
 renderMonths();refresh();
