@@ -181,7 +181,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-10 gap-3 items-stretch">
           
-          <!-- 좌측 60%: 내원 사유 (원본 상세 안내 플레이스홀더 유지) -->
+          <!-- 좌측 60%: 내원 사유 -->
           <div class="md:col-span-6 flex flex-col">
             <div class="flex items-center justify-between mb-1">
               <label class="flex items-center">
@@ -252,14 +252,23 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <!-- 1. 항문낭짜기 (BEST 뱃지 적용) -->
           <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5">
               <input type="checkbox" name="treatment" value="항문낭짜기" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
               <span class="font-bold text-slate-800">항문낭짜기</span>
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-700 border border-amber-300">
+                <span class="flex h-1.5 w-1.5 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+                </span>
+                BEST
+              </span>
             </div>
             <span class="font-extrabold text-[#0d9488]">5,000원</span>
           </label>
 
+          <!-- 2. 발톱깎기 -->
           <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
             <div class="flex items-center gap-2">
               <input type="checkbox" name="treatment" value="발톱깎기" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
@@ -268,6 +277,7 @@
             <span class="font-extrabold text-[#0d9488]">10,000원</span>
           </label>
 
+          <!-- 3. 귀청소 -->
           <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
             <div class="flex items-center gap-2">
               <input type="checkbox" name="treatment" value="귀청소" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
@@ -276,6 +286,7 @@
             <span class="font-extrabold text-[#0d9488]">10,000원</span>
           </label>
 
+          <!-- 4. 심장사상충 / 예방접종 -->
           <div class="treatment-card flex items-center justify-start gap-4 py-2 px-3 rounded-xl bg-white hover:border-teal-500 transition select-none">
             <label class="flex items-center gap-1.5 cursor-pointer">
               <input type="checkbox" name="treatment" value="심장사상충" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
@@ -287,6 +298,7 @@
             </label>
           </div>
 
+          <!-- 5. 심장사상충 키트검사 -->
           <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
             <div class="flex items-center gap-2">
               <input type="checkbox" name="treatment" value="심장사상충 키트검사" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
@@ -295,14 +307,23 @@
             <span class="font-extrabold text-[#0d9488]">38,500원</span>
           </label>
 
+          <!-- 6. 항문낭 완전세정 (추천 뱃지 적용) -->
           <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5">
               <input type="checkbox" name="treatment" value="항문낭 완전세정(압출>세정>약물)" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
               <span class="font-bold text-slate-800">항문낭 완전세정(압출>세정>약물)</span>
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-rose-100 text-rose-700 border border-rose-300">
+                <span class="flex h-1.5 w-1.5 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
+                </span>
+                추천
+              </span>
             </div>
             <span class="font-extrabold text-[#0d9488]">20,000원</span>
           </label>
 
+          <!-- 7. 동물등록신청 -->
           <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
             <div class="flex items-center gap-2">
               <input type="checkbox" name="treatment" value="동물등록신청" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
@@ -311,6 +332,7 @@
             <span class="font-extrabold text-[#0d9488]">50,000원</span>
           </label>
 
+          <!-- 8. 분변검사(도말정밀) -->
           <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-white hover:border-teal-500 transition cursor-pointer select-none">
             <div class="flex items-center gap-2">
               <input type="checkbox" name="treatment" value="분변검사(도말정밀)" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
