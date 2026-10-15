@@ -55,7 +55,7 @@
       <div class="flex items-center gap-3">
         <button id="soundToggleBtn" onclick="toggleSound()" class="px-3.5 py-2 rounded-xl border text-sm font-medium transition flex items-center gap-1.5 bg-slate-100 text-slate-600 border-slate-300">
           <span id="soundIcon">🔔</span>
-<span id="soundText">알림음 켜짐</span>
+          <span id="soundText">알림음 켜짐</span>
         </button>
         <button onclick="fetchReceptions(true)" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition">
           새로고침
@@ -138,6 +138,11 @@
             <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">생년월일 / 체중</th>
             <td class="border border-slate-300 py-2 px-3 font-medium align-middle" id="doc-birth-weight">-</td>
           </tr>
+          <!-- 성격 및 성향 안내 행 추가 -->
+          <tr>
+            <th class="border border-slate-300 bg-amber-50 text-amber-900 py-2 px-3 text-left align-middle font-bold">성격 및 기질</th>
+            <td colspan="3" class="border border-slate-300 py-2 px-3 font-semibold text-amber-900 align-middle" id="doc-character">특이사항 없음</td>
+          </tr>
         </table>
       </div>
 
@@ -161,64 +166,62 @@
         </div>
       </div>
 
-      <!-- 5. 개인정보 수집·이용 및 안전 수칙 안내 확인 (초진 전문 100% 일치화) -->
-<div class="border-2 border-slate-300 rounded-xl p-3.5 bg-slate-50/70">
-  <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center justify-between">
-    <span class="flex items-center gap-1">
-      <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 4. 개인정보 수집·이용 및 병원 내 안전 수칙 동의 확인
-    </span>
-    <span class="text-[11px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">✓ 보호자 전자 서명 완료</span>
-  </h3>
+      <!-- 5. 개인정보 수집·이용 및 안전 수칙 안내 확인 -->
+      <div class="border-2 border-slate-300 rounded-xl p-3.5 bg-slate-50/70">
+        <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center justify-between">
+          <span class="flex items-center gap-1">
+            <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 4. 개인정보 수집·이용 및 병원 내 안전 수칙 동의 확인
+          </span>
+          <span class="text-[11px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">✓ 보호자 전자 서명 완료</span>
+        </h3>
 
-  <div class="space-y-2 text-[11px] leading-relaxed text-slate-700">
-    <!-- ① 개인정보 수집 및 이용 동의 -->
-    <div class="bg-white p-2.5 rounded-lg border border-slate-200 space-y-1">
-      <div class="flex items-center justify-between">
-        <p class="font-bold text-slate-800">① 개인정보 수집 및 이용 동의</p>
-        <span class="text-emerald-600 font-semibold">[동의함]</span>
+        <div class="space-y-2 text-[11px] leading-relaxed text-slate-700">
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <p class="font-bold text-slate-800">① 개인정보 수집 및 이용 동의</p>
+              <span class="text-emerald-600 font-semibold">[동의함]</span>
+            </div>
+            <ul class="list-disc pl-4 space-y-0.5 text-slate-600">
+              <li><strong class="text-slate-700">수집 항목:</strong> 보호자 성명, 연락처, 접수 정보</li>
+              <li><strong class="text-slate-700">이용 목적:</strong> 진료기록 관리, 접수·예약 및 재진 안내, 휴진·공휴일 관련 SMS·알림톡 발송</li>
+              <li><strong class="text-slate-700">보유 기간:</strong> 목적 달성 시까지 또는 관련 법령에 따른 보존 기간</li>
+              <li><strong class="text-slate-700">동의 거부:</strong> 동의를 거부할 수 있으나, 일부 서비스 이용이 제한될 수 있습니다.</li>
+            </ul>
+            <p class="font-medium text-teal-800 pt-0.5 text-[10.5px]">본원은 개인정보를 명시된 목적에 따라 안전하게 관리합니다.</p>
+          </div>
+
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <p class="font-bold text-slate-800">② 병원 내 안전 및 유의사항 안내 동의</p>
+              <span class="text-emerald-600 font-semibold">[동의함]</span>
+            </div>
+            <p class="text-slate-600">병원 내에서는 사람과 동물 간의 접촉이나 예기치 못한 상황으로 다툼, 상해, 물품 파손 등이 발생할 수 있습니다. 보호자님께서는 반려동물을 안전하게 관리해 주시고, 다른 보호자와 동물을 배려해 주시기 바랍니다.</p>
+            <p class="text-slate-600">개인 간 분쟁이나 피해가 발생한 경우 당사자 간의 원만한 해결을 원칙으로 하며, 병원은 관련 상황과 책임 범위에 따라 필요한 조치를 취합니다.</p>
+            <p class="font-bold text-teal-700 text-[10.5px]">모두의 안전하고 편안한 진료 환경을 위해 보호자님의 협조와 배려를 부탁드립니다.</p>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-300 flex justify-between items-center px-1">
+          <div class="text-xs space-y-0.5">
+            <p class="text-slate-600">위 안내 및 동의 조항을 충분히 숙지하였으며, 이에 정식 동의합니다.</p>
+            <p class="text-slate-800 font-bold">동의자(보호자 성함): <span id="doc-sign-guardian" class="text-teal-900">-</span></p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-500">서명 (인):</span>
+            <div class="w-36 h-16 border border-slate-300 bg-white rounded-lg flex items-center justify-center p-1 shadow-inner overflow-hidden">
+              <img id="doc-signature-img" src="" alt="보호자 전자 서명" class="max-h-full max-w-full object-contain">
+              <span id="doc-no-sign" class="text-[11px] text-slate-400 hidden">서명 없음</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <ul class="list-disc pl-4 space-y-0.5 text-slate-600">
-        <li><strong class="text-slate-700">수집 항목:</strong> 보호자 성명, 연락처, 접수 정보</li>
-        <li><strong class="text-slate-700">이용 목적:</strong> 진료기록 관리, 접수·예약 및 재진 안내, 휴진·공휴일 관련 SMS·알림톡 발송</li>
-        <li><strong class="text-slate-700">보유 기간:</strong> 목적 달성 시까지 또는 관련 법령에 따른 보존 기간</li>
-        <li><strong class="text-slate-700">동의 거부:</strong> 동의를 거부할 수 있으나, 일부 서비스 이용이 제한될 수 있습니다.</li>
-      </ul>
-      <p class="font-medium text-teal-800 pt-0.5 text-[10.5px]">본원은 개인정보를 명시된 목적에 따라 안전하게 관리합니다.</p>
-    </div>
 
-    <!-- ② 병원 내 안전 및 유의사항 안내 동의 -->
-    <div class="bg-white p-2.5 rounded-lg border border-slate-200 space-y-1">
-      <div class="flex items-center justify-between">
-        <p class="font-bold text-slate-800">② 병원 내 안전 및 유의사항 안내 동의</p>
-        <span class="text-emerald-600 font-semibold">[동의함]</span>
+      <!-- 하단 푸터 -->
+      <div class="border-t border-slate-300 pt-2 text-[10px] text-slate-400 flex justify-between items-center">
+        <span>• 23시 하단오거리동물병원 전자 의무기록 관리 시스템 (CLINIC FLOW)</span>
+        <span>인쇄일시: <script>document.write(new Date().toLocaleDateString('ko-KR'))</script></span>
       </div>
-      <p class="text-slate-600">병원 내에서는 사람과 동물 간의 접촉이나 예기치 못한 상황으로 다툼, 상해, 물품 파손 등이 발생할 수 있습니다. 보호자님께서는 반려동물을 안전하게 관리해 주시고, 다른 보호자와 동물을 배려해 주시기 바랍니다.</p>
-      <p class="text-slate-600">개인 간 분쟁이나 피해가 발생한 경우 당사자 간의 원만한 해결을 원칙으로 하며, 병원은 관련 상황과 책임 범위에 따라 필요한 조치를 취합니다.</p>
-      <p class="font-bold text-teal-700 text-[10.5px]">모두의 안전하고 편안한 진료 환경을 위해 보호자님의 협조와 배려를 부탁드립니다.</p>
-    </div>
-  </div>
-
-  <!-- 서명 확인 영역 -->
-  <div class="mt-3 pt-3 border-t border-slate-300 flex justify-between items-center px-1">
-    <div class="text-xs space-y-0.5">
-      <p class="text-slate-600">위 안내 및 동의 조항을 충분히 숙지하였으며, 이에 정식 동의합니다.</p>
-      <p class="text-slate-800 font-bold">동의자(보호자 성함): <span id="doc-sign-guardian" class="text-teal-900">-</span></p>
-    </div>
-
-    <div class="flex items-center gap-2">
-      <span class="text-xs font-bold text-slate-500">서명 (인):</span>
-      <div class="w-36 h-16 border border-slate-300 bg-white rounded-lg flex items-center justify-center p-1 shadow-inner overflow-hidden">
-        <img id="doc-signature-img" src="" alt="보호자 전자 서명" class="max-h-full max-w-full object-contain">
-        <span id="doc-no-sign" class="text-[11px] text-slate-400 hidden">서명 없음</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-    <!-- 하단 푸터 -->
-    <div class="border-t border-slate-300 pt-2 text-[10px] text-slate-400 flex justify-between items-center">
-      <span>• 23시 하단오거리동물병원 전자 의무기록 관리 시스템 (CLINIC FLOW)</span>
-      <span>인쇄일시: <script>document.write(new Date().toLocaleDateString('ko-KR'))</script></span>
     </div>
   </div>
 
@@ -228,7 +231,6 @@
     let isFirstLoad = true;
     let currentList = [];
 
-    // 통합 클립보드 복사 함수
     function copyText(text, label = '텍스트') {
       if (!text || text === '-' || text === '미기재') return;
 
@@ -257,7 +259,6 @@
       document.body.removeChild(ta);
     }
 
-    // 내원 사유 원클릭 복사
     function copyReason(id) {
       const item = currentList.find(x => x.id === id);
       if (!item) return;
@@ -274,7 +275,6 @@
       copyText(reason, '내원 사유');
     }
 
-    // 토스트 알림
     function showToast(msg) {
       const toast = document.getElementById('copyToast');
       const toastMsg = document.getElementById('toastMsg');
@@ -291,7 +291,6 @@
       }, 2200);
     }
 
-    // 접수 내역 삭제
     async function deleteReception(id, petName) {
       if (!confirm(`[${petName}] 환자의 접수 내역을 정말 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) {
         return;
@@ -432,6 +431,20 @@
       return neuterTag ? `중성화${neuterTag}` : '';
     }
 
+    // 동물 성격/기질 추출 함수 (다양한 key 명칭 대응)
+    function getPetCharacter(payload, item) {
+      const val = payload.character 
+        || payload.personality 
+        || payload.temperament 
+        || payload.temper 
+        || payload.traits 
+        || item.character 
+        || item.personality 
+        || '';
+      if (Array.isArray(val)) return val.join(', ');
+      return typeof val === 'string' ? val.trim() : '';
+    }
+
     function renderList(list) {
       const container = document.getElementById('list-container');
       if (list.length === 0) {
@@ -466,11 +479,18 @@
         const phone = item.phone || item.owner_phone || '-';
         const email = (payload.email || item.email || '').trim();
 
-        // 생년월일 및 성별 가져오기
         const birthDateVal = getBirthDate(payload, item);
         const birthBadge = birthDateVal ? ` · 🎂 ${birthDateVal}` : '';
         const genderVal = getGenderText(payload, item);
         const genderBadge = genderVal ? ` · ${genderVal}` : '';
+
+        // 성격 데이터 확인 및 뱃지 생성
+        const characterVal = getPetCharacter(payload, item);
+        const characterBadge = characterVal ? `
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+            🐾 성격: ${characterVal}
+          </span>
+        ` : '';
 
         const displayReason = (payload.reason && payload.reason.trim())
           || (item.symptom && item.symptom.trim())
@@ -506,7 +526,6 @@
           `;
         }
 
-        // 전화번호 복사 버튼
         const phoneButtonHtml = (phone && phone !== '-') ? `
           <button 
             type="button" 
@@ -521,7 +540,6 @@
           </button>
         ` : `<strong>-</strong>`;
 
-        // 이메일 복사 버튼
         const emailButtonHtml = email ? `
           <button 
             type="button" 
@@ -546,6 +564,7 @@
                 <h3 class="text-lg font-bold text-slate-900">${item.pet_name || '이름 없음'}</h3>
                 <span class="text-xs text-slate-400 font-mono">${timeStr}</span>
                 ${scheduleBadge}
+                ${characterBadge}
                 ${downloadBtn}
               </div>
 
@@ -643,12 +662,17 @@
       const wt = payload.weight ? `${payload.weight} kg` : '미기재';
       document.getElementById('doc-birth-weight').innerText = `${bDate}  /  ${wt}`;
 
+      // A4 서식 성격 데이터 바인딩
+      const charVal = getPetCharacter(payload, item) || '특이사항 없음';
+      const docCharEl = document.getElementById('doc-character');
+      if (docCharEl) docCharEl.innerText = charVal;
+
       document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
 
       let treatmentsArray = [];
       if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
       else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
-      document.getElementById('doc-treatments').innerText = treatmentsArray.length > 0 ? treatmentsArray.join('  |  ') : '선택 처치 없음';
+      document.getElementById('doc-treatments').innerText = treatmentsArray.length > 0 ? treatmentsArray.join('  |   ') : '선택 처치 없음';
 
       const sigImg = document.getElementById('doc-signature-img');
       const noSigText = document.getElementById('doc-no-sign');
