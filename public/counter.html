@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>23시 하단오거리동물병원 - 데스크 접수 현황판</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>23시 하단오거리동물병원 - 원내 접수 현황판</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- 고해상도 캡처를 위한 html2canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -37,90 +37,90 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 p-2.5 sm:p-4 md:p-8">
+<body class="bg-slate-50 min-h-screen text-slate-800 p-4 md:p-8">
 
-  <div class="max-w-6xl mx-auto space-y-3 sm:space-y-5">
+  <div class="max-w-6xl mx-auto space-y-6">
     
-    <!-- 헤더 -->
-    <header class="flex flex-row justify-between items-center bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl shadow-xs border border-slate-200 gap-2">
+    <!-- 1. 헤더 (원본 규격) -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200 gap-4">
       <div>
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
-          <h1 class="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">원내 접수 현황판</h1>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></span>
+          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">원내 접수 현황판</h1>
         </div>
-        <p class="text-[11px] sm:text-sm text-slate-500 mt-0.5 hidden xs:block">실시간 접수 현황 및 초진 서식 출력 관리</p>
+        <p class="text-sm text-slate-500 mt-1">실시간 접수 현황 및 초진 서식 출력 관리</p>
       </div>
       
       <!-- 컨트롤 버튼 -->
-      <div class="flex items-center gap-1.5 sm:gap-3">
-        <button id="soundToggleBtn" onclick="toggleSound()" class="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1 bg-slate-100 text-slate-600 border-slate-300">
+      <div class="flex items-center gap-3">
+        <button id="soundToggleBtn" onclick="toggleSound()" class="px-3.5 py-2 rounded-xl border text-sm font-medium transition flex items-center gap-1.5 bg-slate-100 text-slate-600 border-slate-300">
           <span id="soundIcon">🔔</span>
-          <span id="soundText" class="hidden sm:inline">알림음 켜짐</span>
+          <span id="soundText">알림음 켜짐</span>
         </button>
-        <button onclick="fetchReceptions(true)" class="px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-900 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold hover:bg-slate-800 transition">
+        <button onclick="fetchReceptions(true)" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition">
           새로고침
         </button>
       </div>
     </header>
 
-    <!-- [원내 공지사항 관리 바] -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
-      <div class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200 shrink-0 w-fit">
+    <!-- [원내 공지사항 관리 바 - 원본 스타일에 녹아들도록 정돈] -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200 shrink-0 w-fit">
         <span>📢</span>
-        <span>원내 공지</span>
+        <span>원내 공지 설정</span>
       </div>
       <textarea 
         id="adminNoticeInput" 
         rows="1"
-        placeholder="접수 키오스크에 띄울 소식을 입력하세요 (엔터 시 순차 롤링)" 
-        class="flex-1 w-full text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl px-3 py-1.5 sm:py-2 text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y min-h-[36px] sm:min-h-[40px] max-h-[100px]"
+        placeholder="접수 키오스크에 띄울 소식을 입력하세요 (엔터를 치면 여러 공지가 순차 롤링됩니다)" 
+        class="flex-1 w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y min-h-[38px] max-h-[100px]"
       ></textarea>
-      <div class="flex items-center justify-end gap-1.5 shrink-0">
+      <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
         <button 
           type="button" 
           id="btnNoticeSave" 
           onclick="saveNoticeToDB()" 
-          class="px-3.5 sm:px-4 py-1.5 sm:py-2 bg-slate-900 text-white text-xs font-bold rounded-lg sm:rounded-xl hover:bg-slate-800 transition shadow-xs cursor-pointer">
-          게시
+          class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition shadow-sm cursor-pointer">
+          게시하기
         </button>
         <button 
           type="button" 
           onclick="clearNoticeInDB()" 
-          class="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-slate-100 text-slate-600 border border-slate-200 text-xs font-medium rounded-lg sm:rounded-xl hover:bg-slate-200 transition cursor-pointer">
-          삭제
+          class="px-3 py-2 bg-slate-100 text-slate-600 border border-slate-200 text-xs font-medium rounded-xl hover:bg-slate-200 transition cursor-pointer">
+          내용 지우기
         </button>
       </div>
     </div>
 
-    <!-- [요약 통계 카드] -->
-    <div class="grid grid-cols-3 gap-2 sm:gap-4">
-      <div class="bg-white p-2.5 sm:p-4 rounded-xl border border-slate-200 shadow-xs text-center">
-        <p class="text-[11px] sm:text-xs font-semibold text-slate-400">접수 대기</p>
-        <p id="count-waiting" class="text-xl sm:text-2xl font-bold text-amber-600 mt-0.5">0</p>
+    <!-- 2. 요약 통계 (원본 가로 3개 배치 완벽 복원) -->
+    <div class="grid grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+        <p class="text-xs font-semibold text-slate-400">접수 대기</p>
+        <p id="count-waiting" class="text-2xl font-bold text-amber-600 mt-1">0</p>
       </div>
-      <div class="bg-white p-2.5 sm:p-4 rounded-xl border border-slate-200 shadow-xs text-center">
-        <p class="text-[11px] sm:text-xs font-semibold text-slate-400">진료 중</p>
-        <p id="count-progress" class="text-xl sm:text-2xl font-bold text-emerald-600 mt-0.5">0</p>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+        <p class="text-xs font-semibold text-slate-400">진료 중</p>
+        <p id="count-progress" class="text-2xl font-bold text-emerald-600 mt-1">0</p>
       </div>
-      <div class="bg-white p-2.5 sm:p-4 rounded-xl border border-slate-200 shadow-xs text-center">
-        <p class="text-[11px] sm:text-xs font-semibold text-slate-400">오늘 완료</p>
-        <p id="count-done" class="text-xl sm:text-2xl font-bold text-slate-500 mt-0.5">0</p>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+        <p class="text-xs font-semibold text-slate-400">오늘 완료</p>
+        <p id="count-done" class="text-2xl font-bold text-slate-500 mt-1">3</p>
       </div>
     </div>
 
-    <!-- 접수 목록 -->
-    <div id="list-container" class="space-y-3">
-      <div class="text-center py-8 text-slate-400 text-xs sm:text-sm">접수 내역을 확인하는 중입니다...</div>
+    <!-- 3. 접수 목록 (원본 카드 레이아웃 완벽 복원) -->
+    <div id="list-container" class="space-y-4">
+      <div class="text-center py-12 text-slate-400 text-sm">접수 내역을 확인하는 중입니다...</div>
     </div>
   </div>
 
   <!-- 원클릭 복사 시 뜨는 플로팅 토스트 알림 -->
-  <div id="copyToast" class="fixed bottom-4 right-4 z-50 transform transition-all duration-300 opacity-0 translate-y-4 pointer-events-none bg-slate-900 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xl flex items-center gap-1.5 border border-slate-700">
+  <div id="copyToast" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 opacity-0 translate-y-4 pointer-events-none bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-slate-700">
     <span class="text-emerald-400">✓</span>
     <span id="toastMsg">클립보드에 복사되었습니다!</span>
   </div>
 
-  <!-- A4 맞춤형 초진접수 및 개인정보 동의서 템플릿 (화면 밖 렌더링 유지) -->
+  <!-- A4 맞춤형 초진접수 및 개인정보 동의서 템플릿 (화면 밖 렌더링) -->
   <div id="print-sheet">
     <div>
       <div class="flex justify-between items-end border-b-2 border-slate-900 pb-3">
@@ -309,7 +309,7 @@
       window.toastTimer = setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
         toast.classList.remove('opacity-100', 'translate-y-0');
-      }, 2000);
+      }, 2200);
     }
 
     async function deleteReception(id, petName) {
@@ -328,7 +328,7 @@
           throw new Error('삭제 처리 오류 (' + res.status + ')');
         }
 
-        showToast(`🗑️ [${petName}] 삭제 완료`);
+        showToast(`🗑️ [${petName}] 접수 내역이 삭제되었습니다.`);
         fetchReceptions();
       } catch (err) {
         alert('삭제 실패: ' + err.message);
@@ -369,12 +369,12 @@
       const icon = document.getElementById('soundIcon');
       const text = document.getElementById('soundText');
       if (soundEnabled) {
-        btn.className = "px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1 bg-emerald-50 text-emerald-700 border-emerald-300";
+        btn.className = "px-3.5 py-2 rounded-xl border text-sm font-medium transition flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-300";
         icon.innerText = "🔔";
         text.innerText = "알림음 켜짐";
         playDingDong();
       } else {
-        btn.className = "px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1 bg-slate-100 text-slate-600 border-slate-300";
+        btn.className = "px-3.5 py-2 rounded-xl border text-sm font-medium transition flex items-center gap-1.5 bg-slate-100 text-slate-600 border-slate-300";
         icon.innerText = "🔇";
         text.innerText = "알림음 켜기";
       }
@@ -493,12 +493,12 @@
     }
 
     // ==========================================================
-    // 🩺 기본 정보 2줄 + 증상 전체 시원하게 노출되는 레이아웃
+    // 🎨 [1번 캡처 원본 그대로 100% 완벽 복원된 렌더링 함수]
     // ==========================================================
     function renderList(list) {
       const container = document.getElementById('list-container');
       if (list.length === 0) {
-        container.innerHTML = `<div class="bg-white p-8 text-center rounded-xl border border-slate-200 text-slate-400 text-xs sm:text-sm">현재 대기 중인 접수 환자가 없습니다.</div>`;
+        container.innerHTML = `<div class="bg-white p-12 text-center rounded-2xl border border-slate-200 text-slate-400 text-sm">현재 대기 중인 접수 환자가 없습니다.</div>`;
         return;
       }
 
@@ -507,8 +507,8 @@
 
         const isFirst = item.type === 'FIRST' || item.type === '초진';
         const typeBadge = isFirst
-          ? `<span class="bg-sky-100 text-sky-800 text-xs px-2 py-0.5 rounded-md font-bold shrink-0">초진</span>`
-          : `<span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-md font-bold shrink-0">재진</span>`;
+          ? `<span class="bg-sky-100 text-sky-800 text-xs px-2.5 py-1 rounded-md font-bold">초진</span>`
+          : `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-bold">재진</span>`;
 
         const isWait = (item.status === '접수대기' || item.status === '대기');
         const isProg = (item.status === '진료중');
@@ -519,133 +519,194 @@
         if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
 
         const downloadBtn = isFirst ? `
-          <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2 py-0.5 text-xs font-semibold rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition flex items-center gap-1 border border-sky-200 shadow-2xs shrink-0">
-            📄 A4 서식
+          <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition flex items-center gap-1 border border-sky-200 shadow-sm">
+            📄 A4 초진·동의서 저장
           </button>
         ` : '';
 
         const dateStrRaw = item.created_at ? item.created_at.replace(' ', 'T') : '';
         const timeStr = dateStrRaw ? new Date(dateStrRaw).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
         const phone = item.phone || item.owner_phone || '-';
-        const guardian = payload.guardian_name || item.owner_name || '';
+        const email = (payload.email || item.email || '').trim();
 
         const birthDateVal = getBirthDate(payload, item);
         const ageText = calculateAgeText(birthDateVal);
+
+        const speciesText = String(payload.species || item.species || '').trim().toLowerCase();
+        const breedText = String(payload.breed || item.breed || '').trim().toLowerCase();
+        const isHamster = speciesText.includes('햄스터') || speciesText.includes('hamster')
+          || breedText.includes('햄스터') || breedText.includes('hamster');
+
+        const ageYearsMatch = ageText.match(/^(\d+)년/);
+        const ageMonthsMatch = ageText.match(/^(\d+)개월$/);
+        const ageYearPart = ageYearsMatch ? Number(ageYearsMatch[1]) : 0;
+        const ageMonthPart = ageText.match(/년\s*(\d+)개월/);
+        const ageMonthsOnly = ageMonthsMatch ? Number(ageMonthsMatch[1]) : 0;
+        const totalAgeMonths = ageMonthsMatch
+          ? ageMonthsOnly
+          : (ageYearPart * 12) + (ageMonthPart ? Number(ageMonthPart[1]) : 0);
+        const isSeniorPatient = isHamster
+          ? totalAgeMonths >= 18
+          : ageYearPart >= 10;
+
+        const seniorWarningText = isHamster
+          ? '햄스터 1년 6개월 이상 - 고령 환자 주의'
+          : '10년 이상 고령 환자 - 주의 깊은 확인 필요';
+
+        const birthBadge = birthDateVal
+          ? ` · 🎂 ${birthDateVal}${ageText ? ` <span class="inline-flex items-center ml-1 px-2 py-0.5 rounded-full ${isSeniorPatient ? 'bg-red-100 border-2 border-red-600 text-red-900 font-black ring-1 ring-red-300' : 'bg-gradient-to-r from-amber-100 via-pink-100 to-violet-100 border border-violet-300 text-violet-800 font-extrabold'} shadow-sm" ${isSeniorPatient ? `title="${seniorWarningText}"` : ''}>${ageText}</span>` : ''}`
+          : '';
         const genderVal = getGenderText(payload, item);
 
-        function getGenderBadge(value) {
-          if (value === '♂✓') return `<span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-violet-50 border border-violet-400 text-violet-900 font-extrabold text-xs shadow-2xs">♂✓ 중성화</span>`;
-          if (value === '♀✓') return `<span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-violet-50 border border-violet-400 text-violet-900 font-extrabold text-xs shadow-2xs">♀✓ 중성화</span>`;
-          if (value === '♂') return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-400 text-blue-700 font-extrabold text-xs">♂ 수컷</span>`;
-          if (value === '♀') return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-rose-50 border border-rose-400 text-rose-600 font-extrabold text-xs">♀ 암컷</span>`;
-          return value ? `<span class="font-semibold text-xs">${value}</span>` : '';
+        function getGenderBadgeHtml(value) {
+          if (value === '♂✓') {
+            return `<span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-full bg-violet-50 border-2 border-violet-500 text-violet-900 font-extrabold shadow-sm" title="중성화수컷"><span class="text-blue-700">♂</span><span class="text-violet-800">✓</span><span class="text-[10px]">중성화</span></span>`;
+          }
+          if (value === '♀✓') {
+            return `<span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-full bg-violet-50 border-2 border-violet-500 text-violet-900 font-extrabold shadow-sm" title="중성화암컷"><span class="text-rose-600">♀</span><span class="text-violet-800">✓</span><span class="text-[10px]">중성화</span></span>`;
+          }
+          if (value === '♂') {
+            return `<span class="inline-flex items-center justify-center ml-1 min-w-8 px-2 py-0.5 rounded-lg bg-blue-50 border-2 border-blue-400 text-blue-700 text-base font-black shadow-sm" title="수컷">♂</span>`;
+          }
+          if (value === '♀') {
+            return `<span class="inline-flex items-center justify-center ml-1 min-w-8 px-2 py-0.5 rounded-lg bg-rose-50 border-2 border-rose-400 text-rose-600 text-base font-black shadow-sm" title="암컷">♀</span>`;
+          }
+          return value ? `<span class="ml-1 font-semibold">${value}</span>` : '';
         }
+        const genderBadge = getGenderBadgeHtml(genderVal);
 
         const characterVal = getPetCharacter(payload, item);
         const characterBadge = characterVal ? `
-          <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
             🐾 성격: ${characterVal}
           </span>
         ` : '';
-
-        let scheduleBadge = '';
-        if (payload.expected_date || payload.expected_time) {
-          const dStr = payload.expected_date || '';
-          const tSlot = payload.expected_time ? `(${payload.expected_time})` : '';
-          scheduleBadge = `
-            <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
-              📅 ${dStr} ${tSlot}
-            </span>
-          `;
-        }
 
         const displayReason = (payload.reason && payload.reason.trim())
           || (item.symptom && item.symptom.trim())
           || (item.symptoms && item.symptoms.trim())
           || '기재된 내원 사유가 없습니다.';
 
+        let scheduleBadge = '';
+        if (payload.expected_date || payload.expected_time) {
+          const dStr = payload.expected_date || '';
+          const tSlot = payload.expected_time ? `(${payload.expected_time})` : '';
+          scheduleBadge = `
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              📅 내원예정: ${dStr} ${tSlot}
+            </span>
+          `;
+        }
+
+        let treatmentsArray = [];
+        if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
+        else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
+
+        let treatmentsHtml = '';
+        if (treatmentsArray.length > 0) {
+          treatmentsHtml = `
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+              <span class="text-[11px] font-bold text-slate-500 mr-0.5">추가 의뢰:</span>
+              ${treatmentsArray.map(t => `
+                <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-teal-50 text-[#0d9488] border border-teal-200">
+                  + ${t}
+                </span>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        const phoneButtonHtml = (phone && phone !== '-') ? `
+          <button 
+            type="button" 
+            onclick="copyText('${phone}', '전화번호')" 
+            title="클릭 시 전화번호가 복사됩니다"
+            class="inline-flex items-center gap-1 font-mono font-bold text-slate-900 bg-slate-100 hover:bg-teal-50 hover:text-teal-800 px-2 py-0.5 rounded-lg border border-slate-200 hover:border-teal-300 transition group cursor-pointer"
+          >
+            <span>${phone}</span>
+            <svg class="w-3 h-3 text-slate-400 group-hover:text-teal-600 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+          </button>
+        ` : `<strong>-</strong>`;
+
+        const emailButtonHtml = email ? `
+          <button 
+            type="button" 
+            onclick="copyText('${email}', '이메일')" 
+            title="클릭 시 이메일이 복사됩니다"
+            class="inline-flex items-center gap-1 font-mono text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-sky-50 hover:text-sky-800 px-2 py-0.5 rounded-lg border border-slate-200 hover:border-sky-300 transition group cursor-pointer"
+          >
+            <span>✉️ ${email}</span>
+            <svg class="w-3 h-3 text-slate-400 group-hover:text-sky-600 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+          </button>
+        ` : '';
+
         const safePetName = (item.pet_name || '환자').replace(/'/g, "\\'");
 
         return `
-          <div class="bg-white p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs hover:border-slate-300 transition space-y-2">
-            
-            <!-- [기본정보 1줄]: 접수구분 + 이름 + 시간 + 예약배지 + 성격배지 + (우측: 상태선택 + 삭제) -->
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-slate-300 transition">
+            <div class="space-y-1.5 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
                 ${typeBadge}
-                <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">${item.pet_name || '이름 없음'}</h3>
+                <h3 class="text-lg font-bold text-slate-900">${item.pet_name || '이름 없음'}</h3>
                 <span class="text-xs text-slate-400 font-mono">${timeStr}</span>
                 ${scheduleBadge}
                 ${characterBadge}
-              </div>
-
-              <!-- 우측 액션: 상태 셀렉트 + 삭제 버튼 -->
-              <div class="flex items-center gap-1.5 shrink-0">
-                <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-2 sm:px-2.5 py-1.5 rounded-xl border ${statusClass} focus:outline-none cursor-pointer">
-                  <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
-                  <option value="진료중" ${isProg ? 'selected' : ''}>🩺 진료 중</option>
-                  <option value="완료" ${isComp ? 'selected' : ''}>✅ 진료 완료</option>
-                </select>
-
-                <button 
-                  type="button" 
-                  onclick="deleteReception(${item.id}, '${safePetName}')" 
-                  title="접수 내역 삭제"
-                  class="px-2 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center transition shadow-2xs"
-                >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- [기본정보 2줄]: 보호자 연락처/성함 · 품종 · 성별/중성화 · 나이/생일 · 체중 · [A4 서식] -->
-            <div class="text-xs text-slate-600 flex flex-wrap items-center gap-1.5 pt-0.5">
-              <span class="font-bold text-slate-500">보호자:</span>
-              <button 
-                type="button" 
-                onclick="copyText('${phone}', '전화번호')" 
-                title="클릭 시 전화번호 복사"
-                class="font-mono font-bold text-slate-900 bg-slate-100 hover:bg-teal-50 hover:text-teal-800 px-2 py-0.5 rounded-lg border border-slate-200 text-xs transition"
-              >
-                ${phone}
-              </button>
-              <span class="font-semibold text-slate-700">${guardian ? `(${guardian})` : ''}</span>
-              <span class="text-slate-400">·</span>
-              <span class="text-slate-700 font-medium">${payload.breed || item.species || '반려동물'}</span>
-              ${getGenderBadge(genderVal)}
-              ${birthDateVal ? `<span class="text-slate-500">· 🎂 ${birthDateVal}</span>` : ''}
-              ${ageText ? `<span class="font-extrabold text-violet-800 bg-violet-50 border border-violet-200 px-1.5 py-0.2 rounded-full text-[11px]">${ageText}</span>` : ''}
-              ${payload.weight ? `<span class="text-slate-600 font-semibold">· ${payload.weight}kg</span>` : ''}
-              <div class="ml-auto">
                 ${downloadBtn}
               </div>
+
+              <div class="text-sm text-slate-600 flex flex-wrap items-center gap-1.5">
+                <span>보호자:</span>
+                ${phoneButtonHtml}
+                ${emailButtonHtml}
+                <span>${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}</span>
+                <span class="text-slate-500 font-medium">${payload.breed ? ` · ${payload.breed}` : ''}${genderBadge}${birthBadge}${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
+              </div>
+
+              <!-- 내원 사유 상자 (1번 원본과 동일한 박스형 디자인) -->
+              <div 
+                onclick="copyReason(${item.id})" 
+                title="클릭 시 내원 사유가 복사됩니다"
+                class="group relative text-xs text-slate-700 bg-slate-50 hover:bg-teal-50/40 p-3 rounded-xl border border-slate-200 hover:border-teal-300 transition mt-2 cursor-pointer select-none"
+              >
+                <div class="flex justify-between items-center mb-1">
+                  <strong class="text-slate-800">[내원 사유]</strong>
+                  <span class="text-[11px] font-bold text-slate-400 group-hover:text-teal-700 flex items-center gap-1 transition">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <span>클릭하여 복사</span>
+                  </span>
+                </div>
+                <div class="leading-relaxed whitespace-pre-line text-slate-700">${displayReason}</div>
+              </div>
+
+              ${treatmentsHtml}
             </div>
 
-            <!-- [내원 사유 상자]: 증상이 말줄임 없이 시원하게 온전히 출력됨 (클릭 시 원클릭 전체 복사) -->
-            <div 
-              onclick="copyReason(${item.id})" 
-              title="클릭 시 내원 사유 전체가 복사됩니다"
-              class="group bg-slate-50 hover:bg-teal-50/50 p-2.5 sm:p-3 rounded-xl border border-slate-200 hover:border-teal-300 transition cursor-pointer select-none mt-1"
-            >
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-[11px] font-bold text-slate-700 flex items-center gap-1">
-                  <span class="w-1.5 h-2.5 bg-teal-600 rounded-xs"></span>
-                  [내원 사유 / 증상]
-                </span>
-                <span class="text-[10px] font-bold text-slate-400 group-hover:text-teal-700 flex items-center gap-0.5 transition">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                  </svg>
-                  <span>클릭하여 복사</span>
-                </span>
-              </div>
-              <div class="text-xs text-slate-800 leading-relaxed whitespace-pre-line break-keep font-medium">
-                ${displayReason}
-              </div>
-            </div>
+            <!-- 우측 액션: 상태 셀렉트박스 & 삭제 버튼 (1번 원본 크기 및 마진) -->
+            <div class="flex items-center gap-2 self-end md:self-center">
+              <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border ${statusClass} focus:outline-none cursor-pointer">
+                <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
+                <option value="진료중" ${isProg ? 'selected' : ''}>🩺 진료 중</option>
+                <option value="완료" ${isComp ? 'selected' : ''}>✅ 진료 완료</option>
+              </select>
 
+              <button 
+                type="button" 
+                onclick="deleteReception(${item.id}, '${safePetName}')" 
+                title="접수 내역 삭제"
+                class="px-2.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center gap-1 transition shadow-sm"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>삭제</span>
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -664,7 +725,6 @@
       }
     }
 
-    // A4 동의서 다운로드 함수
     async function downloadIntakeSheet(item) {
       const payload = unwrapPayload(item.payload);
 
@@ -758,7 +818,7 @@
     setInterval(() => fetchReceptions(), 5000);
 
     // ==========================================
-    // 📢 원내 공지사항 관리 스크립트 (다중 라인/PIN 인증)
+    // 📢 원내 공지사항 관리 스크립트 (PIN 인증)
     // ==========================================
     async function loadNoticeFromDB() {
       try {
@@ -788,7 +848,7 @@
       }
 
       btn.disabled = true;
-      btn.innerText = '저장중';
+      btn.innerText = '저장 중...';
 
       try {
         const res = await fetch('/api/notice', {
@@ -803,7 +863,7 @@
         const result = await res.json();
 
         if (res.ok && result.success) {
-          showToast('📢 공지 반영 완료');
+          showToast('📢 공지가 키오스크에 반영되었습니다.');
         } else {
           alert(result.message || '인증에 실패했습니다. 비밀번호를 확인해 주세요.');
         }
@@ -811,7 +871,7 @@
         alert('네트워크 오류가 발생했습니다.');
       } finally {
         btn.disabled = false;
-        btn.innerText = '게시';
+        btn.innerText = '게시하기';
       }
     }
 
@@ -837,7 +897,7 @@
 
         if (res.ok && result.success) {
           document.getElementById('adminNoticeInput').value = '';
-          showToast('🗑️ 공지 삭제 완료');
+          showToast('🗑️ 공지사항이 삭제되었습니다.');
         } else {
           alert(result.message || '비밀번호가 올바르지 않습니다.');
         }
