@@ -33,7 +33,7 @@
   <div class="h-1"></div>
 
   <!-- 메인 인터랙션 컨테이너 -->
-  <main class="w-full max-w-md flex flex-col items-center gap-3.5 sm:gap-6 my-auto">
+  <main class="w-full max-w-md flex flex-col items-center gap-3 sm:gap-5 my-auto">
     
     <!-- 병원 타이틀 헤더 -->
     <header class="text-center space-y-1 sm:space-y-2 w-full">
@@ -46,47 +46,19 @@
       <p class="text-slate-600 text-xs sm:text-sm font-semibold">
         원하시는 접수 구분을 선택해 주세요
       </p>
-      <script>
-    async function fetchKioskNotice() {
-      try {
-        const res = await fetch('/api/notice');
-        if (!res.ok) {
-          console.error('공지 API 응답 에러:', res.status);
-          return;
-        }
+      <div class="h-1 w-14 sm:w-16 bg-[#0d9488] rounded-full mx-auto mt-2"></div>
 
-        const data = await res.json();
-        console.log('불러온 공지 데이터:', data);
+      <!-- 📢 [공지사항 배너: DB에 내용이 있을 때만 flex로 표시됨] -->
+      <div id="kioskNoticeWrapper" style="display: none;" class="items-center gap-2 max-w-sm w-full mx-auto mt-3 px-3 py-1.5 sm:py-2 bg-amber-50/95 border border-amber-300 rounded-xl shadow-xs">
+        <span class="inline-flex items-center text-[11px] font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full shrink-0">
+          📢 소식
+        </span>
+        <span id="kioskNoticeText" class="text-xs sm:text-[13px] font-bold text-amber-900 tracking-tight leading-snug truncate text-left flex-1">
+        </span>
+      </div>
+    </header>
 
-        const wrapper = document.getElementById('kioskNoticeWrapper');
-        const textElem = document.getElementById('kioskNoticeText');
-
-        if (!wrapper || !textElem) {
-          console.error('공지 배너 HTML 요소를 찾을 수 없습니다.');
-          return;
-        }
-
-        if (data.notice && data.notice.trim() !== '') {
-          textElem.textContent = data.notice;
-          wrapper.style.display = 'flex'; // 강제로 화면에 표시
-        } else {
-          wrapper.style.display = 'none'; // 비어있으면 숨김
-        }
-      } catch (err) {
-        console.error('공지 로드 중 오류:', err);
-      }
-    }
-
-    // 화면 로드 즉시 실행
-    fetchKioskNotice();
-
-    // 20초마다 자동 갱신
-    setInterval(fetchKioskNotice, 20000);
-  </script>
-</body>
-</html>
-
-    <!-- 초진 / 재진 2개 프레임 좌우 나란히 배치 (grid-cols-2 유지) -->
+    <!-- 초진 / 재진 2개 프레임 좌우 나란히 배치 (grid-cols-2) -->
     <section class="w-full grid grid-cols-2 gap-3 sm:gap-4.5" aria-label="진료 접수 구분 선택">
       
       <!-- 1. 초진 접수 카드 -->
@@ -226,6 +198,7 @@
   </div>
 
   <script>
+    // 1. 관리자 모달 제어
     function openPasswordModal() {
       const modal = document.getElementById('passwordModal');
       const input = document.getElementById('deskPwInput');
@@ -254,7 +227,8 @@
         pwInput.focus();
       }
     }
- <script>
+
+    // 2. 공지사항 자동 로드 함수
     async function fetchKioskNotice() {
       try {
         const res = await fetch('/api/notice');
@@ -264,26 +238,22 @@
         const wrapper = document.getElementById('kioskNoticeWrapper');
         const textElem = document.getElementById('kioskNoticeText');
 
-        if (data.notice && data.notice.trim() !== '') {
-          textElem.textContent = data.notice;
-          wrapper.classList.remove('hidden');
-          wrapper.classList.add('flex');
-        } else {
-          wrapper.classList.remove('flex');
-          wrapper.classList.add('hidden');
+        if (wrapper && textElem) {
+          if (data.notice && data.notice.trim() !== '') {
+            textElem.textContent = data.notice;
+            wrapper.style.display = 'flex';
+          } else {
+            wrapper.style.display = 'none';
+          }
         }
       } catch (err) {
         console.error('공지 로드 오류:', err);
       }
     }
 
-    // 1. 페이지 로드 시 즉시 공지 확인
-    document.addEventListener('DOMContentLoaded', fetchKioskNotice);
-
-    // 2. 데스크에서 수정한 내용을 실시간 반영하기 위해 20초마다 자동 갱신
+    // 화면 열릴 때 즉시 실행 및 20초 주기 체크
+    fetchKioskNotice();
     setInterval(fetchKioskNotice, 20000);
   </script>
-</body>
-</html>
 </body>
 </html>
