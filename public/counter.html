@@ -415,6 +415,34 @@
       return payload.birth_date || payload.birthDate || payload.birth || payload.birthday || item.birth_date || item.birthday || '';
     }
 
+    // 생년월일 기준 만 나이 계산: 'YYYY-MM-DD' 형식 우선 지원
+    function calculateAgeText(birthDateValue) {
+      if (!birthDateValue) return '';
+      const match = String(birthDateValue).trim().match(/^(\d{4})[.\-/년 ]\s*(\d{1,2})?(?:[.\-/월 ]\s*(\d{1,2})일?)?$/);
+      if (!match) return '';
+
+      const year = Number(match[1]);
+      const month = match[2] ? Number(match[2]) : 1;
+      const day = match[3] ? Number(match[3]) : 1;
+      if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31) return '';
+
+      const birth = new Date(year, month - 1, day);
+      if (birth.getFullYear() !== year || birth.getMonth() !== month - 1 || birth.getDate() !== day) return '';
+
+      const today = new Date();
+      if (birth > today) return '';
+
+      let years = today.getFullYear() - year;
+      let months = today.getMonth() - (month - 1);
+      if (today.getDate() < day) months--;
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+      if (years < 0) return '';
+      return `만 ${years}년 ${months}개월`;
+    }
+
     // 성별/중성화 정보 포맷 함수: 수컷 ♂, 암컷 ♀, 중성화수컷 ♂✓, 중성화암컷 ♀✓
     function getGenderText(payload, item) {
       const rawGender = (payload.gender || item.gender || '').trim().toLowerCase();
@@ -481,7 +509,10 @@
         const email = (payload.email || item.email || '').trim();
 
         const birthDateVal = getBirthDate(payload, item);
-        const birthBadge = birthDateVal ? ` · 🎂 ${birthDateVal}` : '';
+        const ageText = calculateAgeText(birthDateVal);
+        const birthBadge = birthDateVal
+          ? ` · 🎂 ${birthDateVal}${ageText ? ` <span class="inline-flex items-center ml-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-100 via-pink-100 to-violet-100 border border-violet-300 text-violet-800 font-extrabold shadow-sm">${ageText}</span>` : ''}`
+          : '';
         const genderVal = getGenderText(payload, item);
 
         // 성별 기호는 색상과 테두리로 구분하고, 중성화 표시는 진한 보라색 체크로 강조
