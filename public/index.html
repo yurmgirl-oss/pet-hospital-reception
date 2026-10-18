@@ -46,7 +46,20 @@
       <p class="text-slate-600 text-xs sm:text-sm font-semibold">
         원하시는 접수 구분을 선택해 주세요
       </p>
-      <div class="h-1 w-14 sm:w-16 bg-[#0d9488] rounded-full mx-auto mt-2"></div>
+            <div class="h-1 w-14 sm:w-16 bg-[#0d9488] rounded-full mx-auto mt-2"></div>
+
+      <!-- 📢 [추가된 공지사항 배너: DB에 내용이 있을 때만 flex로 표시] -->
+      <div id="kioskNoticeWrapper" class="hidden items-center gap-2 max-w-sm w-full mx-auto mt-3 px-3 py-1.5 sm:py-2 bg-amber-50/90 border border-amber-200/90 rounded-xl shadow-xs transition-all">
+        <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-amber-800 bg-amber-100/90 border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
+          <span>📢</span>소식
+        </span>
+        <span id="kioskNoticeText" class="text-xs sm:text-[13px] font-bold text-amber-900 tracking-tight leading-snug truncate text-left flex-1">
+        </span>
+      </div>
+    </header>
+
+    <!-- 초진 / 재진 2개 프레임 좌우 나란히 배치 -->
+    <section class="w-full grid grid-cols-2 gap-3 sm:gap-4.5" aria-label="진료 접수 구분 선택">
     </header>
 
     <!-- 초진 / 재진 2개 프레임 좌우 나란히 배치 -->
@@ -222,7 +235,36 @@
         pwInput.focus();
       }
     }
-  </script>
+ <script>
+    async function fetchKioskNotice() {
+      try {
+        const res = await fetch('/api/notice');
+        if (!res.ok) return;
 
+        const data = await res.json();
+        const wrapper = document.getElementById('kioskNoticeWrapper');
+        const textElem = document.getElementById('kioskNoticeText');
+
+        if (data.notice && data.notice.trim() !== '') {
+          textElem.textContent = data.notice;
+          wrapper.classList.remove('hidden');
+          wrapper.classList.add('flex');
+        } else {
+          wrapper.classList.remove('flex');
+          wrapper.classList.add('hidden');
+        }
+      } catch (err) {
+        console.error('공지 로드 오류:', err);
+      }
+    }
+
+    // 1. 페이지 로드 시 즉시 공지 확인
+    document.addEventListener('DOMContentLoaded', fetchKioskNotice);
+
+    // 2. 데스크에서 수정한 내용을 실시간 반영하기 위해 20초마다 자동 갱신
+    setInterval(fetchKioskNotice, 20000);
+  </script>
+</body>
+</html>
 </body>
 </html>
