@@ -483,7 +483,24 @@
         const birthDateVal = getBirthDate(payload, item);
         const birthBadge = birthDateVal ? ` · 🎂 ${birthDateVal}` : '';
         const genderVal = getGenderText(payload, item);
-        const genderBadge = genderVal ? ` · ${genderVal}` : '';
+
+        // 성별 기호는 색상과 테두리로 구분하고, 중성화 표시는 진한 보라색 체크로 강조
+        function getGenderBadgeHtml(value) {
+          if (value === '♂✓') {
+            return `<span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-full bg-violet-50 border-2 border-violet-500 text-violet-900 font-extrabold shadow-sm" title="중성화수컷"><span class="text-blue-700">♂</span><span class="text-violet-800">✓</span><span class="text-[10px]">중성화</span></span>`;
+          }
+          if (value === '♀✓') {
+            return `<span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-full bg-violet-50 border-2 border-violet-500 text-violet-900 font-extrabold shadow-sm" title="중성화암컷"><span class="text-rose-600">♀</span><span class="text-violet-800">✓</span><span class="text-[10px]">중성화</span></span>`;
+          }
+          if (value === '♂') {
+            return `<span class="inline-flex items-center justify-center ml-1 min-w-8 px-2 py-0.5 rounded-lg bg-blue-50 border-2 border-blue-400 text-blue-700 text-base font-black shadow-sm" title="수컷">♂</span>`;
+          }
+          if (value === '♀') {
+            return `<span class="inline-flex items-center justify-center ml-1 min-w-8 px-2 py-0.5 rounded-lg bg-rose-50 border-2 border-rose-400 text-rose-600 text-base font-black shadow-sm" title="암컷">♀</span>`;
+          }
+          return value ? `<span class="ml-1 font-semibold">${value}</span>` : '';
+        }
+        const genderBadge = getGenderBadgeHtml(genderVal);
 
         // 성격 데이터 확인 및 뱃지 생성
         const characterVal = getPetCharacter(payload, item);
@@ -662,7 +679,12 @@
         || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1
         || neuteredRaw === '1';
       const neuterText = isNeutered ? '중성화 완료' : '중성화 미실시';
-      document.getElementById('doc-gender').innerText = `${genderSymbol || payload.gender || '미선택'} (${neuterText})`;
+      const genderColor = genderSymbol.startsWith('♀') ? 'text-rose-600' :
+        genderSymbol.startsWith('♂') ? 'text-blue-700' : 'text-slate-700';
+      const neuterColor = isNeutered ? 'text-violet-800 font-extrabold' : 'text-slate-600';
+      document.getElementById('doc-gender').innerHTML =
+        `<span class="${genderColor} font-black text-base">${genderSymbol || payload.gender || '미선택'}</span> ` +
+        `<span class="${neuterColor}">(${neuterText})</span>`;
 
       const bDate = getBirthDate(payload, item) || '미기재';
       const wt = payload.weight ? `${payload.weight} kg` : '미기재';
