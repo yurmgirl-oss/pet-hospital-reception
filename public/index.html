@@ -46,17 +46,45 @@
       <p class="text-slate-600 text-xs sm:text-sm font-semibold">
         원하시는 접수 구분을 선택해 주세요
       </p>
-      <div class="h-1 w-14 sm:w-16 bg-[#0d9488] rounded-full mx-auto mt-2"></div>
+      <script>
+    async function fetchKioskNotice() {
+      try {
+        const res = await fetch('/api/notice');
+        if (!res.ok) {
+          console.error('공지 API 응답 에러:', res.status);
+          return;
+        }
 
-      <!-- 📢 [공지사항 배너: header 내부에 위치하여 버튼 프레임을 깨뜨리지 않음] -->
-      <div id="kioskNoticeWrapper" class="hidden items-center gap-2 max-w-xs sm:max-w-sm w-full mx-auto mt-3 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl shadow-xs">
-        <span class="inline-flex items-center text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
-          소식
-        </span>
-        <span id="kioskNoticeText" class="text-xs sm:text-[13px] font-bold text-amber-900 truncate text-left flex-1">
-        </span>
-      </div>
-    </header>
+        const data = await res.json();
+        console.log('불러온 공지 데이터:', data);
+
+        const wrapper = document.getElementById('kioskNoticeWrapper');
+        const textElem = document.getElementById('kioskNoticeText');
+
+        if (!wrapper || !textElem) {
+          console.error('공지 배너 HTML 요소를 찾을 수 없습니다.');
+          return;
+        }
+
+        if (data.notice && data.notice.trim() !== '') {
+          textElem.textContent = data.notice;
+          wrapper.style.display = 'flex'; // 강제로 화면에 표시
+        } else {
+          wrapper.style.display = 'none'; // 비어있으면 숨김
+        }
+      } catch (err) {
+        console.error('공지 로드 중 오류:', err);
+      }
+    }
+
+    // 화면 로드 즉시 실행
+    fetchKioskNotice();
+
+    // 20초마다 자동 갱신
+    setInterval(fetchKioskNotice, 20000);
+  </script>
+</body>
+</html>
 
     <!-- 초진 / 재진 2개 프레임 좌우 나란히 배치 (grid-cols-2 유지) -->
     <section class="w-full grid grid-cols-2 gap-3 sm:gap-4.5" aria-label="진료 접수 구분 선택">
