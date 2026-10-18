@@ -27,13 +27,13 @@
     }
   </style>
 </head>
-<body class="screen-fit text-slate-800 px-3.5 py-4 sm:p-6 flex flex-col justify-between items-center overflow-hidden">
+<body class="screen-fit text-slate-800 px-3.5 py-4 sm:p-6 flex flex-col justify-center items-center overflow-hidden">
 
   <!-- 상단 간격 조절용 공간 -->
   <div class="h-1"></div>
 
   <!-- 메인 인터랙션 컨테이너 -->
-  <main class="w-full max-w-md flex flex-col items-center gap-3 sm:gap-5 my-auto">
+  <main class="w-full max-w-md flex flex-col items-center gap-3 sm:gap-4">
     
     <!-- 병원 타이틀 헤더 -->
     <header class="text-center space-y-1 sm:space-y-2 w-full">
@@ -143,17 +143,17 @@
 
   </main>
 
-  <!-- 하단 관리자 데스크 바로가기 링크 -->
-  <footer class="w-full text-center pb-1">
-    <button 
-      type="button" 
-      onclick="openPasswordModal()" 
-      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-400 hover:text-slate-600 active:text-slate-800 rounded-lg hover:bg-slate-100/80 transition"
-    >
-      <span>🔒</span>
-      <span class="underline underline-offset-4">데스크 / 카운터 현황판 바로가기</span>
-    </button>
-  </footer>
+  <!-- 하단 관리자 데스크 바로가기 링크 (메일 박스 밑으로 바짝 당김) -->
+<footer class="w-full text-center mt-2.5">
+  <button 
+    type="button" 
+    onclick="openPasswordModal()" 
+    class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] sm:text-xs text-slate-400 hover:text-slate-600 active:text-slate-800 rounded-lg hover:bg-slate-200/50 transition cursor-pointer"
+  >
+    <span>🔒</span>
+    <span class="underline underline-offset-4">데스크 / 카운터 현황판 바로가기</span>
+  </button>
+</footer>
 
   <!-- 비밀번호 52 입력 모달 (직원 전용) -->
   <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
