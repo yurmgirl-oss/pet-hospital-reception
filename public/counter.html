@@ -512,8 +512,27 @@
 
         const birthDateVal = getBirthDate(payload, item);
         const ageText = calculateAgeText(birthDateVal);
+
+        // 종별 고령 주의 기준: 햄스터는 1년 6개월(18개월) 이상, 그 외 동물은 10년 이상
+        const speciesText = String(payload.species || item.species || '').trim().toLowerCase();
+        const breedText = String(payload.breed || item.breed || '').trim().toLowerCase();
+        const isHamster = speciesText.includes('햄스터') || speciesText.includes('hamster')
+          || breedText.includes('햄스터') || breedText.includes('hamster');
+
+        const ageYearsMatch = ageText.match(/^(\d+)년/);
+        const ageMonthsMatch = ageText.match(/^(\d+)개월$/);
+        const ageYears = ageYearsMatch ? Number(ageYearsMatch[1]) : 0;
+        const ageMonthsOnly = ageMonthsMatch ? Number(ageMonthsMatch[1]) : 0;
+        const isSeniorPatient = isHamster
+          ? (ageYears >= 1 || ageMonthsOnly >= 18 || (ageYears === 1 && /1년\s*(?:6|[7-9]|1[0-1])개월/.test(ageText)))
+          : ageYears >= 10;
+
+        const seniorWarningText = isHamster
+          ? '햄스터 1년 6개월 이상 - 고령 환자 주의'
+          : '10년 이상 고령 환자 - 주의 깊은 확인 필요';
+
         const birthBadge = birthDateVal
-          ? ` · 🎂 ${birthDateVal}${ageText ? ` <span class="inline-flex items-center ml-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-100 via-pink-100 to-violet-100 border border-violet-300 text-violet-800 font-extrabold shadow-sm">${ageText}</span>` : ''}`
+          ? ` · 🎂 ${birthDateVal}${ageText ? ` <span class="inline-flex items-center ml-1 px-2 py-0.5 rounded-full ${isSeniorPatient ? 'bg-red-100 border-2 border-red-600 text-red-900 font-black ring-1 ring-red-300' : 'bg-gradient-to-r from-amber-100 via-pink-100 to-violet-100 border border-violet-300 text-violet-800 font-extrabold'} shadow-sm" ${isSeniorPatient ? `title="${seniorWarningText}"` : ''}>${ageText}</span>` : ''}`
           : '';
         const genderVal = getGenderText(payload, item);
 
@@ -711,17 +730,25 @@
       const isNeutered = neuteredRaw === true || neuteredRaw === 'true'
         || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1
         || neuteredRaw === '1';
-      const neuterText = isNeutered ? '중성화 완료' : '중성화 미실시';
-      const genderColor = genderSymbol.startsWith('♀') ? 'text-rose-600' :
-        genderSymbol.startsWith('♂') ? 'text-blue-700' : 'text-slate-700';
+      const rawGender = String(payload.gender || item.gender || '').trim().toLowerCase();
+      const isFemale = ['암컷', '여', 'female', 'f', '♀'].includes(rawGender);
+      const isMale = ['수컷', '남', 'male', 'm', '♂'].includes(rawGender);
+      const genderLabel = isFemale ? '암컷' : isMale ? '수컷' : (payload.gender || item.gender || '성별 미선택');
+      const neuterText = isNeutered ? '중성화' : '미중성화';
+      const genderColor = isFemale ? 'text-rose-600' : isMale ? 'text-blue-700' : 'text-slate-700';
       const neuterColor = isNeutered ? 'text-violet-800 font-extrabold' : 'text-slate-600';
       document.getElementById('doc-gender').innerHTML =
-        `<span class="${genderColor} font-black text-base">${genderSymbol || payload.gender || '미선택'}</span> ` +
-        `<span class="${neuterColor}">(${neuterText})</span>`;
+        `<span class="${genderColor} font-black text-base">${genderSymbol || ''} ${genderLabel}</span> ` +
+        `<span class="${neuterColor}">· ${neuterText}</span>`;
 
       const bDate = getBirthDate(payload, item) || '미기재';
+      const ageText = calculateAgeText(bDate);
       const wt = payload.weight ? `${payload.weight} kg` : '미기재';
-      document.getElementById('doc-birth-weight').innerText = `${bDate}  /  ${wt}`;
+      const birthWeightEl = document.getElementById('doc-birth-weight');
+      birthWeightEl.innerHTML =
+        `<span>${bDate}</span>` +
+        `${ageText ? ` <span style="display:inline-block;margin-left:4px;padding:2px 7px;border-radius:999px;background:linear-gradient(90deg,#fef3c7,#fce7f3,#ede9fe);border:1px solid #c4b5fd;color:#5b21b6;font-weight:800;">${ageText}</span>` : ''}` +
+        ` <span style="color:#64748b;"> / ${wt}</span>`;
 
       // A4 서식 성격 데이터 바인딩
       const charVal = getPetCharacter(payload, item) || '특이사항 없음';
