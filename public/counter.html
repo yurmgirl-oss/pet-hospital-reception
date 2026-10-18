@@ -415,20 +415,21 @@
       return payload.birth_date || payload.birthDate || payload.birth || payload.birthday || item.birth_date || item.birthday || '';
     }
 
-    // 성별/중성화 정보 포맷 함수
+    // 성별/중성화 정보 포맷 함수: 수컷 ♂, 암컷 ♀, 중성화수컷 ♂✓, 중성화암컷 ♀✓
     function getGenderText(payload, item) {
-      const g = (payload.gender || item.gender || '').trim();
-      const neutered = payload.neutered ?? payload.is_neutered ?? item.neutered;
-      
-      let neuterTag = '';
-      if (neutered === true || neutered === 'true' || neutered === 'Y' || neutered === 1) {
-        neuterTag = '(중)';
-      }
+      const rawGender = (payload.gender || item.gender || '').trim().toLowerCase();
+      const neuteredRaw = payload.neutered ?? payload.is_neutered ?? item.neutered;
+      const neutered = neuteredRaw === true || neuteredRaw === 'true'
+        || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1
+        || neuteredRaw === '1';
 
-      if (g) {
-        return `${g}${neuterTag}`;
-      }
-      return neuterTag ? `중성화${neuterTag}` : '';
+      let symbol = '';
+      if (['수컷', '남', 'male', 'm', '♂'].includes(rawGender)) symbol = '♂';
+      else if (['암컷', '여', 'female', 'f', '♀'].includes(rawGender)) symbol = '♀';
+      else if (rawGender) return `${payload.gender || item.gender}${neutered ? ' ✓' : ''}`;
+
+      if (!symbol) return '';
+      return neutered ? `${symbol}✓` : symbol;
     }
 
     // 동물 성격/기질 추출 함수 (다양한 key 명칭 대응)
@@ -655,8 +656,13 @@
       document.getElementById('doc-pet').innerText = item.pet_name || '-';
       document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
       
-      const neuterText = (payload.neutered === true || payload.neutered === 'true' || payload.neutered === 1) ? '(중성화 완료)' : '(중성화 미실시)';
-      document.getElementById('doc-gender').innerText = `${payload.gender || '미선택'} ${neuterText}`;
+      const genderSymbol = getGenderText(payload, item);
+      const neuteredRaw = payload.neutered ?? payload.is_neutered ?? item.neutered;
+      const isNeutered = neuteredRaw === true || neuteredRaw === 'true'
+        || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1
+        || neuteredRaw === '1';
+      const neuterText = isNeutered ? '중성화 완료' : '중성화 미실시';
+      document.getElementById('doc-gender').innerText = `${genderSymbol || payload.gender || '미선택'} (${neuterText})`;
 
       const bDate = getBirthDate(payload, item) || '미기재';
       const wt = payload.weight ? `${payload.weight} kg` : '미기재';
