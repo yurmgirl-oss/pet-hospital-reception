@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>23시 동물병원 - 접수 안내</title>
+  <title>23시 하단오거리동물병원 - 진료접수</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap">
@@ -39,29 +39,23 @@
 <body class="screen-fit text-slate-800 px-3.5 py-4 sm:p-6 flex flex-col justify-center items-center overflow-hidden">
 
   <!-- 메인 인터랙션 컨테이너 -->
-  <main class="w-full max-w-md flex flex-col items-center gap-3 sm:gap-4">
+  <main class="w-full max-w-md flex flex-col items-center gap-3.5 sm:gap-5">
     
     <!-- 병원 타이틀 헤더 -->
-    <header class="text-center space-y-1 sm:space-y-2 w-full">
-      <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-teal-50 border border-teal-200 text-[#0d9488] text-xs font-bold shadow-xs">
-        <span class="text-sm">🐾</span> <span>23시 동물병원 진료 접수</span>
+    <header class="text-center space-y-2 w-full">
+      <!-- 23시 하단오거리동물병원 진료접수로 명칭 변경 -->
+      <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-[#0d9488] text-sm font-extrabold shadow-xs">
+        <span class="text-base">🐾</span> <span>23시 하단오거리동물병원 진료접수</span>
       </div>
-      <h1 class="text-3xl sm:text-4xl font-black text-[#0f172a] font-serif-title tracking-tight">
-        어서오세요
-      </h1>
-      <p class="text-slate-600 text-xs sm:text-sm font-semibold">
-        원하시는 접수 구분을 선택해 주세요
-      </p>
-      <div class="h-1 w-14 sm:w-16 bg-[#0d9488] rounded-full mx-auto mt-2"></div>
 
-      <!-- 📢 [공지사항 배너: 글자 잘림 없음 + 자연스러운 줄바꿈으로 가독성 극대화] -->
-      <div id="kioskNoticeWrapper" style="display: none;" class="items-start gap-2.5 max-w-sm w-full mx-auto mt-2.5 p-2.5 px-3.5 bg-amber-50/95 border border-amber-300 rounded-xl shadow-xs">
+      <!-- 📢 [공지사항 배너: 글자 잘림 없는 자연스러운 줄바꿈 카드] -->
+      <div id="kioskNoticeWrapper" style="display: none;" class="items-start gap-2.5 max-w-sm w-full mx-auto mt-2 p-2.5 px-3.5 bg-amber-50/95 border border-amber-300 rounded-xl shadow-xs">
         <span class="inline-flex items-center text-[11px] font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full shrink-0 mt-0.5 shadow-2xs">
           📢 소식
         </span>
         <div class="flex-1 text-left">
           <p id="kioskNoticeText" class="text-xs sm:text-[13px] font-bold text-amber-950 tracking-tight leading-snug break-keep">
-            <!-- 공지 문구가 온전하게 표시됩니다 -->
+            <!-- 공지 문구 자동 표시 -->
           </p>
         </div>
       </div>
