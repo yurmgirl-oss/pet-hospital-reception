@@ -29,9 +29,6 @@
 </head>
 <body class="screen-fit text-slate-800 px-3.5 py-4 sm:p-6 flex flex-col justify-center items-center overflow-hidden">
 
-  <!-- 상단 간격 조절용 공간 -->
-  <div class="h-1"></div>
-
   <!-- 메인 인터랙션 컨테이너 -->
   <main class="w-full max-w-md flex flex-col items-center gap-3 sm:gap-4">
     
@@ -48,65 +45,17 @@
       </p>
       <div class="h-1 w-14 sm:w-16 bg-[#0d9488] rounded-full mx-auto mt-2"></div>
 
-      let rollingTimer = null;
-    let currentNoticeIndex = 0;
-
-    async function fetchKioskNotice() {
-      try {
-        const res = await fetch('/api/notice');
-        if (!res.ok) return;
-
-        const data = await res.json();
-        const wrapper = document.getElementById('kioskNoticeWrapper');
-        const listElem = document.getElementById('kioskNoticeList');
-
-        if (!wrapper || !listElem) return;
-
-        const rawNotice = (data.notice || '').trim();
-        if (!rawNotice) {
-          wrapper.style.display = 'none';
-          if (rollingTimer) clearInterval(rollingTimer);
-          return;
-        }
-
-        // 엔터(줄바꿈)를 기준으로 개별 공지 분리 (빈 줄 제외)
-        const notices = rawNotice.split('\n').map(s => s.trim()).filter(Boolean);
-
-        if (notices.length === 0) {
-          wrapper.style.display = 'none';
-          return;
-        }
-
-        // 공지 HTML 생성
-        listElem.innerHTML = notices.map(item => `
-          <div class="h-5 flex items-center text-xs sm:text-[13px] font-bold text-amber-900 tracking-tight text-left whitespace-nowrap overflow-hidden text-ellipsis">
-            ${item}
+      <!-- 📢 [공지사항 롤링 배너: 프레임 깨짐 방지 및 다중 롤링 지원] -->
+      <div id="kioskNoticeWrapper" style="display: none;" class="items-center gap-2 max-w-xs sm:max-w-sm w-full mx-auto mt-2.5 px-3 py-1.5 bg-amber-50/95 border border-amber-300 rounded-xl shadow-xs overflow-hidden">
+        <span class="inline-flex items-center text-[11px] font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full shrink-0">
+          📢 소식
+        </span>
+        <!-- 고정 높이 롤링 컨테이너 -->
+        <div class="relative flex-1 h-5 overflow-hidden">
+          <div id="kioskNoticeList" class="transition-transform duration-500 ease-in-out flex flex-col">
           </div>
-        `).join('');
-
-        wrapper.style.display = 'flex';
-
-        // 이전 타이머 초기화 후 롤링 시작
-        if (rollingTimer) clearInterval(rollingTimer);
-        currentNoticeIndex = 0;
-        listElem.style.transform = `translateY(0px)`;
-
-        // 공지가 2개 이상일 때만 위아래 자동 롤링 애니메이션 동작
-        if (notices.length > 1) {
-          rollingTimer = setInterval(() => {
-            currentNoticeIndex = (currentNoticeIndex + 1) % notices.length;
-            listElem.style.transform = `translateY(-${currentNoticeIndex * 20}px)`;
-          }, 3500); // 3.5초마다 전환
-        }
-
-      } catch (err) {
-        console.error('공지 로드 오류:', err);
-      }
-    }
-
-    // 최초 로드 및 20초마다 갱신
-    fetchKioskNotice();
-    setInterval(fetchKioskNotice, 20000);
+        </div>
+      </div>
     </header>
 
     <!-- 초진 / 재진 2개 프레임 좌우 나란히 배치 (grid-cols-2) -->
@@ -195,16 +144,16 @@
   </main>
 
   <!-- 하단 관리자 데스크 바로가기 링크 (메일 박스 밑으로 바짝 당김) -->
-<footer class="w-full text-center mt-2.5">
-  <button 
-    type="button" 
-    onclick="openPasswordModal()" 
-    class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] sm:text-xs text-slate-400 hover:text-slate-600 active:text-slate-800 rounded-lg hover:bg-slate-200/50 transition cursor-pointer"
-  >
-    <span>🔒</span>
-    <span class="underline underline-offset-4">데스크 / 카운터 현황판 바로가기</span>
-  </button>
-</footer>
+  <footer class="w-full text-center mt-2.5">
+    <button 
+      type="button" 
+      onclick="openPasswordModal()" 
+      class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] sm:text-xs text-slate-400 hover:text-slate-600 active:text-slate-800 rounded-lg hover:bg-slate-200/50 transition cursor-pointer"
+    >
+      <span>🔒</span>
+      <span class="underline underline-offset-4">데스크 / 카운터 현황판 바로가기</span>
+    </button>
+  </footer>
 
   <!-- 비밀번호 52 입력 모달 (직원 전용) -->
   <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
@@ -279,7 +228,10 @@
       }
     }
 
-    // 2. 공지사항 자동 로드 함수
+    // 2. 다중 공지사항 자동 로드 및 부드러운 롤링 스크립트
+    let rollingTimer = null;
+    let currentNoticeIndex = 0;
+
     async function fetchKioskNotice() {
       try {
         const res = await fetch('/api/notice');
@@ -287,22 +239,53 @@
 
         const data = await res.json();
         const wrapper = document.getElementById('kioskNoticeWrapper');
-        const textElem = document.getElementById('kioskNoticeText');
+        const listElem = document.getElementById('kioskNoticeList');
 
-        if (wrapper && textElem) {
-          if (data.notice && data.notice.trim() !== '') {
-            textElem.textContent = data.notice;
-            wrapper.style.display = 'flex';
-          } else {
-            wrapper.style.display = 'none';
-          }
+        if (!wrapper || !listElem) return;
+
+        const rawNotice = (data.notice || '').trim();
+        if (!rawNotice) {
+          wrapper.style.display = 'none';
+          if (rollingTimer) clearInterval(rollingTimer);
+          return;
         }
+
+        // 엔터(줄바꿈) 기준으로 개별 공지 분리
+        const notices = rawNotice.split('\n').map(s => s.trim()).filter(Boolean);
+
+        if (notices.length === 0) {
+          wrapper.style.display = 'none';
+          return;
+        }
+
+        // 공지 항목 생성
+        listElem.innerHTML = notices.map(item => `
+          <div class="h-5 flex items-center text-xs sm:text-[13px] font-bold text-amber-900 tracking-tight text-left whitespace-nowrap overflow-hidden text-ellipsis">
+            ${item}
+          </div>
+        `).join('');
+
+        wrapper.style.display = 'flex';
+
+        // 이전 타이머 초기화 후 롤링 시작
+        if (rollingTimer) clearInterval(rollingTimer);
+        currentNoticeIndex = 0;
+        listElem.style.transform = `translateY(0px)`;
+
+        // 2개 이상일 때 3.5초마다 위로 전환
+        if (notices.length > 1) {
+          rollingTimer = setInterval(() => {
+            currentNoticeIndex = (currentNoticeIndex + 1) % notices.length;
+            listElem.style.transform = `translateY(-${currentNoticeIndex * 20}px)`;
+          }, 3500);
+        }
+
       } catch (err) {
         console.error('공지 로드 오류:', err);
       }
     }
 
-    // 화면 열릴 때 즉시 실행 및 20초 주기 체크
+    // 화면 로드 즉시 실행 및 20초 주기 체크
     fetchKioskNotice();
     setInterval(fetchKioskNotice, 20000);
   </script>
