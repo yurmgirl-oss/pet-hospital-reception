@@ -440,7 +440,9 @@
         months += 12;
       }
       if (years < 0) return '';
-      return `만 ${years}년 ${months}개월`;
+      // 1년 미만은 개월만, 1년 이상은 'N년 M개월'로 표시하고 '만'은 생략
+      if (years === 0) return `${months}개월`;
+      return months === 0 ? `${years}년` : `${years}년 ${months}개월`;
     }
 
     // 성별/중성화 정보 포맷 함수: 수컷 ♂, 암컷 ♀, 중성화수컷 ♂✓, 중성화암컷 ♀✓
