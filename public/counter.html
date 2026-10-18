@@ -521,11 +521,15 @@
 
         const ageYearsMatch = ageText.match(/^(\d+)년/);
         const ageMonthsMatch = ageText.match(/^(\d+)개월$/);
-        const ageYears = ageYearsMatch ? Number(ageYearsMatch[1]) : 0;
+        const ageYearPart = ageYearsMatch ? Number(ageYearsMatch[1]) : 0;
+        const ageMonthPart = ageText.match(/년\s*(\d+)개월/);
         const ageMonthsOnly = ageMonthsMatch ? Number(ageMonthsMatch[1]) : 0;
+        const totalAgeMonths = ageMonthsMatch
+          ? ageMonthsOnly
+          : (ageYearPart * 12) + (ageMonthPart ? Number(ageMonthPart[1]) : 0);
         const isSeniorPatient = isHamster
-          ? (ageYears >= 1 || ageMonthsOnly >= 18 || (ageYears === 1 && /1년\s*(?:6|[7-9]|1[0-1])개월/.test(ageText)))
-          : ageYears >= 10;
+          ? totalAgeMonths >= 18
+          : ageYearPart >= 10;
 
         const seniorWarningText = isHamster
           ? '햄스터 1년 6개월 이상 - 고령 환자 주의'
