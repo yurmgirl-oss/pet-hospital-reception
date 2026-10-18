@@ -51,13 +51,12 @@
         </h1>
       </div>
 
-      <!-- 📢 [글자 크기를 키운 공지사항 배너] -->
+      <!-- 📢 [공지사항 배너] -->
       <div id="kioskNoticeWrapper" style="display: none;" class="items-start gap-2.5 max-w-sm w-full mx-auto mt-2 p-3 bg-amber-50/95 border-2 border-amber-300 rounded-2xl shadow-xs">
         <span class="inline-flex items-center text-xs sm:text-[13px] font-black text-amber-900 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-full shrink-0 mt-0.5 shadow-2xs">
           📢 소식
         </span>
         <div class="flex-1 text-left">
-          <!-- 폰트 크기 확대: text-sm sm:text-base font-extrabold -->
           <p id="kioskNoticeText" class="text-sm sm:text-base font-extrabold text-amber-950 tracking-tight leading-snug break-keep">
             <!-- 공지 문구 표시 -->
           </p>
@@ -150,16 +149,25 @@
 
   </main>
 
-  <!-- 하단 관리자 데스크 바로가기 링크 (바짝 당김) -->
-  <footer class="w-full text-center mt-2.5">
-    <button 
-      type="button" 
-      onclick="openPasswordModal()" 
-      class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] sm:text-xs text-slate-400 hover:text-slate-600 active:text-slate-800 rounded-lg hover:bg-slate-200/50 transition cursor-pointer"
-    >
-      <span>🔒</span>
-      <span class="underline underline-offset-4">데스크 / 카운터 현황판 바로가기</span>
-    </button>
+  <!-- 하단 관리자 데스크 링크 & 병원 주소/전화번호 -->
+  <footer class="w-full text-center mt-2.5 space-y-1">
+    <div>
+      <button 
+        type="button" 
+        onclick="openPasswordModal()" 
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] sm:text-xs text-slate-400 hover:text-slate-600 active:text-slate-800 rounded-lg hover:bg-slate-200/50 transition cursor-pointer"
+      >
+        <span>🔒</span>
+        <span class="underline underline-offset-4">데스크 / 카운터 현황판 바로가기</span>
+      </button>
+    </div>
+
+    <!-- 병원 정보 (주소 및 전화번호) -->
+    <div class="text-[11px] sm:text-xs text-slate-400 font-medium leading-relaxed tracking-tight select-text">
+      <span>부산시 사하구 하신중앙로 340 1층</span>
+      <span class="mx-1 text-slate-300">·</span>
+      <a href="tel:051-264-8275" class="hover:text-slate-600 transition font-bold font-mono">TEL: 051)264-8275</a>
+    </div>
   </footer>
 
   <!-- 비밀번호 52 입력 모달 (직원 전용) -->
