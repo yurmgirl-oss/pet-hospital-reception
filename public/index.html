@@ -26,18 +26,13 @@
       height: 100dvh;
     }
 
-    /* 긴 글자가 잘리지 않고 전광판처럼 흐르는 애니메이션 */
-    @keyframes marqueeFlow {
-      0% { transform: translateX(0%); }
-      20% { transform: translateX(0%); } /* 처음 1.5초는 멈춰서 앞부분 읽기 */
-      85% { transform: translateX(var(--scroll-distance, -50%)); }
-      100% { transform: translateX(var(--scroll-distance, -50%)); }
+    /* 공지 전환 시 부드러운 페이드인 효과 */
+    .notice-fade {
+      animation: noticeFadeIn 0.4s ease-in-out;
     }
-
-    .animate-marquee {
-      display: inline-block;
-      white-space: nowrap;
-      animation: marqueeFlow var(--scroll-duration, 8s) ease-in-out infinite alternate;
+    @keyframes noticeFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -59,16 +54,15 @@
       </p>
       <div class="h-1 w-14 sm:w-16 bg-[#0d9488] rounded-full mx-auto mt-2"></div>
 
-      <!-- 📢 [공지사항 배너: 글자 잘림 방지 + 전광판 흐름 + 다중 롤링] -->
-      <div id="kioskNoticeWrapper" style="display: none;" class="items-center gap-2 max-w-sm w-full mx-auto mt-2.5 px-3.5 py-2 bg-amber-50/95 border border-amber-300 rounded-xl shadow-xs overflow-hidden">
-        <span class="inline-flex items-center text-[11px] font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full shrink-0 shadow-2xs">
+      <!-- 📢 [공지사항 배너: 글자 잘림 없음 + 자연스러운 줄바꿈으로 가독성 극대화] -->
+      <div id="kioskNoticeWrapper" style="display: none;" class="items-start gap-2.5 max-w-sm w-full mx-auto mt-2.5 p-2.5 px-3.5 bg-amber-50/95 border border-amber-300 rounded-xl shadow-xs">
+        <span class="inline-flex items-center text-[11px] font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full shrink-0 mt-0.5 shadow-2xs">
           📢 소식
         </span>
-        <!-- 텍스트 롤링/흐름 뷰포트 -->
-        <div id="marqueeViewport" class="relative flex-1 h-5 overflow-hidden text-left">
-          <div id="kioskNoticeTrack" class="flex flex-col transition-transform duration-500 ease-in-out">
-            <!-- 자바스크립트로 공지 문구가 들어감 -->
-          </div>
+        <div class="flex-1 text-left">
+          <p id="kioskNoticeText" class="text-xs sm:text-[13px] font-bold text-amber-950 tracking-tight leading-snug break-keep">
+            <!-- 공지 문구가 온전하게 표시됩니다 -->
+          </p>
         </div>
       </div>
     </header>
@@ -243,9 +237,10 @@
       }
     }
 
-    // 2. 스마트 공지사항: 긴 문장 자동 흐름(스크롤) + 다중 공지 롤링
-    let rollingTimer = null;
-    let currentNoticeIndex = 0;
+    // 2. 다중 공지사항 순차 페이드 전환 (줄바꿈 온전 표시)
+    let switchTimer = null;
+    let currentIdx = 0;
+    let noticeItems = [];
 
     async function fetchKioskNotice() {
       try {
@@ -254,78 +249,48 @@
 
         const data = await res.json();
         const wrapper = document.getElementById('kioskNoticeWrapper');
-        const track = document.getElementById('kioskNoticeTrack');
-        const viewport = document.getElementById('marqueeViewport');
+        const textElem = document.getElementById('kioskNoticeText');
 
-        if (!wrapper || !track || !viewport) return;
+        if (!wrapper || !textElem) return;
 
         const rawNotice = (data.notice || '').trim();
         if (!rawNotice) {
           wrapper.style.display = 'none';
-          if (rollingTimer) clearInterval(rollingTimer);
+          if (switchTimer) clearInterval(switchTimer);
           return;
         }
 
         // 엔터 기준으로 공지 분리
-        const notices = rawNotice.split('\n').map(s => s.trim()).filter(Boolean);
-        if (notices.length === 0) {
+        noticeItems = rawNotice.split('\n').map(s => s.trim()).filter(Boolean);
+        if (noticeItems.length === 0) {
           wrapper.style.display = 'none';
           return;
         }
 
-        // 1줄 고정 높이 슬롯 생성
-        track.innerHTML = notices.map(item => `
-          <div class="notice-row h-5 flex items-center overflow-hidden">
-            <span class="notice-text-span text-xs sm:text-[13px] font-bold text-amber-900 tracking-tight whitespace-nowrap">
-              ${item}
-            </span>
-          </div>
-        `).join('');
-
         wrapper.style.display = 'flex';
+        showCurrentNotice();
 
-        // 텍스트 길이 측정 후 화면보다 길면 좌우 부드러운 스크롤 애니메이션 부여
-        setTimeout(() => {
-          applyMarqueeEffect();
-        }, 80);
-
-        // 이전 타이머 초기화 후 다중 공지 위아래 롤링
-        if (rollingTimer) clearInterval(rollingTimer);
-        currentNoticeIndex = 0;
-        track.style.transform = `translateY(0px)`;
-
-        if (notices.length > 1) {
-          rollingTimer = setInterval(() => {
-            currentNoticeIndex = (currentNoticeIndex + 1) % notices.length;
-            track.style.transform = `translateY(-${currentNoticeIndex * 20}px)`;
-          }, 5000); // 5초마다 다음 공지로 위로 슬라이드
+        // 공지가 여러 개일 때 4.5초마다 부드럽게 다음 공지로 전환
+        if (switchTimer) clearInterval(switchTimer);
+        if (noticeItems.length > 1) {
+          switchTimer = setInterval(() => {
+            currentIdx = (currentIdx + 1) % noticeItems.length;
+            showCurrentNotice();
+          }, 4500);
         }
-
       } catch (err) {
         console.error('공지 로드 오류:', err);
       }
     }
 
-    function applyMarqueeEffect() {
-      const viewport = document.getElementById('marqueeViewport');
-      if (!viewport) return;
-      const viewWidth = viewport.clientWidth;
-      const spans = document.querySelectorAll('.notice-text-span');
+    function showCurrentNotice() {
+      const textElem = document.getElementById('kioskNoticeText');
+      if (!textElem || noticeItems.length === 0) return;
 
-      spans.forEach(span => {
-        const textWidth = span.scrollWidth;
-        // 문장이 박스보다 길면 가려진 만큼 왼쪽으로 부드럽게 흐르게 함
-        if (textWidth > viewWidth) {
-          const diff = textWidth - viewWidth + 24; // 여유 간격
-          span.style.setProperty('--scroll-distance', `-${diff}px`);
-          // 길이에 비례해 적절한 속도로 조절 (글자당 자연스러운 속도)
-          const duration = Math.max(6, (diff / 28) + 3);
-          span.style.setProperty('--scroll-duration', `${duration}s`);
-          span.classList.add('animate-marquee');
-        } else {
-          span.classList.remove('animate-marquee');
-        }
-      });
+      textElem.textContent = noticeItems[currentIdx];
+      textElem.classList.remove('notice-fade');
+      void textElem.offsetWidth; // 리플로우 트리거
+      textElem.classList.add('notice-fade');
     }
 
     // 화면 로드 즉시 실행 및 20초마다 갱신
