@@ -51,7 +51,7 @@
         <p class="text-sm text-slate-500 mt-1">실시간 접수 현황 및 초진 서식 출력 관리</p>
       </div>
       
-     <!-- 컨트롤 버튼 -->
+      <!-- 컨트롤 버튼 -->
       <div class="flex items-center gap-3">
         <button id="soundToggleBtn" onclick="toggleSound()" class="px-3.5 py-2 rounded-xl border text-sm font-medium transition flex items-center gap-1.5 bg-slate-100 text-slate-600 border-slate-300">
           <span id="soundIcon">🔔</span>
@@ -63,18 +63,18 @@
       </div>
     </header>
 
-  <!-- [원내 공지사항 관리 바 - 다중 등록 및 추가 작성 지원] -->
+    <!-- [원내 공지사항 관리 바 - 다중 등록 및 추가 작성 지원] -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
       <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200 shrink-0">
         <span>📢</span>
         <span>원내 공지 설정</span>
       </div>
-      <!-- 엔터 입력이 가능한 textarea로 변경 (높이 38px, 여러 줄 작성 가능) -->
+      <!-- 엔터 입력이 가능한 textarea (기존 글 보존 및 추가 작성) -->
       <textarea 
         id="adminNoticeInput" 
-        rows="1"
-        placeholder="접수 키오스크에 띄울 소식을 입력하세요 (엔터를 치면 여러 공지가 순차 롤링됩니다)" 
-        class="flex-1 w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y min-h-[38px] max-h-[120px]"
+        rows="2"
+        placeholder="접수 키오스크에 띄울 소식을 입력하세요 (엔터로 줄바꿈 시 여러 공지가 순차 롤링됩니다)" 
+        class="flex-1 w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y min-h-[44px] max-h-[140px]"
       ></textarea>
       <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
         <button 
@@ -93,7 +93,7 @@
       </div>
     </div>
 
-    <!-- [요약 통계: grid grid-cols-3 유지] -->
+    <!-- [요약 통계: grid grid-cols-3] -->
     <div class="grid grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
         <p class="text-xs font-semibold text-slate-400">접수 대기</p>
@@ -445,7 +445,7 @@
       return payload.birth_date || payload.birthDate || payload.birth || payload.birthday || item.birth_date || item.birthday || '';
     }
 
-    // 생년월일 기준 만 나이 계산: 'YYYY-MM-DD' 형식 우선 지원
+    // 생년월일 기준 만 나이 계산
     function calculateAgeText(birthDateValue) {
       if (!birthDateValue) return '';
       const match = String(birthDateValue).trim().match(/^(\d{4})[.\-/년 ]\s*(\d{1,2})?(?:[.\-/월 ]\s*(\d{1,2})일?)?$/);
@@ -470,12 +470,11 @@
         months += 12;
       }
       if (years < 0) return '';
-      // 1년 미만은 개월만, 1년 이상은 'N년 M개월'로 표시하고 '만'은 생략
       if (years === 0) return `${months}개월`;
       return months === 0 ? `${years}년` : `${years}년 ${months}개월`;
     }
 
-    // 성별/중성화 정보 포맷 함수: 수컷 ♂, 암컷 ♀, 중성화수컷 ♂✓, 중성화암컷 ♀✓
+    // 성별/중성화 정보 포맷 함수
     function getGenderText(payload, item) {
       const rawGender = (payload.gender || item.gender || '').trim().toLowerCase();
       const neuteredRaw = payload.neutered ?? payload.is_neutered ?? item.neutered;
@@ -492,7 +491,7 @@
       return neutered ? `${symbol}✓` : symbol;
     }
 
-    // 동물 성격/기질 추출 함수 (다양한 key 명칭 대응)
+    // 동물 성격/기질 추출 함수
     function getPetCharacter(payload, item) {
       const val = payload.character 
         || payload.personality 
@@ -543,7 +542,6 @@
         const birthDateVal = getBirthDate(payload, item);
         const ageText = calculateAgeText(birthDateVal);
 
-        // 종별 고령 주의 기준: 햄스터는 1년 6개월(18개월) 이상, 그 외 동물은 10년 이상
         const speciesText = String(payload.species || item.species || '').trim().toLowerCase();
         const breedText = String(payload.breed || item.breed || '').trim().toLowerCase();
         const isHamster = speciesText.includes('햄스터') || speciesText.includes('hamster')
@@ -570,7 +568,6 @@
           : '';
         const genderVal = getGenderText(payload, item);
 
-        // 성별 기호는 색상과 테두리로 구분하고, 중성화 표시는 진한 보라색 체크로 강조
         function getGenderBadgeHtml(value) {
           if (value === '♂✓') {
             return `<span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-full bg-violet-50 border-2 border-violet-500 text-violet-900 font-extrabold shadow-sm" title="중성화수컷"><span class="text-blue-700">♂</span><span class="text-violet-800">✓</span><span class="text-[10px]">중성화</span></span>`;
@@ -588,7 +585,6 @@
         }
         const genderBadge = getGenderBadgeHtml(genderVal);
 
-        // 성격 데이터 확인 및 뱃지 생성
         const characterVal = getPetCharacter(payload, item);
         const characterBadge = characterVal ? `
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
@@ -603,332 +599,4 @@
 
         let scheduleBadge = '';
         if (payload.expected_date || payload.expected_time) {
-          const dStr = payload.expected_date || '';
-          const tSlot = payload.expected_time ? `(${payload.expected_time})` : '';
-          scheduleBadge = `
-            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              📅 내원예정: ${dStr} ${tSlot}
-            </span>
-          `;
-        }
-
-        let treatmentsArray = [];
-        if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
-        else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
-
-        let treatmentsHtml = '';
-        if (treatmentsArray.length > 0) {
-          treatmentsHtml = `
-            <div class="flex flex-wrap items-center gap-1.5 mt-2">
-              <span class="text-[11px] font-bold text-slate-500 mr-0.5">추가 의뢰:</span>
-              ${treatmentsArray.map(t => `
-                <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-teal-50 text-[#0d9488] border border-teal-200">
-                  + ${t}
-                </span>
-              `).join('')}
-            </div>
-          `;
-        }
-
-        const phoneButtonHtml = (phone && phone !== '-') ? `
-          <button 
-            type="button" 
-            onclick="copyText('${phone}', '전화번호')" 
-            title="클릭 시 전화번호가 복사됩니다"
-            class="inline-flex items-center gap-1 font-mono font-bold text-slate-900 bg-slate-100 hover:bg-teal-50 hover:text-teal-800 px-2 py-0.5 rounded-lg border border-slate-200 hover:border-teal-300 transition group cursor-pointer"
-          >
-            <span>${phone}</span>
-            <svg class="w-3 h-3 text-slate-400 group-hover:text-teal-600 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-          </button>
-        ` : `<strong>-</strong>`;
-
-        const emailButtonHtml = email ? `
-          <button 
-            type="button" 
-            onclick="copyText('${email}', '이메일')" 
-            title="클릭 시 이메일이 복사됩니다"
-            class="inline-flex items-center gap-1 font-mono text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-sky-50 hover:text-sky-800 px-2 py-0.5 rounded-lg border border-slate-200 hover:border-sky-300 transition group cursor-pointer"
-          >
-            <span>✉️ ${email}</span>
-            <svg class="w-3 h-3 text-slate-400 group-hover:text-sky-600 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-          </button>
-        ` : '';
-
-        const safePetName = (item.pet_name || '환자').replace(/'/g, "\\'");
-
-        return `
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-slate-300 transition">
-            <div class="space-y-1.5 flex-1">
-              <div class="flex flex-wrap items-center gap-2">
-                ${typeBadge}
-                <h3 class="text-lg font-bold text-slate-900">${item.pet_name || '이름 없음'}</h3>
-                <span class="text-xs text-slate-400 font-mono">${timeStr}</span>
-                ${scheduleBadge}
-                ${characterBadge}
-                ${downloadBtn}
-              </div>
-
-              <div class="text-sm text-slate-600 flex flex-wrap items-center gap-1.5">
-                <span>보호자:</span>
-                ${phoneButtonHtml}
-                ${emailButtonHtml}
-                <span>${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}</span>
-                <span class="text-slate-500 font-medium">${payload.breed ? ` · ${payload.breed}` : ''}${genderBadge}${birthBadge}${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
-              </div>
-
-              <!-- 내원 사유 상자 -->
-              <div 
-                onclick="copyReason(${item.id})" 
-                title="클릭 시 내원 사유가 복사됩니다"
-                class="group relative text-xs text-slate-700 bg-slate-50 hover:bg-teal-50/40 p-3 rounded-xl border border-slate-200 hover:border-teal-300 transition mt-2 cursor-pointer select-none"
-              >
-                <div class="flex justify-between items-center mb-1">
-                  <strong class="text-slate-800">[내원 사유]</strong>
-                  <span class="text-[11px] font-bold text-slate-400 group-hover:text-teal-700 flex items-center gap-1 transition">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                    </svg>
-                    <span>클릭하여 복사</span>
-                  </span>
-                </div>
-                <div class="leading-relaxed whitespace-pre-line text-slate-700">${displayReason}</div>
-              </div>
-
-              ${treatmentsHtml}
-            </div>
-
-            <!-- 우측 액션: 상태 셀렉트박스 & 삭제 버튼 -->
-            <div class="flex items-center gap-2 self-end md:self-center">
-              <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-3 py-2 rounded-xl border ${statusClass} focus:outline-none cursor-pointer">
-                <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
-                <option value="진료중" ${isProg ? 'selected' : ''}>🩺 진료 중</option>
-                <option value="완료" ${isComp ? 'selected' : ''}>✅ 진료 완료</option>
-              </select>
-
-              <button 
-                type="button" 
-                onclick="deleteReception(${item.id}, '${safePetName}')" 
-                title="접수 내역 삭제"
-                class="px-2.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center gap-1 transition shadow-sm"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <span>삭제</span>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function updateStatus(id, newStatus) {
-      try {
-        await fetch('/api/receptions', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, status: newStatus })
-        });
-        fetchReceptions();
-      } catch (err) {
-        alert('상태 변경 실패: ' + err.message);
-      }
-    }
-
-    // A4 동의서 다운로드
-    async function downloadIntakeSheet(item) {
-      const payload = unwrapPayload(item.payload);
-
-      document.getElementById('doc-id').innerText = `접수번호: #${item.id}`;
-      document.getElementById('doc-date').innerText = `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`;
-      
-      const guardian = payload.guardian_name || item.owner_name || '미기재';
-      document.getElementById('doc-guardian').innerText = guardian;
-      document.getElementById('doc-sign-guardian').innerText = guardian;
-      
-      document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
-      document.getElementById('doc-address').innerText = payload.address || '미기재';
-
-      const email = payload.email || item.email || '';
-      document.getElementById('doc-email').innerText = email.trim();
-
-      document.getElementById('doc-pet').innerText = item.pet_name || '-';
-      document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
-      
-      const genderSymbol = getGenderText(payload, item);
-      const neuteredRaw = payload.neutered ?? payload.is_neutered ?? item.neutered;
-      const isNeutered = neuteredRaw === true || neuteredRaw === 'true'
-        || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1
-        || neuteredRaw === '1';
-      const rawGender = String(payload.gender || item.gender || '').trim().toLowerCase();
-      const isFemale = ['암컷', '여', 'female', 'f', '♀'].includes(rawGender);
-      const isMale = ['수컷', '남', 'male', 'm', '♂'].includes(rawGender);
-      const genderLabel = isFemale ? '암컷' : isMale ? '수컷' : (payload.gender || item.gender || '성별 미선택');
-      const neuterText = isNeutered ? '중성화' : '미중성화';
-      const genderColor = isFemale ? 'text-rose-600' : isMale ? 'text-blue-700' : 'text-slate-700';
-      const neuterColor = isNeutered ? 'text-violet-800 font-extrabold' : 'text-slate-600';
-      document.getElementById('doc-gender').innerHTML =
-        `<span class="${genderColor} font-black text-base">${genderSymbol || ''} ${genderLabel}</span> ` +
-        `<span class="${neuterColor}">· ${neuterText}</span>`;
-
-      const bDate = getBirthDate(payload, item) || '미기재';
-      const ageText = calculateAgeText(bDate);
-      const wt = payload.weight ? `${payload.weight} kg` : '미기재';
-      const birthWeightEl = document.getElementById('doc-birth-weight');
-      birthWeightEl.innerHTML =
-        `<span>${bDate}</span>` +
-        `${ageText ? ` <span style="display:inline-block;margin-left:4px;padding:2px 7px;border-radius:999px;background:linear-gradient(90deg,#fef3c7,#fce7f3,#ede9fe);border:1px solid #c4b5fd;color:#5b21b6;font-weight:800;">${ageText}</span>` : ''}` +
-        ` <span style="color:#64748b;"> / ${wt}</span>`;
-
-      // A4 서식 성격 데이터 바인딩
-      const charVal = getPetCharacter(payload, item) || '특이사항 없음';
-      const docCharEl = document.getElementById('doc-character');
-      if (docCharEl) docCharEl.innerText = charVal;
-
-      document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
-
-      let treatmentsArray = [];
-      if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
-      else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
-      document.getElementById('doc-treatments').innerText = treatmentsArray.length > 0 ? treatmentsArray.join('  |   ') : '선택 처치 없음';
-
-      const sigImg = document.getElementById('doc-signature-img');
-      const noSigText = document.getElementById('doc-no-sign');
-
-      if (payload.signature && payload.signature.startsWith('data:image')) {
-        sigImg.src = payload.signature;
-        sigImg.classList.remove('hidden');
-        noSigText.classList.add('hidden');
-      } else {
-        sigImg.classList.add('hidden');
-        noSigText.classList.remove('hidden');
-      }
-
-      const sheetElement = document.getElementById('print-sheet');
-
-      try {
-        const canvas = await html2canvas(sheetElement, { 
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff'
-        });
-        const imageURL = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        
-        const petName = (item.pet_name || '환자').trim();
-        const cleanPhone = (item.phone || item.owner_phone || '0000').slice(-4);
-        link.download = `${petName}_${cleanPhone}_초진동의서.png`;
-        
-        link.href = imageURL;
-        link.click();
-      } catch (err) {
-        alert('동의서 이미지 생성 실패: ' + err.message);
-      }
-    }
-
-    fetchReceptions();
-    setInterval(() => fetchReceptions(), 5000);
-
-    // ==========================================
-    // 📢 원내 공지사항 관리 스크립트 (추가된 부분)
-    // ==========================================
-    
-    // 1. 공지사항 불러오기
-    async function loadNoticeFromDB() {
-      try {
-        const res = await fetch('/api/notice');
-        if (res.ok) {
-          const data = await res.json();
-          const input = document.getElementById('adminNoticeInput');
-          if (input && data.notice !== undefined) {
-            input.value = data.notice;
-          }
-        }
-      } catch (err) {
-        console.error('공지 로드 오류:', err);
-      }
-    }
-
-    // 2. 공지사항 저장 (PIN 검증)
-    async function saveNoticeToDB() {
-      const input = document.getElementById('adminNoticeInput');
-      const text = input ? input.value.trim() : '';
-      const btn = document.getElementById('btnNoticeSave');
-
-      const enteredPin = prompt('공지사항을 등록/수정하려면 관리자 비밀번호(PIN)를 입력하세요:');
-      if (enteredPin === null) return;
-      if (!enteredPin.trim()) {
-        alert('비밀번호를 입력해야 합니다.');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = '저장 중...';
-
-      try {
-        const res = await fetch('/api/notice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            notice: text,
-            pin: enteredPin.trim() 
-          })
-        });
-        
-        const result = await res.json();
-
-        if (res.ok && result.success) {
-          showToast('📢 공지가 키오스크에 반영되었습니다.');
-        } else {
-          alert(result.message || '인증에 실패했습니다. 비밀번호를 확인해 주세요.');
-        }
-      } catch (err) {
-        alert('네트워크 오류가 발생했습니다.');
-      } finally {
-        btn.disabled = false;
-        btn.innerText = '게시하기';
-      }
-    }
-
-    // 3. 공지사항 지우기 (PIN 검증)
-    async function clearNoticeInDB() {
-      const enteredPin = prompt('공지사항을 지우시겠습니까? 관리자 비밀번호(PIN)를 입력하세요:');
-      if (enteredPin === null) return;
-      if (!enteredPin.trim()) {
-        alert('비밀번호를 입력해야 합니다.');
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/notice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            notice: '', 
-            pin: enteredPin.trim() 
-          })
-        });
-
-        const result = await res.json();
-
-        if (res.ok && result.success) {
-          document.getElementById('adminNoticeInput').value = '';
-          showToast('🗑️ 공지사항이 삭제되었습니다.');
-        } else {
-          alert(result.message || '비밀번호가 올바르지 않습니다.');
-        }
-      } catch (err) {
-        alert('오류가 발생했습니다.');
-      }
-    }
-
-    // 페이지 열릴 때 등록된 공지 자동 로드
-    loadNoticeFromDB();
-  </script>
-</body>
-</html>
-</html>
+          const dStr =
