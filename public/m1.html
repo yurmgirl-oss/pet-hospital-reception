@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>23시 케어플랜 V17.3</title>
+<title>23시 케어플랜 V17.4</title>
 <style>
 body{margin:0;background:#eef3ef;font-family:"Malgun Gothic",sans-serif}
 .wrap{display:grid;grid-template-columns:minmax(720px,1fr) minmax(720px,1fr);gap:24px;padding:18px;max-width:1750px;margin:auto}
@@ -22,6 +22,15 @@ th,td{border:1px solid #e2ece5;height:30px;text-align:center;font-size:12px}
 td.pick{cursor:pointer;user-select:none;vertical-align:top;padding:2px;height:64px}
 .daynum{font-size:11px;font-weight:bold}
 .ev{display:block;margin-top:2px;padding:1px 3px;border-radius:4px;font-size:8px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev.med{background:#d6ecff;color:#124b7a}
+.ev.eye{background:#dff6ff;color:#0d5d7a}
+.ev.ear{background:#ffe6cc;color:#8a4b08}
+.ev.check{background:#d8f3dc;color:#1b6b3a}
+.ev.hospital{background:#ffd6d6;color:#8a1f1f}
+.ev.image{background:#eadcff;color:#5b2d86}
+.ev.fluid{background:#d9fff3;color:#11695a}
+.ev.blood{background:#ffe0ec;color:#8c1f50}
+.ev.other{background:#ececec;color:#555}
 .ev.txt0{background:#ececec;color:#444}
 .ev.txt1{background:#d6ecff;color:#124b7a}
 .ev.txt2{background:#d8f3dc;color:#1b6b3a}
@@ -65,6 +74,7 @@ button.yellow{background:#f4b400;color:#111}
   .preview{width:196mm !important;height:283mm !important;max-width:196mm !important;margin:0 auto !important;padding:6mm !important;border:2px solid #b9cdbd !important;border-radius:16px !important;box-sizing:border-box !important;aspect-ratio:auto !important;}
 }
 
+/* 최초 원본 통합 화면 레이아웃 (40% : 30% : 30%) */
 html,body{width:100%;height:100%;overflow:hidden}
 #integratedShell{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,3fr) minmax(0,3fr);gap:8px;padding:8px;width:100vw;height:100vh;box-sizing:border-box;background:#eef3ef}
 #counterPanel{grid-column:1;grid-row:1;min-width:0;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #dce6ee;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)}
@@ -467,7 +477,9 @@ function applyPromisePlan(){}
 renderMonths();refresh();
 
 // -------------------------------------------------------------
-// [집중챠트(만성처방관리) APP HTML] - 원본의 할일/한일/챠트기록 완벽 유지 + 보호자/체중/폰/성별/나이 필드 적용
+// [집중챠트(만성처방관리) APP HTML]
+// 1) 할 일 입력시 날짜 달력(input type="date") 완벽 복원
+// 2) 등록된 모든 항목(환자명, 보호자, 체중, 폰, 성별, 나이, 내원사유 등) 즉시 수정 가능하게 개선
 // -------------------------------------------------------------
 const chronicAppHTML = `<!DOCTYPE html>
 <html lang="ko">
@@ -480,13 +492,13 @@ const chronicAppHTML = `<!DOCTYPE html>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
     * { font-family: 'Pretendard', sans-serif; }
-    html { font-size: 16px; }
-    body { font-size: 15px !important; min-height:100vh; }
-    input, select, textarea { font-size: 14px !important; }
-    button { font-size: 13px !important; }
+    html { font-size: 15px; }
+    body { font-size: 14px !important; min-height:100vh; }
+    input, select, textarea { font-size: 13px !important; }
+    button { font-size: 12px !important; }
     .care-tab { background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; }
     .care-tab.active-tab { background:#1e293b; color:white; border-color:#1e293b; }
-    .care-section { height:calc(100vh - 175px); min-height:400px; }
+    .care-section { height:calc(100vh - 170px); min-height:400px; }
     #careDashboard[data-view="active"] #chronicCareSection,
     #careDashboard[data-view="chronic"] #activeCareSection { display:none !important; }
     #careDashboard[data-view="active"], #careDashboard[data-view="chronic"] { grid-template-columns:minmax(0,1fr); }
@@ -532,7 +544,6 @@ const chronicAppHTML = `<!DOCTYPE html>
   </nav>
 
   <main id="careDashboard" class="max-w-[1920px] mx-auto px-3 py-3 flex-1 w-full grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
-    <!-- 집중관리 프레임 -->
     <section id="activeCareSection" class="care-section flex flex-col min-h-0 bg-white rounded-xl border border-rose-200 shadow-sm overflow-hidden">
       <div class="bg-gradient-to-r from-rose-500 via-rose-600 to-amber-500 px-3 py-2 text-white flex justify-between items-center">
         <div class="flex items-center gap-1.5">
@@ -544,7 +555,6 @@ const chronicAppHTML = `<!DOCTYPE html>
       <div id="activeDogCardList" class="p-2 space-y-2 flex-1 min-h-0 overflow-y-auto"></div>
     </section>
 
-    <!-- 만성관리 프레임 -->
     <section id="chronicCareSection" class="care-section flex flex-col min-h-0 bg-white rounded-xl border border-teal-200 shadow-sm overflow-hidden">
       <div class="bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 px-3 py-2 text-white flex justify-between items-center">
         <div class="flex items-center gap-1.5">
@@ -726,7 +736,7 @@ const chronicAppHTML = `<!DOCTYPE html>
         return \`
           <div class="bg-white rounded-xl border \${dog.isExpanded ? (category==='active'?'border-rose-400 ring-1 ring-rose-100':'border-teal-400 ring-1 ring-teal-100') : 'border-slate-200'} shadow-2xs overflow-hidden">
             <!-- 요약 헤더 (클릭 시 아코디언 펼침) -->
-            <div class="px-3 py-2 flex items-center justify-between gap-2 cursor-pointer select-none bg-slate-50/60 hover:bg-slate-50" onclick="toggleDogCard('\${dog.id}')">
+            <div class="px-3 py-2 flex items-center justify-between gap-2 cursor-pointer select-none bg-slate-50/70 hover:bg-slate-50" onclick="toggleDogCard('\${dog.id}')">
               <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-black \${rCfg.bg}">\${rCfg.label}</span>
                 <strong class="text-sm font-extrabold text-slate-900">\${dog.name}</strong>
@@ -744,46 +754,92 @@ const chronicAppHTML = `<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- 내원사유 및 최근작업 -->
+            <!-- 요약 사유 및 최근 작업 -->
             <div class="px-3 py-1.5 text-xs text-slate-700 flex justify-between items-center bg-white border-t border-slate-100">
               <div class="truncate flex-1 pr-2"><strong>내원사유/진단:</strong> \${dog.diagnosis}</div>
               \${lastDone ? \`<div class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded shrink-0">최근: \${lastDone.text} (\${lastDone.doneAt})</div>\` : ''}
             </div>
 
-            <!-- 펼쳐졌을 때: 할일 / 한일 워크스페이스 + 챠트기록 저장 완벽 복원 -->
+            <!-- 펼침 영역: 상단 '환자 정보 즉시 수정' + 하단 '할일/한일 일정표' -->
             \${dog.isExpanded ? \`
               <div class="p-3 bg-white border-t border-slate-200 space-y-2.5">
-                <div class="flex justify-between items-center text-xs pb-1 border-b border-slate-100">
-                  <span class="text-slate-500">등록일시: \${dog.registeredAt || '-'}</span>
-                  <div class="flex items-center gap-2">
-                    <button type="button" onclick="event.stopPropagation(); saveDogChartText('\${dog.id}')" class="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[11px] font-bold">
-                      <i class="fa-solid fa-file-arrow-down mr-1"></i>챠트기록 저장
+                
+                <!-- [수정 가능 폼 영역] : 자동 입력된 항목들을 자유롭게 수정하고 즉시 저장 -->
+                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-2">
+                  <div class="flex items-center justify-between text-xs font-bold text-slate-700 pb-1 border-b border-slate-200">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-pen-to-square text-indigo-500"></i>환자 기본정보 수정</span>
+                    <button type="button" onclick="updateDogInfo('\${dog.id}')" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-xs shadow-2xs">
+                      💾 수정내용 저장
                     </button>
-                    \${category === 'active' ? \`
-                      <button onclick="transferCategory('\${dog.id}', 'chronic')" class="px-2 py-1 bg-teal-600 text-white font-bold text-[11px] rounded">🟢 만성관리로 이관</button>
-                    \` : \`
-                      <button onclick="transferCategory('\${dog.id}', 'active')" class="px-2 py-1 bg-rose-600 text-white font-bold text-[11px] rounded">🔴 집중관리로 복귀</button>
-                    \`}
+                  </div>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5">
+                    <div>
+                      <span class="text-[10px] text-slate-500 font-semibold block">동물이름</span>
+                      <input type="text" id="edit_name_\${dog.id}" value="\${dog.name || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs font-bold">
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-500 font-semibold block">보호자</span>
+                      <input type="text" id="edit_guardian_\${dog.id}" value="\${dog.guardian || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs">
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-500 font-semibold block">체중</span>
+                      <input type="text" id="edit_weight_\${dog.id}" value="\${dog.weight || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs font-bold text-rose-700">
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-500 font-semibold block">휴대폰번호</span>
+                      <input type="text" id="edit_phone_\${dog.id}" value="\${dog.phone || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs font-mono">
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5">
+                    <div>
+                      <span class="text-[10px] text-slate-500 font-semibold block">성별</span>
+                      <input type="text" id="edit_gender_\${dog.id}" value="\${dog.gender || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs font-bold text-violet-700">
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-500 font-semibold block">나이</span>
+                      <input type="text" id="edit_age_\${dog.id}" value="\${dog.age || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs">
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-500 font-semibold block">위험도</span>
+                      <select id="edit_risk_\${dog.id}" class="w-full bg-white border rounded px-1 py-1 text-xs font-bold">
+                        \${Object.keys(RISK_CONFIG).map(k => \`<option value="\${k}" \${dog.risk===k?'selected':''}>\${RISK_CONFIG[k].label}</option>\`).join('')}
+                      </select>
+                    </div>
+                    <div class="flex items-end gap-1">
+                      \${category === 'active' ? \`
+                        <button type="button" onclick="transferCategory('\${dog.id}', 'chronic')" class="w-full py-1 bg-teal-600 text-white font-bold text-xs rounded">🟢 만성이관</button>
+                      \` : \`
+                        <button type="button" onclick="transferCategory('\${dog.id}', 'active')" class="w-full py-1 bg-rose-600 text-white font-bold text-xs rounded">🔴 집중복귀</button>
+                      \`}
+                      <button type="button" onclick="saveDogChartText('\${dog.id}')" class="w-full py-1 bg-slate-700 text-white font-bold text-xs rounded" title="텍스트 다운로드">📥 챠트저장</button>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-slate-500 font-semibold block">진료타이틀 / 병명 / 내원사유</span>
+                    <input type="text" id="edit_diagnosis_\${dog.id}" value="\${dog.diagnosis || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs">
                   </div>
                 </div>
 
-                <!-- 2열 그리드: 할일(To-Do) vs 한일(Done) -->
+                <!-- 2열 그리드: 할일(To-Do 달력포함) vs 한일(Done) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <!-- 좌: 할일 등록 및 목록 -->
+                  <!-- 좌: 할일 등록 (달력 완벽 복원) -->
                   <div class="bg-amber-50/40 rounded-lg p-2 border border-amber-200 flex flex-col">
-                    <div class="flex justify-between items-center mb-1.5 text-[11px] font-bold text-amber-900">
-                      <span><i class="fa-solid fa-calendar-plus text-amber-600 mr-1"></i>할 일 (스케줄)</span>
-                      <span class="text-[9px] text-amber-700">체크 시 즉시 '한 일'로 이동</span>
+                    <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-amber-900">
+                      <span><i class="fa-solid fa-calendar-days text-amber-600 mr-1"></i>할 일 일정표 (스케줄)</span>
+                      <span class="text-[9px] text-amber-700">체크 시 '한 일'로 자동 이동</span>
                     </div>
+                    <!-- 달력(input type="date") + 내용 + 등록 버튼 -->
                     <div class="flex gap-1 mb-1.5">
-                      <input type="text" id="todoInput_\${dog.id}" placeholder="할 일 입력 (엔터)" class="flex-1 bg-white border rounded px-2 py-1 text-xs" onkeydown="if(event.key==='Enter') addTodoItem('\${dog.id}')">
+                      <input type="date" id="todoDate_\${dog.id}" value="\${getTodayString()}" class="bg-white border rounded px-1.5 py-1 text-xs font-mono shadow-2xs">
+                      <input type="text" id="todoInput_\${dog.id}" placeholder="할 일 내용 입력" class="flex-1 bg-white border rounded px-2 py-1 text-xs" onkeydown="if(event.key==='Enter') addTodoItem('\${dog.id}')">
                       <button onclick="addTodoItem('\${dog.id}')" class="px-2.5 py-1 bg-amber-600 text-white text-xs font-bold rounded shrink-0">등록</button>
                     </div>
-                    <div class="space-y-1 max-h-36 overflow-y-auto">
-                      \${!todos.length ? '<div class="text-[10px] text-slate-400 text-center py-3">남은 할 일이 없습니다.</div>' : todos.map(t => \`
+                    <div class="space-y-1 max-h-40 overflow-y-auto">
+                      \${!todos.length ? '<div class="text-[10px] text-slate-400 text-center py-4">등록된 할 일 일정이 없습니다.</div>' : todos.map(t => \`
                         <div class="flex items-center justify-between p-1 bg-white rounded border border-slate-200 text-xs">
                           <label class="flex items-center gap-1.5 truncate flex-1 cursor-pointer">
                             <input type="checkbox" onchange="completeTodoItem('\${dog.id}', '\${t.id}')" class="w-3.5 h-3.5 text-emerald-600 rounded">
+                            <span class="text-[10px] font-bold font-mono text-amber-800 bg-amber-100 px-1 py-0.5 rounded shrink-0">\${t.date ? t.date.slice(5) : '일정'}</span>
                             <span class="truncate">\${t.text}</span>
                           </label>
                           <button onclick="removeTodoItem('\${dog.id}', '\${t.id}')" class="text-slate-300 hover:text-red-500 px-1">&times;</button>
@@ -792,18 +848,18 @@ const chronicAppHTML = `<!DOCTYPE html>
                     </div>
                   </div>
 
-                  <!-- 우: 한일 수동직접입력 및 누적 목록 -->
+                  <!-- 우: 한일 수동기록 및 누적 -->
                   <div class="bg-emerald-50/40 rounded-lg p-2 border border-emerald-200 flex flex-col">
-                    <div class="flex justify-between items-center mb-1.5 text-[11px] font-bold text-emerald-900">
-                      <span><i class="fa-solid fa-clock-rotate-left text-emerald-600 mr-1"></i>한 일 (기록 누적)</span>
-                      <span class="text-[9px] text-emerald-700">클릭 시 클립보드 복사</span>
+                    <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-emerald-900">
+                      <span><i class="fa-solid fa-clock-rotate-left text-emerald-600 mr-1"></i>한 일 (실행/수동기록)</span>
+                      <span class="text-[9px] text-emerald-700">클릭 시 자동복사</span>
                     </div>
                     <div class="flex gap-1 mb-1.5">
                       <input type="text" id="directDoneInput_\${dog.id}" placeholder="즉시 한 일 수동입력 (엔터)" class="flex-1 bg-white border rounded px-2 py-1 text-xs" onkeydown="if(event.key==='Enter') addDirectDone('\${dog.id}')">
                       <button onclick="addDirectDone('\${dog.id}')" class="px-2.5 py-1 bg-emerald-600 text-white text-xs font-bold rounded shrink-0">기록</button>
                     </div>
-                    <div class="space-y-1 max-h-36 overflow-y-auto">
-                      \${!dones.length ? '<div class="text-[10px] text-slate-400 text-center py-3">완료된 기록이 없습니다.</div>' : [...dones].reverse().map(d => \`
+                    <div class="space-y-1 max-h-40 overflow-y-auto">
+                      \${!dones.length ? '<div class="text-[10px] text-slate-400 text-center py-4">완료된 기록이 없습니다.</div>' : [...dones].reverse().map(d => \`
                         <div class="copyable-row flex items-center justify-between p-1 bg-white rounded border border-emerald-100 text-xs cursor-pointer select-none" onclick="copyDoneText('\${d.text}', '\${d.doneAt}')" title="클릭 시 텍스트 복사">
                           <div class="truncate flex-1 pr-1 font-medium text-slate-800">✓ \${d.text}</div>
                           <div class="flex items-center gap-1 shrink-0">
@@ -815,6 +871,7 @@ const chronicAppHTML = `<!DOCTYPE html>
                     </div>
                   </div>
                 </div>
+
               </div>
             \` : ''}
           </div>
@@ -822,15 +879,37 @@ const chronicAppHTML = `<!DOCTYPE html>
       }).join('');
     }
 
+    // 기본정보 즉시 수정 함수
+    function updateDogInfo(dogId) {
+      const dog = dogs.find(d => d.id === dogId);
+      if(!dog) return;
+
+      dog.name = document.getElementById(\`edit_name_\${dogId}\`).value.trim();
+      dog.guardian = document.getElementById(\`edit_guardian_\${dogId}\`).value.trim();
+      dog.weight = document.getElementById(\`edit_weight_\${dogId}\`).value.trim();
+      dog.phone = document.getElementById(\`edit_phone_\${dogId}\`).value.trim();
+      dog.gender = document.getElementById(\`edit_gender_\${dogId}\`).value.trim();
+      dog.age = document.getElementById(\`edit_age_\${dogId}\`).value.trim();
+      dog.risk = document.getElementById(\`edit_risk_\${dogId}\`).value;
+      dog.diagnosis = document.getElementById(\`edit_diagnosis_\${dogId}\`).value.trim();
+
+      saveState();
+      renderAll();
+      showToast(\`'\${dog.name}' 환자 정보가 수정되었습니다.\`);
+    }
+
+    // 할 일 추가 (달력 날짜 반영)
     function addTodoItem(dogId) {
       const input = document.getElementById(\`todoInput_\${dogId}\`);
+      const dateInput = document.getElementById(\`todoDate_\${dogId}\`);
       const text = input ? input.value.trim() : '';
+      const date = dateInput ? dateInput.value : getTodayString();
       if(!text) return;
       const dog = dogs.find(d => d.id === dogId);
       if(dog) {
         if(!dog.todos) dog.todos = [];
-        dog.todos.push({ id: "t_" + Date.now(), text });
-        saveState(); renderAll(); showToast("할 일이 등록되었습니다.");
+        dog.todos.push({ id: "t_" + Date.now(), text, date });
+        saveState(); renderAll(); showToast("할 일 일정이 추가되었습니다.");
       }
     }
 
@@ -953,7 +1032,6 @@ const chronicAppHTML = `<!DOCTYPE html>
       showToast(\`'\${newPatient.name}' 환자 등록 완료!\`);
     }
 
-    // 접수 현황판에서 전송한 데이터 수신 처리
     window.addEventListener("message", (e) => {
       if(e.data && e.data.type === "RECEIVE_TRANSFER_TO_CHART") {
         const item = e.data.payload;
@@ -996,7 +1074,7 @@ const chronicAppHTML = `<!DOCTYPE html>
       const a = document.createElement('a');
       a.href = dataStr;
       a.download = \`CarePlan_Chart_\${new Date().toISOString().slice(0,10)}.json\`;
-      a.click();
+      document.body.appendChild(a); a.click(); a.remove();
     }
     function triggerImport() { document.getElementById("importFileInput").click(); }
     function importData(e) {
@@ -1022,7 +1100,8 @@ const chronicAppHTML = `<!DOCTYPE html>
 </html>`;
 
 // -------------------------------------------------------------
-// [원내 접수 현황판 APP HTML] - 상태 드롭다운(Select) 안에 집중관리전송 / 만성관리전송 삽입
+// [원내 접수 현황판 APP HTML]
+// 드롭다운(Select) 안에 집중관리전송 / 만성관리전송을 배치하여 외부 버튼 깨짐 완벽 방지
 // -------------------------------------------------------------
 const counterAppHTML = `<!DOCTYPE html>
 <html lang="ko">
@@ -1107,7 +1186,7 @@ const counterAppHTML = `<!DOCTYPE html>
       const val = selectEl.value;
       if (val === "집중관리전송") {
         sendToCareChart(itemId, 'active');
-        selectEl.value = "접수대기"; // 드롭다운 상태 원복
+        selectEl.value = "접수대기";
       } else if (val === "만성관리전송") {
         sendToCareChart(itemId, 'chronic');
         selectEl.value = "접수대기";
@@ -1175,7 +1254,7 @@ const counterAppHTML = `<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- 상태 선택창 (요청하신 대로 드롭다운 롤 안에 집중/만성 전송 포함) -->
+            <!-- 상태 선택창 : 드롭다운 안에 집중/만성 전송 수납 (외부 버튼 삭제로 프레임 깨짐 완전 해결) -->
             <div class="shrink-0 self-end md:self-center">
               <select onchange="handleStatusSelect(this, \${item.id})" class="text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 bg-white cursor-pointer shadow-2xs">
                 <option value="접수대기" \${isWait?'selected':''}>⏳ 접수 대기</option>
