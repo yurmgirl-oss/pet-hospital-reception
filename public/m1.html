@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>23시 케어플랜 V17.2 (접수 전송 연동)</title>
+<title>23시 케어플랜 V17.3</title>
 <style>
 body{margin:0;background:#eef3ef;font-family:"Malgun Gothic",sans-serif}
 .wrap{display:grid;grid-template-columns:minmax(720px,1fr) minmax(720px,1fr);gap:24px;padding:18px;max-width:1750px;margin:auto}
@@ -22,15 +22,6 @@ th,td{border:1px solid #e2ece5;height:30px;text-align:center;font-size:12px}
 td.pick{cursor:pointer;user-select:none;vertical-align:top;padding:2px;height:64px}
 .daynum{font-size:11px;font-weight:bold}
 .ev{display:block;margin-top:2px;padding:1px 3px;border-radius:4px;font-size:8px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ev.med{background:#d6ecff;color:#124b7a}
-.ev.eye{background:#dff6ff;color:#0d5d7a}
-.ev.ear{background:#ffe6cc;color:#8a4b08}
-.ev.check{background:#d8f3dc;color:#1b6b3a}
-.ev.hospital{background:#ffd6d6;color:#8a1f1f}
-.ev.image{background:#eadcff;color:#5b2d86}
-.ev.fluid{background:#d9fff3;color:#11695a}
-.ev.blood{background:#ffe0ec;color:#8c1f50}
-.ev.other{background:#ececec;color:#555}
 .ev.txt0{background:#ececec;color:#444}
 .ev.txt1{background:#d6ecff;color:#124b7a}
 .ev.txt2{background:#d8f3dc;color:#1b6b3a}
@@ -111,13 +102,6 @@ html,body{width:100%;height:100%;overflow:hidden}
 #medicationPanel .notice{padding:5px;margin-top:6px;min-height:0}
 
 #chronicPanel{grid-row:1;min-width:0;min-height:0;height:calc(100vh - 16px);background:#fff;border:1px solid #dce6ee;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-
-#integratedShell[data-layout="three"]{grid-template-columns:minmax(0,3fr) minmax(0,3fr) minmax(0,4fr)!important}
-#integratedShell[data-layout="three"] #counterPanel{grid-column:1;grid-row:1}
-#integratedShell[data-layout="three"] #chronicPanel{display:block!important;grid-column:2;grid-row:1;height:calc(100vh - 16px)!important}
-#integratedShell[data-layout="three"] #medicationPanel{display:block!important;grid-column:3;grid-row:1;min-width:0;min-height:0}
-#integratedShell[data-layout="three"] #medicationPanel .wrap{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important;height:100vh;overflow:auto}
-#integratedShell[data-layout="three"] #medicationPanel .panel{height:auto!important;min-height:0;overflow:auto;padding:7px}
 
 #integratedShell[data-layout="focus"]{grid-template-columns:minmax(0,4fr) minmax(0,6fr)!important}
 #integratedShell[data-layout="focus"] #counterPanel{grid-column:1;grid-row:1}
@@ -479,12 +463,12 @@ function savePreviewImage(){
     a.click();
   });
 }
-function applyPromisePlan(){
-  // 약속처방 로직 유지
-}
+function applyPromisePlan(){}
 renderMonths();refresh();
 
-// 집중관리 챠트 앱 HTML 코드 (보호자, 체중, 휴대폰번호, 성별, 나이 반영)
+// -------------------------------------------------------------
+// [집중챠트(만성처방관리) APP HTML] - 원본의 할일/한일/챠트기록 완벽 유지 + 보호자/체중/폰/성별/나이 필드 적용
+// -------------------------------------------------------------
 const chronicAppHTML = `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -496,32 +480,34 @@ const chronicAppHTML = `<!DOCTYPE html>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
     * { font-family: 'Pretendard', sans-serif; }
-    html { font-size: 17px; }
-    body { font-size: 15px !important; }
+    html { font-size: 16px; }
+    body { font-size: 15px !important; min-height:100vh; }
     input, select, textarea { font-size: 14px !important; }
     button { font-size: 13px !important; }
     .care-tab { background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; }
     .care-tab.active-tab { background:#1e293b; color:white; border-color:#1e293b; }
-    .care-section { height:calc(100vh - 180px); min-height:400px; }
+    .care-section { height:calc(100vh - 175px); min-height:400px; }
     #careDashboard[data-view="active"] #chronicCareSection,
     #careDashboard[data-view="chronic"] #activeCareSection { display:none !important; }
     #careDashboard[data-view="active"], #careDashboard[data-view="chronic"] { grid-template-columns:minmax(0,1fr); }
     #careDashboard[data-view="both"] { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .copyable-row:hover { background-color:#ecfdf5 !important; border-color:#a7f3d0 !important; }
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col antialiased">
   <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
     <div class="max-w-[1920px] mx-auto px-4 py-2 flex flex-wrap justify-between items-center gap-2">
       <div class="flex items-center space-x-2">
-        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-rose-500 to-indigo-600 flex items-center justify-center text-white shadow-xs">
-          <i class="fa-solid fa-hospital text-xs"></i>
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 via-amber-500 to-indigo-600 flex items-center justify-center text-white shadow-xs">
+          <i class="fa-solid fa-hospital text-sm"></i>
         </div>
         <div>
           <h1 class="text-sm font-black tracking-tight text-slate-900 leading-none">23시 집중·만성 관리 챠트</h1>
+          <p class="text-[10px] text-slate-400 font-medium mt-0.5">부산 사하구 하단오거리 • 집중관리 및 만성처방 모니터링</p>
         </div>
       </div>
       <div class="flex-1 max-w-sm mx-2">
-        <input type="text" id="globalSearchInput" oninput="handleSearch(this.value)" placeholder="동물/보호자/전화번호/위험도 검색..."
+        <input type="text" id="globalSearchInput" oninput="handleSearch(this.value)" placeholder="동물이름 / 보호자 / 휴대폰번호 / 진료타이틀 검색..."
                class="w-full px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs">
       </div>
       <div class="flex items-center space-x-2 text-xs">
@@ -546,31 +532,39 @@ const chronicAppHTML = `<!DOCTYPE html>
   </nav>
 
   <main id="careDashboard" class="max-w-[1920px] mx-auto px-3 py-3 flex-1 w-full grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
-    <!-- 집중관리 -->
+    <!-- 집중관리 프레임 -->
     <section id="activeCareSection" class="care-section flex flex-col min-h-0 bg-white rounded-xl border border-rose-200 shadow-sm overflow-hidden">
-      <div class="bg-gradient-to-r from-rose-500 to-amber-500 px-3 py-2 text-white flex justify-between items-center">
-        <h2 class="text-xs font-extrabold">집중관리 (진행 중)</h2>
+      <div class="bg-gradient-to-r from-rose-500 via-rose-600 to-amber-500 px-3 py-2 text-white flex justify-between items-center">
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-heart-pulse text-xs"></i>
+          <h2 class="text-xs font-extrabold">집중관리 (진행 중)</h2>
+        </div>
         <button onclick="openDogModal('active')" class="px-2.5 py-1 bg-white text-rose-600 rounded font-bold text-xs shadow-xs">+ 환자 신규 등록</button>
       </div>
       <div id="activeDogCardList" class="p-2 space-y-2 flex-1 min-h-0 overflow-y-auto"></div>
     </section>
 
-    <!-- 만성관리 -->
+    <!-- 만성관리 프레임 -->
     <section id="chronicCareSection" class="care-section flex flex-col min-h-0 bg-white rounded-xl border border-teal-200 shadow-sm overflow-hidden">
-      <div class="bg-gradient-to-r from-teal-600 to-cyan-600 px-3 py-2 text-white flex justify-between items-center">
-        <h2 class="text-xs font-extrabold">만성관리 (루틴 모니터링)</h2>
+      <div class="bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 px-3 py-2 text-white flex justify-between items-center">
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-heart text-xs"></i>
+          <h2 class="text-xs font-extrabold">만성관리 (루틴)</h2>
+        </div>
         <button onclick="openDogModal('chronic')" class="px-2.5 py-1 bg-white text-teal-700 rounded font-bold text-xs shadow-xs">+ 환자 신규 등록</button>
       </div>
       <div id="chronicDogCardList" class="p-2 space-y-2 flex-1 min-h-0 overflow-y-auto"></div>
     </section>
   </main>
 
-  <!-- 신규 환자 등록 모달 (보호자, 체중, 휴대폰번호, 성별, 나이 반영) -->
+  <!-- 신규 환자 등록 모달 -->
   <div id="dogModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
       <div id="modalHeaderBg" class="bg-gradient-to-r from-rose-500 to-amber-500 px-4 py-3 text-white flex justify-between items-center">
-        <h3 id="modalTitle" class="font-bold text-sm">환자 신규 등록</h3>
-        <button onclick="closeDogModal()" class="text-white text-lg leading-none">&times;</button>
+        <h3 id="modalTitle" class="font-bold text-xs flex items-center gap-1.5">
+          <i class="fa-solid fa-paw"></i> 환자 등록
+        </h3>
+        <button onclick="closeDogModal()" class="text-white text-base leading-none">&times;</button>
       </div>
       <form id="newDogForm" onsubmit="handleNewDogSubmit(event)" class="p-4 space-y-2.5">
         <input type="hidden" id="inputTargetCategory" value="active">
@@ -578,22 +572,22 @@ const chronicAppHTML = `<!DOCTYPE html>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-0.5">환자명 (동물이름) *</label>
-            <input type="text" id="inputDogName" required placeholder="예: 초코, 콩이" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs">
+            <input type="text" id="inputDogName" required placeholder="예: 초코, 보리" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
           </div>
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-0.5">보호자 성함 *</label>
-            <input type="text" id="inputGuardian" required placeholder="예: 홍길동" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs">
+            <input type="text" id="inputGuardian" required placeholder="예: 홍길동" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-0.5">체중 *</label>
-            <input type="text" id="inputDogWeight" required placeholder="예: 3.2kg (말티즈)" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs">
+            <input type="text" id="inputDogWeight" required placeholder="예: 2.5kg (말티즈)" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
           </div>
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-0.5">휴대폰번호 *</label>
-            <input type="tel" id="inputDogPhone" required placeholder="예: 010-1234-5678" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs">
+            <input type="tel" id="inputDogPhone" required placeholder="예: 010-1234-5678" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
           </div>
         </div>
 
@@ -610,13 +604,13 @@ const chronicAppHTML = `<!DOCTYPE html>
           </div>
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-0.5">나이 (생년월일)</label>
-            <input type="text" id="inputDogAge" placeholder="예: 5년 3개월 (2021-07)" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs">
+            <input type="text" id="inputDogAge" placeholder="예: 5세 (2021-05)" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
           </div>
         </div>
 
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-0.5">진료타이틀 / 병명 / 내원사유 *</label>
-          <input type="text" id="inputDogDiagnosis" required placeholder="예: 좌측 슬개골 탈구 수술 후 관리" class="w-full bg-slate-50 border rounded px-2.5 py-1.5 text-xs">
+          <input type="text" id="inputDogDiagnosis" required placeholder="예: 좌측 슬개골 수술 후 재활" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
         </div>
 
         <div>
@@ -690,6 +684,16 @@ const chronicAppHTML = `<!DOCTYPE html>
       if(dog) { dog.isExpanded = !dog.isExpanded; saveState(); renderAll(); }
     }
 
+    function getNowString() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return \`\${d.getFullYear()}-\${pad(d.getMonth()+1)}-\${pad(d.getDate())} \${pad(d.getHours())}:\${pad(d.getMinutes())}\`;
+    }
+
+    function getTodayString() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
     function renderAll() {
       updateStats();
       renderFrame("active", "activeDogCardList");
@@ -708,42 +712,109 @@ const chronicAppHTML = `<!DOCTYPE html>
         );
       }
 
-      if(list.length === 0) {
+      if(!list.length) {
         container.innerHTML = \`<div class="text-center py-8 text-xs text-slate-400">등록된 환자가 없습니다.</div>\`;
         return;
       }
 
       container.innerHTML = list.map(dog => {
         const rCfg = RISK_CONFIG[dog.risk] || RISK_CONFIG['G'];
+        const todos = dog.todos || [];
+        const dones = dog.dones || [];
+        const lastDone = dones.length > 0 ? dones[dones.length - 1] : null;
+
         return \`
-          <div class="bg-white rounded-xl border \${dog.isExpanded ? (category==='active'?'border-rose-400':'border-teal-400') : 'border-slate-200'} p-2.5 shadow-2xs">
-            <div class="flex items-center justify-between gap-2 cursor-pointer select-none" onclick="toggleDogCard('\${dog.id}')">
-              <div class="flex items-center gap-1.5 flex-wrap">
+          <div class="bg-white rounded-xl border \${dog.isExpanded ? (category==='active'?'border-rose-400 ring-1 ring-rose-100':'border-teal-400 ring-1 ring-teal-100') : 'border-slate-200'} shadow-2xs overflow-hidden">
+            <!-- 요약 헤더 (클릭 시 아코디언 펼침) -->
+            <div class="px-3 py-2 flex items-center justify-between gap-2 cursor-pointer select-none bg-slate-50/60 hover:bg-slate-50" onclick="toggleDogCard('\${dog.id}')">
+              <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
                 <span class="px-1.5 py-0.5 rounded text-[10px] font-black \${rCfg.bg}">\${rCfg.label}</span>
-                <span class="font-extrabold text-sm text-slate-900">\${dog.name}</span>
+                <strong class="text-sm font-extrabold text-slate-900">\${dog.name}</strong>
                 <span class="text-xs text-slate-500 font-semibold">(\${dog.guardian || '보호자미상'})</span>
                 <span class="text-xs font-bold text-violet-700 bg-violet-50 px-1.5 py-0.5 rounded">\${dog.gender || '성별-'}</span>
                 <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">\${dog.age || '나이-'}</span>
                 <span class="text-xs font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">\${dog.weight || '체중-'}</span>
                 <span class="text-xs font-mono text-slate-600">\${dog.phone || ''}</span>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-[10px] font-bold bg-amber-50 text-amber-800 px-1.5 py-0.5 rounded border border-amber-200">할일 \${todos.length}</span>
+                <span class="text-[10px] font-bold bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200">완료 \${dones.length}</span>
                 <button onclick="event.stopPropagation(); deleteDog('\${dog.id}', '\${dog.name}')" class="text-slate-300 hover:text-red-500 p-1" title="삭제"><i class="fa-solid fa-trash-can text-xs"></i></button>
                 <i class="fa-solid \${dog.isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-xs text-slate-400"></i>
               </div>
             </div>
-            <div class="text-xs font-medium text-slate-700 mt-1 truncate">
-              <strong>내원사유/진단:</strong> \${dog.diagnosis}
+
+            <!-- 내원사유 및 최근작업 -->
+            <div class="px-3 py-1.5 text-xs text-slate-700 flex justify-between items-center bg-white border-t border-slate-100">
+              <div class="truncate flex-1 pr-2"><strong>내원사유/진단:</strong> \${dog.diagnosis}</div>
+              \${lastDone ? \`<div class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded shrink-0">최근: \${lastDone.text} (\${lastDone.doneAt})</div>\` : ''}
             </div>
 
+            <!-- 펼쳐졌을 때: 할일 / 한일 워크스페이스 + 챠트기록 저장 완벽 복원 -->
             \${dog.isExpanded ? \`
-              <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center">
-                <span class="text-[11px] text-slate-400 font-mono">등록일: \${dog.registeredAt || '-'}</span>
-                \${category === 'active' ? \`
-                  <button onclick="transferCategory('\${dog.id}', 'chronic')" class="px-2 py-1 bg-teal-600 text-white font-bold text-xs rounded">🟢 만성관리로 이관</button>
-                \` : \`
-                  <button onclick="transferCategory('\${dog.id}', 'active')" class="px-2 py-1 bg-rose-600 text-white font-bold text-xs rounded">🔴 집중관리로 복귀</button>
-                \`}
+              <div class="p-3 bg-white border-t border-slate-200 space-y-2.5">
+                <div class="flex justify-between items-center text-xs pb-1 border-b border-slate-100">
+                  <span class="text-slate-500">등록일시: \${dog.registeredAt || '-'}</span>
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="event.stopPropagation(); saveDogChartText('\${dog.id}')" class="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[11px] font-bold">
+                      <i class="fa-solid fa-file-arrow-down mr-1"></i>챠트기록 저장
+                    </button>
+                    \${category === 'active' ? \`
+                      <button onclick="transferCategory('\${dog.id}', 'chronic')" class="px-2 py-1 bg-teal-600 text-white font-bold text-[11px] rounded">🟢 만성관리로 이관</button>
+                    \` : \`
+                      <button onclick="transferCategory('\${dog.id}', 'active')" class="px-2 py-1 bg-rose-600 text-white font-bold text-[11px] rounded">🔴 집중관리로 복귀</button>
+                    \`}
+                  </div>
+                </div>
+
+                <!-- 2열 그리드: 할일(To-Do) vs 한일(Done) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <!-- 좌: 할일 등록 및 목록 -->
+                  <div class="bg-amber-50/40 rounded-lg p-2 border border-amber-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-1.5 text-[11px] font-bold text-amber-900">
+                      <span><i class="fa-solid fa-calendar-plus text-amber-600 mr-1"></i>할 일 (스케줄)</span>
+                      <span class="text-[9px] text-amber-700">체크 시 즉시 '한 일'로 이동</span>
+                    </div>
+                    <div class="flex gap-1 mb-1.5">
+                      <input type="text" id="todoInput_\${dog.id}" placeholder="할 일 입력 (엔터)" class="flex-1 bg-white border rounded px-2 py-1 text-xs" onkeydown="if(event.key==='Enter') addTodoItem('\${dog.id}')">
+                      <button onclick="addTodoItem('\${dog.id}')" class="px-2.5 py-1 bg-amber-600 text-white text-xs font-bold rounded shrink-0">등록</button>
+                    </div>
+                    <div class="space-y-1 max-h-36 overflow-y-auto">
+                      \${!todos.length ? '<div class="text-[10px] text-slate-400 text-center py-3">남은 할 일이 없습니다.</div>' : todos.map(t => \`
+                        <div class="flex items-center justify-between p-1 bg-white rounded border border-slate-200 text-xs">
+                          <label class="flex items-center gap-1.5 truncate flex-1 cursor-pointer">
+                            <input type="checkbox" onchange="completeTodoItem('\${dog.id}', '\${t.id}')" class="w-3.5 h-3.5 text-emerald-600 rounded">
+                            <span class="truncate">\${t.text}</span>
+                          </label>
+                          <button onclick="removeTodoItem('\${dog.id}', '\${t.id}')" class="text-slate-300 hover:text-red-500 px-1">&times;</button>
+                        </div>
+                      \`).join('')}
+                    </div>
+                  </div>
+
+                  <!-- 우: 한일 수동직접입력 및 누적 목록 -->
+                  <div class="bg-emerald-50/40 rounded-lg p-2 border border-emerald-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-1.5 text-[11px] font-bold text-emerald-900">
+                      <span><i class="fa-solid fa-clock-rotate-left text-emerald-600 mr-1"></i>한 일 (기록 누적)</span>
+                      <span class="text-[9px] text-emerald-700">클릭 시 클립보드 복사</span>
+                    </div>
+                    <div class="flex gap-1 mb-1.5">
+                      <input type="text" id="directDoneInput_\${dog.id}" placeholder="즉시 한 일 수동입력 (엔터)" class="flex-1 bg-white border rounded px-2 py-1 text-xs" onkeydown="if(event.key==='Enter') addDirectDone('\${dog.id}')">
+                      <button onclick="addDirectDone('\${dog.id}')" class="px-2.5 py-1 bg-emerald-600 text-white text-xs font-bold rounded shrink-0">기록</button>
+                    </div>
+                    <div class="space-y-1 max-h-36 overflow-y-auto">
+                      \${!dones.length ? '<div class="text-[10px] text-slate-400 text-center py-3">완료된 기록이 없습니다.</div>' : [...dones].reverse().map(d => \`
+                        <div class="copyable-row flex items-center justify-between p-1 bg-white rounded border border-emerald-100 text-xs cursor-pointer select-none" onclick="copyDoneText('\${d.text}', '\${d.doneAt}')" title="클릭 시 텍스트 복사">
+                          <div class="truncate flex-1 pr-1 font-medium text-slate-800">✓ \${d.text}</div>
+                          <div class="flex items-center gap-1 shrink-0">
+                            <span class="text-[9px] text-slate-400 font-mono">\${d.doneAt}</span>
+                            <button onclick="event.stopPropagation(); removeDoneItem('\${dog.id}', '\${d.id}')" class="text-slate-300 hover:text-red-500 px-1">&times;</button>
+                          </div>
+                        </div>
+                      \`).join('')}
+                    </div>
+                  </div>
+                </div>
               </div>
             \` : ''}
           </div>
@@ -751,21 +822,100 @@ const chronicAppHTML = `<!DOCTYPE html>
       }).join('');
     }
 
+    function addTodoItem(dogId) {
+      const input = document.getElementById(\`todoInput_\${dogId}\`);
+      const text = input ? input.value.trim() : '';
+      if(!text) return;
+      const dog = dogs.find(d => d.id === dogId);
+      if(dog) {
+        if(!dog.todos) dog.todos = [];
+        dog.todos.push({ id: "t_" + Date.now(), text });
+        saveState(); renderAll(); showToast("할 일이 등록되었습니다.");
+      }
+    }
+
+    function addDirectDone(dogId) {
+      const input = document.getElementById(\`directDoneInput_\${dogId}\`);
+      const text = input ? input.value.trim() : '';
+      if(!text) return;
+      const dog = dogs.find(d => d.id === dogId);
+      if(dog) {
+        if(!dog.dones) dog.dones = [];
+        dog.dones.push({ id: "d_" + Date.now(), text, doneAt: getNowString() });
+        saveState(); renderAll(); showToast("한 일 기록이 추가되었습니다.");
+      }
+    }
+
+    function completeTodoItem(dogId, todoId) {
+      const dog = dogs.find(d => d.id === dogId);
+      if(!dog) return;
+      const idx = (dog.todos || []).findIndex(t => t.id === todoId);
+      if(idx !== -1) {
+        const item = dog.todos.splice(idx, 1)[0];
+        if(!dog.dones) dog.dones = [];
+        dog.dones.push({ id: "d_" + Date.now(), text: item.text, doneAt: getNowString() });
+        saveState(); renderAll(); showToast("완료되어 '한 일'로 이동되었습니다.");
+      }
+    }
+
+    function removeTodoItem(dogId, todoId) {
+      const dog = dogs.find(d => d.id === dogId);
+      if(dog) { dog.todos = (dog.todos || []).filter(t => t.id !== todoId); saveState(); renderAll(); }
+    }
+
+    function removeDoneItem(dogId, doneId) {
+      const dog = dogs.find(d => d.id === dogId);
+      if(dog) { dog.dones = (dog.dones || []).filter(d => d.id !== doneId); saveState(); renderAll(); }
+    }
+
+    function copyDoneText(text, doneAt) {
+      navigator.clipboard.writeText(\`[\${doneAt}] \${text}\`).then(() => showToast("클립보드 복사 완료"));
+    }
+
+    function saveDogChartText(dogId) {
+      const dog = dogs.find(d => d.id === dogId);
+      if(!dog) return;
+      const lines = [
+        "23시 하단오거리동물병원 - 집중관리 챠트",
+        "========================================",
+        \`환자명: \${dog.name}\`,
+        \`보호자: \${dog.guardian || '-'}\`,
+        \`연락처: \${dog.phone || '-'}\`,
+        \`체중: \${dog.weight || '-'}\`,
+        \`성별: \${dog.gender || '-'}\`,
+        \`나이: \${dog.age || '-'}\`,
+        \`내원사유/진단: \${dog.diagnosis || '-'}\`,
+        \`구분: \${dog.category === 'active' ? '집중관리' : '만성관리'}\`,
+        "",
+        "[완료 기록 (한 일)]",
+        "----------------------------------------"
+      ];
+      const records = dog.dones || [];
+      if(!records.length) lines.push("기록된 내용이 없습니다.");
+      else records.forEach((r, i) => lines.push(\`\${i+1}. [\${r.doneAt}] \${r.text}\`));
+      lines.push("", \`저장일시: \${getNowString()}\`);
+
+      const blob = new Blob(["\\uFEFF" + lines.join("\\r\\n")], { type: "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = \`챠트_\${dog.name}_\${getTodayString()}.txt\`;
+      a.click();
+      showToast("챠트 텍스트 파일 저장 완료");
+    }
+
     function transferCategory(id, target) {
       const dog = dogs.find(d => d.id === id);
       if(dog) {
         dog.category = target;
-        saveState();
-        renderAll();
+        saveState(); renderAll();
         showToast(\`'\${dog.name}' 환자가 \${target==='chronic'?'만성':'집중'}관리로 이동되었습니다.\`);
       }
     }
 
     function deleteDog(id, name) {
-      if(!confirm(\`'\${name}' 환자 데이터를 삭제하시겠습니까?\`)) return;
+      if(!confirm(\`'\${name}' 환자 챠트를 삭제하시겠습니까?\`)) return;
       dogs = dogs.filter(d => d.id !== id);
-      saveState();
-      renderAll();
+      saveState(); renderAll();
       showToast(\`'\${name}' 삭제 완료\`);
     }
 
@@ -794,16 +944,16 @@ const chronicAppHTML = `<!DOCTYPE html>
         risk: document.getElementById("inputRiskLevel").value,
         category: document.getElementById("inputTargetCategory").value,
         isExpanded: true,
-        registeredAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+        todos: [],
+        dones: [{ id: "d_" + Date.now(), text: "신규 등록", doneAt: getNowString() }],
+        registeredAt: getNowString()
       };
       dogs.unshift(newPatient);
-      saveState();
-      renderAll();
-      closeDogModal();
+      saveState(); renderAll(); closeDogModal();
       showToast(\`'\${newPatient.name}' 환자 등록 완료!\`);
     }
 
-    // 외부(원내 접수 현황판)에서 넘어오는 자동 전송 수신
+    // 접수 현황판에서 전송한 데이터 수신 처리
     window.addEventListener("message", (e) => {
       if(e.data && e.data.type === "RECEIVE_TRANSFER_TO_CHART") {
         const item = e.data.payload;
@@ -821,14 +971,15 @@ const chronicAppHTML = `<!DOCTYPE html>
           risk: targetCategory === 'active' ? 'B' : 'F',
           category: targetCategory,
           isExpanded: true,
-          registeredAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+          todos: [],
+          dones: [{ id: "d_" + Date.now(), text: "원내 접수에서 자동 전송 등록됨", doneAt: getNowString() }],
+          registeredAt: getNowString()
         };
 
         dogs.unshift(newDog);
-        saveState();
-        renderAll();
+        saveState(); renderAll();
         setCareView(targetCategory);
-        showToast(\`🏥 접수처에서 '\${newDog.name}' 환자가 \${targetCategory==='active'?'[집중관리]':'[만성관리]'}로 자동 등록되었습니다!\`);
+        showToast(\`🏥 '\${newDog.name}' 환자가 \${targetCategory==='active'?'집중관리':'만성관리'}로 전송 등록되었습니다!\`);
       }
     });
 
@@ -845,7 +996,7 @@ const chronicAppHTML = `<!DOCTYPE html>
       const a = document.createElement('a');
       a.href = dataStr;
       a.download = \`CarePlan_Chart_\${new Date().toISOString().slice(0,10)}.json\`;
-      document.body.appendChild(a); a.click(); a.remove();
+      a.click();
     }
     function triggerImport() { document.getElementById("importFileInput").click(); }
     function importData(e) {
@@ -870,7 +1021,9 @@ const chronicAppHTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// 원내 접수 현황판 앱 HTML 코드 (집중/만성관리 전송 버튼 탑재)
+// -------------------------------------------------------------
+// [원내 접수 현황판 APP HTML] - 상태 드롭다운(Select) 안에 집중관리전송 / 만성관리전송 삽입
+// -------------------------------------------------------------
 const counterAppHTML = `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -886,12 +1039,10 @@ const counterAppHTML = `<!DOCTYPE html>
 <body class="bg-slate-50 min-h-screen text-slate-800 p-3 md:p-5">
   <div class="max-w-5xl mx-auto space-y-4">
     <header class="flex justify-between items-center bg-white p-3.5 rounded-xl shadow-xs border border-slate-200">
-      <div>
-        <h1 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
-          원내 접수 현황판
-        </h1>
-      </div>
+      <h1 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+        원내 접수 현황판
+      </h1>
       <button onclick="fetchReceptions()" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800">새로고침</button>
     </header>
 
@@ -915,17 +1066,8 @@ const counterAppHTML = `<!DOCTYPE html>
     </div>
   </div>
 
-  <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg opacity-0 transition-opacity"></div>
-
   <script>
     let currentList = [];
-
-    function showToast(msg) {
-      const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.classList.remove("opacity-0");
-      setTimeout(() => t.classList.add("opacity-0"), 2000);
-    }
 
     function unwrapPayload(raw) {
       if (!raw) return {};
@@ -958,13 +1100,23 @@ const counterAppHTML = `<!DOCTYPE html>
         document.getElementById('count-progress').textContent = p;
         document.getElementById('count-done').textContent = d;
         renderList(data);
-      } catch(e) {
-        console.error(e);
+      } catch(e) { console.error(e); }
+    }
+
+    function handleStatusSelect(selectEl, itemId) {
+      const val = selectEl.value;
+      if (val === "집중관리전송") {
+        sendToCareChart(itemId, 'active');
+        selectEl.value = "접수대기"; // 드롭다운 상태 원복
+      } else if (val === "만성관리전송") {
+        sendToCareChart(itemId, 'chronic');
+        selectEl.value = "접수대기";
+      } else {
+        updateStatus(itemId, val);
       }
     }
 
-    // 접수 환자 정보를 집중관리 or 만성관리로 즉시 전송
-    function sendToChart(itemId, targetCategory) {
+    function sendToCareChart(itemId, targetCategory) {
       const item = currentList.find(x => x.id === itemId);
       if(!item) return;
       const p = unwrapPayload(item.payload);
@@ -982,24 +1134,13 @@ const counterAppHTML = `<!DOCTYPE html>
       const age = calculateAge(birthDate) || (birthDate ? \`\${birthDate}\` : '나이미상');
       const reason = p.reason || item.symptom || item.symptoms || '내원 사유 없음';
 
-      const transferData = {
-        petName,
-        guardian,
-        phone,
-        weight,
-        gender,
-        age,
-        reason
-      };
+      const transferData = { petName, guardian, phone, weight, gender, age, reason };
 
-      // 부모 창(m1.html)을 통해 집중관리 iframe으로 메시지 전송 및 화면 전환
       window.parent.postMessage({
         type: 'SEND_TO_CARE_CHART',
         targetCategory: targetCategory,
         payload: transferData
       }, '*');
-
-      showToast(\`'\${petName}' 환자 \${targetCategory==='active'?'집중관리':'만성관리'}로 전송 완료!\`);
     }
 
     function renderList(list) {
@@ -1034,24 +1175,16 @@ const counterAppHTML = `<!DOCTYPE html>
               </div>
             </div>
 
-            <!-- 우측: 상태선택 및 집중관리 / 만성관리 전송 버튼 -->
-            <div class="flex flex-col items-end gap-1.5 shrink-0 self-end md:self-center">
-              <select onchange="updateStatus(\${item.id}, this.value)" class="text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white cursor-pointer">
+            <!-- 상태 선택창 (요청하신 대로 드롭다운 롤 안에 집중/만성 전송 포함) -->
+            <div class="shrink-0 self-end md:self-center">
+              <select onchange="handleStatusSelect(this, \${item.id})" class="text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 bg-white cursor-pointer shadow-2xs">
                 <option value="접수대기" \${isWait?'selected':''}>⏳ 접수 대기</option>
                 <option value="진료중" \${isProg?'selected':''}>🩺 진료 중</option>
                 <option value="완료" \${isComp?'selected':''}>✅ 진료 완료</option>
+                <option disabled>──────────</option>
+                <option value="집중관리전송" style="color:#e11d48;font-weight:bold">🔴 집중관리 전송</option>
+                <option value="만성관리전송" style="color:#0d9488;font-weight:bold">🟢 만성관리 전송</option>
               </select>
-
-              <div class="flex items-center gap-1.5">
-                <button type="button" onclick="sendToChart(\${item.id}, 'active')" 
-                        class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-2xs">
-                  <span>🔴 집중관리 전송</span>
-                </button>
-                <button type="button" onclick="sendToChart(\${item.id}, 'chronic')" 
-                        class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-2xs">
-                  <span>🟢 만성관리 전송</span>
-                </button>
-              </div>
             </div>
           </div>
         \`;
@@ -1091,7 +1224,7 @@ function loadChronicOnce(){
 }
 
 function setLayout(mode){
-  if(mode === 'focus' || mode === 'focus-expanded' || mode === 'three') loadChronicOnce();
+  if(mode === 'focus' || mode === 'focus-expanded') loadChronicOnce();
   integratedShell.dataset.layout = mode;
   const globalControls = document.getElementById('expandedGlobalControls');
   if(globalControls) globalControls.style.display = mode === 'focus-expanded' ? 'flex' : 'none';
@@ -1126,19 +1259,17 @@ window.addEventListener('message', (event) => {
   if (event.data.type === 'show-initial-screen') showInitialScreen();
   if (event.data.type === 'refresh-integrated-page') refreshReceptionAndChart();
 
-  // 접수 현황판에서 "집중/만성관리 전송" 버튼을 눌렀을 때
   if (event.data.type === 'SEND_TO_CARE_CHART') {
-    setLayout('focus'); // 화면을 집중관리 챠트 분할 화면으로 자동 전환
+    setLayout('focus');
     loadChronicOnce();
     
-    // 집중관리 iframe에 해당 환자 데이터 주입
     setTimeout(() => {
       chronicFrame.contentWindow.postMessage({
         type: 'RECEIVE_TRANSFER_TO_CHART',
         targetCategory: event.data.targetCategory,
         payload: event.data.payload
       }, '*');
-    }, 200);
+    }, 250);
   }
 });
 </script>
