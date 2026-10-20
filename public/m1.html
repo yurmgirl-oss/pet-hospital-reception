@@ -3,34 +3,21 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>23시 케어플랜 V17.4</title>
+<title>23시 케어플랜 V17.5</title>
 <style>
-body{margin:0;background:#eef3ef;font-family:"Malgun Gothic",sans-serif}
-.wrap{display:grid;grid-template-columns:minmax(720px,1fr) minmax(720px,1fr);gap:24px;padding:18px;max-width:1750px;margin:auto}
-.panel{background:#fff;border-radius:18px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,.08);height:calc(100vh - 36px);overflow:auto}
-.grid3{display:grid;grid-template-columns:150px 200px 180px;gap:38px;justify-content:start}
-label{font-size:12px;font-weight:bold;color:#345}
-.cautionOptions label{display:flex;align-items:center;gap:9px;font-size:15px;line-height:1.45;min-height:30px;cursor:pointer}
-.cautionOptions input[type="checkbox"]{width:18px;height:18px;min-width:18px;margin:0;flex:0 0 18px;padding:0;accent-color:#2f8f68}
-input,select{width:100%;padding:8px;border:1px solid #b8c8be;border-radius:8px}
-.section{margin-top:36px}
-.calendarWrap{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.cal{border:1px solid #c7d8cc;border-radius:10px;overflow:hidden}
-.cal h3{margin:0;padding:8px;background:#edf7f0;text-align:center;font-size:14px}
+/* ==================== 1. 기본 스타일 및 복약관리 원본 스타일 ==================== */
+body{margin:0;background:#eef3ef;font-family:"Malgun Gothic",sans-serif;font-size:13px}
+label{font-size:11px;font-weight:bold;color:#345}
+input,select{width:100%;padding:6px 8px;border:1px solid #b8c8be;border-radius:6px;box-sizing:border-box;font-size:12px}
+button{padding:8px 12px;border:none;border-radius:6px;background:#2f8f68;color:#fff;font-weight:bold;cursor:pointer;font-size:11px}
+button.yellow{background:#f4b400;color:#111}
+
+/* 달력 테이블 */
 table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #e2ece5;height:30px;text-align:center;font-size:12px}
-td.pick{cursor:pointer;user-select:none;vertical-align:top;padding:2px;height:64px}
-.daynum{font-size:11px;font-weight:bold}
-.ev{display:block;margin-top:2px;padding:1px 3px;border-radius:4px;font-size:8px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ev.med{background:#d6ecff;color:#124b7a}
-.ev.eye{background:#dff6ff;color:#0d5d7a}
-.ev.ear{background:#ffe6cc;color:#8a4b08}
-.ev.check{background:#d8f3dc;color:#1b6b3a}
-.ev.hospital{background:#ffd6d6;color:#8a1f1f}
-.ev.image{background:#eadcff;color:#5b2d86}
-.ev.fluid{background:#d9fff3;color:#11695a}
-.ev.blood{background:#ffe0ec;color:#8c1f50}
-.ev.other{background:#ececec;color:#555}
+th,td{border:1px solid #e2ece5;height:22px;text-align:center;font-size:10px}
+td.pick{cursor:pointer;user-select:none;vertical-align:top;padding:2px;height:48px}
+.daynum{font-size:10px;font-weight:bold}
+.ev{display:block;margin-top:1px;padding:1px 2px;border-radius:3px;font-size:8px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev.txt0{background:#ececec;color:#444}
 .ev.txt1{background:#d6ecff;color:#124b7a}
 .ev.txt2{background:#d8f3dc;color:#1b6b3a}
@@ -46,459 +33,444 @@ td.pick{cursor:pointer;user-select:none;vertical-align:top;padding:2px;height:64
 .ev.txt12{background:#fce4ec;color:#ad1457}
 .ev.txt13{background:#e0f7fa;color:#006064}
 .ev.txt14{background:#ede7f6;color:#4527a0}
-
 td.today{background:#2f8f68;color:#fff;font-weight:bold}
 td.sel{background:#1b5e20;color:#fff}
-.toolbar{border:1px solid #c7d8cc;border-radius:12px;padding:20px;margin-top:20px}
-.row{display:grid;grid-template-columns:120px 150px 1fr 120px;gap:38px;align-items:end}
-button{padding:10px;border:none;border-radius:8px;background:#2f8f68;color:#fff;font-weight:bold;cursor:pointer}
-button.yellow{background:#f4b400;color:#111}
-.preview{background:#fff;border:2px solid #b9cdbd;border-radius:16px;padding:6mm;width:100%;box-sizing:border-box;aspect-ratio:210/297;max-width:100%;margin:0 auto}
-.banner{background:linear-gradient(135deg,#4f8f6b,#74b08a);color:#fff;border-radius:14px;padding:10px}
-.dayGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
-.card{border:1px solid #b9cdbd;border-radius:8px;padding:6px;min-height:56px}
-.notice{margin-top:12px;border:1px solid #b9cdbd;border-radius:10px;padding:8px;min-height:55px}
 
-.quickItems{display:flex;flex-wrap:nowrap;gap:4px;align-items:center;margin:7px 0 5px;overflow-x:auto}
-.quickItem{padding:4px 7px !important;border:1px solid #b9cdbd !important;border-radius:6px !important;background:#f4f8f5 !important;color:#234 !important;font-size:10px !important;font-weight:bold !important;white-space:nowrap;line-height:1.1;min-width:auto !important}
+.quickItems{display:flex;flex-wrap:nowrap;gap:3px;align-items:center;margin:4px 0;overflow-x:auto}
+.quickItem{padding:3px 5px !important;border:1px solid #b9cdbd !important;border-radius:4px !important;background:#f4f8f5 !important;color:#234 !important;font-size:9px !important;font-weight:bold !important;white-space:nowrap;line-height:1.1}
 .quickItem:hover{background:#e2f0e6 !important}
-.small{font-size:11px}
+.small{font-size:10px}
 
-@media print{
-  @page{size:A4 portrait;margin:7mm;}
-  body{background:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin:0 !important;}
-  .wrap{display:flex !important;justify-content:center !important;align-items:flex-start !important;padding:0 !important;max-width:none !important;}
-  .panel:first-child{display:none !important;}
-  .panel:nth-child(2){display:flex !important;justify-content:center !important;width:100% !important;box-shadow:none !important;border-radius:0 !important;background:#fff !important;padding:0 !important;margin:0 !important;height:auto !important;overflow:visible !important;}
-  .panel:nth-child(2)>div:first-child{display:none !important;}
-  .preview{width:196mm !important;height:283mm !important;max-width:196mm !important;margin:0 auto !important;padding:6mm !important;border:2px solid #b9cdbd !important;border-radius:16px !important;box-sizing:border-box !important;aspect-ratio:auto !important;}
+/* ==================== 2. 원본 3분할(4:3:3) 통합 쉘 레이아웃 완벽 복원 ==================== */
+html,body{width:100%;height:100%;overflow:hidden}
+#integratedShell{
+  display:grid;
+  grid-template-columns:minmax(0,4fr) minmax(0,3fr) minmax(0,3fr);
+  gap:8px;
+  padding:8px;
+  width:100vw;
+  height:100vh;
+  box-sizing:border-box;
+  background:#eef3ef;
 }
 
-/* 최초 원본 통합 화면 레이아웃 (40% : 30% : 30%) */
-html,body{width:100%;height:100%;overflow:hidden}
-#integratedShell{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,3fr) minmax(0,3fr);gap:8px;padding:8px;width:100vw;height:100vh;box-sizing:border-box;background:#eef3ef}
-#counterPanel{grid-column:1;grid-row:1;min-width:0;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #dce6ee;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-#counterHeader{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;border-bottom:1px solid #e5eaf0;font-size:14px}
-#counterHeader a,#counterFallback a{font-size:12px;color:#1769aa;text-decoration:none;white-space:nowrap}
+/* 좌측 1번 컬럼: 접수 현황판 */
+#counterPanel{
+  grid-column:1;
+  grid-row:1;
+  min-width:0;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  background:#fff;
+  border:1px solid #dce6ee;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+#counterHeader{
+  height:40px;
+  flex:0 0 40px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:0 10px;
+  border-bottom:1px solid #e5eaf0;
+  font-size:13px;
+}
+#counterHeader a{font-size:11px;color:#1769aa;text-decoration:none;white-space:nowrap}
 #counterFrame{border:0;width:100%;height:100%;flex:1;min-height:0;background:#f7f9fc}
-#counterFallback{padding:12px;font-size:13px;color:#8a3b2f}
 
-#medicationPanel{grid-column:2 / 4;grid-row:1;min-width:0;min-height:0}
-#medicationPanel .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:0;max-width:none}
-#medicationPanel .panel{min-width:0;padding:9px;height:calc(100vh - 16px);box-sizing:border-box;border-radius:12px}
+/* 우측 2~3번 컬럼 (기본: 복약관리 시스템 2패널) */
+#medicationPanel{
+  grid-column:2 / 4;
+  grid-row:1;
+  min-width:0;
+  min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:8px;
+}
+#medicationPanel .panel{
+  min-width:0;
+  padding:10px;
+  height:calc(100vh - 16px);
+  box-sizing:border-box;
+  border-radius:12px;
+  background:#fff;
+  overflow:auto;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+#medicationPanel h2{font-size:15px;margin:0 0 8px}
+#medicationPanel h3{font-size:12px;margin:8px 0 4px}
 #medicationPanel .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-#medicationPanel .row{grid-template-columns:minmax(65px,.65fr) minmax(65px,.8fr) minmax(90px,1.4fr) 48px;gap:8px}
-#medicationPanel input,#medicationPanel select{box-sizing:border-box;min-width:0;font-size:12px;padding:7px}
-#medicationPanel button{font-size:11px;padding:8px 7px;white-space:nowrap}
-#medicationPanel .toolbar{padding:7px;margin-top:7px}
-#medicationPanel .section{margin-top:13px}
-#medicationPanel .calendarWrap{gap:5px}
-#medicationPanel th,#medicationPanel td{font-size:10px;height:24px}
-#medicationPanel td.pick{height:50px}
-#medicationPanel .preview{padding:3mm;border-width:1px}
-#medicationPanel .banner{padding:6px}
-#medicationPanel .banner img{width:68px!important;height:68px!important;max-width:68px!important;min-width:68px!important;flex:0 0 68px!important;object-fit:contain!important;display:block!important}
-#medicationPanel .banner div[style*="font-size:20px"]{font-size:14px!important}
-#medicationPanel .banner div[style*="font-size:22px"]{font-size:12px!important;white-space:nowrap}
-#medicationPanel .banner div[style*="font-size:15px"]{font-size:9px!important;margin-top:3px!important;text-shadow:none!important}
-#medicationPanel .banner div[style*="font-size:48px"]{font-size:22px!important;padding:0 1px!important}
-#medicationPanel .bookingHeadline{font-size:10px!important;letter-spacing:-.5px!important;line-height:1.1!important;text-shadow:none!important;white-space:nowrap!important;overflow:visible!important;max-width:none!important}
-#medicationPanel .dayGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
-#medicationPanel .card{min-width:0;padding:4px}
-#medicationPanel .cautionOptions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:3px 8px!important}
-#medicationPanel .cautionOptions label{display:flex;align-items:center;gap:5px;min-width:0;min-height:23px;font-size:11px;line-height:1.2}
-#medicationPanel .cautionOptions input[type="checkbox"]{width:14px!important;height:14px!important;min-width:14px!important;flex:0 0 14px!important;padding:0!important;margin:0!important}
-#medicationPanel #memoInput{padding:5px 7px}
-#medicationPanel .notice{padding:5px;margin-top:6px;min-height:0}
+#medicationPanel .toolbar{border:1px solid #c7d8cc;border-radius:8px;padding:6px;margin-top:6px}
+#medicationPanel .section{margin-top:10px}
+#medicationPanel .calendarWrap{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
+#medicationPanel .row{display:grid;grid-template-columns:minmax(50px,.65fr) minmax(50px,.8fr) minmax(80px,1.4fr) 44px;gap:6px;align-items:end}
+#medicationPanel .cautionOptions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 6px}
+#medicationPanel .cautionOptions label{display:flex;align-items:center;gap:4px;min-height:20px;font-size:11px}
+#medicationPanel .cautionOptions input[type="checkbox"]{width:14px;height:14px;margin:0;accent-color:#2f8f68}
 
-#chronicPanel{grid-row:1;min-width:0;min-height:0;height:calc(100vh - 16px);background:#fff;border:1px solid #dce6ee;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+/* 프리뷰 영역 */
+.preview{background:#fff;border:1px solid #b9cdbd;border-radius:12px;padding:4mm;width:100%;box-sizing:border-box;margin:0 auto}
+.banner{background:linear-gradient(135deg,#4f8f6b,#74b08a);color:#fff;border-radius:10px;padding:6px}
+.dayGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:8px}
+.card{border:1px solid #b9cdbd;border-radius:6px;padding:4px;min-height:48px}
+.notice{margin-top:8px;border:1px solid #b9cdbd;border-radius:8px;padding:6px;min-height:40px}
 
-#integratedShell[data-layout="focus"]{grid-template-columns:minmax(0,4fr) minmax(0,6fr)!important}
+/* ==================== 3. 2화면 전환 (집중챠트 모드) ==================== */
+#chronicPanel{
+  grid-row:1;
+  min-width:0;
+  min-height:0;
+  height:calc(100vh - 16px);
+  background:#fff;
+  border:1px solid #dce6ee;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+#integratedShell[data-layout="medication"] #chronicPanel{display:none !important}
+#integratedShell[data-layout="medication"] #medicationPanel{display:grid !important}
+
+#integratedShell[data-layout="focus"]{
+  grid-template-columns:minmax(0,4fr) minmax(0,6fr) !important;
+}
 #integratedShell[data-layout="focus"] #counterPanel{grid-column:1;grid-row:1}
-#integratedShell[data-layout="focus"] #chronicPanel{display:block!important;grid-column:2;grid-row:1;height:calc(100vh - 16px)!important}
-#integratedShell[data-layout="focus"] #medicationPanel{display:none!important}
+#integratedShell[data-layout="focus"] #chronicPanel{display:block !important;grid-column:2;grid-row:1}
+#integratedShell[data-layout="focus"] #medicationPanel{display:none !important}
 
-#integratedShell[data-layout="focus-expanded"]{grid-template-columns:minmax(0,1fr)!important;gap:0!important;padding:0!important;background:#fff!important}
-#integratedShell[data-layout="focus-expanded"] #counterPanel{display:none!important}
-#integratedShell[data-layout="focus-expanded"] #medicationPanel{display:none!important}
-#integratedShell[data-layout="focus-expanded"] #chronicPanel{display:block!important;grid-column:1!important;grid-row:1!important;width:100vw!important;height:100vh!important;min-width:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
-#integratedShell[data-layout="focus-expanded"] #chronicFrame{width:100%!important;height:100%!important}
-
-#integratedShell[data-layout="medication"] #chronicPanel{display:none!important}
-#integratedShell[data-layout="medication"] #medicationPanel{display:contents!important}
+#integratedShell[data-layout="focus-expanded"]{
+  grid-template-columns:minmax(0,1fr) !important;
+  gap:0 !important;
+  padding:0 !important;
+}
+#integratedShell[data-layout="focus-expanded"] #counterPanel{display:none !important}
+#integratedShell[data-layout="focus-expanded"] #medicationPanel{display:none !important}
+#integratedShell[data-layout="focus-expanded"] #chronicPanel{
+  display:block !important;
+  grid-column:1 !important;
+  width:100vw !important;
+  height:100vh !important;
+  border:0 !important;
+  border-radius:0 !important;
+}
+#integratedShell[data-layout="focus-expanded"] #chronicFrame{width:100% !important;height:100% !important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 <div id="integratedShell" data-layout="medication">
+  <!-- 1. 원내 접수 현황판 (40%) -->
   <section id="counterPanel">
     <div id="counterHeader">
       <strong id="leftPanelTitle">🏥 원내 접수 현황판</strong>
       <div style="display:flex;align-items:center;gap:6px">
-        <button id="chronicChartToggle" type="button" style="padding:6px 9px;background:#0f766e;color:#fff;border-radius:7px;font-size:11px;white-space:nowrap">📋 집중챠트(만성처방관리)</button>
-        <a id="counterOpenLink" href="https://23si.net/counter" target="_blank" rel="noopener">새 창으로 열기 ↗</a>
+        <button id="chronicChartToggle" type="button" style="padding:5px 8px;background:#0f766e;color:#fff;border-radius:6px;font-size:11px;white-space:nowrap">📋 집중챠트(만성처방관리)</button>
+        <a id="counterOpenLink" href="https://23si.net/counter" target="_blank" rel="noopener">새 창 ↗</a>
       </div>
     </div>
     <iframe id="counterFrame" title="원내 접수 현황판" loading="eager"></iframe>
-    <div id="counterFallback" hidden>접수 현황판을 불러오지 못했습니다. <a href="https://23si.net/counter" target="_blank" rel="noopener">접수 현황판을 새 창으로 열기</a>를 눌러주세요.</div>
   </section>
-  <section id="chronicPanel" style="display:none;grid-column:2 / 4;min-width:0;min-height:0;height:calc(100vh - 16px);background:#fff;border:1px solid #dce6ee;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)">
+
+  <!-- 집중챠트 2화면용 컨테이너 (평소 숨김, 전환 시 60% 차지) -->
+  <section id="chronicPanel" style="display:none">
     <iframe id="chronicFrame" title="집중챠트(만성처방관리)" style="border:0;width:100%;height:100%;display:block;background:#f8fafc"></iframe>
   </section>
+
+  <!-- 2 & 3. 복약관리 시스템 입력 (30%) + 실시간 출력 (30%) -->
   <main id="medicationPanel">
-<div class="wrap">
-<div class="panel">
-<h2>💊 복약관리 시스템</h2>
-<div class="grid3">
-<div><label>환자명</label><input id="pet"/></div>
-<div><label>병명</label><input id="disease"/></div>
-<div><label>시작일</label><input id="start" type="date"/></div>
-</div>
-<div class="section" id="promisePlanSection" style="border:2px solid #e0ad00;background:#fff8cc">
-<h3 style="margin-top:0">📋 약속처방 · 일정 자동 입력</h3>
-<div class="row" style="grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end">
-<div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option><option value="specialAnimal">특수동물 기본처방</option><option value="dermatitis">피부염</option><option value="conjunctivitis">결막염</option><option value="otitis">외이염</option><option value="arthritisPain">관절염/진통</option><option value="specialAnimalDisinfection">특수동물(소독)</option><option value="renalFailure">신부전</option><option value="liverLipid">간/고지혈증</option><option value="gastroenteritis">장염처치</option><option value="postOpCare">수술후처치</option><option value="parrotFracture">앵무새 골절</option><option value="temporaryBandage">임시붕대</option><option value="catGeneralCare">고양이 일반처치</option></select></div>
-<div><button type="button" onclick="applyPromisePlan()" style="background:#f4b400;color:#111">일정 적용</button></div>
-</div>
-</div>
-<div class="section">
-<h3>📅 2개월 달력</h3>
-<div class="small">오늘은 <b id="todayText"></b> · 선택 <b id="count">0</b>일</div>
-<div class="calendarWrap" id="cals" style="margin-top:10px"></div>
-</div>
-<div class="section">
-<h3>① 반복 일정</h3>
-<div class="toolbar">
-<div class="quickItems" aria-label="반복일정 빠른항목">
-<button type="button" class="quickItem" onclick="quickFill('repeatText','내복약(아침 □ 저녁 □)')">내복약(아침 □ 저녁 □)</button>
-<button type="button" class="quickItem" onclick="quickFill('repeatText','물약(저녁)')">물약(저녁)</button>
-<button type="button" class="quickItem" onclick="quickFill('repeatText','캡슐약(저녁)')">캡슐약(저녁)</button>
-<button type="button" class="quickItem" onclick="quickFill('repeatText','스프레이,연고(2회)')">스프레이,연고(2회)</button>
-<button type="button" class="quickItem" onclick="quickFill('repeatText','안약(2회)')">안약(2회)</button>
-<button type="button" class="quickItem" onclick="quickFill('repeatText','병원내원')">병원내원</button>
-<button type="button" class="quickItem" onclick="quickFill('repeatText','소독처치')">소독처치</button>
-<button type="button" class="quickItem" onclick="quickFill('repeatText','사진촬영')">사진촬영</button>
-<button type="button" class="quickItem" onclick="quickFill('repeatText','약용샴푸')">약용샴푸</button>
-</div>
-<div class="row">
-<div><label>간격</label><input id="interval" min="1" type="number" value="3"/></div>
-<div><label>마감일(일수)</label><input id="endDate" min="1" type="number" value="30"/></div>
-<div><label>내용</label><input id="repeatText" onkeydown="if(event.key==='Enter'){event.preventDefault();addRepeat();}" placeholder="예: 내복약(물약)"/></div>
-<div><button onclick="addRepeat()">추가</button></div>
-</div>
-</div>
-</div>
-<div class="section">
-<h3>② 특정 날짜 입력</h3>
-<div class="toolbar">
-<div class="quickItems" aria-label="특정 날짜 빠른항목">
-<button type="button" class="quickItem" onclick="quickFill('specificText','내복약(저녁)')">내복약(저녁)</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','물약(저녁)')">물약(저녁)</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','캡슐약(저녁)')">캡슐약(저녁)</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','스프레이,연고(2회)')">스프레이,연고(2회)</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','안약(2회)')">안약(2회)</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','병원내원')">병원내원</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','소독처치')">소독처치</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','사진촬영')">사진촬영</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','약용샴푸')">약용샴푸</button>
-<button type="button" class="quickItem" onclick="quickFill('specificText','내복약 7일 추가처방예정')">내복약 7일 추가처방예정</button>
-</div>
-<div class="row" style="grid-template-columns:1fr 70px 70px 90px 60px 60px 60px;gap:10px">
-<div><label>내용(선택)</label><input id="specificText" onkeydown="if(event.key==='Enter'){event.preventDefault();addSelected();}" placeholder="내용 없이도 사용할 수 있습니다."/></div>
-<div><button type="button" onclick="selectToday()">오늘</button></div>
-<div><button onclick="addSelected()">입력</button></div>
-<div><button onclick="deleteSelected()" style="background:#d9534f;color:#fff">내용지우기</button></div>
-<div><button class="yellow" onclick="paintSelected('yellow')" style="background:#f4b400;color:#111">노랑</button></div>
-<div><button onclick="paintSelected('green')" style="background:#2f8f68;color:#fff">초록</button></div>
-<div><button onclick="paintSelected('red')" style="background:#d9534f;color:#fff">빨강</button></div>
-</div>
-</div>
-</div>
-<div class="section">
-<h3>④ 주의사항 선택 · 출력에 반영</h3>
-<div class="cautionOptions" style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
-<label><input type="checkbox" class="cautionCheck" value="물약·안약은 흔들어 사용"/> 물약·안약은 흔들어 사용</label>
-<label><input type="checkbox" class="cautionCheck" value="물약·안약은 냉장보관"/> 물약·안약은 냉장보관</label>
-<label><input type="checkbox" class="cautionCheck" value="물약은 7일 후 폐기"/> 물약은 7일 후 폐기</label>
-<label><input type="checkbox" class="cautionCheck" value="용기 표기명 확인 후 사용"/> 용기 표기명 확인 후 사용</label>
-<label><input type="checkbox" class="cautionCheck" value="소염제 복용 시 물·소변 증가 가능"/> 소염제 복용 시 물·소변 증가 가능</label>
-<label><input type="checkbox" class="cautionCheck" value="카라 목보호대 착용 (환부 보호)"/> 카라 목보호대 착용 (환부 보호)</label>
-<label><input type="checkbox" class="cautionCheck" value="사진전송 admin@23si.net"/> 사진전송 admin@23si.net</label>
-<label><input type="checkbox" class="cautionCheck" value="재내원 시 위 QR코드로 빠른 접수"/> 재내원 시 QR코드로 빠른 접수</label>
-<label><input type="checkbox" class="cautionCheck" value="문의: 카카오채널 ‘23시하단오거리동물병원’"/> 카카오채널 문의 안내</label>
-<label><input type="checkbox" class="cautionCheck" value="이메일: admin@23si.net"/> 이메일 문의 안내</label>
-</div>
-</div>
-<div class="section">
-<h3>⑤ 메모</h3>
-<div class="toolbar" style="padding:12px">
-<div><label>메모</label><input id="memoInput"/></div>
-</div>
-</div>
-</div>
-<div class="panel">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<h2 style="margin:0">📄 실시간 출력</h2>
-<div style="display:flex;gap:8px">
-<button onclick="savePreviewImage()" type="button">🖼 이미지 저장</button>
-</div>
-</div>
-<div class="preview">
-<div class="banner"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div style="flex:0 0 auto"><div style="font-size:20px;font-weight:bold">23시 하단오거리동물병원</div><div class="small">복약관리시스템</div></div><div style="flex:1;min-width:0;text-align:center;line-height:1.2;padding:7px 5px;color:#ffeb3b"><div class="bookingHeadline" style="font-size:22px;font-weight:900;letter-spacing:-.4px;color:#ffeb3b;text-shadow:0 1px 2px rgba(0,0,0,.28)">다음 내원일 예약하기</div></div><div style="flex:0 0 auto;font-size:48px;line-height:1;font-weight:900;color:#ffc107;text-shadow:0 1px 2px rgba(0,0,0,.25);padding:0 4px">➜</div><div style="width:68px;height:68px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#2f8f68;font-weight:bold;font-size:11px">QR</div></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px">
-<div style="background:#edf7f0;border:1px solid #c7d8cc;border-radius:10px;padding:10px">
-<div style="font-size:11px;color:#2f8f68;font-weight:bold">환자명</div>
-<div id="ppet" style="font-size:17px;font-weight:bold;margin-top:4px">—</div>
-</div>
-<div style="background:#edf7f0;border:1px solid #c7d8cc;border-radius:10px;padding:10px">
-<div style="font-size:11px;color:#2f8f68;font-weight:bold">병명</div>
-<div id="pdisease" style="font-size:17px;font-weight:bold;margin-top:4px">—</div>
-</div>
-<div style="background:#edf7f0;border:1px solid #c7d8cc;border-radius:10px;padding:10px">
-<div style="font-size:11px;color:#2f8f68;font-weight:bold">시작일</div>
-<div id="pstart" style="font-size:17px;font-weight:bold;margin-top:4px">—</div>
-</div>
-</div>
-<h3 style="margin-top:14px">일정</h3>
-<div class="dayGrid" id="days"></div>
-<div class="notice" id="printedCautionBox" style="display:none;margin-top:12px;border:2px solid #e0a800;background:#fffdf2;padding:10px">
-<b style="color:#c62828;font-size:14pt">⚠️ 주의사항</b>
-<div id="printedCautionList" style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:12pt;line-height:1.4;margin-top:8px"></div>
-</div>
-<div class="notice" style="margin-top:10px"><b>메모</b><div id="pmemo" style="font-size:13pt;margin-top:6px"></div></div>
-<div id="outputId" style="margin-top:8px;padding-top:5px;border-top:1px solid #9eafa4;text-align:right;font-size:9pt;color:#43564a">복약관리 출력번호: <b id="outputIdValue">발급 전</b></div>
-</div>
-</div>
-</div>
+    <!-- 입력 패널 -->
+    <div class="panel">
+      <h2>💊 복약관리 시스템</h2>
+      <div class="grid3">
+        <div><label>환자명</label><input id="pet"/></div>
+        <div><label>병명</label><input id="disease"/></div>
+        <div><label>시작일</label><input id="start" type="date"/></div>
+      </div>
+      <div class="section" style="border:2px solid #e0ad00;background:#fff8cc;padding:8px;border-radius:8px">
+        <h3 style="margin-top:0">📋 약속처방 · 일정 자동 입력</h3>
+        <div style="display:flex;gap:6px;align-items:flex-end">
+          <div style="flex:1"><label>약속처방 선택</label>
+            <select id="promisePlan">
+              <option value="">선택해 주세요</option>
+              <option value="specialAnimal">특수동물 기본처방</option>
+              <option value="dermatitis">피부염</option>
+              <option value="conjunctivitis">결막염</option>
+              <option value="otitis">외이염</option>
+              <option value="arthritisPain">관절염/진통</option>
+              <option value="specialAnimalDisinfection">특수동물(소독)</option>
+              <option value="renalFailure">신부전</option>
+              <option value="liverLipid">간/고지혈증</option>
+              <option value="gastroenteritis">장염처치</option>
+              <option value="postOpCare">수술후처치</option>
+              <option value="parrotFracture">앵무새 골절</option>
+              <option value="temporaryBandage">임시붕대</option>
+              <option value="catGeneralCare">고양이 일반처치</option>
+            </select>
+          </div>
+          <button type="button" onclick="applyPromisePlan()" style="background:#f4b400;color:#111">적용</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>📅 2개월 달력</h3>
+        <div class="small">선택 <b id="count">0</b>일</div>
+        <div class="calendarWrap" id="cals"></div>
+      </div>
+
+      <div class="section">
+        <h3>① 반복 일정</h3>
+        <div class="toolbar">
+          <div class="quickItems">
+            <button type="button" class="quickItem" onclick="quickFill('repeatText','내복약(아침 □ 저녁 □)')">내복약</button>
+            <button type="button" class="quickItem" onclick="quickFill('repeatText','물약(저녁)')">물약(저녁)</button>
+            <button type="button" class="quickItem" onclick="quickFill('repeatText','캡슐약(저녁)')">캡슐약(저녁)</button>
+            <button type="button" class="quickItem" onclick="quickFill('repeatText','스프레이,연고(2회)')">연고(2회)</button>
+            <button type="button" class="quickItem" onclick="quickFill('repeatText','안약(2회)')">안약(2회)</button>
+            <button type="button" class="quickItem" onclick="quickFill('repeatText','병원내원')">병원내원</button>
+          </div>
+          <div class="row">
+            <div><label>간격</label><input id="interval" min="1" type="number" value="3"/></div>
+            <div><label>일수</label><input id="endDate" min="1" type="number" value="30"/></div>
+            <div><label>내용</label><input id="repeatText" placeholder="내용"/></div>
+            <div><button onclick="addRepeat()">추가</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>② 특정 날짜 입력</h3>
+        <div class="toolbar">
+          <div class="quickItems">
+            <button type="button" class="quickItem" onclick="quickFill('specificText','내복약(저녁)')">내복약</button>
+            <button type="button" class="quickItem" onclick="quickFill('specificText','병원내원')">내원</button>
+            <button type="button" class="quickItem" onclick="quickFill('specificText','소독처치')">소독</button>
+            <button type="button" class="quickItem" onclick="quickFill('specificText','사진촬영')">사진</button>
+          </div>
+          <div style="display:flex;gap:4px;align-items:flex-end">
+            <input id="specificText" placeholder="내용 입력" style="flex:1"/>
+            <button type="button" onclick="selectToday()" style="padding:6px 8px">오늘</button>
+            <button onclick="addSelected()" style="padding:6px 8px">입력</button>
+            <button onclick="deleteSelected()" style="background:#d9534f;padding:6px 8px">삭제</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>④ 주의사항 선택</h3>
+        <div class="cautionOptions">
+          <label><input type="checkbox" class="cautionCheck" value="물약·안약은 흔들어 사용"/> 흔들어 사용</label>
+          <label><input type="checkbox" class="cautionCheck" value="물약·안약은 냉장보관"/> 냉장보관</label>
+          <label><input type="checkbox" class="cautionCheck" value="물약은 7일 후 폐기"/> 7일 후 폐기</label>
+          <label><input type="checkbox" class="cautionCheck" value="카라 목보호대 착용"/> 카라 착용</label>
+          <label><input type="checkbox" class="cautionCheck" value="사진전송 admin@23si.net"/> 사진 전송</label>
+          <label><input type="checkbox" class="cautionCheck" value="문의: 카카오채널 ‘23시하단오거리동물병원’"/> 카카오 문의</label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>⑤ 메모</h3>
+        <input id="memoInput" placeholder="출력물에 표시될 메모를 입력하세요"/>
+      </div>
+    </div>
+
+    <!-- 출력 패널 -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h2 style="margin:0">📄 실시간 출력</h2>
+        <button onclick="savePreviewImage()" type="button">🖼 이미지 저장</button>
+      </div>
+      <div class="preview">
+        <div class="banner">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:14px;font-weight:bold">23시 하단오거리동물병원</div>
+              <div class="small">복약관리시스템</div>
+            </div>
+            <div style="font-size:11px;font-weight:bold;color:#ffeb3b">다음 내원일 예약하기 ➜</div>
+            <div style="width:48px;height:48px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#2f8f68;font-weight:bold;font-size:10px">QR</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">
+          <div style="background:#edf7f0;border:1px solid #c7d8cc;border-radius:6px;padding:6px">
+            <div style="font-size:10px;color:#2f8f68;font-weight:bold">환자명</div>
+            <div id="ppet" style="font-size:14px;font-weight:bold;margin-top:2px">—</div>
+          </div>
+          <div style="background:#edf7f0;border:1px solid #c7d8cc;border-radius:6px;padding:6px">
+            <div style="font-size:10px;color:#2f8f68;font-weight:bold">병명</div>
+            <div id="pdisease" style="font-size:14px;font-weight:bold;margin-top:2px">—</div>
+          </div>
+          <div style="background:#edf7f0;border:1px solid #c7d8cc;border-radius:6px;padding:6px">
+            <div style="font-size:10px;color:#2f8f68;font-weight:bold">시작일</div>
+            <div id="pstart" style="font-size:14px;font-weight:bold;margin-top:2px">—</div>
+          </div>
+        </div>
+        <h3 style="margin-top:10px">일정</h3>
+        <div class="dayGrid" id="days"></div>
+        <div class="notice" id="printedCautionBox" style="display:none;margin-top:8px;border:1px solid #e0a800;background:#fffdf2;padding:6px">
+          <b style="color:#c62828;font-size:11px">⚠️ 주의사항</b>
+          <div id="printedCautionList" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;margin-top:4px"></div>
+        </div>
+        <div class="notice" style="margin-top:8px"><b>메모</b><div id="pmemo" style="font-size:11px;margin-top:4px"></div></div>
+      </div>
+    </div>
   </main>
 </div>
 
-<div id="expandedGlobalControls" style="display:none;position:fixed;top:10px;right:14px;z-index:2147483000;gap:8px;align-items:center;">
-  <button type="button" id="globalInitialScreenBtn" style="padding:9px 13px;background:#059669;color:#fff;border:0;border-radius:9px;font-weight:800;box-shadow:0 2px 10px #0003;cursor:pointer">🏠 현황+복약</button>
-  <button type="button" id="globalRefreshChartBtn" style="padding:9px 13px;background:#334155;color:#fff;border:0;border-radius:9px;font-weight:800;box-shadow:0 2px 10px #0003;cursor:pointer">🔄 현황+챠트</button>
+<!-- 펼쳐보기 모드용 플로팅 컨트롤 바 -->
+<div id="expandedGlobalControls" style="display:none;position:fixed;top:8px;right:12px;z-index:999999;gap:6px;align-items:center;">
+  <button type="button" id="globalInitialScreenBtn" style="padding:6px 10px;background:#059669;color:#fff;border:0;border-radius:6px;font-weight:bold;cursor:pointer">🏠 현황+복약</button>
+  <button type="button" id="globalRefreshChartBtn" style="padding:6px 10px;background:#334155;color:#fff;border:0;border-radius:6px;font-weight:bold;cursor:pointer">🔄 현황+챠트</button>
 </div>
 
 <script>
+// ==================== 복약관리 달력 / 프리뷰 스크립트 ====================
 const t=new Date();
 const today=t.toISOString().slice(0,10);
 start.value=today;
 endDate.value=30;
-todayText.textContent=today;
 const months=[0,1].map(i=>new Date(t.getFullYear(),t.getMonth()+i,1));
 const selected=new Set(), events=[];
 const painted=new Map();
+
 function sync(){ppet.textContent=pet.value||'—';pdisease.textContent=disease.value||'—';pstart.textContent=start.value}
 pet.oninput=disease.oninput=start.oninput=sync;sync();
 memoInput.oninput=()=>{pmemo.textContent=memoInput.value;};
-const cautionStyles=['#fff3cd|#f4b400','#fff3cd|#f4b400','#ffebee|#e53935','#f5f5f5|#757575','#e8f5e9|#43a047','#fff3e0|#fb8c00','#e3f2fd|#1e88e5','#f3e5f5|#8e24aa','#ffebee|#e53935'];
+
 function refreshCautions(){
- const selectedCautions=[...document.querySelectorAll('.cautionCheck:checked')].map((el,i)=>({text:el.value,style:cautionStyles[[...document.querySelectorAll('.cautionCheck')].indexOf(el)]||cautionStyles[0]}));
- const all=selectedCautions;
- const box=document.getElementById('printedCautionBox'),list=document.getElementById('printedCautionList');
- list.innerHTML='';
- all.forEach(item=>{const [bg,border]=item.style.split('|');const div=document.createElement('div');div.style.cssText=`background:${bg};border-left:4px solid ${border};padding:5px 7px;border-radius:4px;white-space:pre-wrap`;div.textContent=item.text;list.appendChild(div)});
- box.style.display=all.length?'block':'none';
+  const checked=[...document.querySelectorAll('.cautionCheck:checked')];
+  const box=document.getElementById('printedCautionBox');
+  const list=document.getElementById('printedCautionList');
+  list.innerHTML='';
+  checked.forEach(el=>{
+    const div=document.createElement('div');
+    div.textContent='• '+el.value;
+    list.appendChild(div);
+  });
+  box.style.display=checked.length?'block':'none';
 }
 document.querySelectorAll('.cautionCheck').forEach(el=>el.addEventListener('change',refreshCautions));
-refreshCautions();
 
 function renderMonths(){
- cals.innerHTML='';
- months.forEach(m=>{
-  let f=new Date(m.getFullYear(),m.getMonth(),1).getDay();
-  let last=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();
-  let h=`<div class=cal><h3>${m.getFullYear()}년 ${m.getMonth()+1}월</h3><table><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr><tr>`;
-  for(let i=0;i<f;i++)h+="<td></td>";
-  for(let d=1;d<=last;d++){
-    let key=`${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    let cls="pick";
-    if(key===today)cls+=" today";
-    if(selected.has(key))cls+=" sel";
-    const list=events.filter(e=>e.date===key).slice(0,3);
-    const labels=list.map(ev=>{
-      let t=(ev.text||'').replace(/\(.+?\)/g,'').trim().slice(0,6);
-      const clean=(ev.text||'').replace(/\(.+?\)/g,'').trim();
-      const uniqueTexts=[...new Set(events.map(e=>(e.text||'').replace(/\(.+?\)/g,'').trim()).filter(Boolean))];
-      const idx=((uniqueTexts.indexOf(clean)%15)+15)%15;
-      return `<span class="ev txt${idx}">${t}</span>`;
-    }).join('');
-    h+=`<td class="${cls}" data-date="${key}"><div class="daynum">${d}</div>${labels}</td>`;
-    if((f+d)%7==0)h+="</tr><tr>";
-  }
-  h+="</tr></table></div>"; cals.insertAdjacentHTML('beforeend',h);
- });
- bind();
+  cals.innerHTML='';
+  months.forEach(m=>{
+    let f=new Date(m.getFullYear(),m.getMonth(),1).getDay();
+    let last=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();
+    let h=`<div class=cal><h3>${m.getFullYear()}년 ${m.getMonth()+1}월</h3><table><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr><tr>`;
+    for(let i=0;i<f;i++)h+="<td></td>";
+    for(let d=1;d<=last;d++){
+      let key=`${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      let cls="pick";
+      if(key===today)cls+=" today";
+      if(selected.has(key))cls+=" sel";
+      const list=events.filter(e=>e.date===key).slice(0,2);
+      const labels=list.map(ev=>`<span class="ev txt1">${(ev.text||'').slice(0,5)}</span>`).join('');
+      h+=`<td class="${cls}" data-date="${key}"><div class="daynum">${d}</div>${labels}</td>`;
+      if((f+d)%7==0)h+="</tr><tr>";
+    }
+    h+="</tr></table></div>";
+    cals.insertAdjacentHTML('beforeend',h);
+  });
+  bind();
 }
-let dragging=false;
+
 function bind(){
- document.querySelectorAll('.pick').forEach(td=>{
-  td.onmousedown=e=>{dragging=true;pick(td);e.preventDefault();};
-  td.onmouseenter=()=>{if(dragging)pick(td);};
- });
- document.body.onmouseup=()=>dragging=false;
- document.querySelectorAll('.pick').forEach(td=>{
-   const c=painted.get(td.dataset.date);
-   td.style.background='';
-   td.style.color='';
-   if(c==='yellow') td.style.background='#f4b400';
-   if(c==='green'){ td.style.background='#2f8f68'; td.style.color='#fff';}
-   if(c==='red'){ td.style.background='#d9534f'; td.style.color='#fff';}
- });
+  document.querySelectorAll('.pick').forEach(td=>{
+    td.onclick=()=>{
+      const k=td.dataset.date;
+      if(selected.has(k)){selected.delete(k);td.classList.remove('sel');}
+      else{selected.add(k);td.classList.add('sel');}
+      count.textContent=selected.size;
+    };
+  });
 }
-function pick(td){
- const k=td.dataset.date;
- if(selected.has(k)){selected.delete(k);td.classList.remove('sel');}
- else{selected.add(k);td.classList.add('sel');}
- count.textContent=selected.size;
-}
+
 function refresh(){
- days.innerHTML='';
- const map=new Map();
- events.sort((a,b)=>a.date.localeCompare(b.date));
- events.forEach(e=>{
-   if(!map.has(e.date)) map.set(e.date,[]);
-   if(e.text && !map.get(e.date).includes(e.text)) map.get(e.date).push(e.text);
- });
- [...painted.keys()].sort().forEach(date=>{
-   if(!map.has(date)) map.set(date,[]);
- });
- [...map.keys()].sort().forEach(date=>{
-   const texts=map.get(date);
-   let div=document.createElement('div');
-   div.className='card';
-   const c=painted.get(date);
-   if(c==='yellow'){div.style.background='#f4b400';div.style.color='#111';}
-   if(c==='green'){div.style.background='#2f8f68';div.style.color='#fff';}
-   if(c==='red'){div.style.background='#d9534f';div.style.color='#fff';}
-   div.innerHTML=`<b>${date.slice(5)}</b><div class=small>${texts.map(t=>'☐ '+t).join('<br>')}</div>`;
-   days.appendChild(div);
- });
+  days.innerHTML='';
+  const map=new Map();
+  events.sort((a,b)=>a.date.localeCompare(b.date));
+  events.forEach(e=>{
+    if(!map.has(e.date)) map.set(e.date,[]);
+    if(e.text && !map.get(e.date).includes(e.text)) map.get(e.date).push(e.text);
+  });
+  [...map.keys()].sort().forEach(date=>{
+    const texts=map.get(date);
+    let div=document.createElement('div');
+    div.className='card';
+    div.innerHTML=`<b>${date.slice(5)}</b><div class=small>${texts.map(t=>'☐ '+t).join('<br>')}</div>`;
+    days.appendChild(div);
+  });
 }
-let lastSelectedDates=new Set();
-function clearSel(){selected.clear();count.textContent=0;renderMonths();}
+
 function quickFill(id,text){
- const el=document.getElementById(id);
- if(!el)return;
- el.value=text;
- el.focus();
- el.setSelectionRange(el.value.length,el.value.length);
+  const el=document.getElementById(id);
+  if(el){ el.value=text; el.focus(); }
 }
-function selectToday(){
- selected.clear();
- selected.add(today);
- lastSelectedDates=new Set(selected);
- count.textContent=selected.size;
- renderMonths();
-}
+function selectToday(){ selected.clear(); selected.add(today); count.textContent=1; renderMonths(); }
 function addSelected(){
- if(selected.size===0){
-   if(lastSelectedDates.size===0)return alert("날짜를 선택하세요.");
-   lastSelectedDates.forEach(d=>events.push({date:d,text:specificText.value,color:'none'}));
-   refresh();
-   return;
- }
- if(!specificText.value){lastSelectedDates=new Set(selected);clearSel();return;}
- lastSelectedDates=new Set(selected);
- selected.forEach(d=>events.push({date:d,text:specificText.value,color:'none'}));
- clearSel();refresh();
+  if(!selected.size||!specificText.value) return;
+  selected.forEach(d=>events.push({date:d,text:specificText.value}));
+  selected.clear(); count.textContent=0;
+  renderMonths(); refresh();
 }
 function deleteSelected(){
-  const targets=selected.size>0 ? selected : lastSelectedDates;
-  if(targets.size===0) return alert("삭제할 날짜를 선택하세요.");
-  targets.forEach(d=>{
-    painted.delete(d);
+  selected.forEach(d=>{
     for(let i=events.length-1;i>=0;i--){
-      if(events[i].date===d){
-        events.splice(i,1);
-      }
+      if(events[i].date===d) events.splice(i,1);
     }
   });
-  lastSelectedDates=new Set();
-  clearSel();
-  renderMonths();
-  refresh();
-}
-function paintSelected(color){
-  const targets=selected.size>0 ? selected : lastSelectedDates;
-  if(targets.size===0) return alert("날짜를 선택하세요.");
-  lastSelectedDates=new Set(targets);
-  targets.forEach(d=>{
-    if(painted.get(d)===color){
-      painted.delete(d);
-    }else{
-      painted.set(d,color);
-    }
-  });
-  clearSel();
-  renderMonths();
-  refresh();
+  selected.clear(); count.textContent=0;
+  renderMonths(); refresh();
 }
 function addRepeat(){
- if(!repeatText.value)return alert("내용을 입력하세요.");
- let startDate=new Date(start.value);
- let d=new Date(startDate);
- let end=new Date(startDate);
- let step=parseInt(interval.value);
- let days=parseInt(endDate.value)||0;
- end.setDate(end.getDate()+days);
- d.setDate(d.getDate()+step);
- while(d<=end){
-   events.push({date:d.toISOString().slice(0,10),text:repeatText.value,color:'none'});
-   d.setDate(d.getDate()+step);
- }
- renderMonths();
- refresh();
+  if(!repeatText.value) return;
+  let d=new Date(start.value), end=new Date(start.value);
+  let step=parseInt(interval.value), dLimit=parseInt(endDate.value)||0;
+  end.setDate(end.getDate()+dLimit);
+  d.setDate(d.getDate()+step);
+  while(d<=end){
+    events.push({date:d.toISOString().slice(0,10),text:repeatText.value});
+    d.setDate(d.getDate()+step);
+  }
+  renderMonths(); refresh();
 }
-function issueOutputId(){
-  const now=new Date();
-  const pad=n=>String(n).padStart(2,'0');
-  const date=now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate());
-  const time=pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds());
-  const suffix=Math.floor(Math.random()*9000)+1000;
-  const id='23SI-'+date+'-'+time+'-'+suffix;
-  const value=document.getElementById('outputIdValue');
-  if(value) value.textContent=id;
-  return id;
-}
+function applyPromisePlan(){}
 function savePreviewImage(){
-  issueOutputId();
-  const pet=(document.getElementById('pet')?.value||'동물').trim()||'동물';
-  const start=(document.getElementById('start')?.value||new Date().toISOString().slice(0,10));
-  const fileName=`${pet}_${start}.png`;
-  const preview=document.querySelector('.preview');
-  html2canvas(preview,{scale:2,backgroundColor:'#ffffff'}).then(canvas=>{
+  const petName=(document.getElementById('pet')?.value||'동물').trim();
+  html2canvas(document.querySelector('.preview'),{scale:2,backgroundColor:'#fff'}).then(c=>{
     const a=document.createElement('a');
-    a.download=fileName;
-    a.href=canvas.toDataURL('image/png');
+    a.download=`${petName}_${today}.png`;
+    a.href=c.toDataURL('image/png');
     a.click();
   });
 }
-function applyPromisePlan(){}
-renderMonths();refresh();
+renderMonths(); refresh();
 
-// -------------------------------------------------------------
+// =========================================================================
 // [집중챠트(만성처방관리) APP HTML]
-// 1) 할 일 입력시 날짜 달력(input type="date") 완벽 복원
-// 2) 등록된 모든 항목(환자명, 보호자, 체중, 폰, 성별, 나이, 내원사유 등) 즉시 수정 가능하게 개선
-// -------------------------------------------------------------
+// 1) 인적사항은 한 줄로 극도로 타이트하게 압축 + [✏️수정] 클릭 시 모달창에서 편집
+// 2) 할 일(To-Do): 날짜 선택 달력(input type="date") 완벽 복원
+// 3) 한 일(Done): 스케줄 vs 수동 직접입력 배지 구분 + 시간 자동 기록 + 클립보드 복사 + 파일 저장
+// 4) 위험도 정렬(A→G), 모두 접기, 모두 펼치기 복원
+// =========================================================================
 const chronicAppHTML = `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>23시 하단오거리동물병원 집중관리 챠트</title>
+  <title>집중관리 챠트</title>
   <script src="https://cdn.tailwindcss.com"><\/script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
-    * { font-family: 'Pretendard', sans-serif; }
-    html { font-size: 15px; }
-    body { font-size: 14px !important; min-height:100vh; }
-    input, select, textarea { font-size: 13px !important; }
-    button { font-size: 12px !important; }
-    .care-tab { background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; }
+    * { font-family: 'Pretendard', sans-serif; font-size:13px; }
+    html, body { height:100%; min-height:100vh; }
+    .care-tab { background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; font-weight:800; font-size:11px; padding:4px 10px; border-radius:6px; }
     .care-tab.active-tab { background:#1e293b; color:white; border-color:#1e293b; }
-    .care-section { height:calc(100vh - 170px); min-height:400px; }
+    .care-section { height:calc(100vh - 145px); min-height:360px; }
     #careDashboard[data-view="active"] #chronicCareSection,
     #careDashboard[data-view="chronic"] #activeCareSection { display:none !important; }
     #careDashboard[data-view="active"], #careDashboard[data-view="chronic"] { grid-template-columns:minmax(0,1fr); }
@@ -507,125 +479,140 @@ const chronicAppHTML = `<!DOCTYPE html>
   </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col antialiased">
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-    <div class="max-w-[1920px] mx-auto px-4 py-2 flex flex-wrap justify-between items-center gap-2">
-      <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 via-amber-500 to-indigo-600 flex items-center justify-center text-white shadow-xs">
-          <i class="fa-solid fa-hospital text-sm"></i>
-        </div>
-        <div>
-          <h1 class="text-sm font-black tracking-tight text-slate-900 leading-none">23시 집중·만성 관리 챠트</h1>
-          <p class="text-[10px] text-slate-400 font-medium mt-0.5">부산 사하구 하단오거리 • 집중관리 및 만성처방 모니터링</p>
-        </div>
+  <!-- 상단 글로벌 헤더 -->
+  <header class="bg-white border-b border-slate-200 px-3 py-1.5 flex flex-wrap justify-between items-center gap-2">
+    <div class="flex items-center space-x-2">
+      <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-rose-500 to-indigo-600 flex items-center justify-center text-white">
+        <i class="fa-solid fa-hospital text-xs"></i>
       </div>
-      <div class="flex-1 max-w-sm mx-2">
-        <input type="text" id="globalSearchInput" oninput="handleSearch(this.value)" placeholder="동물이름 / 보호자 / 휴대폰번호 / 진료타이틀 검색..."
-               class="w-full px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+      <h1 class="text-xs font-black tracking-tight text-slate-900">23시 집중·만성 관리 챠트</h1>
+    </div>
+    <div class="flex-1 max-w-xs mx-2">
+      <input type="text" id="globalSearchInput" oninput="handleSearch(this.value)" placeholder="동물이름 / 보호자 / 연락처 검색..."
+             class="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded text-xs">
+    </div>
+    <div class="flex items-center space-x-2 text-xs">
+      <div class="px-2 py-0.5 bg-slate-50 border border-slate-200 rounded font-bold text-[10px]">
+        집중 <strong id="statActiveCount" class="text-rose-600">0</strong> | 만성 <strong id="statChronicCount" class="text-teal-600">0</strong>
       </div>
-      <div class="flex items-center space-x-2 text-xs">
-        <div class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg font-bold text-[11px]">
-          집중 <strong id="statActiveCount" class="text-rose-600">0</strong> | 만성 <strong id="statChronicCount" class="text-teal-600">0</strong>
-        </div>
-        <button onclick="exportData()" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs font-bold border">백업</button>
-        <button onclick="triggerImport()" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs font-bold border">복원</button>
-        <input type="file" id="importFileInput" class="hidden" accept=".json" onchange="importData(event)">
-      </div>
+      <button onclick="exportData()" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 rounded text-[10px] font-bold border">백업</button>
+      <button onclick="triggerImport()" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 rounded text-[10px] font-bold border">복원</button>
+      <input type="file" id="importFileInput" class="hidden" accept=".json" onchange="importData(event)">
     </div>
   </header>
 
-  <nav class="bg-white border-b border-slate-200 px-4 py-1.5 flex flex-wrap items-center gap-2 sticky top-[48px] z-30 shadow-sm">
-    <button type="button" onclick="setCareView('active')" id="tabActive" class="care-tab active-tab px-3 py-1.5 rounded-lg text-xs font-extrabold">🔴 집중관리</button>
-    <button type="button" onclick="setCareView('chronic')" id="tabChronic" class="care-tab px-3 py-1.5 rounded-lg text-xs font-extrabold">🟢 만성관리</button>
+  <!-- 탭 메뉴 & 외부 화면 전환 버튼 -->
+  <nav class="bg-white border-b border-slate-200 px-3 py-1 flex flex-wrap items-center gap-1.5">
+    <button type="button" onclick="setCareView('active')" id="tabActive" class="care-tab active-tab">🔴 집중관리</button>
+    <button type="button" onclick="setCareView('chronic')" id="tabChronic" class="care-tab">🟢 만성관리</button>
     <span class="text-slate-300">|</span>
-    <button type="button" onclick="setCareView('both')" id="tabBoth" class="care-tab px-3 py-1.5 rounded-lg text-xs font-extrabold">▥ 나란히 보기</button>
-    <button type="button" onclick="parent.postMessage({type:'show-focus-expanded'},'*')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-indigo-600 text-white">⛶ 펼쳐보기</button>
-    <button type="button" onclick="parent.postMessage({type:'show-initial-screen'},'*')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-600 text-white">🏠 현황+복약</button>
-    <button type="button" onclick="parent.postMessage({type:'refresh-integrated-page'},'*')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-slate-700 text-white">🔄 현황+챠트</button>
+    <button type="button" onclick="setCareView('both')" id="tabBoth" class="care-tab">▥ 나란히 보기</button>
+    <button type="button" onclick="parent.postMessage({type:'show-focus-expanded'},'*')" class="care-tab !bg-indigo-600 !text-white !border-indigo-600">⛶ 펼쳐보기</button>
+    <button type="button" onclick="parent.postMessage({type:'show-initial-screen'},'*')" class="care-tab !bg-emerald-600 !text-white !border-emerald-600">🏠 현황+복약</button>
+    <button type="button" onclick="parent.postMessage({type:'refresh-integrated-page'},'*')" class="care-tab !bg-slate-700 !text-white !border-slate-700">🔄 현황+챠트</button>
   </nav>
 
-  <main id="careDashboard" class="max-w-[1920px] mx-auto px-3 py-3 flex-1 w-full grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
-    <section id="activeCareSection" class="care-section flex flex-col min-h-0 bg-white rounded-xl border border-rose-200 shadow-sm overflow-hidden">
-      <div class="bg-gradient-to-r from-rose-500 via-rose-600 to-amber-500 px-3 py-2 text-white flex justify-between items-center">
+  <!-- 메인 챠트 대시보드 -->
+  <main id="careDashboard" class="px-2.5 py-2 flex-1 w-full grid grid-cols-1 lg:grid-cols-2 gap-2 items-start" data-view="active">
+    
+    <!-- 1. 집중관리 프레임 -->
+    <section id="activeCareSection" class="care-section flex flex-col min-h-0 bg-white rounded-xl border border-rose-200 shadow-xs overflow-hidden">
+      <!-- 타이틀 & 상단 정렬/모두접기 툴바 -->
+      <div class="bg-gradient-to-r from-rose-500 via-rose-600 to-amber-500 px-3 py-1.5 text-white flex justify-between items-center">
         <div class="flex items-center gap-1.5">
           <i class="fa-solid fa-heart-pulse text-xs"></i>
           <h2 class="text-xs font-extrabold">집중관리 (진행 중)</h2>
         </div>
-        <button onclick="openDogModal('active')" class="px-2.5 py-1 bg-white text-rose-600 rounded font-bold text-xs shadow-xs">+ 환자 신규 등록</button>
+        <div class="flex items-center gap-1.5">
+          <select id="activeSortOption" onchange="handleSortChange('active', this.value)" class="bg-black/20 text-white text-[10px] font-bold rounded px-1.5 py-0.5 border border-white/20 [&>option]:text-slate-800">
+            <option value="risk_asc">응급도순 (A→G)</option>
+            <option value="latest_desc">최근 기록순</option>
+            <option value="name_asc">이름 가나다순</option>
+          </select>
+          <button onclick="toggleAllCards('active', false)" class="px-1.5 py-0.5 bg-white/20 hover:bg-white/30 text-white rounded text-[10px] font-bold">모두 접기</button>
+          <button onclick="toggleAllCards('active', true)" class="px-1.5 py-0.5 bg-white/20 hover:bg-white/30 text-white rounded text-[10px] font-bold">모두 펼치기</button>
+          <button onclick="openDogModal('active')" class="px-2 py-0.5 bg-white text-rose-600 rounded font-bold text-[10px] shadow-xs">+ 환자 추가</button>
+        </div>
       </div>
-      <div id="activeDogCardList" class="p-2 space-y-2 flex-1 min-h-0 overflow-y-auto"></div>
+      <div id="activeDogCardList" class="p-2 space-y-1.5 flex-1 min-h-0 overflow-y-auto"></div>
     </section>
 
-    <section id="chronicCareSection" class="care-section flex flex-col min-h-0 bg-white rounded-xl border border-teal-200 shadow-sm overflow-hidden">
-      <div class="bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 px-3 py-2 text-white flex justify-between items-center">
+    <!-- 2. 만성관리 프레임 -->
+    <section id="chronicCareSection" class="care-section flex flex-col min-h-0 bg-white rounded-xl border border-teal-200 shadow-xs overflow-hidden">
+      <div class="bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 px-3 py-1.5 text-white flex justify-between items-center">
         <div class="flex items-center gap-1.5">
           <i class="fa-solid fa-shield-heart text-xs"></i>
           <h2 class="text-xs font-extrabold">만성관리 (루틴)</h2>
         </div>
-        <button onclick="openDogModal('chronic')" class="px-2.5 py-1 bg-white text-teal-700 rounded font-bold text-xs shadow-xs">+ 환자 신규 등록</button>
+        <div class="flex items-center gap-1.5">
+          <select id="chronicSortOption" onchange="handleSortChange('chronic', this.value)" class="bg-black/20 text-white text-[10px] font-bold rounded px-1.5 py-0.5 border border-white/20 [&>option]:text-slate-800">
+            <option value="risk_asc">응급도순 (A→G)</option>
+            <option value="latest_desc">최근 기록순</option>
+            <option value="name_asc">이름 가나다순</option>
+          </select>
+          <button onclick="toggleAllCards('chronic', false)" class="px-1.5 py-0.5 bg-white/20 hover:bg-white/30 text-white rounded text-[10px] font-bold">모두 접기</button>
+          <button onclick="toggleAllCards('chronic', true)" class="px-1.5 py-0.5 bg-white/20 hover:bg-white/30 text-white rounded text-[10px] font-bold">모두 펼치기</button>
+          <button onclick="openDogModal('chronic')" class="px-2 py-0.5 bg-white text-teal-700 rounded font-bold text-[10px] shadow-xs">+ 환자 추가</button>
+        </div>
       </div>
-      <div id="chronicDogCardList" class="p-2 space-y-2 flex-1 min-h-0 overflow-y-auto"></div>
+      <div id="chronicDogCardList" class="p-2 space-y-1.5 flex-1 min-h-0 overflow-y-auto"></div>
     </section>
   </main>
 
-  <!-- 신규 환자 등록 모달 -->
-  <div id="dogModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
-    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden">
-      <div id="modalHeaderBg" class="bg-gradient-to-r from-rose-500 to-amber-500 px-4 py-3 text-white flex justify-between items-center">
+  <!-- 환자 인적사항 등록 및 수정용 모달창 (화면을 가리지 않고 팝업으로 타이트하게 수정) -->
+  <div id="dogModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div id="modalHeaderBg" class="bg-gradient-to-r from-rose-500 to-amber-500 px-3.5 py-2.5 text-white flex justify-between items-center">
         <h3 id="modalTitle" class="font-bold text-xs flex items-center gap-1.5">
-          <i class="fa-solid fa-paw"></i> 환자 등록
+          <i class="fa-solid fa-paw"></i> 환자 인적사항 입력/수정
         </h3>
         <button onclick="closeDogModal()" class="text-white text-base leading-none">&times;</button>
       </div>
-      <form id="newDogForm" onsubmit="handleNewDogSubmit(event)" class="p-4 space-y-2.5">
+      <form id="dogForm" onsubmit="handleDogFormSubmit(event)" class="p-3.5 space-y-2">
+        <input type="hidden" id="editDogId" value="">
         <input type="hidden" id="inputTargetCategory" value="active">
         
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">환자명 (동물이름) *</label>
-            <input type="text" id="inputDogName" required placeholder="예: 초코, 보리" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
+            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">환자명 (동물이름) *</label>
+            <input type="text" id="inputDogName" required placeholder="예: 초코, 콩이" class="w-full bg-slate-50 border rounded px-2 py-1 text-xs font-bold">
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">보호자 성함 *</label>
-            <input type="text" id="inputGuardian" required placeholder="예: 홍길동" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
+            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">보호자 성함 *</label>
+            <input type="text" id="inputGuardian" required placeholder="예: 홍길동" class="w-full bg-slate-50 border rounded px-2 py-1 text-xs">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">체중 *</label>
-            <input type="text" id="inputDogWeight" required placeholder="예: 2.5kg (말티즈)" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
+            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">체중 *</label>
+            <input type="text" id="inputDogWeight" required placeholder="예: 2.5kg (말티즈)" class="w-full bg-slate-50 border rounded px-2 py-1 text-xs font-bold text-rose-700">
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">휴대폰번호 *</label>
-            <input type="tel" id="inputDogPhone" required placeholder="예: 010-1234-5678" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
+            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">휴대폰번호 *</label>
+            <input type="tel" id="inputDogPhone" required placeholder="예: 010-1234-5678" class="w-full bg-slate-50 border rounded px-2 py-1 text-xs font-mono">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">성별</label>
-            <select id="inputDogGender" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs font-semibold">
-              <option value="♂✓">♂✓ (수컷 중성화)</option>
-              <option value="♀✓">♀✓ (암컷 중성화)</option>
-              <option value="♂">♂ (수컷)</option>
-              <option value="♀">♀ (암컷)</option>
-              <option value="미상">성별 미상</option>
-            </select>
+            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">성별</label>
+            <input type="text" id="inputDogGender" placeholder="예: ♂✓, ♀, 미상" class="w-full bg-slate-50 border rounded px-2 py-1 text-xs font-bold text-violet-700">
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">나이 (생년월일)</label>
-            <input type="text" id="inputDogAge" placeholder="예: 5세 (2021-05)" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
+            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">나이 (생년월일)</label>
+            <input type="text" id="inputDogAge" placeholder="예: 5세 (2021-05)" class="w-full bg-slate-50 border rounded px-2 py-1 text-xs">
           </div>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-0.5">진료타이틀 / 병명 / 내원사유 *</label>
-          <input type="text" id="inputDogDiagnosis" required placeholder="예: 좌측 슬개골 수술 후 재활" class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs">
+          <label class="block text-[10px] font-bold text-slate-700 mb-0.5">진료타이틀 / 병명 / 내원사유 *</label>
+          <input type="text" id="inputDogDiagnosis" required placeholder="예: 좌측 슬개골 수술 후 재활" class="w-full bg-slate-50 border rounded px-2 py-1 text-xs">
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-0.5">분류 위험도 *</label>
-          <select id="inputRiskLevel" required class="w-full bg-slate-50 border rounded px-2 py-1.5 text-xs font-bold text-slate-800">
+          <label class="block text-[10px] font-bold text-slate-700 mb-0.5">분류 위험도 *</label>
+          <select id="inputRiskLevel" required class="w-full bg-slate-50 border rounded px-2 py-1 text-xs font-bold">
             <option value="A">A (당일사망 고위험 - 초응급)</option>
             <option value="B">B (3일내 사망 - 준응급/집중)</option>
             <option value="C">C (7일 사망 - 중환자 케어)</option>
@@ -638,31 +625,31 @@ const chronicAppHTML = `<!DOCTYPE html>
         </div>
 
         <div class="pt-2 flex justify-end gap-1.5">
-          <button type="button" onclick="closeDogModal()" class="px-3 py-1.5 bg-slate-100 rounded text-xs font-bold">취소</button>
-          <button type="submit" class="px-4 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded text-xs font-bold shadow-xs">등록 완료</button>
+          <button type="button" onclick="closeDogModal()" class="px-3 py-1 bg-slate-100 rounded text-xs font-bold">취소</button>
+          <button type="submit" class="px-4 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded text-xs font-bold shadow-xs">저장 완료</button>
         </div>
       </form>
     </div>
   </div>
 
-  <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 text-white px-3.5 py-2 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 transform translate-y-16 opacity-0 transition-all z-50">
-    <span id="toastMsg">완료되었습니다.</span>
-  </div>
+  <div id="toast" class="fixed bottom-3 right-3 bg-slate-900 text-white px-3 py-1.5 rounded-lg shadow-xl text-xs font-bold opacity-0 transition-opacity z-50"></div>
 
   <script>
     const RISK_CONFIG = {
-      'A': { label: 'A (당일사망)', bg: 'bg-red-600 text-white' },
-      'B': { label: 'B (3일내)', bg: 'bg-rose-500 text-white' },
-      'C': { label: 'C (7일)', bg: 'bg-amber-500 text-white' },
-      'D': { label: 'D (30일)', bg: 'bg-yellow-500 text-slate-900' },
-      'E': { label: 'E (호스피스)', bg: 'bg-purple-600 text-white' },
-      'F': { label: 'F (만성관리)', bg: 'bg-teal-600 text-white' },
-      'G': { label: 'G (수술관리)', bg: 'bg-blue-600 text-white' },
-      'H': { label: 'H (관찰)', bg: 'bg-slate-600 text-white' },
+      'A': { label: 'A (당일)', order: 1, bg: 'bg-red-600 text-white' },
+      'B': { label: 'B (3일)', order: 2, bg: 'bg-rose-500 text-white' },
+      'C': { label: 'C (7일)', order: 3, bg: 'bg-amber-500 text-white' },
+      'D': { label: 'D (30일)', order: 4, bg: 'bg-yellow-500 text-slate-900' },
+      'E': { label: 'E (호스피스)', order: 5, bg: 'bg-purple-600 text-white' },
+      'F': { label: 'F (만성)', order: 6, bg: 'bg-teal-600 text-white' },
+      'G': { label: 'G (수술)', order: 7, bg: 'bg-blue-600 text-white' },
+      'H': { label: 'H (관찰)', order: 8, bg: 'bg-slate-600 text-white' },
     };
 
     let dogs = [];
     let searchQuery = "";
+    let activeSortMode = "risk_asc";
+    let chronicSortMode = "risk_asc";
 
     function loadState() {
       try {
@@ -678,10 +665,10 @@ const chronicAppHTML = `<!DOCTYPE html>
     }
 
     function showToast(msg) {
-      const toast = document.getElementById("toast");
-      document.getElementById("toastMsg").textContent = msg;
-      toast.classList.remove("translate-y-16", "opacity-0");
-      setTimeout(() => toast.classList.add("translate-y-16", "opacity-0"), 2200);
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.remove("opacity-0");
+      setTimeout(() => t.classList.add("opacity-0"), 2000);
     }
 
     function updateStats() {
@@ -689,28 +676,48 @@ const chronicAppHTML = `<!DOCTYPE html>
       document.getElementById("statChronicCount").textContent = dogs.filter(d => d.category === "chronic").length;
     }
 
-    function toggleDogCard(id) {
-      const dog = dogs.find(d => d.id === id);
-      if(dog) { dog.isExpanded = !dog.isExpanded; saveState(); renderAll(); }
-    }
-
     function getNowString() {
       const d = new Date();
       const pad = n => String(n).padStart(2, '0');
       return \`\${d.getFullYear()}-\${pad(d.getMonth()+1)}-\${pad(d.getDate())} \${pad(d.getHours())}:\${pad(d.getMinutes())}\`;
     }
+    function getTodayString() { return new Date().toISOString().slice(0, 10); }
 
-    function getTodayString() {
-      return new Date().toISOString().slice(0, 10);
+    function toggleDogCard(id) {
+      const dog = dogs.find(d => d.id === id);
+      if(dog) { dog.isExpanded = !dog.isExpanded; saveState(); renderAll(); }
+    }
+
+    function toggleAllCards(category, expand) {
+      dogs.filter(d => d.category === category).forEach(d => d.isExpanded = expand);
+      saveState(); renderAll();
+    }
+
+    function handleSortChange(cat, val) {
+      if(cat === 'active') activeSortMode = val;
+      else chronicSortMode = val;
+      renderAll();
+    }
+
+    function sortList(list, mode) {
+      return [...list].sort((a, b) => {
+        const oA = (RISK_CONFIG[a.risk] || { order: 99 }).order;
+        const oB = (RISK_CONFIG[b.risk] || { order: 99 }).order;
+        const tA = (a.dones && a.dones.length) ? a.dones[a.dones.length - 1].doneAt : "";
+        const tB = (b.dones && b.dones.length) ? b.dones[b.dones.length - 1].doneAt : "";
+        if(mode === "risk_asc") return oA !== oB ? oA - oB : b.name.localeCompare(a.name, 'ko');
+        if(mode === "latest_desc") return tB.localeCompare(tA);
+        return a.name.localeCompare(b.name, 'ko');
+      });
     }
 
     function renderAll() {
       updateStats();
-      renderFrame("active", "activeDogCardList");
-      renderFrame("chronic", "chronicDogCardList");
+      renderFrame("active", "activeDogCardList", activeSortMode);
+      renderFrame("chronic", "chronicDogCardList", chronicSortMode);
     }
 
-    function renderFrame(category, containerId) {
+    function renderFrame(category, containerId, sortMode) {
       const container = document.getElementById(containerId);
       let list = dogs.filter(d => d.category === category);
       if(searchQuery) {
@@ -721,6 +728,7 @@ const chronicAppHTML = `<!DOCTYPE html>
           (d.diagnosis && d.diagnosis.toLowerCase().includes(searchQuery))
         );
       }
+      list = sortList(list, sortMode);
 
       if(!list.length) {
         container.innerHTML = \`<div class="text-center py-8 text-xs text-slate-400">등록된 환자가 없습니다.</div>\`;
@@ -734,142 +742,117 @@ const chronicAppHTML = `<!DOCTYPE html>
         const lastDone = dones.length > 0 ? dones[dones.length - 1] : null;
 
         return \`
-          <div class="bg-white rounded-xl border \${dog.isExpanded ? (category==='active'?'border-rose-400 ring-1 ring-rose-100':'border-teal-400 ring-1 ring-teal-100') : 'border-slate-200'} shadow-2xs overflow-hidden">
-            <!-- 요약 헤더 (클릭 시 아코디언 펼침) -->
-            <div class="px-3 py-2 flex items-center justify-between gap-2 cursor-pointer select-none bg-slate-50/70 hover:bg-slate-50" onclick="toggleDogCard('\${dog.id}')">
+          <div class="bg-white rounded-lg border \${dog.isExpanded ? (category==='active'?'border-rose-400 ring-1 ring-rose-100':'border-teal-400 ring-1 ring-teal-100') : 'border-slate-200'} shadow-2xs overflow-hidden">
+            
+            <!-- 1. 초경량 컴팩트 헤더 : 인적사항을 한 줄로 깔끔하게 정리 -->
+            <div class="px-2.5 py-1.5 flex items-center justify-between gap-1.5 cursor-pointer select-none bg-slate-50/80 hover:bg-slate-50" onclick="toggleDogCard('\${dog.id}')">
+              
               <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-black \${rCfg.bg}">\${rCfg.label}</span>
-                <strong class="text-sm font-extrabold text-slate-900">\${dog.name}</strong>
-                <span class="text-xs text-slate-500 font-semibold">(\${dog.guardian || '보호자미상'})</span>
-                <span class="text-xs font-bold text-violet-700 bg-violet-50 px-1.5 py-0.5 rounded">\${dog.gender || '성별-'}</span>
-                <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">\${dog.age || '나이-'}</span>
-                <span class="text-xs font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">\${dog.weight || '체중-'}</span>
-                <span class="text-xs font-mono text-slate-600">\${dog.phone || ''}</span>
+                <span class="px-1.5 py-0.2 rounded text-[10px] font-black \${rCfg.bg}">\${rCfg.label}</span>
+                <strong class="text-xs font-black text-slate-900">\${dog.name}</strong>
+                <span class="text-[11px] text-slate-600 font-bold">(\${dog.guardian || '보호자미상'})</span>
+                <span class="text-[10px] font-bold text-violet-700 bg-violet-50 px-1 py-0.2 rounded">\${dog.gender || '성별-'}</span>
+                <span class="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1 py-0.2 rounded">\${dog.age || '나이-'}</span>
+                <span class="text-[10px] font-bold text-rose-700 bg-rose-50 px-1 py-0.2 rounded">\${dog.weight || '체중-'}</span>
+                <span class="text-[10px] font-mono text-slate-500">\${dog.phone || ''}</span>
+                <span class="text-[10px] text-amber-900 bg-amber-50 px-1.5 py-0.2 rounded truncate max-w-[160px]" title="\${dog.diagnosis}">\${dog.diagnosis}</span>
               </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <span class="text-[10px] font-bold bg-amber-50 text-amber-800 px-1.5 py-0.5 rounded border border-amber-200">할일 \${todos.length}</span>
-                <span class="text-[10px] font-bold bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200">완료 \${dones.length}</span>
-                <button onclick="event.stopPropagation(); deleteDog('\${dog.id}', '\${dog.name}')" class="text-slate-300 hover:text-red-500 p-1" title="삭제"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                <i class="fa-solid \${dog.isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-xs text-slate-400"></i>
+
+              <!-- 우측 수정/카운트/아코디언 -->
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="event.stopPropagation(); openEditDogModal('\${dog.id}')" class="px-1.5 py-0.5 bg-slate-200 hover:bg-indigo-100 text-slate-700 hover:text-indigo-700 rounded text-[10px] font-bold" title="인적사항 수정">
+                  ✏️수정
+                </button>
+                <span class="text-[9px] font-bold bg-amber-50 text-amber-800 px-1 py-0.2 rounded border border-amber-200">할일 \${todos.length}</span>
+                <span class="text-[9px] font-bold bg-emerald-50 text-emerald-800 px-1 py-0.2 rounded border border-emerald-200">완료 \${dones.length}</span>
+                <button onclick="event.stopPropagation(); deleteDog('\${dog.id}', '\${dog.name}')" class="text-slate-300 hover:text-red-500 p-0.5" title="삭제"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                <i class="fa-solid \${dog.isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-[10px] text-slate-400"></i>
               </div>
             </div>
 
-            <!-- 요약 사유 및 최근 작업 -->
-            <div class="px-3 py-1.5 text-xs text-slate-700 flex justify-between items-center bg-white border-t border-slate-100">
-              <div class="truncate flex-1 pr-2"><strong>내원사유/진단:</strong> \${dog.diagnosis}</div>
-              \${lastDone ? \`<div class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded shrink-0">최근: \${lastDone.text} (\${lastDone.doneAt})</div>\` : ''}
-            </div>
-
-            <!-- 펼침 영역: 상단 '환자 정보 즉시 수정' + 하단 '할일/한일 일정표' -->
+            <!-- 2. 펼침 영역 : 불필요한 입력칸 없이 [할 일(달력포함)]과 [한 일(시간누적)]에만 100% 집중 -->
             \${dog.isExpanded ? \`
-              <div class="p-3 bg-white border-t border-slate-200 space-y-2.5">
+              <div class="p-2.5 bg-white border-t border-slate-200 space-y-2">
                 
-                <!-- [수정 가능 폼 영역] : 자동 입력된 항목들을 자유롭게 수정하고 즉시 저장 -->
-                <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-2">
-                  <div class="flex items-center justify-between text-xs font-bold text-slate-700 pb-1 border-b border-slate-200">
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-pen-to-square text-indigo-500"></i>환자 기본정보 수정</span>
-                    <button type="button" onclick="updateDogInfo('\${dog.id}')" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-xs shadow-2xs">
-                      💾 수정내용 저장
+                <!-- 액션 툴바 -->
+                <div class="flex justify-between items-center text-[10px] pb-1 border-b border-slate-100">
+                  <span class="text-slate-400 font-mono">등록일: \${dog.registeredAt || '-'}</span>
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="saveDogChartText('\${dog.id}')" class="px-2 py-0.5 bg-slate-700 hover:bg-slate-800 text-white rounded text-[10px] font-bold">
+                      <i class="fa-solid fa-file-arrow-down mr-1"></i>챠트기록 저장
                     </button>
-                  </div>
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5">
-                    <div>
-                      <span class="text-[10px] text-slate-500 font-semibold block">동물이름</span>
-                      <input type="text" id="edit_name_\${dog.id}" value="\${dog.name || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs font-bold">
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-500 font-semibold block">보호자</span>
-                      <input type="text" id="edit_guardian_\${dog.id}" value="\${dog.guardian || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs">
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-500 font-semibold block">체중</span>
-                      <input type="text" id="edit_weight_\${dog.id}" value="\${dog.weight || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs font-bold text-rose-700">
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-500 font-semibold block">휴대폰번호</span>
-                      <input type="text" id="edit_phone_\${dog.id}" value="\${dog.phone || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs font-mono">
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5">
-                    <div>
-                      <span class="text-[10px] text-slate-500 font-semibold block">성별</span>
-                      <input type="text" id="edit_gender_\${dog.id}" value="\${dog.gender || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs font-bold text-violet-700">
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-500 font-semibold block">나이</span>
-                      <input type="text" id="edit_age_\${dog.id}" value="\${dog.age || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs">
-                    </div>
-                    <div>
-                      <span class="text-[10px] text-slate-500 font-semibold block">위험도</span>
-                      <select id="edit_risk_\${dog.id}" class="w-full bg-white border rounded px-1 py-1 text-xs font-bold">
-                        \${Object.keys(RISK_CONFIG).map(k => \`<option value="\${k}" \${dog.risk===k?'selected':''}>\${RISK_CONFIG[k].label}</option>\`).join('')}
-                      </select>
-                    </div>
-                    <div class="flex items-end gap-1">
-                      \${category === 'active' ? \`
-                        <button type="button" onclick="transferCategory('\${dog.id}', 'chronic')" class="w-full py-1 bg-teal-600 text-white font-bold text-xs rounded">🟢 만성이관</button>
-                      \` : \`
-                        <button type="button" onclick="transferCategory('\${dog.id}', 'active')" class="w-full py-1 bg-rose-600 text-white font-bold text-xs rounded">🔴 집중복귀</button>
-                      \`}
-                      <button type="button" onclick="saveDogChartText('\${dog.id}')" class="w-full py-1 bg-slate-700 text-white font-bold text-xs rounded" title="텍스트 다운로드">📥 챠트저장</button>
-                    </div>
-                  </div>
-                  <div>
-                    <span class="text-[10px] text-slate-500 font-semibold block">진료타이틀 / 병명 / 내원사유</span>
-                    <input type="text" id="edit_diagnosis_\${dog.id}" value="\${dog.diagnosis || ''}" class="w-full bg-white border rounded px-1.5 py-1 text-xs">
+                    \${category === 'active' ? \`
+                      <button type="button" onclick="transferCategory('\${dog.id}', 'chronic')" class="px-2 py-0.5 bg-teal-600 text-white font-bold text-[10px] rounded">🟢 만성이관</button>
+                    \` : \`
+                      <button type="button" onclick="transferCategory('\${dog.id}', 'active')" class="px-2 py-0.5 bg-rose-600 text-white font-bold text-[10px] rounded">🔴 집중복귀</button>
+                    \`}
                   </div>
                 </div>
 
-                <!-- 2열 그리드: 할일(To-Do 달력포함) vs 한일(Done) -->
+                <!-- 2열 그리드 : 할 일 스케줄 vs 한 일 시간누적 기록 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <!-- 좌: 할일 등록 (달력 완벽 복원) -->
-                  <div class="bg-amber-50/40 rounded-lg p-2 border border-amber-200 flex flex-col">
-                    <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-amber-900">
-                      <span><i class="fa-solid fa-calendar-days text-amber-600 mr-1"></i>할 일 일정표 (스케줄)</span>
-                      <span class="text-[9px] text-amber-700">체크 시 '한 일'로 자동 이동</span>
+                  
+                  <!-- 좌측 : 할 일 (스케줄 달력 + 내용 입력) -->
+                  <div class="bg-amber-50/50 rounded-lg p-2 border border-amber-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-amber-950">
+                      <span><i class="fa-solid fa-calendar-days text-amber-600 mr-1"></i>할 일 (스케줄)</span>
+                      <span class="text-[9px] text-amber-700">체크 시 즉시 '한 일'로 이동</span>
                     </div>
-                    <!-- 달력(input type="date") + 내용 + 등록 버튼 -->
+
+                    <!-- 달력(input date) 완벽 복원 -->
                     <div class="flex gap-1 mb-1.5">
-                      <input type="date" id="todoDate_\${dog.id}" value="\${getTodayString()}" class="bg-white border rounded px-1.5 py-1 text-xs font-mono shadow-2xs">
-                      <input type="text" id="todoInput_\${dog.id}" placeholder="할 일 내용 입력" class="flex-1 bg-white border rounded px-2 py-1 text-xs" onkeydown="if(event.key==='Enter') addTodoItem('\${dog.id}')">
-                      <button onclick="addTodoItem('\${dog.id}')" class="px-2.5 py-1 bg-amber-600 text-white text-xs font-bold rounded shrink-0">등록</button>
+                      <input type="date" id="todoDate_\${dog.id}" value="\${getTodayString()}" class="bg-white border rounded px-1.5 py-0.5 text-xs font-mono shrink-0">
+                      <input type="text" id="todoInput_\${dog.id}" placeholder="할 일 내용 입력 후 엔터" class="flex-1 bg-white border rounded px-2 py-0.5 text-xs" onkeydown="if(event.key==='Enter') addTodoItem('\${dog.id}')">
+                      <button type="button" onclick="addTodoItem('\${dog.id}')" class="px-2.5 py-0.5 bg-amber-600 text-white text-xs font-bold rounded shrink-0">등록</button>
                     </div>
-                    <div class="space-y-1 max-h-40 overflow-y-auto">
-                      \${!todos.length ? '<div class="text-[10px] text-slate-400 text-center py-4">등록된 할 일 일정이 없습니다.</div>' : todos.map(t => \`
+
+                    <div class="space-y-1 max-h-48 overflow-y-auto pr-0.5">
+                      \${!todos.length ? '<div class="text-[10px] text-slate-400 text-center py-4">등록된 할 일이 없습니다.</div>' : todos.map(t => \`
                         <div class="flex items-center justify-between p-1 bg-white rounded border border-slate-200 text-xs">
                           <label class="flex items-center gap-1.5 truncate flex-1 cursor-pointer">
                             <input type="checkbox" onchange="completeTodoItem('\${dog.id}', '\${t.id}')" class="w-3.5 h-3.5 text-emerald-600 rounded">
-                            <span class="text-[10px] font-bold font-mono text-amber-800 bg-amber-100 px-1 py-0.5 rounded shrink-0">\${t.date ? t.date.slice(5) : '일정'}</span>
+                            <span class="text-[9px] font-bold font-mono text-amber-800 bg-amber-100 px-1 py-0.2 rounded shrink-0">\${t.date ? t.date.slice(5) : '일정'}</span>
                             <span class="truncate">\${t.text}</span>
                           </label>
-                          <button onclick="removeTodoItem('\${dog.id}', '\${t.id}')" class="text-slate-300 hover:text-red-500 px-1">&times;</button>
+                          <button type="button" onclick="removeTodoItem('\${dog.id}', '\${t.id}')" class="text-slate-300 hover:text-red-500 px-1">&times;</button>
                         </div>
                       \`).join('')}
                     </div>
                   </div>
 
-                  <!-- 우: 한일 수동기록 및 누적 -->
-                  <div class="bg-emerald-50/40 rounded-lg p-2 border border-emerald-200 flex flex-col">
-                    <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-emerald-900">
-                      <span><i class="fa-solid fa-clock-rotate-left text-emerald-600 mr-1"></i>한 일 (실행/수동기록)</span>
+                  <!-- 우측 : 한 일 (스케줄 완료 vs 수동직접입력 구분 + 시간 자동기록) -->
+                  <div class="bg-emerald-50/50 rounded-lg p-2 border border-emerald-200 flex flex-col">
+                    <div class="flex justify-between items-center mb-1 text-[11px] font-bold text-emerald-950">
+                      <span><i class="fa-solid fa-clock-rotate-left text-emerald-600 mr-1"></i>한 일 (시간대별 누적)</span>
                       <span class="text-[9px] text-emerald-700">클릭 시 자동복사</span>
                     </div>
+
+                    <!-- 수동 직접 입력줄 -->
                     <div class="flex gap-1 mb-1.5">
-                      <input type="text" id="directDoneInput_\${dog.id}" placeholder="즉시 한 일 수동입력 (엔터)" class="flex-1 bg-white border rounded px-2 py-1 text-xs" onkeydown="if(event.key==='Enter') addDirectDone('\${dog.id}')">
-                      <button onclick="addDirectDone('\${dog.id}')" class="px-2.5 py-1 bg-emerald-600 text-white text-xs font-bold rounded shrink-0">기록</button>
+                      <input type="text" id="directDoneInput_\${dog.id}" placeholder="현장 수동 직접입력 (현재시간 자동기록)" class="flex-1 bg-white border border-emerald-300 rounded px-2 py-0.5 text-xs" onkeydown="if(event.key==='Enter') addDirectDone('\${dog.id}')">
+                      <button type="button" onclick="addDirectDone('\${dog.id}')" class="px-2.5 py-0.5 bg-emerald-600 text-white text-xs font-bold rounded shrink-0">기록</button>
                     </div>
-                    <div class="space-y-1 max-h-40 overflow-y-auto">
-                      \${!dones.length ? '<div class="text-[10px] text-slate-400 text-center py-4">완료된 기록이 없습니다.</div>' : [...dones].reverse().map(d => \`
-                        <div class="copyable-row flex items-center justify-between p-1 bg-white rounded border border-emerald-100 text-xs cursor-pointer select-none" onclick="copyDoneText('\${d.text}', '\${d.doneAt}')" title="클릭 시 텍스트 복사">
-                          <div class="truncate flex-1 pr-1 font-medium text-slate-800">✓ \${d.text}</div>
+
+                    <div class="space-y-1 max-h-48 overflow-y-auto pr-0.5">
+                      \${!dones.length ? '<div class="text-[10px] text-slate-400 text-center py-4">완료 기록이 없습니다.</div>' : [...dones].reverse().map(d => \`
+                        <div class="copyable-row flex items-center justify-between p-1 bg-white rounded border border-emerald-100 text-xs cursor-pointer select-none" onclick="copyDoneText('\${d.text}', '\${d.doneAt}')" title="클릭 시 시간과 내용이 복사됩니다">
+                          <div class="flex items-center gap-1 min-w-0 flex-1 truncate">
+                            \${d.source === 'schedule' ? \`
+                              <span class="px-1 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[8px] font-bold shrink-0">스케줄</span>
+                            \` : \`
+                              <span class="px-1 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200 text-[8px] font-bold shrink-0">수동</span>
+                            \`}
+                            <span class="truncate font-medium text-slate-800">\${d.text}</span>
+                          </div>
                           <div class="flex items-center gap-1 shrink-0">
-                            <span class="text-[9px] text-slate-400 font-mono">\${d.doneAt}</span>
-                            <button onclick="event.stopPropagation(); removeDoneItem('\${dog.id}', '\${d.id}')" class="text-slate-300 hover:text-red-500 px-1">&times;</button>
+                            <span class="text-[9px] text-emerald-800 bg-emerald-100 px-1 py-0.2 rounded font-mono font-bold">\${d.doneAt}</span>
+                            <button type="button" onclick="event.stopPropagation(); removeDoneItem('\${dog.id}', '\${d.id}')" class="text-slate-300 hover:text-red-500 px-1">&times;</button>
                           </div>
                         </div>
                       \`).join('')}
                     </div>
                   </div>
+
                 </div>
 
               </div>
@@ -877,25 +860,6 @@ const chronicAppHTML = `<!DOCTYPE html>
           </div>
         \`;
       }).join('');
-    }
-
-    // 기본정보 즉시 수정 함수
-    function updateDogInfo(dogId) {
-      const dog = dogs.find(d => d.id === dogId);
-      if(!dog) return;
-
-      dog.name = document.getElementById(\`edit_name_\${dogId}\`).value.trim();
-      dog.guardian = document.getElementById(\`edit_guardian_\${dogId}\`).value.trim();
-      dog.weight = document.getElementById(\`edit_weight_\${dogId}\`).value.trim();
-      dog.phone = document.getElementById(\`edit_phone_\${dogId}\`).value.trim();
-      dog.gender = document.getElementById(\`edit_gender_\${dogId}\`).value.trim();
-      dog.age = document.getElementById(\`edit_age_\${dogId}\`).value.trim();
-      dog.risk = document.getElementById(\`edit_risk_\${dogId}\`).value;
-      dog.diagnosis = document.getElementById(\`edit_diagnosis_\${dogId}\`).value.trim();
-
-      saveState();
-      renderAll();
-      showToast(\`'\${dog.name}' 환자 정보가 수정되었습니다.\`);
     }
 
     // 할 일 추가 (달력 날짜 반영)
@@ -909,10 +873,11 @@ const chronicAppHTML = `<!DOCTYPE html>
       if(dog) {
         if(!dog.todos) dog.todos = [];
         dog.todos.push({ id: "t_" + Date.now(), text, date });
-        saveState(); renderAll(); showToast("할 일 일정이 추가되었습니다.");
+        saveState(); renderAll(); showToast("할 일 추가 완료");
       }
     }
 
+    // 수동 직접입력 (source = 'manual')
     function addDirectDone(dogId) {
       const input = document.getElementById(\`directDoneInput_\${dogId}\`);
       const text = input ? input.value.trim() : '';
@@ -920,11 +885,12 @@ const chronicAppHTML = `<!DOCTYPE html>
       const dog = dogs.find(d => d.id === dogId);
       if(dog) {
         if(!dog.dones) dog.dones = [];
-        dog.dones.push({ id: "d_" + Date.now(), text, doneAt: getNowString() });
-        saveState(); renderAll(); showToast("한 일 기록이 추가되었습니다.");
+        dog.dones.push({ id: "d_" + Date.now(), text, doneAt: getNowString(), source: "manual" });
+        saveState(); renderAll(); showToast("한 일 수동 기록 완료");
       }
     }
 
+    // 할 일 체크 시 한 일로 이동 (source = 'schedule')
     function completeTodoItem(dogId, todoId) {
       const dog = dogs.find(d => d.id === dogId);
       if(!dog) return;
@@ -932,7 +898,7 @@ const chronicAppHTML = `<!DOCTYPE html>
       if(idx !== -1) {
         const item = dog.todos.splice(idx, 1)[0];
         if(!dog.dones) dog.dones = [];
-        dog.dones.push({ id: "d_" + Date.now(), text: item.text, doneAt: getNowString() });
+        dog.dones.push({ id: "d_" + Date.now(), text: item.text, doneAt: getNowString(), source: "schedule" });
         saveState(); renderAll(); showToast("완료되어 '한 일'로 이동되었습니다.");
       }
     }
@@ -948,7 +914,7 @@ const chronicAppHTML = `<!DOCTYPE html>
     }
 
     function copyDoneText(text, doneAt) {
-      navigator.clipboard.writeText(\`[\${doneAt}] \${text}\`).then(() => showToast("클립보드 복사 완료"));
+      navigator.clipboard.writeText(\`[\${doneAt}] \${text}\`).then(() => showToast("시간과 내용이 복사되었습니다."));
     }
 
     function saveDogChartText(dogId) {
@@ -971,7 +937,7 @@ const chronicAppHTML = `<!DOCTYPE html>
       ];
       const records = dog.dones || [];
       if(!records.length) lines.push("기록된 내용이 없습니다.");
-      else records.forEach((r, i) => lines.push(\`\${i+1}. [\${r.doneAt}] \${r.text}\`));
+      else records.forEach((r, i) => lines.push(\`\${i+1}. [\${r.doneAt}] [\${r.source === 'schedule' ? '스케줄' : '수동'}] \${r.text}\`));
       lines.push("", \`저장일시: \${getNowString()}\`);
 
       const blob = new Blob(["\\uFEFF" + lines.join("\\r\\n")], { type: "text/plain;charset=utf-8" });
@@ -998,40 +964,80 @@ const chronicAppHTML = `<!DOCTYPE html>
       showToast(\`'\${name}' 삭제 완료\`);
     }
 
+    // 모달 등록 및 수정 열기
     function openDogModal(cat = "active") {
+      document.getElementById("editDogId").value = "";
       document.getElementById("inputTargetCategory").value = cat;
-      document.getElementById("modalTitle").textContent = cat === "active" ? "집중관리 신규 환자 등록" : "만성관리 신규 환자 등록";
+      document.getElementById("modalTitle").innerHTML = '<i class="fa-solid fa-paw"></i> 환자 신규 등록';
+      document.getElementById("dogForm").reset();
+      document.getElementById("dogModal").classList.remove("hidden");
+    }
+
+    function openEditDogModal(id) {
+      const dog = dogs.find(d => d.id === id);
+      if(!dog) return;
+      document.getElementById("editDogId").value = dog.id;
+      document.getElementById("inputTargetCategory").value = dog.category;
+      document.getElementById("modalTitle").innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 환자 인적사항 수정';
+      
+      document.getElementById("inputDogName").value = dog.name || "";
+      document.getElementById("inputGuardian").value = dog.guardian || "";
+      document.getElementById("inputDogWeight").value = dog.weight || "";
+      document.getElementById("inputDogPhone").value = dog.phone || "";
+      document.getElementById("inputDogGender").value = dog.gender || "";
+      document.getElementById("inputDogAge").value = dog.age || "";
+      document.getElementById("inputDogDiagnosis").value = dog.diagnosis || "";
+      document.getElementById("inputRiskLevel").value = dog.risk || "G";
+
       document.getElementById("dogModal").classList.remove("hidden");
     }
 
     function closeDogModal() {
       document.getElementById("dogModal").classList.add("hidden");
-      document.getElementById("newDogForm").reset();
+      document.getElementById("dogForm").reset();
     }
 
-    function handleNewDogSubmit(e) {
+    function handleDogFormSubmit(e) {
       e.preventDefault();
-      const newPatient = {
-        id: "dog_" + Date.now(),
-        name: document.getElementById("inputDogName").value.trim(),
-        guardian: document.getElementById("inputGuardian").value.trim(),
-        weight: document.getElementById("inputDogWeight").value.trim(),
-        phone: document.getElementById("inputDogPhone").value.trim(),
-        gender: document.getElementById("inputDogGender").value,
-        age: document.getElementById("inputDogAge").value.trim(),
-        diagnosis: document.getElementById("inputDogDiagnosis").value.trim(),
-        risk: document.getElementById("inputRiskLevel").value,
-        category: document.getElementById("inputTargetCategory").value,
-        isExpanded: true,
-        todos: [],
-        dones: [{ id: "d_" + Date.now(), text: "신규 등록", doneAt: getNowString() }],
-        registeredAt: getNowString()
-      };
-      dogs.unshift(newPatient);
+      const editId = document.getElementById("editDogId").value;
+      const name = document.getElementById("inputDogName").value.trim();
+      const guardian = document.getElementById("inputGuardian").value.trim();
+      const weight = document.getElementById("inputDogWeight").value.trim();
+      const phone = document.getElementById("inputDogPhone").value.trim();
+      const gender = document.getElementById("inputDogGender").value.trim();
+      const age = document.getElementById("inputDogAge").value.trim();
+      const diagnosis = document.getElementById("inputDogDiagnosis").value.trim();
+      const risk = document.getElementById("inputRiskLevel").value;
+      const category = document.getElementById("inputTargetCategory").value;
+
+      if(editId) {
+        // 기존 환자 수정
+        const dog = dogs.find(d => d.id === editId);
+        if(dog) {
+          dog.name = name; dog.guardian = guardian; dog.weight = weight;
+          dog.phone = phone; dog.gender = gender; dog.age = age;
+          dog.diagnosis = diagnosis; dog.risk = risk;
+        }
+        showToast(\`'\${name}' 환자 정보가 수정되었습니다.\`);
+      } else {
+        // 신규 등록
+        const newDog = {
+          id: "dog_" + Date.now(),
+          name, guardian, weight, phone, gender, age, diagnosis, risk,
+          category,
+          isExpanded: true,
+          todos: [],
+          dones: [{ id: "d_" + Date.now(), text: "신규 등록", doneAt: getNowString(), source: "manual" }],
+          registeredAt: getNowString()
+        };
+        dogs.unshift(newDog);
+        showToast(\`'\${name}' 환자 등록 완료!\`);
+      }
+
       saveState(); renderAll(); closeDogModal();
-      showToast(\`'\${newPatient.name}' 환자 등록 완료!\`);
     }
 
+    // 접수 현황판에서 전송 수신
     window.addEventListener("message", (e) => {
       if(e.data && e.data.type === "RECEIVE_TRANSFER_TO_CHART") {
         const item = e.data.payload;
@@ -1050,7 +1056,7 @@ const chronicAppHTML = `<!DOCTYPE html>
           category: targetCategory,
           isExpanded: true,
           todos: [],
-          dones: [{ id: "d_" + Date.now(), text: "원내 접수에서 자동 전송 등록됨", doneAt: getNowString() }],
+          dones: [{ id: "d_" + Date.now(), text: "원내 접수 자동 전송 등록", doneAt: getNowString(), source: "manual" }],
           registeredAt: getNowString()
         };
 
@@ -1099,10 +1105,10 @@ const chronicAppHTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// -------------------------------------------------------------
+// =========================================================================
 // [원내 접수 현황판 APP HTML]
-// 드롭다운(Select) 안에 집중관리전송 / 만성관리전송을 배치하여 외부 버튼 깨짐 완벽 방지
-// -------------------------------------------------------------
+// 카드 외부에 별도 버튼을 빼지 않고 '상태 드롭다운 롤' 안에 완벽 수납하여 프레임 깨짐 완전 제거
+// =========================================================================
 const counterAppHTML = `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1112,36 +1118,39 @@ const counterAppHTML = `<!DOCTYPE html>
   <script src="https://cdn.tailwindcss.com"><\/script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
-    body { font-family: 'Pretendard', sans-serif; font-size: 15px; }
+    body { font-family: 'Pretendard', sans-serif; font-size: 14px; }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 p-3 md:p-5">
-  <div class="max-w-5xl mx-auto space-y-4">
-    <header class="flex justify-between items-center bg-white p-3.5 rounded-xl shadow-xs border border-slate-200">
-      <h1 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+<body class="bg-slate-50 min-h-screen text-slate-800 p-2.5">
+  <div class="space-y-3">
+    <!-- 헤더 -->
+    <header class="flex justify-between items-center bg-white p-3 rounded-xl shadow-xs border border-slate-200">
+      <h1 class="text-base font-bold text-slate-900 flex items-center gap-1.5">
+        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
         원내 접수 현황판
       </h1>
-      <button onclick="fetchReceptions()" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800">새로고침</button>
+      <button onclick="fetchReceptions()" class="px-2.5 py-1 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800">새로고침</button>
     </header>
 
+    <!-- 요약 카운터 -->
     <div class="grid grid-cols-3 gap-2 text-center">
-      <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
-        <p class="text-[11px] font-semibold text-slate-400">접수 대기</p>
-        <p id="count-waiting" class="text-xl font-bold text-amber-600 mt-0.5">0</p>
+      <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+        <p class="text-[10px] font-semibold text-slate-400">접수 대기</p>
+        <p id="count-waiting" class="text-lg font-bold text-amber-600 mt-0.5">0</p>
       </div>
-      <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
-        <p class="text-[11px] font-semibold text-slate-400">진료 중</p>
-        <p id="count-progress" class="text-xl font-bold text-emerald-600 mt-0.5">0</p>
+      <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+        <p class="text-[10px] font-semibold text-slate-400">진료 중</p>
+        <p id="count-progress" class="text-lg font-bold text-emerald-600 mt-0.5">0</p>
       </div>
-      <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
-        <p class="text-[11px] font-semibold text-slate-400">오늘 완료</p>
-        <p id="count-done" class="text-xl font-bold text-slate-500 mt-0.5">0</p>
+      <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+        <p class="text-[10px] font-semibold text-slate-400">오늘 완료</p>
+        <p id="count-done" class="text-lg font-bold text-slate-500 mt-0.5">0</p>
       </div>
     </div>
 
-    <div id="list-container" class="space-y-3">
-      <div class="text-center py-8 text-slate-400 text-xs">접수 내역을 확인하는 중...</div>
+    <!-- 접수 목록 리스트 -->
+    <div id="list-container" class="space-y-2">
+      <div class="text-center py-6 text-slate-400 text-xs">접수 내역 조회 중...</div>
     </div>
   </div>
 
@@ -1225,7 +1234,7 @@ const counterAppHTML = `<!DOCTYPE html>
     function renderList(list) {
       const c = document.getElementById('list-container');
       if(!list.length) {
-        c.innerHTML = '<div class="bg-white p-8 text-center rounded-xl border text-xs text-slate-400">접수된 환자가 없습니다.</div>';
+        c.innerHTML = '<div class="bg-white p-6 text-center rounded-xl border text-xs text-slate-400">접수된 환자가 없습니다.</div>';
         return;
       }
       c.innerHTML = list.map(item => {
@@ -1236,27 +1245,27 @@ const counterAppHTML = `<!DOCTYPE html>
         const reason = p.reason || item.symptom || '사유 미기재';
 
         return \`
-          <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <div class="flex-1 space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[11px] font-bold \${item.type==='FIRST'?'bg-sky-100 text-sky-800':'bg-emerald-100 text-emerald-800'}">
+          <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex justify-between items-center gap-2">
+            <div class="flex-1 min-w-0 space-y-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="px-1.5 py-0.2 rounded text-[10px] font-bold \${item.type==='FIRST'?'bg-sky-100 text-sky-800':'bg-emerald-100 text-emerald-800'}">
                   \${item.type==='FIRST'?'초진':'재진'}
                 </span>
-                <strong class="text-base text-slate-900">\${item.pet_name || '이름없음'}</strong>
+                <strong class="text-sm text-slate-900">\${item.pet_name || '이름없음'}</strong>
                 <span class="text-xs text-slate-500 font-semibold">보호자: \${p.guardian_name || item.owner_name || '-'}</span>
                 <span class="text-xs text-slate-500 font-mono">\${item.phone || '-'}</span>
               </div>
-              <div class="text-xs text-slate-600">
+              <div class="text-[11px] text-slate-500">
                 \${p.breed || ''} \${p.gender ? '· '+p.gender : ''} \${p.weight ? '· '+p.weight+'kg' : ''}
               </div>
-              <div class="text-xs text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100 mt-1">
-                <strong>[내원사유]</strong> \${reason}
+              <div class="text-[11px] text-slate-700 bg-slate-50 p-1.5 rounded border border-slate-100 truncate">
+                <strong>[사유]</strong> \${reason}
               </div>
             </div>
 
-            <!-- 상태 선택창 : 드롭다운 안에 집중/만성 전송 수납 (외부 버튼 삭제로 프레임 깨짐 완전 해결) -->
-            <div class="shrink-0 self-end md:self-center">
-              <select onchange="handleStatusSelect(this, \${item.id})" class="text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 bg-white cursor-pointer shadow-2xs">
+            <!-- 상태 선택창 : 외부 버튼 없이 드롭다운 안에 깔끔히 수납하여 가로 프레임 깨짐 완전 방지 -->
+            <div class="shrink-0">
+              <select onchange="handleStatusSelect(this, \${item.id})" class="text-xs font-bold px-2 py-1.5 rounded-lg border border-slate-300 bg-white cursor-pointer shadow-2xs">
                 <option value="접수대기" \${isWait?'selected':''}>⏳ 접수 대기</option>
                 <option value="진료중" \${isProg?'selected':''}>🩺 진료 중</option>
                 <option value="완료" \${isComp?'selected':''}>✅ 진료 완료</option>
