@@ -10,6 +10,20 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     body { font-family: 'Pretendard', sans-serif; }
+    /* 2026-10: 화면 가독성 개선 (인쇄 서식은 기존 크기 유지) */
+    body { font-size: 17px; }
+    header h1 { font-size: 1.9rem !important; }
+    header p { font-size: 1rem !important; }
+    #list-container > div { font-size: 1rem; }
+    #list-container h3 { font-size: 1.35rem !important; }
+    #list-container .text-xs { font-size: 0.95rem !important; }
+    #list-container .text-sm { font-size: 1.05rem !important; }
+    #list-container .text-lg { font-size: 1.35rem !important; }
+    #list-container button, #list-container select { font-size: 0.95rem !important; }
+    #list-container .text-\[10px\], #list-container .text-\[11px\] { font-size: 0.9rem !important; }
+    #adminNoticeInput { font-size: 1rem !important; }
+    #print-sheet { font-size: initial; }
+
     
     /* A4 표준 1장 규격 (794px x 1123px, 96 DPI 기준 정확한 1 : 1.414 비율) */
     #print-sheet {
