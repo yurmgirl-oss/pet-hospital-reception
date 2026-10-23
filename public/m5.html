@@ -437,12 +437,16 @@ function createRow(displayNum, petName, category, minutes, cumulativeMinutes, cu
   return row;
 }
 
-function render(qrItems, estimates, categories, qrStatuses, manualBookings, localMinutes){
-  // 1. QR 목록 (21번대)
+function render(qrItems, estimates, categories, qrStatuses, manualBookings, localMinutes, deletedKeys){
+  // 1. QR 목록: '진료완료', '자료삭제', 'm6_qr_deleted'에 포함된 환자는 m5에서 즉시 제외!
   const activeQr = (Array.isArray(qrItems) ? qrItems : []).filter(item => {
     const k = String(item.id ?? item.reception_id ?? "");
+    
+    // [핵심 필터링] 삭제 목록에 있거나 자료삭제/진료완료 상태인 경우 m5 화면에서 즉시 제거
+    if (deletedKeys && deletedKeys.includes(k)) return false;
+
     const st = qrStatuses[k] || item.status || "접수대기";
-    return !["완료", "진료완료", "취소", "종료"].includes(st);
+    return !["완료", "진료완료", "자료삭제", "취소", "종료"].includes(st);
   }).sort((a,b)=>{
     const ta = Date.parse(a.created_at || a.createdAt || 0) || 0;
     const tb = Date.parse(b.created_at || b.createdAt || 0) || 0;
@@ -462,7 +466,6 @@ function render(qrItems, estimates, categories, qrStatuses, manualBookings, loca
       const category = categories && categories[key] ? categories[key] : (item.category || "일반진료");
       const status = qrStatuses[key] || item.status || "접수대기";
 
-      // [핵심 해결] m6에서 입력한 로컬스토리지 소요시간을 1순위로 즉시 반영!
       const rawMin = (localMinutes && localMinutes[key] !== undefined)
         ? localMinutes[key] 
         : (estimates && estimates[key]);
@@ -474,8 +477,10 @@ function render(qrItems, estimates, categories, qrStatuses, manualBookings, loca
     });
   }
 
-  // 2. 일반예약 목록 (31번대)
-  const activeManual = (Array.isArray(manualBookings) ? manualBookings : []).filter(item => item.status !== "진료완료");
+  // 2. 일반예약 목록: '진료완료' 및 삭제된 항목은 m5 화면에서 즉시 제외
+  const activeManual = (Array.isArray(manualBookings) ? manualBookings : []).filter(item => {
+    return item.status !== "진료완료" && item.status !== "자료삭제";
+  });
 
   listNormalEl.replaceChildren();
   countNormalEl.textContent = `${activeManual.length}명 대기`;
@@ -506,6 +511,7 @@ async function refresh(){
     const savedQrStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
     const manualBookings = JSON.parse(localStorage.getItem("m6_manual_bookings") || "[]");
     const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
+    const deletedKeys = JSON.parse(localStorage.getItem("m6_qr_deleted") || "[]");
 
     render(
       Array.isArray(qrData) ? qrData : (qrData.items || []),
@@ -513,7 +519,8 @@ async function refresh(){
       savedCategories,
       savedQrStatuses,
       manualBookings,
-      localMinutes
+      localMinutes,
+      deletedKeys // 삭제 키 전달
     );
     updatedEl.textContent = "갱신 " + new Date().toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
   } catch(err) {
@@ -521,12 +528,16 @@ async function refresh(){
   }
 }
 
+// 1초 단위 실시간 자동 동기화
 refresh();
-// 1초 주기로 실시간 로컬스토리지 및 데이터 검사
 setInterval(refresh, 1000);
 window.addEventListener("storage", refresh);
+
+// m6 또는 m3에서 삭제 메시지를 보내면 0.05초 만에 즉시 실행
 window.addEventListener("message", (e) => {
-  if (e.data === "reload_m5") refresh();
+  if (e.data === "reload_m5" || e.data === "sync_m5") {
+    refresh();
+  }
 });
 </script>
 </body>
