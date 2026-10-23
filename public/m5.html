@@ -36,7 +36,6 @@ body {
   box-shadow: 0 8px 24px rgba(18, 64, 42, 0.08);
 }
 
-/* Header & 날짜+시간 복합 시계 영역 */
 header {
   display: flex;
   align-items: center;
@@ -52,7 +51,6 @@ header {
   color: #0b3425;
 }
 
-/* 월/일/요일 + 시:분:초 복합 디지털 시계 박스 */
 .clockbox {
   display: flex;
   flex-direction: column;
@@ -79,7 +77,6 @@ header {
   line-height: 1.1;
 }
 
-/* 좌우 5:5 분할 */
 .split-container {
   flex: 1;
   display: grid;
@@ -130,7 +127,6 @@ header {
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* 테이블 헤더 */
 .table-header {
   display: grid;
   grid-template-columns: 46px 1fr 90px 115px;
@@ -152,7 +148,6 @@ header {
   padding: 8px;
 }
 
-/* 대기 줄 */
 .table-row {
   display: grid;
   grid-template-columns: 46px 1fr 90px 115px;
@@ -182,7 +177,6 @@ header {
 .col-normal .num-badge { background: #fef3c7; color: #b45309; }
 .table-row.treating .num-badge { background: #2563eb; color: #fff; }
 
-/* 동물명 + 상태 뱃지 */
 .col-cell-pet {
   display: flex;
   align-items: center;
@@ -272,7 +266,6 @@ header {
   font-weight: 700;
 }
 
-/* 하단 병원 소식 배너 */
 .notice-bar {
   display: flex;
   align-items: center;
@@ -317,7 +310,6 @@ footer {
     <div class="brand">
       <div class="brandname">🐾 23시 하단오거리 동물병원 · 실시간 접수 대기판</div>
     </div>
-    <!-- 월/일/요일 + 시:분:초 시계 영역 -->
     <div class="clockbox">
       <div class="clock-date" id="clock-date">00월 00일 (요일)</div>
       <div class="clock-time" id="clock-time">00:00:00</div>
@@ -362,7 +354,6 @@ footer {
 
   </main>
 
-  <!-- 하단 접수현황판 소식 배너 -->
   <div class="notice-bar">
     <div class="notice-label">📢 병원 소식</div>
     <div class="notice-text">“병원 출발 전, 미리 사전접수! 기다림은 줄이고 진료는 편리하게 😊” | 응급환자 발생 시 진료 순서가 일부 조정될 수 있습니다.</div>
@@ -387,17 +378,13 @@ const clockTimeEl = document.getElementById("clock-time");
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
-// 자정 넘김 대응 실시간 날짜+시간 타이머
 function tickClock(){
   const d = new Date();
-  
-  // 1. 월 일 (요일)
   const m = d.getMonth() + 1;
   const day = d.getDate();
   const w = WEEKDAYS[d.getDay()];
   clockDateEl.textContent = `📅 ${m}월 ${day}일 (${w})`;
 
-  // 2. 24시간제 시:분:초
   clockTimeEl.textContent = d.toLocaleTimeString("ko-KR", {
     hour12: false, 
     hour: "2-digit", 
@@ -428,21 +415,17 @@ function createRow(displayNum, petName, category, minutes, cumulativeMinutes, cu
   const treating = status === "진료중";
   const row = make("div", "table-row" + (treating ? " treating" : ""));
 
-  // 1. 번호
   const cellNum = make("div", "col-cell-num");
   cellNum.append(make("span", "num-badge", String(displayNum)));
 
-  // 2. 동물명 + 상태 뱃지
   const cellPet = make("div", "col-cell-pet");
   const nameDiv = make("div", "pet-name", petName);
   const statusBadge = make("span", "pet-status-badge " + (treating ? "treat" : "wait"), treating ? "진료 진행 중" : "접수 대기중");
   cellPet.append(nameDiv, statusBadge);
 
-  // 3. 분류
   const cellCat = make("div", "col-cell-category");
   cellCat.append(make("span", "category-badge", category || "일반진료"));
 
-  // 4. 소요시간
   const cellTime = make("div", "col-cell-time");
   const estBadge = make("span", "est-badge", minutes === null ? "소요 미정" : `${minutes}분`);
   const expBadge = make("span", "exp-badge", cumulativeKnown 
@@ -454,7 +437,7 @@ function createRow(displayNum, petName, category, minutes, cumulativeMinutes, cu
   return row;
 }
 
-function render(qrItems, estimates, categories, qrStatuses, manualBookings){
+function render(qrItems, estimates, categories, qrStatuses, manualBookings, localMinutes){
   // 1. QR 목록 (21번대)
   const activeQr = (Array.isArray(qrItems) ? qrItems : []).filter(item => {
     const k = String(item.id ?? item.reception_id ?? "");
@@ -478,7 +461,13 @@ function render(qrItems, estimates, categories, qrStatuses, manualBookings){
       const petName = safeText(item.pet_name || item.animal_name || "이름 미입력");
       const category = categories && categories[key] ? categories[key] : (item.category || "일반진료");
       const status = qrStatuses[key] || item.status || "접수대기";
-      const minutes = estimateMinutes(estimates && estimates[key]);
+
+      // [핵심 해결] m6에서 입력한 로컬스토리지 소요시간을 1순위로 즉시 반영!
+      const rawMin = (localMinutes && localMinutes[key] !== undefined)
+        ? localMinutes[key] 
+        : (estimates && estimates[key]);
+
+      const minutes = estimateMinutes(rawMin);
       if(minutes === null) known = false; else cumulative += minutes;
 
       listQrEl.append(createRow(21 + idx, petName, category, minutes, cumulative, known, status));
@@ -516,13 +505,15 @@ async function refresh(){
     const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
     const savedQrStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
     const manualBookings = JSON.parse(localStorage.getItem("m6_manual_bookings") || "[]");
+    const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
 
     render(
       Array.isArray(qrData) ? qrData : (qrData.items || []),
       estimateData.estimates || {},
       savedCategories,
       savedQrStatuses,
-      manualBookings
+      manualBookings,
+      localMinutes
     );
     updatedEl.textContent = "갱신 " + new Date().toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
   } catch(err) {
@@ -531,8 +522,12 @@ async function refresh(){
 }
 
 refresh();
-setInterval(refresh, 1500);
+// 1초 주기로 실시간 로컬스토리지 및 데이터 검사
+setInterval(refresh, 1000);
 window.addEventListener("storage", refresh);
+window.addEventListener("message", (e) => {
+  if (e.data === "reload_m5") refresh();
+});
 </script>
 </body>
 </html>
