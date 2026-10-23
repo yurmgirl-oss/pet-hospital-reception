@@ -64,7 +64,7 @@
   }
   input:focus, select:focus { border-color: var(--primary); }
 
-  /* 숫자 입력창 스핀 버튼 제거 */
+  /* 숫자 입력창 스핀 버튼(화살표) 완전 제거 */
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -98,7 +98,7 @@
     border-radius: 4px;
   }
 
-  /* 타이머 디스플레이 스타일 */
+  /* 타이머 배지 */
   .timer-badge {
     display: inline-flex;
     align-items: center;
@@ -206,7 +206,7 @@
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
-      <span class="auto-notice">⏱️ '진료중' 선택 시 실시간 타이머 작동</span>
+      <span class="auto-notice">⚡ 숫자 입력 후 Enter 치면 즉시 자동 저장</span>
     </h2>
     <table id="table-qr">
       <thead>
@@ -236,7 +236,6 @@ function formatTime(d){
   return date.toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", hour12: false});
 }
 
-// 타이머 시간 계산 함수 (밀리초 ➔ MM:SS)
 function getElapsedText(startTime){
   if(!startTime) return "00:00";
   const diffSec = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
@@ -245,7 +244,6 @@ function getElapsedText(startTime){
   return `${m}:${s}`;
 }
 
-// 타이머 HTML 배지 생성
 function buildTimerBadge(key, startTime, targetMinutes, status){
   if(status !== "진료중" || !startTime){
     return `<span class="timer-badge" id="timer-${key}">대기중</span>`;
@@ -256,9 +254,8 @@ function buildTimerBadge(key, startTime, targetMinutes, status){
   return `<span class="${cls}" id="timer-${key}">⏱️ ${getElapsedText(startTime)}</span>`;
 }
 
-// 1초마다 활성화된 타이머들 화면 숫자 업데이트
+// 1초마다 타이머 디스플레이 갱신
 setInterval(() => {
-  // 1. 일반 예약 타이머 갱신
   const manualList = getManualBookings();
   manualList.forEach(item => {
     if(item.status === "진료중" && item.startTime){
@@ -272,7 +269,6 @@ setInterval(() => {
     }
   });
 
-  // 2. QR 접수 타이머 갱신
   const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
   const qrStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
   const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
@@ -297,6 +293,7 @@ function getManualBookings(){
 }
 function setManualBookings(data){
   localStorage.setItem("m6_manual_bookings", JSON.stringify(data));
+  notifyM5();
   renderManualTable();
 }
 
@@ -313,7 +310,7 @@ function addManualBooking(){
     category: category,
     minutes: Number(minutes),
     status: "접수대기",
-    startTime: null, // 타이머 시작 시간
+    startTime: null,
     time: formatTime()
   });
   setManualBookings(list);
@@ -325,9 +322,9 @@ function updateManualStatus(id, newStatus){
     if(item.id === id){
       item.status = newStatus;
       if(newStatus === "진료중"){
-        if(!item.startTime) item.startTime = Date.now(); // 타이머 시작
+        if(!item.startTime) item.startTime = Date.now();
       } else {
-        item.startTime = null; // 대기중이나 완료시 리셋
+        item.startTime = null;
       }
     }
     return item;
@@ -486,10 +483,24 @@ async function loadQrList(){
   }
 }
 
+// m5 실시간 통보 함수
+function notifyM5(){
+  try {
+    if (window.parent) {
+      window.parent.postMessage("reload_m5", "*");
+      const m5Frame = window.parent.document.getElementById("frame-m5");
+      if (m5Frame && m5Frame.contentWindow && m5Frame.contentWindow.refresh) {
+        m5Frame.contentWindow.refresh();
+      }
+    }
+  } catch(e) {}
+}
+
 function autoSaveQrCategory(key, val){
   const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
   savedCategories[key] = val;
   localStorage.setItem("m6_categories", JSON.stringify(savedCategories));
+  notifyM5();
 }
 
 function autoSaveQrStatus(key, val){
@@ -497,15 +508,15 @@ function autoSaveQrStatus(key, val){
   savedStatuses[key] = val;
   localStorage.setItem("m6_qr_statuses", JSON.stringify(savedStatuses));
 
-  // 타이머 동기화 처리
   const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
   if(val === "진료중"){
-    if(!qrTimers[key]) qrTimers[key] = Date.now(); // 타이머 시작
+    if(!qrTimers[key]) qrTimers[key] = Date.now();
   } else {
-    delete qrTimers[key]; // 완료나 대기중 전환 시 타이머 삭제
+    delete qrTimers[key];
   }
   localStorage.setItem("m6_qr_timers", JSON.stringify(qrTimers));
 
+  notifyM5();
   loadQrList();
 }
 
@@ -513,10 +524,15 @@ async function autoSaveQrMinutes(key, val){
   const minVal = Number(val);
   if(isNaN(minVal) || minVal <= 0) return;
 
+  // 1. 로컬에 즉시 기록
   const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
   localMinutes[key] = minVal;
   localStorage.setItem("m6_qr_minutes", JSON.stringify(localMinutes));
 
+  // 2. m5에 0초 딜레이 즉시 갱신 신호 발송
+  notifyM5();
+
+  // 3. 백엔드 서버 동기화
   try {
     await fetch(API_BASE + "/estimates", {
       method: "POST",
