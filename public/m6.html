@@ -64,7 +64,7 @@
   }
   input:focus, select:focus { border-color: var(--primary); }
 
-  /* 숫자 입력창 스핀 버튼(화살표) 완전 제거 */
+  /* 숫자 입력창 스핀 버튼 제거 */
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -89,6 +89,15 @@
   th { background: #f8fafc; padding: 7px 6px; border-bottom: 1px solid var(--border); color: #64748b; font-weight: 800; }
   td { padding: 7px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; }
   
+  /* 진료완료 행 스타일 (취소선 없이 은은한 완료 표시) */
+  tr.row-done {
+    background: #f8fafc;
+    opacity: 0.75;
+  }
+  tr.row-done td {
+    color: #64748b;
+  }
+
   .time-badge {
     font-size: 11px;
     font-weight: 800;
@@ -122,11 +131,17 @@
     color: #b91c1c;
     border: 1px solid #fca5a5;
   }
+  .timer-finished {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+  }
   @keyframes pulseTimer {
     0% { opacity: 0.85; }
     100% { opacity: 1; transform: scale(1.02); }
   }
 
+  /* 4가지 상태 셀렉트박스 스타일 */
   .status-select {
     padding: 4px 6px;
     border-radius: 4px;
@@ -136,16 +151,22 @@
   }
   .status-wait { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
   .status-treat { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-  .status-done { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+  .status-done { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+  .status-delete { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
 
   .btn-del {
     background: #ef4444;
     color: #fff;
     border: none;
-    padding: 4px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
     font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-del:hover {
+    background: #dc2626;
   }
 
   .min-input {
@@ -168,7 +189,7 @@
   <div class="card">
     <h2>
       <span>🏥 일반예약 직접 등록 <span class="badge-range">31번대</span></span>
-      <span class="auto-notice">⏱️ '진료중' 선택 시 실시간 타이머 작동</span>
+      <span class="auto-notice">💡 진료완료 후 검토 가능 (자료삭제 선택 시 제거)</span>
     </h2>
     <div class="manual-form">
       <input type="text" id="m-name" placeholder="동물명 (예: 보리)" onkeydown="if(event.key==='Enter') addManualBooking()">
@@ -206,7 +227,7 @@
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
-      <span class="auto-notice">⚡ 숫자 입력 후 Enter 치면 즉시 자동 저장</span>
+      <span class="auto-notice">💡 진료완료 후 검토 가능 (자료삭제 선택 시 제거)</span>
     </h2>
     <table id="table-qr">
       <thead>
@@ -218,6 +239,7 @@
           <th>소요(분)</th>
           <th>진료 타이머</th>
           <th>진료상태</th>
+          <th>삭제</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -236,15 +258,19 @@ function formatTime(d){
   return date.toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", hour12: false});
 }
 
-function getElapsedText(startTime){
+function getElapsedText(startTime, endTime){
   if(!startTime) return "00:00";
-  const diffSec = Math.max(0, Math.floor((Date.now() - startTime) / 1000));
+  const end = endTime || Date.now();
+  const diffSec = Math.max(0, Math.floor((end - startTime) / 1000));
   const m = String(Math.floor(diffSec / 60)).padStart(2, "0");
   const s = String(diffSec % 60).padStart(2, "0");
   return `${m}:${s}`;
 }
 
-function buildTimerBadge(key, startTime, targetMinutes, status){
+function buildTimerBadge(key, startTime, targetMinutes, status, endTime){
+  if(status === "진료완료"){
+    return `<span class="timer-badge timer-finished" id="timer-${key}">🏁 ${getElapsedText(startTime, endTime)}</span>`;
+  }
   if(status !== "진료중" || !startTime){
     return `<span class="timer-badge" id="timer-${key}">대기중</span>`;
   }
@@ -254,7 +280,7 @@ function buildTimerBadge(key, startTime, targetMinutes, status){
   return `<span class="${cls}" id="timer-${key}">⏱️ ${getElapsedText(startTime)}</span>`;
 }
 
-// 1초마다 타이머 디스플레이 갱신
+// 1초마다 타이머 화면 갱신
 setInterval(() => {
   const manualList = getManualBookings();
   manualList.forEach(item => {
@@ -274,14 +300,14 @@ setInterval(() => {
   const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
 
   Object.keys(qrTimers).forEach(key => {
-    if(qrStatuses[key] === "진료중" && qrTimers[key]){
+    if(qrStatuses[key] === "진료중" && qrTimers[key]?.start){
       const el = document.getElementById(`timer-qr-${key}`);
       if(el){
-        const diffSec = Math.floor((Date.now() - qrTimers[key]) / 1000);
+        const diffSec = Math.floor((Date.now() - qrTimers[key].start) / 1000);
         const minVal = localMinutes[key] || 15;
         const isOver = diffSec > (minVal * 60);
         el.className = isOver ? "timer-badge timer-over" : "timer-badge timer-running";
-        el.textContent = `⏱️ ${getElapsedText(qrTimers[key])}`;
+        el.textContent = `⏱️ ${getElapsedText(qrTimers[key].start)}`;
       }
     }
   });
@@ -311,6 +337,7 @@ function addManualBooking(){
     minutes: Number(minutes),
     status: "접수대기",
     startTime: null,
+    endTime: null,
     time: formatTime()
   });
   setManualBookings(list);
@@ -318,13 +345,23 @@ function addManualBooking(){
 }
 
 function updateManualStatus(id, newStatus){
+  // '자료삭제' 선택 시 즉시 삭제 처리
+  if(newStatus === "자료삭제"){
+    deleteManualBooking(id);
+    return;
+  }
+
   const list = getManualBookings().map(item => {
     if(item.id === id){
       item.status = newStatus;
       if(newStatus === "진료중"){
         if(!item.startTime) item.startTime = Date.now();
-      } else {
+        item.endTime = null;
+      } else if(newStatus === "진료완료"){
+        if(item.startTime && !item.endTime) item.endTime = Date.now(); // 타이머 종료 시점 고정
+      } else if(newStatus === "접수대기"){
         item.startTime = null;
+        item.endTime = null;
       }
     }
     return item;
@@ -369,6 +406,8 @@ function renderManualTable(){
 
   list.forEach((item, idx) => {
     const tr = document.createElement("tr");
+    if(item.status === "진료완료") tr.className = "row-done";
+
     let catOpts = CATEGORIES.map(c => `<option value="${c}" ${item.category===c?'selected':''}>${c}</option>`).join("");
     
     tr.innerHTML = `
@@ -387,7 +426,7 @@ function renderManualTable(){
                onkeydown="if(event.key==='Enter'){ this.blur(); }">
       </td>
       <td>
-        ${buildTimerBadge(`m-${item.id}`, item.startTime, item.minutes, item.status)}
+        ${buildTimerBadge(`m-${item.id}`, item.startTime, item.minutes, item.status, item.endTime)}
       </td>
       <td>
         <select class="status-select ${item.status === '진료중' ? 'status-treat' : item.status === '진료완료' ? 'status-done' : 'status-wait'}" 
@@ -395,6 +434,7 @@ function renderManualTable(){
           <option value="접수대기" ${item.status === '접수대기' ? 'selected' : ''}>접수대기</option>
           <option value="진료중" ${item.status === '진료중' ? 'selected' : ''}>진료중</option>
           <option value="진료완료" ${item.status === '진료완료' ? 'selected' : ''}>진료완료</option>
+          <option value="자료삭제" class="status-delete">자료삭제</option>
         </select>
       </td>
       <td><button class="btn-del" onclick="deleteManualBooking(${item.id})">삭제</button></td>
@@ -420,19 +460,22 @@ async function loadQrList(){
     const savedStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
     const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
     const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
+    const deletedKeys = JSON.parse(localStorage.getItem("m6_qr_deleted") || "[]");
     const estimates = estimateData.estimates || {};
 
     const tbody = document.querySelector("#table-qr tbody");
     if(!tbody) return;
 
+    // '자료삭제' 또는 서버상 완전 취소된 것만 제외하고, '진료완료'는 검토를 위해 화면에 유지
     const activeList = items.filter(i => {
       const k = String(i.id ?? i.reception_id ?? "");
+      if(deletedKeys.includes(k)) return false;
       const st = savedStatuses[k] || i.status || "접수대기";
-      return !["완료", "진료완료", "취소", "종료"].includes(st);
+      return st !== "자료삭제" && !["취소", "종료"].includes(st);
     });
 
     if(!activeList.length){
-      tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.</td></tr>`;
       return;
     }
 
@@ -443,12 +486,14 @@ async function loadQrList(){
       const currentCat = savedCategories[key] || "일반진료";
       const currentMin = localMinutes[key] !== undefined ? localMinutes[key] : (estimates[key] || 15);
       const currentStatus = savedStatuses[key] || item.status || "접수대기";
-      const startTime = qrTimers[key] || null;
+      const timerData = qrTimers[key] || {};
       const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
+
+      const tr = document.createElement("tr");
+      if(currentStatus === "진료완료") tr.className = "row-done";
 
       let catOptions = CATEGORIES.map(c => `<option value="${c}" ${currentCat === c ? "selected" : ""}>${c}</option>`).join("");
 
-      const tr = document.createElement("tr");
       tr.innerHTML = `
         <td style="font-weight:900; color:#0369a1;">${21 + idx}</td>
         <td><span class="time-badge">${regTime}</span></td>
@@ -465,7 +510,7 @@ async function loadQrList(){
                  onkeydown="if(event.key==='Enter'){ this.blur(); }">
         </td>
         <td>
-          ${buildTimerBadge(`qr-${key}`, startTime, currentMin, currentStatus)}
+          ${buildTimerBadge(`qr-${key}`, timerData.start, currentMin, currentStatus, timerData.end)}
         </td>
         <td>
           <select class="status-select ${currentStatus === '진료중' ? 'status-treat' : currentStatus === '진료완료' ? 'status-done' : 'status-wait'}"
@@ -473,7 +518,11 @@ async function loadQrList(){
             <option value="접수대기" ${currentStatus === '접수대기' ? 'selected' : ''}>접수대기</option>
             <option value="진료중" ${currentStatus === '진료중' ? 'selected' : ''}>진료중</option>
             <option value="진료완료" ${currentStatus === '진료완료' ? 'selected' : ''}>진료완료</option>
+            <option value="자료삭제" class="status-delete">자료삭제</option>
           </select>
+        </td>
+        <td>
+          <button class="btn-del" onclick="deleteQrItem('${key}')">삭제</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -483,7 +532,6 @@ async function loadQrList(){
   }
 }
 
-// m5 실시간 통보 함수
 function notifyM5(){
   try {
     if (window.parent) {
@@ -504,17 +552,38 @@ function autoSaveQrCategory(key, val){
 }
 
 function autoSaveQrStatus(key, val){
+  if(val === "자료삭제"){
+    deleteQrItem(key);
+    return;
+  }
+
   const savedStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
   savedStatuses[key] = val;
   localStorage.setItem("m6_qr_statuses", JSON.stringify(savedStatuses));
 
   const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
+  if(!qrTimers[key]) qrTimers[key] = {};
+
   if(val === "진료중"){
-    if(!qrTimers[key]) qrTimers[key] = Date.now();
-  } else {
+    if(!qrTimers[key].start) qrTimers[key].start = Date.now();
+    qrTimers[key].end = null;
+  } else if(val === "진료완료"){
+    if(qrTimers[key].start && !qrTimers[key].end) qrTimers[key].end = Date.now();
+  } else if(val === "접수대기"){
     delete qrTimers[key];
   }
   localStorage.setItem("m6_qr_timers", JSON.stringify(qrTimers));
+
+  notifyM5();
+  loadQrList();
+}
+
+function deleteQrItem(key){
+  if(!confirm("이 접수 건을 목록에서 완전히 삭제하시겠습니까?")) return;
+
+  const deletedKeys = JSON.parse(localStorage.getItem("m6_qr_deleted") || "[]");
+  if(!deletedKeys.includes(key)) deletedKeys.push(key);
+  localStorage.setItem("m6_qr_deleted", JSON.stringify(deletedKeys));
 
   notifyM5();
   loadQrList();
@@ -524,15 +593,12 @@ async function autoSaveQrMinutes(key, val){
   const minVal = Number(val);
   if(isNaN(minVal) || minVal <= 0) return;
 
-  // 1. 로컬에 즉시 기록
   const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
   localMinutes[key] = minVal;
   localStorage.setItem("m6_qr_minutes", JSON.stringify(localMinutes));
 
-  // 2. m5에 0초 딜레이 즉시 갱신 신호 발송
   notifyM5();
 
-  // 3. 백엔드 서버 동기화
   try {
     await fetch(API_BASE + "/estimates", {
       method: "POST",
