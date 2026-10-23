@@ -36,33 +36,47 @@ body {
   box-shadow: 0 8px 24px rgba(18, 64, 42, 0.08);
 }
 
-/* Header & 초대형 디지털 시계 */
+/* Header & 날짜+시간 복합 시계 영역 */
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 18px;
+  padding: 8px 18px;
   background: linear-gradient(115deg, #e4f7e6, #ffffff 48%, #c9edcf);
   border-bottom: 2px solid #dcefe2;
 }
 .brandname {
-  font-size: clamp(18px, 1.6vw, 24px);
+  font-size: clamp(17px, 1.5vw, 22px);
   font-weight: 950;
   letter-spacing: -0.04em;
   color: #0b3425;
 }
-/* 디지털 시계 대폭 확대 */
+
+/* 월/일/요일 + 시:분:초 복합 디지털 시계 박스 */
 .clockbox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: #ffffff;
   border: 2px solid #bfe2cc;
-  padding: 6px 18px;
+  padding: 4px 16px;
   border-radius: 14px;
-  font-size: clamp(28px, 2.8vw, 42px);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.03), 0 2px 6px rgba(16, 185, 129, 0.12);
+}
+.clock-date {
+  font-size: clamp(11px, 0.9vw, 13px);
+  font-weight: 900;
+  color: #15803d;
+  letter-spacing: -0.02em;
+}
+.clock-time {
+  font-size: clamp(24px, 2.3vw, 36px);
   font-weight: 1000;
   color: #045233;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.04), 0 2px 6px rgba(16, 185, 129, 0.12);
+  line-height: 1.1;
 }
 
 /* 좌우 5:5 분할 */
@@ -168,7 +182,7 @@ header {
 .col-normal .num-badge { background: #fef3c7; color: #b45309; }
 .table-row.treating .num-badge { background: #2563eb; color: #fff; }
 
-/* 동물이름 크게 + 옆에 접수대기중 가로 나란히 배치 */
+/* 동물명 + 상태 뱃지 */
 .col-cell-pet {
   display: flex;
   align-items: center;
@@ -177,7 +191,7 @@ header {
   min-width: 0;
 }
 .pet-name {
-  font-size: clamp(18px, 1.7vw, 24px); /* 이름 대폭 확대 */
+  font-size: clamp(18px, 1.7vw, 24px);
   font-weight: 1000;
   color: #0f172a;
   white-space: nowrap;
@@ -258,7 +272,7 @@ header {
   font-weight: 700;
 }
 
-/* 하단 병원 소식/공지사항 배너 */
+/* 하단 병원 소식 배너 */
 .notice-bar {
   display: flex;
   align-items: center;
@@ -303,8 +317,11 @@ footer {
     <div class="brand">
       <div class="brandname">🐾 23시 하단오거리 동물병원 · 실시간 접수 대기판</div>
     </div>
-    <!-- 크고 선명해진 디지털 시계 -->
-    <div class="clockbox" id="clock">00:00:00</div>
+    <!-- 월/일/요일 + 시:분:초 시계 영역 -->
+    <div class="clockbox">
+      <div class="clock-date" id="clock-date">00월 00일 (요일)</div>
+      <div class="clock-time" id="clock-time">00:00:00</div>
+    </div>
   </header>
 
   <main class="split-container">
@@ -365,10 +382,28 @@ const listNormalEl = document.getElementById("list-normal");
 const countQrEl = document.getElementById("count-qr");
 const countNormalEl = document.getElementById("count-normal");
 const updatedEl = document.getElementById("updated");
+const clockDateEl = document.getElementById("clock-date");
+const clockTimeEl = document.getElementById("clock-time");
 
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+// 자정 넘김 대응 실시간 날짜+시간 타이머
 function tickClock(){
   const d = new Date();
-  document.getElementById("clock").textContent = d.toLocaleTimeString("ko-KR", {hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit"});
+  
+  // 1. 월 일 (요일)
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const w = WEEKDAYS[d.getDay()];
+  clockDateEl.textContent = `📅 ${m}월 ${day}일 (${w})`;
+
+  // 2. 24시간제 시:분:초
+  clockTimeEl.textContent = d.toLocaleTimeString("ko-KR", {
+    hour12: false, 
+    hour: "2-digit", 
+    minute: "2-digit", 
+    second: "2-digit"
+  });
 }
 tickClock();
 setInterval(tickClock, 1000);
@@ -389,7 +424,6 @@ function make(tag, cls, txt){
   return e;
 }
 
-// 행(Row) 생성: 이름 옆에 상태 뱃지 나란히 배치
 function createRow(displayNum, petName, category, minutes, cumulativeMinutes, cumulativeKnown, status){
   const treating = status === "진료중";
   const row = make("div", "table-row" + (treating ? " treating" : ""));
@@ -398,7 +432,7 @@ function createRow(displayNum, petName, category, minutes, cumulativeMinutes, cu
   const cellNum = make("div", "col-cell-num");
   cellNum.append(make("span", "num-badge", String(displayNum)));
 
-  // 2. 동물명 크게 + 상태 뱃지 가로 나란히
+  // 2. 동물명 + 상태 뱃지
   const cellPet = make("div", "col-cell-pet");
   const nameDiv = make("div", "pet-name", petName);
   const statusBadge = make("span", "pet-status-badge " + (treating ? "treat" : "wait"), treating ? "진료 진행 중" : "접수 대기중");
@@ -496,7 +530,6 @@ async function refresh(){
   }
 }
 
-// 1.5초 주기 초고속 자동 새로고침 + m6 조작 즉시 갱신
 refresh();
 setInterval(refresh, 1500);
 window.addEventListener("storage", refresh);
