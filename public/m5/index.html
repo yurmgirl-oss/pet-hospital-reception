@@ -4,35 +4,30 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>23시 하단오거리 동물병원 · 접수 안내</title>
 <style>
-:root{--green:#15803d;--deep:#14532d;--mint:#ecfdf5;--blue:#1d4ed8;--ink:#172033;--muted:#64748b;--line:#e2e8f0}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;color:var(--ink);background:#f7faf8}
-body{padding:clamp(16px,2.5vw,36px)}
-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 4px 24px;border-bottom:2px solid #d9eee1}
-.brand{font-size:clamp(20px,2vw,30px);font-weight:850;letter-spacing:-.04em}.sub{color:var(--muted);font-size:clamp(12px,1vw,15px);margin-top:7px}
-.live{display:flex;align-items:center;gap:10px;border:1px solid #bbf7d0;background:#f0fdf4;color:var(--deep);border-radius:999px;padding:11px 16px;font-weight:800;white-space:nowrap}
+:root{--green:#15803d;--deep:#14532d;--mint:#ecfdf5;--blue:#1d4ed8;--ink:#172033;--muted:#64748b;--line:#dceee2}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;color:var(--ink);background:linear-gradient(145deg,#f0fdf4 0%,#f8fffb 48%,#eff6ff 100%)}
+body{padding:clamp(14px,2.4vw,34px)}
+header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 4px 22px;border-bottom:2px solid #cdebd7;max-width:1600px;margin:auto}
+.brand{font-size:clamp(21px,2vw,31px);font-weight:900;letter-spacing:-.045em;color:#14532d}.sub{color:var(--muted);font-size:clamp(12px,1vw,15px);margin-top:7px}
+.live{display:flex;align-items:center;gap:10px;border:1px solid #bbf7d0;background:#f0fdf4;color:var(--deep);border-radius:999px;padding:11px 16px;font-weight:800;white-space:nowrap;box-shadow:0 4px 14px #1665340c}
 .dot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 5px #bbf7d0;animation:pulse 1.35s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.78)}}
-main{max-width:1600px;margin:24px auto}
-.columns{display:grid;grid-template-columns:minmax(110px,.65fr) minmax(180px,1.4fr) minmax(220px,2fr) minmax(170px,1fr);gap:18px;padding:0 24px 12px;color:#64748b;font-size:clamp(12px,.95vw,15px);font-weight:800}
-.list{display:flex;flex-direction:column;gap:9px}
-.entry{display:grid;grid-template-columns:minmax(110px,.65fr) minmax(180px,1.4fr) minmax(220px,2fr) minmax(170px,1fr);gap:18px;align-items:center;background:white;border:1px solid var(--line);border-radius:18px;padding:16px 24px;box-shadow:0 3px 12px #0f172a08;min-height:98px;animation:arrive .35s ease-out}
+main{max-width:1600px;margin:24px auto}.columns{display:grid;grid-template-columns:84px minmax(130px,1fr) minmax(180px,1.6fr) minmax(170px,1fr);gap:16px;padding:0 22px 10px;color:#64748b;font-size:clamp(12px,.95vw,15px);font-weight:850}
+.list{display:flex;flex-direction:column;gap:12px}.entry{display:grid;grid-template-columns:84px minmax(130px,1fr) minmax(180px,1.6fr) minmax(170px,1fr);gap:16px;align-items:center;background:#ffffffed;border:1px solid var(--line);border-radius:22px;padding:15px 22px;box-shadow:0 7px 22px #14532d0b;min-height:118px;animation:arrive .35s ease-out;position:relative;overflow:hidden}
+.entry:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(#4ade80,#86efac)}
 @keyframes arrive{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.num{display:flex;align-items:center;justify-content:center;width:clamp(72px,7vw,100px);height:clamp(58px,5.7vw,76px);border-radius:17px;background:linear-gradient(145deg,#dcfce7,#bbf7d0);color:#166534;font-size:clamp(25px,2.6vw,38px);font-weight:950;letter-spacing:-.05em;border:1px solid #86efac}
-.pet{font-size:clamp(19px,1.7vw,27px);font-weight:850;letter-spacing:-.035em;overflow-wrap:anywhere}
-.reason{font-size:clamp(15px,1.25vw,20px);color:#475569;line-height:1.4;overflow-wrap:anywhere}
-.right{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
-.status{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 13px;font-size:clamp(13px,1.05vw,17px);font-weight:850;white-space:nowrap}
-.status.wait{background:#f0fdf4;color:#166534}.status.wait .sdot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 1.15s infinite}
-.status.treat{background:#eff6ff;color:#1d4ed8}.status.treat .sdot{width:8px;height:8px;background:#3b82f6;border-radius:50%;animation:pulse 1.7s infinite}
-.estimate{font-size:clamp(13px,1.1vw,17px);font-weight:750;color:#334155}.estimate strong{color:#15803d}
-.empty{padding:70px 20px;text-align:center;background:white;border:1px dashed #cbd5e1;border-radius:20px;color:#64748b;font-size:clamp(18px,1.8vw,25px)}
-footer{max-width:1600px;margin:22px auto 0;display:flex;justify-content:space-between;gap:14px;color:#94a3b8;font-size:12px}
-@media(max-width:760px){body{padding:12px}header{align-items:flex-start}.live{font-size:12px;padding:8px 10px}.columns{display:none}.entry{grid-template-columns:74px 1fr;gap:8px 14px;padding:14px}.num{grid-row:span 2;width:66px;height:60px;font-size:26px}.pet{font-size:20px}.reason{grid-column:2;font-size:14px}.right{grid-column:2;flex-direction:row;align-items:center;flex-wrap:wrap}.status{font-size:12px}.estimate{font-size:13px}footer{font-size:10px}}
+.num{display:flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:20px;background:linear-gradient(145deg,#dcfce7,#bbf7d0);color:#166534;font-size:clamp(25px,2.4vw,36px);font-weight:950;letter-spacing:-.05em;border:1px solid #86efac}
+.patient{display:flex;align-items:center;gap:13px;min-width:0}.animal{width:70px;height:70px;flex:0 0 70px;border-radius:20px;background:linear-gradient(145deg,#f0fdf4,#e0f2fe);border:1px solid #d1fae5;display:flex;align-items:center;justify-content:center;font-size:42px;box-shadow:inset 0 0 0 4px #ffffffa8}.petinfo{min-width:0}.pet{font-size:clamp(19px,1.6vw,26px);font-weight:900;letter-spacing:-.035em;overflow-wrap:anywhere}.kind{display:inline-flex;margin-top:5px;border-radius:999px;padding:3px 9px;background:#f0fdf4;color:#166534;font-size:11px;font-weight:800}
+.reason{font-size:clamp(15px,1.2vw,19px);color:#475569;line-height:1.45;overflow-wrap:anywhere}.right{display:flex;flex-direction:column;align-items:flex-start;gap:8px}.status{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 13px;font-size:clamp(13px,1.02vw,16px);font-weight:850;white-space:nowrap}.status.wait{background:#f0fdf4;color:#166534}.status.wait .sdot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 1.15s infinite}.status.treat{background:#eff6ff;color:#1d4ed8}.status.treat .sdot{width:8px;height:8px;background:#3b82f6;border-radius:50%;animation:pulse 1.7s infinite}.estimate{font-size:clamp(13px,1.08vw,17px);font-weight:800;color:#334155}.estimate strong{color:#15803d}
+.empty{padding:70px 20px;text-align:center;background:#ffffffd9;border:1px dashed #b7d9c2;border-radius:22px;color:#64748b;font-size:clamp(18px,1.8vw,25px);white-space:pre-line}
+footer{max-width:1600px;margin:22px auto 0;display:flex;justify-content:space-between;gap:14px;color:#718096;font-size:12px}
+@media(max-width:850px){body{padding:12px}header{align-items:flex-start}.live{font-size:11px;padding:8px 10px;gap:7px}.columns{display:none}.entry{grid-template-columns:62px minmax(0,1fr);gap:10px 13px;padding:13px 14px}.num{grid-row:span 2;width:58px;height:58px;font-size:24px;border-radius:16px}.patient{grid-column:2;gap:10px}.animal{width:55px;height:55px;flex-basis:55px;font-size:33px;border-radius:16px}.pet{font-size:19px}.reason{grid-column:2;font-size:14px}.right{grid-column:2;flex-direction:row;align-items:center;flex-wrap:wrap;gap:7px}.status{font-size:12px;padding:7px 10px}.estimate{font-size:13px}footer{font-size:10px;flex-direction:column;gap:5px}}
+@media(min-width:851px) and (max-width:1100px){.columns,.entry{grid-template-columns:70px minmax(150px,1.2fr) minmax(150px,1.5fr) minmax(150px,1fr);gap:12px}.entry{padding:14px 18px}.animal{width:58px;height:58px;flex-basis:58px;font-size:35px}.patient{gap:9px}}
 </style>
 </head>
 <body>
 <header><div><div class="brand">23시 하단오거리 동물병원</div><div class="sub">접수 현황 안내 · 순서와 예상 소요시간을 확인하세요</div></div><div class="live"><span class="dot"></span> 접수 현황 실시간 확인 중</div></header>
-<main><div class="columns"><div>접수번호</div><div>환자 이름</div><div>내원 사유</div><div>현재 상태 · 예상시간</div></div><section id="list" class="list"><div class="empty">접수 현황을 확인하고 있습니다…</div></section></main>
+<main><div class="columns"><div>순번</div><div>환자</div><div>내원 사유</div><div>현재 상태 · 예상시간</div></div><section id="list" class="list"><div class="empty">접수 현황을 확인하고 있습니다…</div></section></main>
 <footer><span>진료 상황에 따라 예상 소요시간은 달라질 수 있습니다.</span><span id="updated">연결 중</span></footer>
 <script>
 const API_BASE = "https://m5-api.yurmgirl.workers.dev";
@@ -46,24 +41,32 @@ function statusOf(item){return safeText(item.status||"접수대기")}
 function active(item){const s=statusOf(item);return !["완료","진료완료","취소","종료"].includes(s)}
 function estimateText(v){if(v===null||v===undefined||v==="")return "예상시간 확인 중";if(v==="unknown")return "예상시간 미정";const n=Number(v);return Number.isFinite(n)&&n>0?`예상 약 ${n}분`:"예상시간 확인 중"}
 function make(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
-function render(items, estimates){
+const ANIMALS={dog:{label:"강아지",emoji:"🐶"},cat:{label:"고양이",emoji:"🐱"},small_mammal:{label:"소동물",emoji:"🐹"},bird:{label:"조류",emoji:"🦜"},reptile:{label:"파충류",emoji:"🦎"},other:{label:"기타 동물",emoji:"🐾"}};
+function render(items, estimates, animalTypes){
  const activeItems=(Array.isArray(items)?items:[]).filter(active).sort((a,b)=>{
    const ta=Date.parse(a.created_at||a.createdAt||0)||0, tb=Date.parse(b.created_at||b.createdAt||0)||0;
    return ta-tb;
  });
- const sig=JSON.stringify([activeItems.map(x=>[x.id,x.pet_name,x.status,x.created_at,x.payload,x.symptom,x.symptoms]),estimates]);
+ const sig=JSON.stringify([activeItems.map(x=>[x.id,x.pet_name,x.status,x.created_at,x.payload,x.symptom,x.symptoms]),estimates,animalTypes]);
  if(sig===lastSignature)return;lastSignature=sig;listEl.replaceChildren();
- if(!activeItems.length){listEl.append(make("div","empty","현재 대기 중인 접수가 없습니다.\\n접수가 등록되면 이 화면에 표시됩니다."));return}
+ if(!activeItems.length){listEl.append(make("div","empty","현재 대기 중인 접수가 없습니다.\n접수가 등록되면 이 화면에 표시됩니다."));return}
  activeItems.forEach((item,index)=>{
    const row=make("article","entry"),num=make("div","num",String(index+1).padStart(2,"0"));
+   const key=String(item.id??item.reception_id??"");
    const pet=make("div","pet",safeText(item.pet_name||item.animal_name||"이름 미입력"));
+   const animalType=animalTypes&&animalTypes[key]?animalTypes[key]:"other";
+   const animal=ANIMALS[animalType]||ANIMALS.other;
+   const illustration=make("div","animal",animal.emoji);illustration.setAttribute("aria-label",animal.label);
+   const kind=make("div","kind",animal.label);
+   const petinfo=make("div","petinfo");petinfo.append(pet,kind);
+   const patient=make("div","patient");patient.append(illustration,petinfo);
    const payload=getPayload(item);const reason=safeText(payload.reason||item.symptom||item.symptoms||"내원 사유 확인 중");
    const why=make("div","reason",reason);
    const right=make("div","right");const s=statusOf(item);const treating=/진료중|진료 중|치료중|치료 중/.test(s);
    const badge=make("div","status "+(treating?"treat":"wait"));badge.append(make("span","sdot"),document.createTextNode(treating?"진료 진행 중":"접수중"));
-   const key=String(item.id??item.reception_id??"");const val=estimates&&Object.prototype.hasOwnProperty.call(estimates,key)?estimates[key]:null;
+   const val=estimates&&Object.prototype.hasOwnProperty.call(estimates,key)?estimates[key]:null;
    right.append(badge,make("div","estimate",estimateText(val)));
-   row.append(num,pet,why,right);listEl.append(row);
+   row.append(num,patient,why,right);listEl.append(row);
  });
 }
 async function refresh(){
@@ -72,9 +75,9 @@ async function refresh(){
    if(!r.ok)throw new Error("접수 목록을 읽지 못했습니다 ("+r.status+")");
    if(!e.ok)throw new Error("예상시간 서버에 연결할 수 없습니다 ("+e.status+")");
    const receptions=await r.json();const estimateData=await e.json();
-   render(Array.isArray(receptions)?receptions:(receptions.items||[]),estimateData.estimates||{});
+   render(Array.isArray(receptions)?receptions:(receptions.items||[]),estimateData.estimates||{},estimateData.animalTypes||{});
    updatedEl.textContent="마지막 갱신 "+new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
- }catch(err){updatedEl.textContent="연결 확인 필요";if(!listEl.children.length||listEl.querySelector(".empty"))listEl.replaceChildren(make("div","empty","서버에 연결하지 못했습니다.\\n관리자에게 연결 상태를 확인해 주세요."));console.error(err)}
+ }catch(err){updatedEl.textContent="연결 확인 필요";if(!listEl.children.length||listEl.querySelector(".empty"))listEl.replaceChildren(make("div","empty","서버에 연결하지 못했습니다.\n관리자에게 연결 상태를 확인해 주세요."));console.error(err)}
 }
 refresh();setInterval(refresh,5000);
 </script>
