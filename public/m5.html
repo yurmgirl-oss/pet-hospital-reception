@@ -24,6 +24,7 @@ body {
   padding: 8px;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .screen {
   flex: 1;
@@ -34,6 +35,7 @@ body {
   overflow: hidden;
   border: 1px solid #cce8d4;
   box-shadow: 0 8px 24px rgba(18, 64, 42, 0.08);
+  position: relative;
 }
 
 header {
@@ -302,10 +304,92 @@ footer {
   background: #f8fafc;
   border-top: 1px solid #e2e8f0;
 }
+
+/* =========================================================
+   🚨 [NEW] 화면 정중앙 깜빡이는 긴급 공지 오버레이 스타일 
+========================================================= */
+.urgent-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(5px);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.urgent-box {
+  background: #ffffff;
+  border: 4px solid #ef4444;
+  border-radius: 24px;
+  padding: 28px 32px;
+  max-width: 650px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(239, 68, 68, 0.35);
+  animation: urgentBlink 1.2s infinite alternate ease-in-out;
+}
+@keyframes urgentBlink {
+  0% {
+    border-color: #ef4444;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.6), inset 0 0 15px rgba(239, 68, 68, 0.2);
+    transform: scale(0.98);
+  }
+  100% {
+    border-color: #f59e0b;
+    box-shadow: 0 0 45px rgba(245, 158, 11, 0.8), inset 0 0 25px rgba(245, 158, 11, 0.3);
+    transform: scale(1.02);
+  }
+}
+.urgent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 2px solid #ef4444;
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-size: clamp(16px, 1.6vw, 22px);
+  font-weight: 1000;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+.urgent-text-content {
+  font-size: clamp(22px, 2.3vw, 34px);
+  font-weight: 1000;
+  color: #1e293b;
+  line-height: 1.35;
+  letter-spacing: -0.04em;
+  word-break: keep-all;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.urgent-sub {
+  margin-top: 14px;
+  font-size: clamp(13px, 1.1vw, 16px);
+  color: #64748b;
+  font-weight: 800;
+}
 </style>
 </head>
 <body>
 <div class="screen">
+
+  <!-- 🚨 화면 정중앙 깜빡이는 긴급공지 팝업 모달 -->
+  <div id="urgent-modal" class="urgent-overlay">
+    <div class="urgent-box">
+      <div class="urgent-badge">
+        <span>🚨</span>
+        <span>병원 안내 · 긴급 공지</span>
+      </div>
+      <div id="urgent-modal-text" class="urgent-text-content">
+        응급 처치 진행 중입니다. 잠시만 대기해 주세요.
+      </div>
+      <div class="urgent-sub">보호자님의 너른 양해 부탁드립니다. 🙏</div>
+    </div>
+  </div>
+
   <header>
     <div class="brand">
       <div class="brandname">🐾 23시 하단오거리 동물병원 · 실시간 접수 대기판</div>
@@ -376,6 +460,9 @@ const updatedEl = document.getElementById("updated");
 const clockDateEl = document.getElementById("clock-date");
 const clockTimeEl = document.getElementById("clock-time");
 
+const urgentModal = document.getElementById("urgent-modal");
+const urgentModalText = document.getElementById("urgent-modal-text");
+
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 function tickClock(){
@@ -411,6 +498,17 @@ function make(tag, cls, txt){
   return e;
 }
 
+// 🚨 긴급 공지 체크 및 표시
+function checkUrgentNotice(){
+  const data = JSON.parse(localStorage.getItem("m6_urgent_notice") || "null");
+  if(data && data.active && data.text){
+    urgentModalText.textContent = data.text;
+    urgentModal.style.display = "flex";
+  } else {
+    urgentModal.style.display = "none";
+  }
+}
+
 function createRow(displayNum, petName, category, minutes, cumulativeMinutes, cumulativeKnown, status){
   const treating = status === "진료중";
   const row = make("div", "table-row" + (treating ? " treating" : ""));
@@ -438,13 +536,11 @@ function createRow(displayNum, petName, category, minutes, cumulativeMinutes, cu
 }
 
 function render(qrItems, estimates, categories, qrStatuses, manualBookings, localMinutes, deletedKeys){
-  // 1. QR 목록: '진료완료', '자료삭제', 'm6_qr_deleted'에 포함된 환자는 m5에서 즉시 제외!
+  checkUrgentNotice();
+
   const activeQr = (Array.isArray(qrItems) ? qrItems : []).filter(item => {
     const k = String(item.id ?? item.reception_id ?? "");
-    
-    // [핵심 필터링] 삭제 목록에 있거나 자료삭제/진료완료 상태인 경우 m5 화면에서 즉시 제거
     if (deletedKeys && deletedKeys.includes(k)) return false;
-
     const st = qrStatuses[k] || item.status || "접수대기";
     return !["완료", "진료완료", "자료삭제", "취소", "종료"].includes(st);
   }).sort((a,b)=>{
@@ -477,7 +573,6 @@ function render(qrItems, estimates, categories, qrStatuses, manualBookings, loca
     });
   }
 
-  // 2. 일반예약 목록: '진료완료' 및 삭제된 항목은 m5 화면에서 즉시 제외
   const activeManual = (Array.isArray(manualBookings) ? manualBookings : []).filter(item => {
     return item.status !== "진료완료" && item.status !== "자료삭제";
   });
@@ -520,7 +615,7 @@ async function refresh(){
       savedQrStatuses,
       manualBookings,
       localMinutes,
-      deletedKeys // 삭제 키 전달
+      deletedKeys
     );
     updatedEl.textContent = "갱신 " + new Date().toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
   } catch(err) {
@@ -528,12 +623,10 @@ async function refresh(){
   }
 }
 
-// 1초 단위 실시간 자동 동기화
 refresh();
 setInterval(refresh, 1000);
 window.addEventListener("storage", refresh);
 
-// m6 또는 m3에서 삭제 메시지를 보내면 0.05초 만에 즉시 실행
 window.addEventListener("message", (e) => {
   if (e.data === "reload_m5" || e.data === "sync_m5") {
     refresh();
