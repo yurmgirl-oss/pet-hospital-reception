@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>23시 하단오거리 동물병원 · 접수 안내 (m5)</title>
+<title>23시 하단오거리 동물병원 · 대기 현황판 (m5)</title>
 <style>
 :root {
   --green: #16875a;
@@ -36,7 +36,7 @@ body {
   box-shadow: 0 8px 24px rgba(18, 64, 42, 0.08);
 }
 
-/* Header 영역 */
+/* Header */
 header {
   display: flex;
   align-items: center;
@@ -50,7 +50,6 @@ header {
   align-items: center;
   gap: 8px;
 }
-.logo { font-size: 24px; }
 .brandname {
   font-size: 19px;
   font-weight: 950;
@@ -72,14 +71,13 @@ header {
 .split-container {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 반반 분할 */
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   padding: 12px;
   background: #f4faf6;
   overflow: hidden;
 }
 
-/* 좌우 분할 패널 (QR예약 / 일반접수) */
 .col-panel {
   display: flex;
   flex-direction: column;
@@ -90,7 +88,7 @@ header {
   overflow: hidden;
 }
 
-/* 패널 상단 타이틀 바 */
+/* 상단 타이틀 바 */
 .col-header {
   padding: 10px 16px;
   display: flex;
@@ -125,11 +123,11 @@ header {
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* 테이블 줄(Row) 헤더 (번호 / 동물이름 / 소요시간) */
+/* 4열 테이블 헤더 [번호 / 동물명 / 분류 / 소요시간] */
 .table-header {
   display: grid;
-  grid-template-columns: 50px 1fr 140px;
-  padding: 8px 14px;
+  grid-template-columns: 46px 1fr 90px 115px;
+  padding: 8px 12px;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   font-size: 12px;
@@ -138,7 +136,6 @@ header {
   text-align: center;
 }
 
-/* 스크롤 가능한 줄 목록 본문 */
 .table-body {
   flex: 1;
   overflow-y: auto;
@@ -148,10 +145,10 @@ header {
   padding: 8px;
 }
 
-/* 각 대기 줄(Row) */
+/* 대기 줄(Row) */
 .table-row {
   display: grid;
-  grid-template-columns: 50px 1fr 140px;
+  grid-template-columns: 46px 1fr 90px 115px;
   align-items: center;
   padding: 8px 10px;
   border-radius: 10px;
@@ -163,8 +160,6 @@ header {
   background: #f8fafc;
   border-color: #cbd5e1;
 }
-
-/* 진료 진행 중인 줄 하이라이트 */
 .table-row.treating {
   background: #eff6ff;
   border: 1.5px solid #93c5fd;
@@ -172,41 +167,29 @@ header {
 }
 
 /* 1. 번호 */
-.col-cell-num {
-  text-align: center;
-}
+.col-cell-num { text-align: center; }
 .num-badge {
   display: inline-block;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 4px 6px;
+  border-radius: 7px;
   background: #e2e8f0;
   color: #334155;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 950;
-  min-width: 34px;
+  min-width: 32px;
 }
 .table-row.treating .num-badge {
   background: #2563eb;
   color: #fff;
 }
 
-/* 2. 동물이름 및 아이콘 */
+/* 2. 동물명 (매칭 아이콘 삭제 및 텍스트 강조) */
 .col-cell-pet {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding-left: 8px;
   min-width: 0;
 }
-.pet-icon {
-  font-size: 24px;
-  flex: none;
-}
-.pet-name-wrap {
-  min-width: 0;
-}
 .pet-name {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 1000;
   color: #0f172a;
   white-space: nowrap;
@@ -217,21 +200,35 @@ header {
   font-size: 10px;
   font-weight: 800;
   color: #16a34a;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
+  display: block;
+  margin-top: 2px;
 }
 .table-row.treating .pet-status-tag {
   color: #2563eb;
 }
 
-/* 3. 소요시간 및 진료시간 */
+/* 3. 분류 (새로 추가됨) */
+.col-cell-category {
+  text-align: center;
+}
+.category-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  white-space: nowrap;
+}
+
+/* 4. 소요시간 */
 .col-cell-time {
   display: flex;
   flex-direction: column;
   gap: 2px;
   text-align: right;
-  padding-right: 4px;
 }
 .est-badge {
   font-size: 12px;
@@ -239,7 +236,7 @@ header {
   color: #047857;
   background: #ecfdf5;
   border: 1px solid #a7f3d0;
-  padding: 2px 6px;
+  padding: 2px 4px;
   border-radius: 6px;
   text-align: center;
   white-space: nowrap;
@@ -250,7 +247,7 @@ header {
   color: #c2410c;
   background: #fff7ed;
   border: 1px solid #fed7aa;
-  padding: 2px 6px;
+  padding: 2px 4px;
   border-radius: 6px;
   text-align: center;
   white-space: nowrap;
@@ -260,11 +257,10 @@ header {
   padding: 40px 10px;
   text-align: center;
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
-/* 하단 푸터 */
 footer {
   display: flex;
   justify-content: space-between;
@@ -281,44 +277,44 @@ footer {
 <div class="screen">
   <header>
     <div class="brand">
-      <div class="logo">🐶🐱</div>
-      <div class="brandname">23시 하단오거리 동물병원 · 실시간 대기 현황판</div>
+      <div class="brandname">🐾 23시 하단오거리 동물병원 · 실시간 접수 대기판</div>
     </div>
     <div class="clockbox" id="clock">00:00:00</div>
   </header>
 
-  <!-- 좌우 5:5 분할 영역 -->
   <main class="split-container">
     
-    <!-- [왼쪽] QR 사전예약 대기열 -->
+    <!-- [왼쪽] 원내 접수현황판에서 연동되는 QR접수 -->
     <section class="col-panel col-qr">
       <div class="col-header">
-        <div class="col-title">📱 QR 사전예약</div>
+        <div class="col-title">📱 QR 사전접수</div>
         <div class="col-count" id="count-qr">0명 대기</div>
       </div>
       <div class="table-header">
         <div>번호</div>
-        <div style="text-align: left; padding-left: 8px;">동물이름</div>
+        <div style="text-align: left; padding-left: 8px;">동물명</div>
+        <div>분류</div>
         <div>소요시간</div>
       </div>
       <div class="table-body" id="list-qr">
-        <div class="empty-col">대기 중인 예약 환자가 없습니다.</div>
+        <div class="empty-col">대기 중인 QR접수가 없습니다.</div>
       </div>
     </section>
 
-    <!-- [오른쪽] 일반 현장접수 대기열 -->
+    <!-- [오른쪽] 데스크에서 직접 기재하는 일반예약 -->
     <section class="col-panel col-normal">
       <div class="col-header">
-        <div class="col-title">🏥 일반 현장접수</div>
+        <div class="col-title">🏥 일반 현장예약</div>
         <div class="col-count" id="count-normal">0명 대기</div>
       </div>
       <div class="table-header">
         <div>번호</div>
-        <div style="text-align: left; padding-left: 8px;">동물이름</div>
+        <div style="text-align: left; padding-left: 8px;">동물명</div>
+        <div>분류</div>
         <div>소요시간</div>
       </div>
       <div class="table-body" id="list-normal">
-        <div class="empty-col">대기 중인 접수 환자가 없습니다.</div>
+        <div class="empty-col">등록된 일반예약이 없습니다.</div>
       </div>
     </section>
 
@@ -347,13 +343,6 @@ tickClock();
 setInterval(tickClock, 1000);
 
 function safeText(v){ return v == null ? "" : String(v); }
-function getPayload(item){
-  let p = item?.payload;
-  if(typeof p === "string"){
-    try{ p = JSON.parse(p); }catch{ p = {}; }
-  }
-  return p && typeof p === "object" ? p : {};
-}
 function statusOf(item){ return safeText(item.status || "접수대기"); }
 function active(item){
   const s = statusOf(item);
@@ -374,107 +363,76 @@ function make(tag, cls, txt){
   return e;
 }
 
-const ANIMALS = {
-  dog: { label: "강아지", emoji: "🐶" },
-  cat: { label: "고양이", emoji: "🐱" },
-  small_mammal: { label: "소동물", emoji: "🐹" },
-  bird: { label: "조류", emoji: "🦜" },
-  reptile: { label: "파충류", emoji: "🦎" },
-  other: { label: "기타 동물", emoji: "🐾" }
-};
-
-// QR 예약 여부 판별 함수 (payload 및 item 프로퍼티 검사)
-function isQrReservation(item, payload){
-  const source = safeText(item.source || item.type || payload.type || payload.source || payload.channel || "").toLowerCase();
-  const isQr = item.is_qr || payload.is_qr || item.qr || payload.qr;
-  return isQr || source.includes("qr") || source.includes("사전") || source.includes("예약");
-}
-
-function createRow(item, index, cumulativeMinutes, cumulativeKnown, estimates, animalTypes){
-  const key = String(item.id ?? item.reception_id ?? "");
-  const s = statusOf(item);
-  const treating = /진료중|진료 중|치료중|치료 중/.test(s);
-  
-  const row = make("div", "table-row" + (treating ? " treating" : ""));
+// 행(Row) 생성: [번호] [동물명] [분류] [소요시간]
+function createRow(index, petName, category, minutes, cumulativeMinutes, cumulativeKnown, isTreating){
+  const row = make("div", "table-row" + (isTreating ? " treating" : ""));
 
   // 1. 번호
   const cellNum = make("div", "col-cell-num");
-  const numBadge = make("span", "num-badge", String(index + 1).padStart(2, "0"));
-  cellNum.append(numBadge);
+  cellNum.append(make("span", "num-badge", String(index + 1).padStart(2, "0")));
 
-  // 2. 동물이름 & 아이콘
-  const animalType = animalTypes && animalTypes[key] ? animalTypes[key] : "other";
-  const animal = ANIMALS[animalType] || ANIMALS.other;
+  // 2. 동물명
   const cellPet = make("div", "col-cell-pet");
-  const petIcon = make("span", "pet-icon", animal.emoji);
-  const nameWrap = make("div", "pet-name-wrap");
-  const petName = make("div", "pet-name", safeText(item.pet_name || item.animal_name || "이름 미입력"));
-  const statusTag = make("span", "pet-status-tag", treating ? "● 진료 진행 중" : "대기 중");
-  nameWrap.append(petName, statusTag);
-  cellPet.append(petIcon, nameWrap);
+  const nameDiv = make("div", "pet-name", petName);
+  const statusTag = make("span", "pet-status-tag", isTreating ? "● 진료 진행 중" : "대기 중");
+  cellPet.append(nameDiv, statusTag);
 
-  // 3. 소요시간 & 예상시간
+  // 3. 분류
+  const cellCat = make("div", "col-cell-category");
+  cellCat.append(make("span", "category-badge", category || "일반진료"));
+
+  // 4. 소요시간
   const cellTime = make("div", "col-cell-time");
-  const val = estimates && Object.prototype.hasOwnProperty.call(estimates, key) ? estimates[key] : null;
-  const minutes = estimateMinutes(val);
-  const estBadge = make("span", "est-badge", minutes === null ? "소요 미정" : `소요 ${minutes}분`);
+  const estBadge = make("span", "est-badge", minutes === null ? "소요 미정" : `${minutes}분`);
   const expBadge = make("span", "exp-badge", cumulativeKnown 
     ? clockText(new Date(Date.now() + cumulativeMinutes * 60000)) + " 예정" 
     : "시각 미정");
   cellTime.append(estBadge, expBadge);
 
-  row.append(cellNum, cellPet, cellTime);
+  row.append(cellNum, cellPet, cellCat, cellTime);
   return row;
 }
 
-function render(items, estimates, animalTypes){
-  const activeItems = (Array.isArray(items) ? items : []).filter(active).sort((a,b)=>{
+function render(qrItems, estimates, categories, manualBookings){
+  // 1. 왼쪽: 원내 접수현황판 QR접수 렌더링
+  const activeQr = (Array.isArray(qrItems) ? qrItems : []).filter(active).sort((a,b)=>{
     const ta = Date.parse(a.created_at || a.createdAt || 0) || 0;
     const tb = Date.parse(b.created_at || b.createdAt || 0) || 0;
     return ta - tb;
   });
 
   listQrEl.replaceChildren();
-  listNormalEl.replaceChildren();
+  countQrEl.textContent = `${activeQr.length}명 대기`;
 
-  const qrList = [];
-  const normalList = [];
-
-  activeItems.forEach(item => {
-    const payload = getPayload(item);
-    if(isQrReservation(item, payload)){
-      qrList.push(item);
-    } else {
-      normalList.push(item);
-    }
-  });
-
-  countQrEl.textContent = `${qrList.length}명 대기`;
-  countNormalEl.textContent = `${normalList.length}명 대기`;
-
-  // QR 목록 렌더링
-  if(!qrList.length){
-    listQrEl.append(make("div", "empty-col", "대기 중인 QR예약이 없습니다."));
+  if(!activeQr.length){
+    listQrEl.append(make("div", "empty-col", "대기 중인 QR접수가 없습니다."));
   } else {
     let cumulative = 0, known = true;
-    qrList.forEach((item, idx) => {
+    activeQr.forEach((item, idx) => {
       const key = String(item.id ?? item.reception_id ?? "");
-      const minutes = estimateMinutes(estimates[key]);
+      const petName = safeText(item.pet_name || item.animal_name || "이름 미입력");
+      const category = categories && categories[key] ? categories[key] : (item.category || item.disease || "일반진료");
+      const minutes = estimateMinutes(estimates && estimates[key]);
       if(minutes === null) known = false; else cumulative += minutes;
-      listQrEl.append(createRow(item, idx, cumulative, known, estimates, animalTypes));
+      const treating = /진료중|진료 중|치료중|치료 중/.test(statusOf(item));
+
+      listQrEl.append(createRow(idx, petName, category, minutes, cumulative, known, treating));
     });
   }
 
-  // 일반 접수 목록 렌더링
-  if(!normalList.length){
-    listNormalEl.append(make("div", "empty-col", "대기 중인 일반접수가 없습니다."));
+  // 2. 오른쪽: m6에서 수기 입력한 일반예약 목록 (로컬스토리지 연동)
+  listNormalEl.replaceChildren();
+  const activeManual = Array.isArray(manualBookings) ? manualBookings : [];
+  countNormalEl.textContent = `${activeManual.length}명 대기`;
+
+  if(!activeManual.length){
+    listNormalEl.append(make("div", "empty-col", "등록된 일반예약이 없습니다."));
   } else {
-    let cumulative = 0, known = true;
-    normalList.forEach((item, idx) => {
-      const key = String(item.id ?? item.reception_id ?? "");
-      const minutes = estimateMinutes(estimates[key]);
-      if(minutes === null) known = false; else cumulative += minutes;
-      listNormalEl.append(createRow(item, idx, cumulative, known, estimates, animalTypes));
+    let cumulativeM = 0, knownM = true;
+    activeManual.forEach((item, idx) => {
+      const minutes = estimateMinutes(item.minutes);
+      if(minutes === null) knownM = false; else cumulativeM += minutes;
+      listNormalEl.append(createRow(idx, item.petName, item.category, minutes, cumulativeM, knownM, item.treating));
     });
   }
 }
@@ -485,14 +443,18 @@ async function refresh(){
       fetch(RECEPTION_API, { cache: "no-store" }),
       fetch(API_BASE + "/estimates", { cache: "no-store" })
     ]);
-    if(!r.ok) throw new Error("접수 목록 조회 실패 (" + r.status + ")");
-    if(!e.ok) throw new Error("예상시간 서버 조회 실패 (" + e.status + ")");
-    const receptions = await r.json();
-    const estimateData = await e.json();
+    const qrData = r.ok ? await r.json() : [];
+    const estimateData = e.ok ? await e.json() : {};
+
+    // 로컬스토리지에서 m6가 등록한 분류 및 수기 일반예약 데이터 로드
+    const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
+    const manualBookings = JSON.parse(localStorage.getItem("m6_manual_bookings") || "[]");
+
     render(
-      Array.isArray(receptions) ? receptions : (receptions.items || []),
+      Array.isArray(qrData) ? qrData : (qrData.items || []),
       estimateData.estimates || {},
-      estimateData.animalTypes || {}
+      savedCategories,
+      manualBookings
     );
     updatedEl.textContent = "갱신 " + new Date().toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
   } catch(err) {
@@ -501,8 +463,10 @@ async function refresh(){
   }
 }
 
+// 5초 주기 갱신 및 m6 저장 이벤트 즉각 반응
 refresh();
 setInterval(refresh, 5000);
+window.addEventListener("storage", refresh);
 </script>
 </body>
 </html>
