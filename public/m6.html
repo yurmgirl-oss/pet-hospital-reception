@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>접수 예상시간 관리</title>
+<style>
+:root{--green:#15803d;--ink:#172033;--muted:#64748b;--line:#e2e8f0}*{box-sizing:border-box}body{margin:0;background:#f6faf7;color:var(--ink);font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;padding:22px}
+.wrap{max-width:1100px;margin:auto}.head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}.title{font-size:26px;font-weight:900;letter-spacing:-.04em}.sub{color:var(--muted);margin-top:6px}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px #0f172a08}
+button,input,select{font:inherit;border-radius:10px;border:1px solid #cbd5e1;padding:10px 12px}button{cursor:pointer;background:#15803d;color:white;border-color:#15803d;font-weight:800}button.secondary{background:white;color:#334155;border-color:#cbd5e1}button.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.auth{display:flex;gap:8px;flex-wrap:wrap}.auth input{min-width:240px;flex:1}.msg{margin-top:12px;font-size:14px;color:#64748b}.msg.ok{color:#15803d}.msg.err{color:#b91c1c}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;padding:13px 10px;border-bottom:1px solid #edf2f7;vertical-align:middle}th{color:#64748b;font-size:13px}td.name{font-weight:850;font-size:17px}td.reason{color:#475569;max-width:320px;overflow-wrap:anywhere}select{min-width:145px;background:white}input.minutes{width:100px} .tag{display:inline-block;padding:5px 9px;border-radius:999px;background:#f0fdf4;color:#166534;font-weight:800;font-size:12px}.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.note{font-size:13px;color:#64748b;line-height:1.6}
+@media(max-width:600px){body{padding:12px}.panel{padding:14px}.title{font-size:22px}}
+</style></head><body><div class="wrap">
+<div class="head"><div><div class="title">접수 예상 소요시간 관리</div><div class="sub">23시 하단오거리 동물병원 · 저장한 시간은 다른 컴퓨터의 보호자 모니터에도 반영됩니다.</div></div><div class="tools"><button class="secondary" id="reload">새로고침</button><a href="/m5" target="_blank">보호자 모니터 열기 ↗</a></div></div>
+<div class="panel"><strong>관리자 인증</strong><p class="note">관리용 비밀번호를 입력하세요. 인증값은 이 브라우저 탭에서만 사용합니다.</p><div class="auth"><input id="token" type="password" autocomplete="current-password" placeholder="관리자 비밀번호"><button id="connect">인증 및 접수 불러오기</button></div><div id="msg" class="msg">먼저 관리자 인증을 해주세요.</div></div>
+<div class="panel"><div class="tools" style="justify-content:space-between"><strong>현재 접수 목록</strong><span class="note">분 단위로 입력하거나 ‘미정’을 선택하세요.</span></div><div class="tablewrap"><table><thead><tr><th>접수 순서</th><th>환자 이름</th><th>내원 사유</th><th>상태</th><th>예상 소요시간</th><th>저장</th></tr></thead><tbody id="rows"><tr><td colspan="6" class="note">인증 후 목록이 표시됩니다.</td></tr></tbody></table></div></div>
+<div class="panel note">• 환자별 예상시간은 별도 저장소에 보관되며, 기존 접수 기록을 수정하지 않습니다.<br>• 접수가 완료되거나 취소되어 목록에서 사라져도 입력한 시간은 기록에 남을 수 있습니다. 같은 환자가 새 접수로 등록되면 새 접수 ID 기준으로 관리됩니다.<br>• 이 화면에는 보호자 연락처 등 개인정보를 표시하지 않습니다.</div>
+</div>
+<script>
+const API_BASE="https://m5-api.yurmgirl.workers.dev"; const RECEPTION_API="/api/receptions";
+const tokenEl=document.getElementById("token"),rowsEl=document.getElementById("rows"),msgEl=document.getElementById("msg");
+let estimates={};let receptions=[];
+function payloadOf(item){let p=item?.payload;if(typeof p==="string"){try{p=JSON.parse(p)}catch{p={}}}return p&&typeof p==="object"?p:{}}
+function statusOf(item){return String(item.status||"접수대기")}
+function active(item){return !["완료","진료완료","취소","종료"].includes(statusOf(item))}
+function setMsg(t,kind=""){msgEl.textContent=t;msgEl.className="msg "+kind}
+function el(tag,cls,txt){const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x}
+async function load(){
+ const token=tokenEl.value.trim();if(!token){setMsg("관리자 비밀번호를 입력해 주세요.","err");return}
+ setMsg("접수 목록을 불러오는 중…");
+ try{
+  const [r,e]=await Promise.all([fetch(RECEPTION_API,{cache:"no-store"}),fetch(API_BASE+"/estimates",{cache:"no-store"})]);
+  if(!r.ok)throw new Error("접수 목록 API 오류 "+r.status);
+  if(!e.ok)throw new Error("예상시간 서버 연결 오류 "+e.status);
+  const rr=await r.json(),ee=await e.json();receptions=Array.isArray(rr)?rr:(rr.items||[]);estimates=ee.estimates||{};
+  render();setMsg("접수 목록을 불러왔습니다. 각 환자 행에서 시간을 입력하고 저장하세요.","ok");
+ }catch(err){setMsg("불러오기 실패: "+err.message+" · 서버 주소와 배포 상태를 확인하세요.","err")}
+}
+function render(){
+ rowsEl.replaceChildren();
+ const items=receptions.filter(active).sort((a,b)=>(Date.parse(a.created_at||a.createdAt||0)||0)-(Date.parse(b.created_at||b.createdAt||0)||0));
+ if(!items.length){rowsEl.append(el("tr","",""));rowsEl.firstChild.append(el("td","note","현재 접수 대기 목록이 없습니다."));rowsEl.firstChild.firstChild.colSpan=6;return}
+ items.forEach((item,index)=>{
+  const tr=el("tr"),key=String(item.id??item.reception_id??"");const p=payloadOf(item);
+  const name=el("td","name",item.pet_name||item.animal_name||"이름 미입력");
+  const reason=el("td","reason",p.reason||item.symptom||item.symptoms||"내원 사유 확인 중");
+  const status=el("td","",statusOf(item));const order=el("td","",String(index+1).padStart(2,"0"));
+  const timeCell=el("td"),select=el("select");select.setAttribute("aria-label","예상 소요시간");
+  [["","시간 미입력"],["5","약 5분"],["10","약 10분"],["15","약 15분"],["20","약 20분"],["30","약 30분"],["45","약 45분"],["60","약 60분"],["unknown","시간 미정"]].forEach(([v,label])=>{const o=el("option","",label);o.value=v;select.append(o)});
+  const current=Object.prototype.hasOwnProperty.call(estimates,key)?String(estimates[key]):"";select.value=current;
+  const manual=el("input","minutes");manual.type="number";manual.min="1";manual.max="240";manual.placeholder="분 직접 입력";manual.value=current!==""&&current!=="unknown"?current:"";manual.setAttribute("aria-label","분 직접 입력");
+  select.addEventListener("change",()=>{if(select.value==="unknown"){manual.value=""}else if(select.value!==""){manual.value=select.value}else{manual.value=""}});
+  timeCell.append(select,document.createTextNode(" "),manual);
+  const saveCell=el("td"),save=el("button","","저장");save.addEventListener("click",async()=>{
+   let value=select.value;
+   if(manual.value.trim()!==""){const n=Number(manual.value);if(!Number.isInteger(n)||n<1||n>240){setMsg("예상시간은 1~240분 사이의 정수로 입력해 주세요.","err");return}value=String(n)}
+   if(value==="")value=null;else if(value!=="unknown")value=Number(value);
+   try{
+    const response=await fetch(API_BASE+"/estimates",{method:"PUT",headers:{"content-type":"application/json","x-admin-token":tokenEl.value.trim()},body:JSON.stringify({id:key,value})});
+    if(!response.ok){const body=await response.text();throw new Error(response.status+" "+body)}
+    if(value===null)delete estimates[key];else estimates[key]=value;
+    setMsg((item.pet_name||"환자")+" 예상시간을 저장했습니다. 보호자 모니터에 곧 반영됩니다.","ok");
+   }catch(err){setMsg("저장 실패: "+err.message+" · 관리자 비밀번호/API 설정을 확인하세요.","err")}
+  });
+  saveCell.append(save);tr.append(order,name,reason,status,timeCell,saveCell);rowsEl.append(tr);
+ });
+}
+document.getElementById("connect").addEventListener("click",load);document.getElementById("reload").addEventListener("click",load);
+tokenEl.addEventListener("keydown",e=>{if(e.key==="Enter")load()});
+</script></body></html>
