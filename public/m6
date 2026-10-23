@@ -1,75 +1,290 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>접수 예상시간·동물 종류 관리</title>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>접수 예상 소요시간 & 분류 관리 (m6)</title>
 <style>
-:root{--green:#15803d;--deep:#14532d;--mint:#ecfdf5;--ink:#172033;--muted:#64748b;--line:#e2e8f0}*{box-sizing:border-box}body{margin:0;background:#f4fbf6;color:var(--ink);font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;padding:22px}.wrap{max-width:1300px;margin:auto}.head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}.title{font-size:26px;font-weight:900;letter-spacing:-.04em}.sub{color:var(--muted);margin-top:6px;line-height:1.5}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px #0f172a08}button,input,select{font:inherit;border-radius:10px;border:1px solid #cbd5e1;padding:10px 12px}button{cursor:pointer;background:#15803d;color:white;border-color:#15803d;font-weight:800}button.secondary{background:white;color:#334155;border-color:#cbd5e1}.auth{display:flex;gap:8px;flex-wrap:wrap}.auth input{min-width:240px;flex:1}.msg{margin-top:12px;font-size:14px;color:#64748b;line-height:1.5}.msg.ok{color:#15803d}.msg.err{color:#b91c1c}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:1000px}th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #edf2f7;vertical-align:middle}th{color:#64748b;font-size:13px}td.name{font-weight:850;font-size:16px}td.reason{color:#475569;max-width:260px;overflow-wrap:anywhere}select{min-width:130px;background:white}select.animal{min-width:155px}.minutes{width:105px}.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.note{font-size:13px;color:#64748b;line-height:1.65}.animal-choice{display:flex;gap:7px;align-items:center}.animal-icon{font-size:23px}.save-btn{white-space:nowrap}.tag{display:inline-block;padding:5px 9px;border-radius:999px;background:#f0fdf4;color:#166534;font-weight:800;font-size:12px}a{color:#166534;font-weight:700}@media(max-width:600px){body{padding:12px}.panel{padding:14px}.title{font-size:22px}}
-</style></head><body><div class="wrap">
-<div class="head"><div><div class="title">접수 예상시간 · 동물 종류 관리</div><div class="sub">23시 하단오거리 동물병원 · 저장한 정보는 다른 컴퓨터의 보호자 모니터에도 반영됩니다.</div></div><div class="tools"><button class="secondary" id="reload">새로고침</button><a href="/m5/" target="_blank" rel="noopener">보호자 모니터 열기 ↗</a></div></div>
-<div class="panel"><strong>관리자 인증</strong><p class="note">관리용 비밀번호를 입력하세요. 인증값은 이 브라우저 탭에서만 사용합니다.</p><div class="auth"><input id="token" type="password" autocomplete="current-password" placeholder="관리자 비밀번호"><button id="connect">인증 및 접수 불러오기</button></div><div id="msg" class="msg">먼저 관리자 인증을 해주세요.</div></div>
-<div class="panel"><div class="tools" style="justify-content:space-between"><strong>현재 접수 목록</strong><span class="note">동물 종류와 예상시간을 선택한 뒤 해당 환자 행의 저장 버튼을 누르세요.</span></div><div class="tablewrap"><table><thead><tr><th>접수 순서</th><th>환자 이름</th><th>내원 사유</th><th>상태</th><th>동물 종류</th><th>예상 소요시간</th><th>저장</th></tr></thead><tbody id="rows"><tr><td colspan="7" class="note">인증 후 목록이 표시됩니다.</td></tr></tbody></table></div></div>
-<div class="panel note">• 동물 종류와 예상시간은 접수 시스템과 별도로 저장하며 기존 접수 기록은 변경하지 않습니다.<br>• 동물 종류: 강아지, 고양이, 소동물(토끼·기니피그·햄스터 등), 조류, 파충류, 기타.<br>• 기존 예상시간을 변경하지 않고 동물 종류만 바꿔 저장할 수도 있습니다.<br>• 이 화면에는 보호자 연락처 등 개인정보를 표시하지 않습니다.</div>
-</div>
+  :root {
+    --primary: #16875a;
+    --border: #e2e8f0;
+    --bg: #f8fafc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Pretendard", system-ui, sans-serif;
+    background: #f1f5f9;
+    padding: 12px;
+    color: #1e293b;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  h2 { font-size: 15px; font-weight: 900; margin-bottom: 10px; color: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+  .btn-refresh {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* 입력 폼 그리드 */
+  .manual-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 90px 80px;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  input, select {
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+  }
+  input:focus, select:focus { border-color: var(--primary); }
+  .btn-add {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* 테이블 목록 */
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+  th { background: #f8fafc; padding: 8px 6px; border-bottom: 1px solid var(--border); color: #64748b; font-weight: 800; }
+  td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+  .btn-del {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .btn-save-qr {
+    background: #059669;
+    color: #fff;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <!-- [1] 우측 일반예약 직접 기재·추가 -->
+  <div class="card">
+    <h2>🏥 일반예약 직접 등록 (m5 우측 화면)</h2>
+    <div class="manual-form">
+      <input type="text" id="m-name" placeholder="동물명 (예: 초코)">
+      <select id="m-category">
+        <option value="일반진료">일반진료</option>
+        <option value="예방접종">예방접종</option>
+        <option value="외과수술">외과수술</option>
+        <option value="치과/스케일링">치과/스케일링</option>
+        <option value="피부/귀치료">피부/귀치료</option>
+        <option value="정기검진">정기검진</option>
+        <option value="미용/목욕">미용/목욕</option>
+      </select>
+      <input type="number" id="m-minutes" placeholder="소요(분)" value="15">
+      <button class="btn-add" onclick="addManualBooking()">추가</button>
+    </div>
+
+    <!-- 일반예약 목록 -->
+    <table id="table-manual">
+      <thead>
+        <tr>
+          <th>순번</th>
+          <th>동물명</th>
+          <th>분류</th>
+          <th>소요시간</th>
+          <th>진료중</th>
+          <th>삭제</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- [2] 원내 QR접수 환자 분류 & 소요시간 관리 -->
+  <div class="card">
+    <h2>
+      <span>📱 QR접수 환자 소요시간 & 분류 관리</span>
+      <button class="btn-refresh" onclick="loadQrList()">새로고침</button>
+    </h2>
+    <table id="table-qr">
+      <thead>
+        <tr>
+          <th>순번</th>
+          <th>동물명</th>
+          <th>분류 선택</th>
+          <th>소요시간(분)</th>
+          <th>저장</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
 <script>
-const API_BASE="https://m5-api.yurmgirl.workers.dev"; const RECEPTION_API="/api/receptions";
-const tokenEl=document.getElementById("token"),rowsEl=document.getElementById("rows"),msgEl=document.getElementById("msg");
-let estimates={},animalTypes={},receptions=[];
-const animalOptions=[["","종류 선택"],["dog","🐶 강아지"],["cat","🐱 고양이"],["small_mammal","🐰 소동물"],["bird","🦜 조류"],["reptile","🦎 파충류"],["other","🐾 기타"]];
-function payloadOf(item){let p=item?.payload;if(typeof p==="string"){try{p=JSON.parse(p)}catch{p={}}}return p&&typeof p==="object"?p:{}}
-function statusOf(item){return String(item.status||"접수대기")}
-function active(item){return !["완료","진료완료","취소","종료"].includes(statusOf(item))}
-function setMsg(t,kind=""){msgEl.textContent=t;msgEl.className="msg "+kind}
-function el(tag,cls,txt){const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x}
-function normalizedTime(v){if(v===null||v===undefined||v==="")return "";return String(v)}
-async function load(){
- const token=tokenEl.value.trim();if(!token){setMsg("관리자 비밀번호를 입력해 주세요.","err");return}
- setMsg("접수 목록을 불러오는 중…");
- try{
-  const [r,e]=await Promise.all([fetch(RECEPTION_API,{cache:"no-store"}),fetch(API_BASE+"/estimates",{cache:"no-store"})]);
-  if(!r.ok)throw new Error("접수 목록 API 오류 "+r.status);
-  if(!e.ok)throw new Error("예상시간 서버 연결 오류 "+e.status);
-  const rr=await r.json(),ee=await e.json();receptions=Array.isArray(rr)?rr:(rr.items||[]);estimates=ee.estimates||{};animalTypes=ee.animalTypes||{};
-  render();setMsg("접수 목록을 불러왔습니다. 동물 종류와 예상시간을 선택하고 저장하세요.","ok");
- }catch(err){setMsg("불러오기 실패: "+err.message+" · 서버 주소와 배포 상태를 확인하세요.","err")}
+const API_BASE = "https://m5-api.yurmgirl.workers.dev";
+const RECEPTION_API = "/api/receptions";
+
+// --- 일반예약 직접 등록 로직 ---
+function getManualBookings(){
+  return JSON.parse(localStorage.getItem("m6_manual_bookings") || "[]");
 }
-function render(){
- rowsEl.replaceChildren();
- const items=receptions.filter(active).sort((a,b)=>(Date.parse(a.created_at||a.createdAt||0)||0)-(Date.parse(b.created_at||b.createdAt||0)||0));
- if(!items.length){const tr=el("tr"),td=el("td","note","현재 접수 대기 목록이 없습니다.");td.colSpan=7;tr.append(td);rowsEl.append(tr);return}
- items.forEach((item,index)=>{
-  const tr=el("tr"),key=String(item.id??item.reception_id??"");const p=payloadOf(item);
-  const name=el("td","name",item.pet_name||item.animal_name||"이름 미입력");
-  const reason=el("td","reason",p.reason||item.symptom||item.symptoms||"내원 사유 확인 중");
-  const status=el("td","",statusOf(item));const order=el("td","",String(index+1).padStart(2,"0"));
-  const animalCell=el("td"),animal=el("select","animal");animal.setAttribute("aria-label","동물 종류");
-  animalOptions.forEach(([v,label])=>{const o=el("option","",label);o.value=v;animal.append(o)});
-  animal.value=animalTypes[key]||"";const initialAnimal=animal.value;
-  const timeCell=el("td"),select=el("select");select.setAttribute("aria-label","예상 소요시간");
-  [["","시간 미입력"],["5","약 5분"],["10","약 10분"],["15","약 15분"],["20","약 20분"],["30","약 30분"],["45","약 45분"],["60","약 60분"],["unknown","시간 미정"]].forEach(([v,label])=>{const o=el("option","",label);o.value=v;select.append(o)});
-  const current=Object.prototype.hasOwnProperty.call(estimates,key)?normalizedTime(estimates[key]):"";select.value=current;
-  const manual=el("input","minutes");manual.type="number";manual.min="1";manual.max="240";manual.placeholder="직접 입력";manual.value=current!==""&&current!=="unknown"?current:"";manual.setAttribute("aria-label","분 직접 입력");
-  const initialTime=current;
-  select.addEventListener("change",()=>{if(select.value==="unknown"){manual.value=""}else if(select.value!==""){manual.value=select.value}else{manual.value=""}});
-  timeCell.append(select,document.createTextNode(" "),manual);animalCell.append(animal);
-  const saveCell=el("td"),save=el("button","save-btn","저장");save.addEventListener("click",async()=>{
-   const chosenAnimal=animal.value;
-   let timeValue=select.value;
-   if(manual.value.trim()!==""){const n=Number(manual.value);if(!Number.isInteger(n)||n<1||n>240){setMsg("예상시간은 1~240분 사이의 정수로 입력해 주세요.","err");return}timeValue=String(n)}
-   if(timeValue!==""&&timeValue!=="unknown")timeValue=String(Number(timeValue));
-   const timeChanged=(timeValue!==initialTime);
-   const animalChanged=(chosenAnimal!==initialAnimal);
-   if(!timeChanged&&!animalChanged){setMsg("변경된 항목이 없습니다.");return}
-   const body={id:key};
-   if(timeChanged)body.value=timeValue===""?null:(timeValue==="unknown"?"unknown":Number(timeValue));
-   body.animalType=chosenAnimal;
-   save.disabled=true;save.textContent="저장 중…";
-   try{
-    const resp=await fetch(API_BASE+"/estimates",{method:"PUT",headers:{"content-type":"application/json","x-admin-token":tokenEl.value.trim()},body:JSON.stringify(body)});
-    if(!resp.ok){const text=await resp.text();throw new Error(resp.status+" "+text)}
-    const data=await resp.json();estimates=data.estimates||estimates;animalTypes=data.animalTypes||animalTypes;
-    setMsg((item.pet_name||item.animal_name||"환자")+" 정보를 저장했습니다. 보호자 모니터에 곧 반영됩니다.","ok");render();
-   }catch(err){setMsg("저장 실패: "+err.message+" · 관리자 비밀번호/API 설정을 확인하세요.","err");save.disabled=false;save.textContent="저장"}
+function setManualBookings(data){
+  localStorage.setItem("m6_manual_bookings", JSON.stringify(data));
+  renderManualTable();
+}
+
+function addManualBooking(){
+  const name = document.getElementById("m-name").value.trim();
+  const category = document.getElementById("m-category").value;
+  const minutes = document.getElementById("m-minutes").value.trim() || 15;
+  if(!name){ alert("동물명을 입력하세요."); return; }
+
+  const list = getManualBookings();
+  list.push({ id: Date.now(), petName: name, category: category, minutes: Number(minutes), treating: false });
+  setManualBookings(list);
+
+  document.getElementById("m-name").value = "";
+}
+
+function deleteManualBooking(id){
+  const list = getManualBookings().filter(item => item.id !== id);
+  setManualBookings(list);
+}
+
+function toggleTreating(id){
+  const list = getManualBookings().map(item => {
+    if(item.id === id) item.treating = !item.treating;
+    return item;
   });
-  saveCell.append(save);tr.append(order,name,reason,status,animalCell,timeCell,saveCell);rowsEl.append(tr);
- });
+  setManualBookings(list);
 }
-document.getElementById("connect").addEventListener("click",load);document.getElementById("reload").addEventListener("click",load);tokenEl.addEventListener("keydown",e=>{if(e.key==="Enter")load()});
-</script></body></html>
+
+function renderManualTable(){
+  const list = getManualBookings();
+  const tbody = document.querySelector("#table-manual tbody");
+  tbody.innerHTML = "";
+  if(!list.length){
+    tbody.innerHTML = `<tr><td colspan="6" style="color:#94a3b8; padding:16px;">등록된 일반예약이 없습니다.</td></tr>`;
+    return;
+  }
+  list.forEach((item, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td style="font-weight:900;">${item.petName}</td>
+      <td><span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:11px;">${item.category}</span></td>
+      <td>${item.minutes}분</td>
+      <td><input type="checkbox" ${item.treating ? "checked" : ""} onchange="toggleTreating(${item.id})"></td>
+      <td><button class="btn-del" onclick="deleteManualBooking(${item.id})">삭제</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// --- QR접수 분류 및 소요시간 관리 ---
+async function loadQrList(){
+  try {
+    const [r, e] = await Promise.all([
+      fetch(RECEPTION_API, { cache: "no-store" }),
+      fetch(API_BASE + "/estimates", { cache: "no-store" })
+    ]);
+    const receptions = r.ok ? await r.json() : [];
+    const estimateData = e.ok ? await e.json() : {};
+    const items = Array.isArray(receptions) ? receptions : (receptions.items || []);
+    
+    const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
+    const estimates = estimateData.estimates || {};
+
+    const tbody = document.querySelector("#table-qr tbody");
+    tbody.innerHTML = "";
+
+    const activeList = items.filter(i => !["완료","진료완료","취소"].includes(i.status || ""));
+    if(!activeList.length){
+      tbody.innerHTML = `<tr><td colspan="5" style="color:#94a3b8; padding:16px;">대기 중인 QR접수가 없습니다.</td></tr>`;
+      return;
+    }
+
+    activeList.forEach((item, idx) => {
+      const key = String(item.id ?? item.reception_id ?? "");
+      const currentCat = savedCategories[key] || item.disease || "일반진료";
+      const currentMin = estimates[key] || 15;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td style="font-weight:900;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
+        <td>
+          <select id="cat-${key}">
+            <option value="일반진료" ${currentCat==="일반진료"?"selected":""}>일반진료</option>
+            <option value="예방접종" ${currentCat==="예방접종"?"selected":""}>예방접종</option>
+            <option value="외과수술" ${currentCat==="외과수술"?"selected":""}>외과수술</option>
+            <option value="치과/스케일링" ${currentCat==="치과/스케일링"?"selected":""}>치과/스케일링</option>
+            <option value="피부/귀치료" ${currentCat==="피부/귀치료"?"selected":""}>피부/귀치료</option>
+            <option value="정기검진" ${currentCat==="정기검진"?"selected":""}>정기검진</option>
+          </select>
+        </td>
+        <td>
+          <input type="number" id="min-${key}" value="${currentMin}" style="width:70px; text-align:center;">
+        </td>
+        <td>
+          <button class="btn-save-qr" onclick="saveQrItem('${key}')">저장</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// 개별 QR 환자 분류 및 소요시간 저장
+async function saveQrItem(key){
+  const cat = document.getElementById(`cat-${key}`).value;
+  const min = Number(document.getElementById(`min-${key}`).value);
+
+  // 1. 분류 로컬 저장
+  const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
+  savedCategories[key] = cat;
+  localStorage.setItem("m6_categories", JSON.stringify(savedCategories));
+
+  // 2. 소요시간 백엔드 서버 저장
+  try {
+    await fetch(API_BASE + "/estimates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: key, minutes: min })
+    });
+  } catch(e) { console.error(e); }
+
+  alert("저장되었습니다! m5 화면에 즉시 반영됩니다.");
+}
+
+renderManualTable();
+loadQrList();
+</script>
+</body>
+</html>
