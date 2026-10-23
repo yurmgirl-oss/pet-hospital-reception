@@ -10,7 +10,6 @@
   --deep: #075b3c;
   --mint: #e8f8ee;
   --ink: #12382e;
-  --muted: #648077;
   --line: #d6eee0;
 }
 * { box-sizing: border-box; }
@@ -28,7 +27,7 @@ body {
               #f7fbf8;
 }
 .screen {
-  max-width: 1600px;
+  max-width: 1650px;
   margin: auto;
   border-radius: 28px;
   overflow: hidden;
@@ -66,7 +65,7 @@ header {
   box-shadow: 0 6px 16px #14532d12;
 }
 .brandname {
-  font-size: clamp(26px, 2.8vw, 40px); /* 병원 이름 대폭 확대 */
+  font-size: clamp(26px, 2.8vw, 42px);
   font-weight: 950;
   letter-spacing: -0.05em;
   color: #0b3425;
@@ -108,7 +107,7 @@ header {
   line-height: 1.2;
 }
 
-/* 섹션 타이틀 바 (강조) */
+/* 섹션 타이틀 바 */
 .sectionbar {
   display: flex;
   align-items: center;
@@ -118,7 +117,7 @@ header {
   border-bottom: 1px solid #e1f2e6;
 }
 .sectiontitle {
-  font-size: clamp(24px, 2.2vw, 32px); /* 섹션 제목 확대 */
+  font-size: clamp(24px, 2.2vw, 32px);
   font-weight: 950;
   letter-spacing: -0.04em;
   color: #0b3a29;
@@ -156,24 +155,24 @@ header {
 /* 접수 카드 그리드 리스트 */
 .list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
   align-items: stretch;
-  gap: 18px;
-  padding: 16px 24px 24px;
+  gap: 20px;
+  padding: 18px 24px 26px;
 }
+
+/* 카드 본체: 고정 구획 그리드로 내부 요소의 수평선 완벽 일치 */
 .entry {
   position: relative;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  display: grid;
+  grid-template-rows: auto 120px auto auto auto; /* [상단:번호/아이콘/이름] [병명 넉넉하게 120px] [상태] [예상소요] [예상진료] */
+  gap: 12px;
   border-radius: 24px;
   border: 2px solid #c9e6d3;
   background: linear-gradient(180deg, #ffffff 0%, #f7fdf9 65%, #e6f6ec 100%);
   box-shadow: 0 10px 26px #155e3b14;
-  min-height: 0;
-  padding: 0 0 18px;
-  transition: transform 0.2s ease;
+  padding: 18px 18px 20px;
 }
 .entry:before {
   content: "";
@@ -183,29 +182,30 @@ header {
   background: linear-gradient(90deg, #22c55e, #86efac);
 }
 
-/* 카드 상단: 번호, 동물 아이콘, 이름 */
+/* 1. 상단: 순번, 동물 아이콘, 이름 */
 .cardtop {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 20px 16px 4px;
+  gap: 10px;
   position: relative;
+  width: 100%;
+  padding-top: 6px;
 }
 .num {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 0;
+  left: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 62px;
-  height: 42px;
-  padding: 0 12px;
+  min-width: 58px;
+  height: 40px;
+  padding: 0 10px;
   border-radius: 12px;
   background: linear-gradient(145deg, #16a34a, #0d7945);
   color: #fff;
-  font-size: clamp(20px, 1.8vw, 26px);
+  font-size: clamp(20px, 1.7vw, 25px);
   font-weight: 950;
   box-shadow: 0 4px 10px #0f9f6c36;
 }
@@ -215,82 +215,88 @@ header {
   align-items: center;
   gap: 10px;
   width: 100%;
-  margin-top: 8px;
 }
 .animal {
-  width: clamp(110px, 10vw, 150px);
-  height: clamp(110px, 10vw, 150px);
+  width: clamp(100px, 9vw, 135px);
+  height: clamp(100px, 9vw, 135px);
   display: flex;
   align-items: center;
   justify-content: center;
   flex: none;
-  border-radius: 30px;
+  border-radius: 28px;
   background: radial-gradient(circle at 35% 25%, #ffffff 0, #e2f8e8 55%, #d4eedd 100%);
   border: 2px solid #c8e7d2;
-  font-size: clamp(78px, 7.5vw, 110px);
+  font-size: clamp(70px, 6.8vw, 100px);
   line-height: 1;
   box-shadow: inset 0 0 0 5px #ffffffc9, 0 8px 16px #155e3b12;
 }
 .petinfo {
   width: 100%;
-  text-align: center;
+  height: 58px; /* 이름 영역 높이를 일정하게 고정하여 아래 행 위치 일치 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-/* 반려동물 이름 대폭 강조 */
+/* 환자 이름 대폭 강조 */
 .pet {
-  display: inline-block;
-  font-size: clamp(30px, 2.8vw, 42px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(28px, 2.6vw, 38px);
   font-weight: 1000;
   letter-spacing: -0.04em;
-  line-height: 1.2;
   color: #06432b;
-  background: #ffffffcc;
-  padding: 4px 20px;
+  background: #fffffffa;
+  padding: 4px 22px;
   border-radius: 16px;
-  border: 1px solid #d4edd9;
-  box-shadow: 0 3px 8px #00000008;
-  max-width: 90%;
-  overflow-wrap: anywhere;
+  border: 1.5px solid #c2e5cb;
+  box-shadow: 0 4px 10px #0000000a;
+  max-width: 95%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 병명/내원 사유: 중앙 정렬 & 시인성 개선 */
+/* 2. 병명 / 내원 사유: 넉넉한 고정 공간 및 정가운데 완벽 정렬 */
 .reason {
-  margin: 12px 16px 0;
-  padding: 16px 18px;
+  height: 120px; /* 병명 박스 높이를 넉넉하게 120px로 동일하게 고정 */
+  padding: 12px 14px;
   border-radius: 18px;
   background: linear-gradient(135deg, #fff3f1, #ffe5e0);
   border: 2px solid #fca595;
   color: #991b1b;
-  font-size: clamp(22px, 2vw, 30px);
-  font-weight: 950;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-  text-align: center; /* 중앙 정렬 */
-  min-height: 80px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 6px 14px #dc26260d;
+  text-align: center;
+  box-shadow: 0 5px 12px #dc26260d;
 }
-.reason:before {
-  content: "🩺 병명 · 행동 변화 / 내원 사유";
-  display: block;
+.reason-title {
   color: #c2410c;
-  font-size: clamp(13px, 1.1vw, 16px);
+  font-size: clamp(12px, 1vw, 14px);
   font-weight: 900;
   margin-bottom: 6px;
-  text-align: center;
+  white-space: nowrap;
+}
+.reason-text {
+  font-size: clamp(20px, 1.8vw, 27px);
+  font-weight: 950;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
 }
 
-/* 카드 하단 정보: 상태 및 시간 정보 균형 정렬 */
-.right {
+/* 3. 접수/진료 상태 뱃지 (높이 통일) */
+.status-wrap {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px 0;
-  margin-top: 12px;
-  border-top: 1px solid #d5ecd9;
+  height: 44px;
+  margin-top: 4px;
 }
 .status {
   display: inline-flex;
@@ -298,9 +304,10 @@ header {
   justify-content: center;
   gap: 8px;
   border-radius: 99px;
-  padding: 8px 18px;
+  padding: 8px 24px;
   font-size: clamp(16px, 1.3vw, 20px);
   font-weight: 950;
+  width: 100%;
 }
 .status.wait {
   background: #d4f7de;
@@ -326,44 +333,43 @@ header {
   border-radius: 50%;
   animation: pulse 1.7s infinite;
 }
-.elapsed {
-  font-size: clamp(15px, 1.2vw, 19px);
-  font-weight: 900;
-  color: #4b5563;
-  background: #f1f5f9;
-  border-radius: 12px;
-  padding: 8px 14px;
-  width: 100%;
-  text-align: center;
-}
 
-/* 예상 소요시간 (크기 대폭 확대 및 시각적 강조) */
+/* 4. 예상 소요시간 (크기 대폭 확대 및 파란색 강조) */
 .estimate {
-  font-size: clamp(26px, 2.3vw, 36px);
+  height: 56px; /* 모든 카드 수평선 일치 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(24px, 2.1vw, 32px);
   font-weight: 1000;
   color: #ffffff;
-  line-height: 1.25;
   background: linear-gradient(135deg, #1d4ed8, #4338ca);
   border-radius: 16px;
-  padding: 14px 16px;
+  padding: 0 14px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 8px 18px #3730a33a;
+  box-shadow: 0 6px 16px #3730a335;
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
-/* 예상 진료시간 (오렌지/호박색 박스) */
+/* 5. 예상 진료시간 (오렌지 박스) */
 .expected {
-  font-size: clamp(22px, 1.9vw, 30px);
+  height: 52px; /* 모든 카드 수평선 일치 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(21px, 1.8vw, 28px);
   font-weight: 1000;
   color: #7c2d12;
   background: linear-gradient(135deg, #ffedd5, #fed7aa);
   border: 2px solid #fb923c;
   border-radius: 16px;
-  padding: 12px 14px;
+  padding: 0 14px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 5px 14px #ea580c20;
+  box-shadow: 0 4px 12px #ea580c18;
+  white-space: nowrap;
 }
 
 .empty {
@@ -430,7 +436,7 @@ footer {
   background: #f1f9f3;
 }
 
-/* 모바일 및 세로형 모니터 반응형 */
+/* 모바일 반응형 */
 @media(max-width: 768px) {
   body { padding: 0; }
   .screen { border-radius: 0; min-height: 100vh; }
@@ -446,12 +452,6 @@ footer {
   .hint { display: none; }
   .list { grid-template-columns: 1fr; padding: 12px 14px 18px; gap: 14px; }
   .num { position: static; margin-bottom: 4px; }
-  .cardtop { padding: 16px 14px 0; }
-  .pet { font-size: 28px; }
-  .reason { font-size: 20px; min-height: 65px; margin: 10px 12px 0; padding: 12px; }
-  .reason:before { font-size: 12px; }
-  .estimate { font-size: 24px; padding: 12px; }
-  .expected { font-size: 20px; padding: 10px; }
   .notice { grid-template-columns: 1fr 34px; padding: 12px 16px; gap: 8px; }
   .notice-label { display: none; }
   .notice-text { grid-column: 1; font-size: 14px; padding: 10px 14px; border-radius: 12px; }
@@ -536,14 +536,6 @@ function estimateMinutes(v){
   const n = Number(v);
   return Number.isFinite(n) && n > 0 ? n : null;
 }
-function elapsedText(item){
-  const raw = item.created_at || item.createdAt || item.registered_at || item.registeredAt || item.received_at || item.receivedAt;
-  const t = raw ? Date.parse(raw) : NaN;
-  if(!Number.isFinite(t)) return "대기시간 확인 중";
-  const mins = Math.max(0, Math.floor((Date.now() - t) / 60000));
-  const h = Math.floor(mins / 60), m = mins % 60;
-  return `누적 대기 ${h > 0 ? h + "시간 " : ""}${m}분`;
-}
 function clockText(d){
   return d.toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", hour12: false});
 }
@@ -581,13 +573,13 @@ function render(items, estimates, animalTypes){
 
   activeItems.forEach((item, index)=>{
     const row = make("article", "entry");
+    
+    // 1. 상단: 순번, 동물, 이름
     const top = make("div", "cardtop");
     const num = make("div", "num", String(index + 1).padStart(2, "0"));
     const key = String(item.id ?? item.reception_id ?? "");
     
-    // 이름 크게 적용
     const pet = make("div", "pet", safeText(item.pet_name || item.animal_name || "이름 미입력"));
-    
     const animalType = animalTypes && animalTypes[key] ? animalTypes[key] : "other";
     const animal = ANIMALS[animalType] || ANIMALS.other;
     const illustration = make("div", "animal", animal.emoji);
@@ -600,38 +592,38 @@ function render(items, estimates, animalTypes){
     patient.append(illustration, petinfo);
     top.append(num, patient);
 
-    // 병명 및 내원사유 (중앙 정렬 적용됨)
+    // 2. 병명 및 내원사유 (120px 넉넉한 공간 & 중앙 정렬)
     const payload = getPayload(item);
-    const reason = safeText(payload.disease || item.disease || payload.diagnosis || item.diagnosis || payload.reason || item.symptom || item.symptoms || "병명·내원 사유 확인 중");
-    const why = make("div", "reason", reason);
+    const reasonText = safeText(payload.disease || item.disease || payload.diagnosis || item.diagnosis || payload.reason || item.symptom || item.symptoms || "병명·내원 사유 확인 중");
+    const why = make("div", "reason");
+    const whyTitle = make("div", "reason-title", "🩺 병명 · 증상 / 내원 사유");
+    const whyContent = make("div", "reason-text", reasonText);
+    why.append(whyTitle, whyContent);
 
-    const right = make("div", "right");
+    // 3. 접수/진료 상태 뱃지
     const s = statusOf(item);
     const treating = /진료중|진료 중|치료중|치료 중/.test(s);
+    const statusWrap = make("div", "status-wrap");
     const badge = make("div", "status " + (treating ? "treat" : "wait"));
     badge.append(make("span", "sdot"), document.createTextNode(treating ? "진료 진행 중" : "접수 대기중"));
+    statusWrap.append(badge);
 
+    // 4. 예상 소요시간 & 예상 진료시간 계산
     const val = estimates && Object.prototype.hasOwnProperty.call(estimates, key) ? estimates[key] : null;
     const minutes = estimateMinutes(val);
     if(minutes === null) cumulativeKnown = false;
     else cumulativeMinutes += minutes;
 
-    // "예상 진료 시각" 대신 "예상 진료시간"으로 변경 반영
-    const expected = cumulativeKnown 
+    const estimateLabel = minutes === null ? "예상 소요시간 미정" : `예상 소요시간 ${minutes}분`;
+    const estimateBox = make("div", "estimate", estimateLabel);
+
+    const expectedText = cumulativeKnown 
       ? "예상 진료시간 " + clockText(new Date(Date.now() + cumulativeMinutes * 60000))
       : "예상 진료시간 미정";
-      
-    // 예상 소요시간 라벨 강조
-    const estimateLabel = minutes === null ? "예상 소요시간 미정" : `예상 소요시간 ${minutes}분`;
+    const expectedBox = make("div", "expected", expectedText);
 
-    right.append(
-      badge,
-      make("div", "elapsed", elapsedText(item)),
-      make("div", "estimate", estimateLabel),
-      make("div", "expected", expected)
-    );
-
-    row.append(top, why, right);
+    // 카드에 정해진 순서대로 추가 (누적 대기시간은 제거됨)
+    row.append(top, why, statusWrap, estimateBox, expectedBox);
     listEl.append(row);
   });
 }
