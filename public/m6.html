@@ -47,7 +47,79 @@
     font-weight: 800;
   }
 
-  /* 입력 폼 */
+  /* 🚨 긴급 공지 컨트롤 카드 */
+  .urgent-card {
+    border: 2px solid #f87171;
+    background: #fff5f5;
+  }
+  .urgent-card h2 {
+    color: #991b1b;
+  }
+  .quick-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .quick-btn {
+    background: #ffffff;
+    border: 1px solid #fca5a5;
+    color: #b91c1c;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .quick-btn:hover {
+    background: #fee2e2;
+  }
+  .urgent-form {
+    display: flex;
+    gap: 6px;
+  }
+  .urgent-input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1.5px solid #fca5a5;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #7f1d1d;
+    outline: none;
+    background: #ffffff;
+  }
+  .urgent-input:focus {
+    border-color: #ef4444;
+  }
+  .btn-urgent-on {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 0 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .btn-urgent-on:hover { background: #dc2626; }
+  .btn-urgent-off {
+    background: #64748b;
+    color: #ffffff;
+    border: none;
+    padding: 0 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-urgent-off:hover { background: #475569; }
+
+  /* 일반 폼 */
   .manual-form {
     display: grid;
     grid-template-columns: 1.2fr 1.5fr 80px 80px;
@@ -64,15 +136,12 @@
   }
   input:focus, select:focus { border-color: var(--primary); }
 
-  /* 숫자 입력창 스핀 버튼(화살표) 제거 */
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
+  input[type="number"] { -moz-appearance: textfield; }
 
   .btn-add {
     background: #2563eb;
@@ -84,7 +153,6 @@
     cursor: pointer;
   }
 
-  /* 테이블 */
   table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
   th { background: #f8fafc; padding: 7px 6px; border-bottom: 1px solid var(--border); color: #64748b; font-weight: 800; }
   td { padding: 7px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; }
@@ -162,9 +230,7 @@
     cursor: pointer;
     transition: background 0.15s;
   }
-  .btn-del:hover {
-    background: #dc2626;
-  }
+  .btn-del:hover { background: #dc2626; }
 
   .min-input {
     width: 60px;
@@ -181,6 +247,25 @@
 </style>
 </head>
 <body>
+
+  <!-- [NEW] 🚨 m5 한가운데 띄우는 긴급 공지 컨트롤 -->
+  <div class="card urgent-card">
+    <h2>
+      <span>🚨 m5 화면 중앙 긴급공지 발령</span>
+      <span id="urgent-status-tag" style="font-size:11px; font-weight:800; color:#dc2626;">[현재: 미발령]</span>
+    </h2>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="setUrgentQuick('🚨 응급 수술 진행 중입니다. 잠시만 대기해 주세요.')">🚨 응급 수술 중</button>
+      <button class="quick-btn" onclick="setUrgentQuick('⏳ 잠시 자리를 비웁니다. 곧 돌아오겠습니다.')">⏳ 잠시 자리 비움</button>
+      <button class="quick-btn" onclick="setUrgentQuick('🍱 직원 식사 및 휴게 시간입니다. (문의는 벨을 눌러주세요)')">🍱 식사/휴게 시간</button>
+      <button class="quick-btn" onclick="setUrgentQuick('⚠️ 응급 환자 처치로 인해 진료가 일시 지연되고 있습니다.')">⚠️ 진료 일시 지연</button>
+    </div>
+    <div class="urgent-form">
+      <input type="text" id="urgent-text" class="urgent-input" placeholder="m5 중앙에 띄울 긴급 안내 문구를 입력하세요">
+      <button class="btn-urgent-on" onclick="activateUrgentNotice()">화면 띄우기 (ON)</button>
+      <button class="btn-urgent-off" onclick="clearUrgentNotice()">공지 해제 (OFF)</button>
+    </div>
+  </div>
 
   <!-- [1] 일반예약 직접 등록 (31번대~) -->
   <div class="card">
@@ -309,6 +394,51 @@ setInterval(() => {
     }
   });
 }, 1000);
+
+// --- 🚨 긴급 공지 제어 로직 ---
+function setUrgentQuick(text){
+  document.getElementById("urgent-text").value = text;
+}
+
+function activateUrgentNotice(){
+  const text = document.getElementById("urgent-text").value.trim();
+  if(!text){
+    alert("긴급 공지 내용을 입력하세요.");
+    return;
+  }
+  const payload = { active: true, text: text, time: Date.now() };
+  localStorage.setItem("m6_urgent_notice", JSON.stringify(payload));
+  updateUrgentStatusUI(true);
+  notifyM5();
+}
+
+function clearUrgentNotice(){
+  localStorage.removeItem("m6_urgent_notice");
+  document.getElementById("urgent-text").value = "";
+  updateUrgentStatusUI(false);
+  notifyM5();
+}
+
+function updateUrgentStatusUI(isActive){
+  const tag = document.getElementById("urgent-status-tag");
+  if(isActive){
+    tag.textContent = "🔴 [현재: m5 화면에 긴급공지 깜빡이는 중!]";
+    tag.style.color = "#dc2626";
+  } else {
+    tag.textContent = "⚪ [현재: 미발령]";
+    tag.style.color = "#64748b";
+  }
+}
+
+function checkUrgentStatusOnInit(){
+  const data = JSON.parse(localStorage.getItem("m6_urgent_notice") || "null");
+  if(data && data.active){
+    document.getElementById("urgent-text").value = data.text;
+    updateUrgentStatusUI(true);
+  } else {
+    updateUrgentStatusUI(false);
+  }
+}
 
 // --- 일반예약 로직 ---
 function getManualBookings(){
@@ -527,7 +657,6 @@ async function loadQrList(){
   }
 }
 
-/* 🔔 바로 이 함수가 m5 화면에 0초 딜레이 새로고침 신호를 전달하는 핵심 로직입니다 */
 function notifyM5(){
   try {
     if (window.parent) {
@@ -604,6 +733,7 @@ async function autoSaveQrMinutes(key, val){
   } catch(e) { console.error(e); }
 }
 
+checkUrgentStatusOnInit();
 renderManualTable();
 loadQrList();
 setInterval(loadQrList, 4000);
