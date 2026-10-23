@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>접수 예상 소요시간 & 분류 관리 (m6)</title>
+<title>접수 관리 및 소요시간 설정 (m6)</title>
 <style>
   :root {
     --primary: #16875a;
@@ -25,7 +25,22 @@
     border: 1px solid var(--border);
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   }
-  h2 { font-size: 15px; font-weight: 900; margin-bottom: 10px; color: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+  h2 {
+    font-size: 15px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .badge-range {
+    font-size: 11px;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
   .btn-refresh {
     background: var(--primary);
     color: #fff;
@@ -37,15 +52,15 @@
     cursor: pointer;
   }
 
-  /* 입력 폼 그리드 */
+  /* 일반예약 입력 폼 */
   .manual-form {
     display: grid;
-    grid-template-columns: 1fr 1fr 90px 80px;
+    grid-template-columns: 1.2fr 1.5fr 80px 80px;
     gap: 6px;
     margin-top: 6px;
   }
   input, select {
-    padding: 7px 10px;
+    padding: 7px 8px;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     font-size: 13px;
@@ -63,15 +78,25 @@
     cursor: pointer;
   }
 
-  /* 테이블 목록 */
+  /* 테이블 */
   table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
   th { background: #f8fafc; padding: 8px 6px; border-bottom: 1px solid var(--border); color: #64748b; font-weight: 800; }
   td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+  .status-select {
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .status-wait { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+  .status-treat { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .status-done { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+
   .btn-del {
     background: #ef4444;
     color: #fff;
     border: none;
-    padding: 3px 6px;
+    padding: 4px 6px;
     border-radius: 4px;
     font-size: 11px;
     cursor: pointer;
@@ -80,63 +105,65 @@
     background: #059669;
     color: #fff;
     border: none;
-    padding: 4px 8px;
+    padding: 5px 10px;
     border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
   }
 </style>
 </head>
 <body>
 
-  <!-- [1] 우측 일반예약 직접 기재·추가 -->
+  <!-- [1] 일반예약 직접 등록 (31번대~) -->
   <div class="card">
-    <h2>🏥 일반예약 직접 등록 (m5 우측 화면)</h2>
+    <h2>
+      <span>🏥 일반예약 직접 등록 <span class="badge-range">31번대 시작</span></span>
+    </h2>
     <div class="manual-form">
-      <input type="text" id="m-name" placeholder="동물명 (예: 초코)">
+      <input type="text" id="m-name" placeholder="동물명 (예: 보리)">
       <select id="m-category">
         <option value="일반진료">일반진료</option>
         <option value="예방접종">예방접종</option>
-        <option value="외과수술">외과수술</option>
-        <option value="치과/스케일링">치과/스케일링</option>
-        <option value="피부/귀치료">피부/귀치료</option>
-        <option value="정기검진">정기검진</option>
-        <option value="미용/목욕">미용/목욕</option>
+        <option value="건강검진">건강검진</option>
+        <option value="처치수술">처치수술</option>
+        <option value="상담처방">상담처방</option>
+        <option value="내복약조제">내복약조제</option>
+        <option value="특수동물진료">특수동물진료</option>
       </select>
       <input type="number" id="m-minutes" placeholder="소요(분)" value="15">
       <button class="btn-add" onclick="addManualBooking()">추가</button>
     </div>
 
-    <!-- 일반예약 목록 -->
     <table id="table-manual">
       <thead>
         <tr>
-          <th>순번</th>
+          <th>번호</th>
           <th>동물명</th>
           <th>분류</th>
-          <th>소요시간</th>
-          <th>진료중</th>
-          <th>삭제</th>
+          <th>소요(분)</th>
+          <th>진료상태</th>
+          <th>관리</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
 
-  <!-- [2] 원내 QR접수 환자 분류 & 소요시간 관리 -->
+  <!-- [2] 원내 QR접수 환자 관리 (21번대~) -->
   <div class="card">
     <h2>
-      <span>📱 QR접수 환자 소요시간 & 분류 관리</span>
+      <span>📱 QR접수 소요시간 & 분류 관리 <span class="badge-range">21번대 시작</span></span>
       <button class="btn-refresh" onclick="loadQrList()">새로고침</button>
     </h2>
     <table id="table-qr">
       <thead>
         <tr>
-          <th>순번</th>
+          <th>번호</th>
           <th>동물명</th>
           <th>분류 선택</th>
-          <th>소요시간(분)</th>
+          <th>소요(분)</th>
+          <th>상태</th>
           <th>저장</th>
         </tr>
       </thead>
@@ -148,7 +175,10 @@
 const API_BASE = "https://m5-api.yurmgirl.workers.dev";
 const RECEPTION_API = "/api/receptions";
 
-// --- 일반예약 직접 등록 로직 ---
+// 분류 리스트 공통
+const CATEGORIES = ["예방접종", "일반진료", "건강검진", "처치수술", "상담처방", "내복약조제", "특수동물진료"];
+
+// --- 일반예약 (31번대) 로직 ---
 function getManualBookings(){
   return JSON.parse(localStorage.getItem("m6_manual_bookings") || "[]");
 }
@@ -164,10 +194,23 @@ function addManualBooking(){
   if(!name){ alert("동물명을 입력하세요."); return; }
 
   const list = getManualBookings();
-  list.push({ id: Date.now(), petName: name, category: category, minutes: Number(minutes), treating: false });
+  list.push({
+    id: Date.now(),
+    petName: name,
+    category: category,
+    minutes: Number(minutes),
+    status: "접수대기" // 기본값: 접수대기
+  });
   setManualBookings(list);
-
   document.getElementById("m-name").value = "";
+}
+
+function updateManualStatus(id, newStatus){
+  const list = getManualBookings().map(item => {
+    if(item.id === id) item.status = newStatus;
+    return item;
+  });
+  setManualBookings(list);
 }
 
 function deleteManualBooking(id){
@@ -175,37 +218,39 @@ function deleteManualBooking(id){
   setManualBookings(list);
 }
 
-function toggleTreating(id){
-  const list = getManualBookings().map(item => {
-    if(item.id === id) item.treating = !item.treating;
-    return item;
-  });
-  setManualBookings(list);
-}
-
 function renderManualTable(){
   const list = getManualBookings();
   const tbody = document.querySelector("#table-manual tbody");
   tbody.innerHTML = "";
+
   if(!list.length){
     tbody.innerHTML = `<tr><td colspan="6" style="color:#94a3b8; padding:16px;">등록된 일반예약이 없습니다.</td></tr>`;
     return;
   }
+
   list.forEach((item, idx) => {
     const tr = document.createElement("tr");
+    const numDisplay = 31 + idx; // 31번대 시작
     tr.innerHTML = `
-      <td>${idx + 1}</td>
+      <td style="font-weight:900; color:#b45309;">${numDisplay}</td>
       <td style="font-weight:900;">${item.petName}</td>
-      <td><span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:11px;">${item.category}</span></td>
+      <td><span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:11px;">${item.category}</span></td>
       <td>${item.minutes}분</td>
-      <td><input type="checkbox" ${item.treating ? "checked" : ""} onchange="toggleTreating(${item.id})"></td>
+      <td>
+        <select class="status-select ${item.status === '진료중' ? 'status-treat' : item.status === '진료완료' ? 'status-done' : 'status-wait'}" 
+                onchange="updateManualStatus(${item.id}, this.value)">
+          <option value="접수대기" ${item.status === '접수대기' ? 'selected' : ''}>접수대기</option>
+          <option value="진료중" ${item.status === '진료중' ? 'selected' : ''}>진료중</option>
+          <option value="진료완료" ${item.status === '진료완료' ? 'selected' : ''}>진료완료</option>
+        </select>
+      </td>
       <td><button class="btn-del" onclick="deleteManualBooking(${item.id})">삭제</button></td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-// --- QR접수 분류 및 소요시간 관리 ---
+// --- QR 접수 (21번대) 로직 ---
 async function loadQrList(){
   try {
     const [r, e] = await Promise.all([
@@ -217,38 +262,49 @@ async function loadQrList(){
     const items = Array.isArray(receptions) ? receptions : (receptions.items || []);
     
     const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
+    const savedStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
     const estimates = estimateData.estimates || {};
 
     const tbody = document.querySelector("#table-qr tbody");
     tbody.innerHTML = "";
 
-    const activeList = items.filter(i => !["완료","진료완료","취소"].includes(i.status || ""));
+    // 진료완료가 아닌 활성 대기 리스트
+    const activeList = items.filter(i => {
+      const k = String(i.id ?? i.reception_id ?? "");
+      const st = savedStatuses[k] || i.status || "접수대기";
+      return !["완료", "진료완료", "취소", "종료"].includes(st);
+    });
+
     if(!activeList.length){
-      tbody.innerHTML = `<tr><td colspan="5" style="color:#94a3b8; padding:16px;">대기 중인 QR접수가 없습니다.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="color:#94a3b8; padding:16px;">대기 중인 QR접수가 없습니다.</td></tr>`;
       return;
     }
 
     activeList.forEach((item, idx) => {
       const key = String(item.id ?? item.reception_id ?? "");
-      const currentCat = savedCategories[key] || item.disease || "일반진료";
+      const currentCat = savedCategories[key] || "일반진료";
       const currentMin = estimates[key] || 15;
+      const currentStatus = savedStatuses[key] || item.status || "접수대기";
+      const numDisplay = 21 + idx; // 21번대 시작
+
+      let catOptions = CATEGORIES.map(c => `<option value="${c}" ${currentCat === c ? "selected" : ""}>${c}</option>`).join("");
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${idx + 1}</td>
+        <td style="font-weight:900; color:#0369a1;">${numDisplay}</td>
         <td style="font-weight:900;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
         <td>
-          <select id="cat-${key}">
-            <option value="일반진료" ${currentCat==="일반진료"?"selected":""}>일반진료</option>
-            <option value="예방접종" ${currentCat==="예방접종"?"selected":""}>예방접종</option>
-            <option value="외과수술" ${currentCat==="외과수술"?"selected":""}>외과수술</option>
-            <option value="치과/스케일링" ${currentCat==="치과/스케일링"?"selected":""}>치과/스케일링</option>
-            <option value="피부/귀치료" ${currentCat==="피부/귀치료"?"selected":""}>피부/귀치료</option>
-            <option value="정기검진" ${currentCat==="정기검진"?"selected":""}>정기검진</option>
-          </select>
+          <select id="cat-${key}">${catOptions}</select>
         </td>
         <td>
-          <input type="number" id="min-${key}" value="${currentMin}" style="width:70px; text-align:center;">
+          <input type="number" id="min-${key}" value="${currentMin}" style="width:65px; text-align:center;">
+        </td>
+        <td>
+          <select id="st-${key}" class="status-select ${currentStatus === '진료중' ? 'status-treat' : currentStatus === '진료완료' ? 'status-done' : 'status-wait'}">
+            <option value="접수대기" ${currentStatus === '접수대기' ? 'selected' : ''}>접수대기</option>
+            <option value="진료중" ${currentStatus === '진료중' ? 'selected' : ''}>진료중</option>
+            <option value="진료완료" ${currentStatus === '진료완료' ? 'selected' : ''}>진료완료</option>
+          </select>
         </td>
         <td>
           <button class="btn-save-qr" onclick="saveQrItem('${key}')">저장</button>
@@ -261,17 +317,22 @@ async function loadQrList(){
   }
 }
 
-// 개별 QR 환자 분류 및 소요시간 저장
 async function saveQrItem(key){
   const cat = document.getElementById(`cat-${key}`).value;
   const min = Number(document.getElementById(`min-${key}`).value);
+  const st = document.getElementById(`st-${key}`).value;
 
-  // 1. 분류 로컬 저장
+  // 1. 분류 저장
   const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
   savedCategories[key] = cat;
   localStorage.setItem("m6_categories", JSON.stringify(savedCategories));
 
-  // 2. 소요시간 백엔드 서버 저장
+  // 2. 상태 저장 (접수대기 / 진료중 / 진료완료)
+  const savedStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
+  savedStatuses[key] = st;
+  localStorage.setItem("m6_qr_statuses", JSON.stringify(savedStatuses));
+
+  // 3. 소요시간 백엔드 동기화
   try {
     await fetch(API_BASE + "/estimates", {
       method: "POST",
@@ -281,6 +342,7 @@ async function saveQrItem(key){
   } catch(e) { console.error(e); }
 
   alert("저장되었습니다! m5 화면에 즉시 반영됩니다.");
+  loadQrList();
 }
 
 renderManualTable();
