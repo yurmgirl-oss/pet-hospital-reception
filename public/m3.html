@@ -164,19 +164,19 @@
 
   <main class="grid-container">
 
-    <!-- [창 1] 카운트 (관리 / 접수) -->
+    <!-- [창 1] 카운터 / 데스크 접수현황판 (desk.html) -->
     <section class="panel">
       <div class="panel-header">
-        <div class="panel-title">📋 [창 1] 카운트 / 접수관리</div>
+        <div class="panel-title">📋 [창 1] 카운터 접수현황판</div>
         <div class="panel-tools">
-          <input type="text" id="url-count" class="url-input" value="/count.html" placeholder="카운트 주소 입력">
+          <input type="text" id="url-count" class="url-input" value="/desk.html" placeholder="접수현황판 주소 입력">
           <button class="p-btn" onclick="applyUrl('frame-count', 'url-count')">이동</button>
           <button class="p-btn" onclick="refreshFrame('frame-count')">새로고침</button>
           <button class="p-btn" onclick="openPopup('url-count')">새창</button>
         </div>
       </div>
       <div class="panel-body">
-        <iframe id="frame-count" src="/count.html"></iframe>
+        <iframe id="frame-count" src="/desk.html"></iframe>
       </div>
     </section>
 
@@ -196,10 +196,10 @@
       </div>
     </section>
 
-    <!-- [창 3] m6 (상세 / 진료 안내판) -->
+    <!-- [창 3] m6 (접수 예상 소요시간 관리) -->
     <section class="panel">
       <div class="panel-header">
-        <div class="panel-title">🩺 [창 3] m6 진료 안내판</div>
+        <div class="panel-title">🩺 [창 3] m6 소요시간 관리</div>
         <div class="panel-tools">
           <input type="text" id="url-m6" class="url-input" value="/m6.html" placeholder="m6 주소 입력">
           <button class="p-btn" onclick="applyUrl('frame-m6', 'url-m6')">이동</button>
