@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23시 하단오거리 동물병원 · 통합 관제 대시보드 (카운트 / M5 / M6)</title>
+<style>
+  :root {
+    --header-bg: #12382e;
+    --bar-border: #1e5244;
+    --accent-green: #10b84f;
+    --panel-header: #1c4d3f;
+    --text-light: #e6f7ee;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    background: #0d2821;
+    color: #fff;
+  }
+
+  /* 최상단 마스터 컨트롤 바 */
+  .top-control {
+    height: 48px;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--bar-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+  .top-control .brand-title {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #bbf7d0;
+  }
+  .master-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-all-refresh {
+    background: var(--accent-green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .btn-all-refresh:hover { background: #0ea144; }
+
+  /* 3 : 3 : 3 (1:1:1) 균등 3분할 뷰 컨테이너 */
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 정확히 3:3:3 가로 3등분 */
+    height: calc(100% - 48px);
+    width: 100%;
+    gap: 6px;
+    background: #091c17;
+    padding: 6px;
+  }
+
+  /* 개별 화면 패널 */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #1e5244;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  }
+  .panel-header {
+    height: 38px;
+    background: var(--panel-header);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .panel-title {
+    font-size: 14px;
+    font-weight: 900;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .panel-tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  .url-input {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    max-width: 180px;
+    width: 100%;
+    outline: none;
+  }
+  .url-input:focus { border-color: #4ade80; }
+  .p-btn {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .p-btn:hover { background: rgba(255,255,255,0.3); }
+
+  /* 아이프레임 본체 */
+  .panel-body {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #f8fafc;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 최상단 마스터 제어 바 -->
+  <header class="top-control">
+    <div class="brand-title">
+      🐾 23시 하단오거리 동물병원 · 실시간 통합 대시보드
+    </div>
+    <div class="master-actions">
+      <button class="btn-all-refresh" onclick="refreshAll()">🔄 3개 화면 동시 새로고침</button>
+    </div>
+  </header>
+
+  <!-- 3:3:3 나란한 3분할 그리드 -->
+  <main class="grid-container">
+
+    <!-- [창 1] 카운트 (관리 / 접수) -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 [창 1] 카운트 / 접수관리</div>
+        <div class="panel-tools">
+          <input type="text" id="url-count" class="url-input" value="count.html" placeholder="카운트 주소 입력">
+          <button class="p-btn" onclick="applyUrl('frame-count', 'url-count')">이동</button>
+          <button class="p-btn" onclick="refreshFrame('frame-count')">새로고침</button>
+          <button class="p-btn" onclick="openPopup('url-count')">새창</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <iframe id="frame-count" src="count.html"></iframe>
+      </div>
+    </section>
+
+    <!-- [창 2] m5 (대기 현황판) -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🐾 [창 2] m5 접수 대기판</div>
+        <div class="panel-tools">
+          <input type="text" id="url-m5" class="url-input" value="m5.html" placeholder="m5 주소 입력">
+          <button class="p-btn" onclick="applyUrl('frame-m5', 'url-m5')">이동</button>
+          <button class="p-btn" onclick="refreshFrame('frame-m5')">새로고침</button>
+          <button class="p-btn" onclick="openPopup('url-m5')">새창</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <iframe id="frame-m5" src="m5.html"></iframe>
+      </div>
+    </section>
+
+    <!-- [창 3] m6 (상세 / 진료 안내판) -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🩺 [창 3] m6 진료 안내판</div>
+        <div class="panel-tools">
+          <input type="text" id="url-m6" class="url-input" value="m6.html" placeholder="m6 주소 입력">
+          <button class="p-btn" onclick="applyUrl('frame-m6', 'url-m6')">이동</button>
+          <button class="p-btn" onclick="refreshFrame('frame-m6')">새로고침</button>
+          <button class="p-btn" onclick="openPopup('url-m6')">새창</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <iframe id="frame-m6" src="m6.html"></iframe>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // 개별 프레임 새로고침
+    function refreshFrame(frameId) {
+      const frame = document.getElementById(frameId);
+      if (frame) {
+        frame.contentWindow.location.reload();
+      }
+    }
+
+    // 3개 프레임 일괄 동시 새로고침
+    function refreshAll() {
+      refreshFrame('frame-count');
+      refreshFrame('frame-m5');
+      refreshFrame('frame-m6');
+    }
+
+    // 입력된 URL 주소로 프레임 이동
+    function applyUrl(frameId, inputId) {
+      const frame = document.getElementById(frameId);
+      const url = document.getElementById(inputId).value.trim();
+      if (frame && url) {
+        frame.src = url;
+      }
+    }
+
+    // 새창으로 단독 띄우기
+    function openPopup(inputId) {
+      const url = document.getElementById(inputId).value.trim();
+      if (url) {
+        window.open(url, '_blank');
+      }
+    }
+  </script>
+</body>
+</html>
