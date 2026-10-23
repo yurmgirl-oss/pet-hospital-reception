@@ -63,6 +63,17 @@
     width: 100%;
   }
   input:focus, select:focus { border-color: var(--primary); }
+
+  /* 숫자 입력창 화살표(▲▼ 스핀 버튼) 완전히 없애기 */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield; /* Firefox 지원 */
+  }
+
   .btn-add {
     background: #2563eb;
     color: #fff;
@@ -107,6 +118,20 @@
     font-size: 11px;
     cursor: pointer;
   }
+
+  /* 분 입력창 커스텀 스타일 */
+  .min-input {
+    width: 60px;
+    text-align: center;
+    font-weight: 900;
+    color: #0f172a;
+    background: #fdfdfd;
+  }
+  .min-input:focus {
+    background: #fff;
+    border-color: #16a34a;
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.15);
+  }
 </style>
 </head>
 <body>
@@ -115,10 +140,10 @@
   <div class="card">
     <h2>
       <span>🏥 일반예약 직접 등록 <span class="badge-range">31번대</span></span>
-      <span class="auto-notice">⚡ 변경 시 즉시 자동 반영</span>
+      <span class="auto-notice">⚡ 숫자 입력 후 Enter 치면 즉시 반영</span>
     </h2>
     <div class="manual-form">
-      <input type="text" id="m-name" placeholder="동물명 (예: 보리)">
+      <input type="text" id="m-name" placeholder="동물명 (예: 보리)" onkeydown="if(event.key==='Enter') addManualBooking()">
       <select id="m-category">
         <option value="일반진료">일반진료</option>
         <option value="예방접종">예방접종</option>
@@ -128,7 +153,7 @@
         <option value="내복약조제">내복약조제</option>
         <option value="특수동물진료">특수동물진료</option>
       </select>
-      <input type="number" id="m-minutes" placeholder="소요(분)" value="15">
+      <input type="number" id="m-minutes" class="min-input" placeholder="분" value="15" onkeydown="if(event.key==='Enter') addManualBooking()">
       <button class="btn-add" onclick="addManualBooking()">추가</button>
     </div>
 
@@ -152,7 +177,7 @@
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
-      <span class="auto-notice">⚡ 변경 시 즉시 자동 저장</span>
+      <span class="auto-notice">⚡ 숫자 입력 후 Enter 치면 즉시 자동 저장</span>
     </h2>
     <table id="table-qr">
       <thead>
@@ -174,7 +199,6 @@ const API_BASE = "https://m5-api.yurmgirl.workers.dev";
 const RECEPTION_API = "/api/receptions";
 const CATEGORIES = ["예방접종", "일반진료", "건강검진", "처치수술", "상담처방", "내복약조제", "특수동물진료"];
 
-// 현재 시각 포맷 (HH:MM)
 function formatTime(d){
   const date = d ? new Date(d) : new Date();
   return date.toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", hour12: false});
@@ -202,7 +226,7 @@ function addManualBooking(){
     category: category,
     minutes: Number(minutes),
     status: "접수대기",
-    time: formatTime() // 등록 시각 기록
+    time: formatTime()
   });
   setManualBookings(list);
   document.getElementById("m-name").value = "";
@@ -225,8 +249,10 @@ function updateManualCategory(id, newCat){
 }
 
 function updateManualMinutes(id, newMin){
+  const val = Number(newMin);
+  if(isNaN(val) || val <= 0) return;
   const list = getManualBookings().map(item => {
-    if(item.id === id) item.minutes = Number(newMin);
+    if(item.id === id) item.minutes = val;
     return item;
   });
   setManualBookings(list);
@@ -259,7 +285,11 @@ function renderManualTable(){
         <select onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select>
       </td>
       <td>
-        <input type="number" value="${item.minutes}" style="width:60px; text-align:center;" onchange="updateManualMinutes(${item.id}, this.value)">
+        <input type="number" 
+               class="min-input" 
+               value="${item.minutes}" 
+               onchange="updateManualMinutes(${item.id}, this.value)" 
+               onkeydown="if(event.key==='Enter'){ this.blur(); }">
       </td>
       <td>
         <select class="status-select ${item.status === '진료중' ? 'status-treat' : item.status === '진료완료' ? 'status-done' : 'status-wait'}" 
@@ -275,7 +305,7 @@ function renderManualTable(){
   });
 }
 
-// --- QR 접수 로직 (버튼 없이 자동 저장) ---
+// --- QR 접수 로직 ---
 async function loadQrList(){
   try {
     const [r, e] = await Promise.all([
@@ -322,7 +352,11 @@ async function loadQrList(){
           <select onchange="autoSaveQrCategory('${key}', this.value)">${catOptions}</select>
         </td>
         <td>
-          <input type="number" value="${currentMin}" style="width:60px; text-align:center;" onchange="autoSaveQrMinutes('${key}', this.value)">
+          <input type="number" 
+                 class="min-input" 
+                 value="${currentMin}" 
+                 onchange="autoSaveQrMinutes('${key}', this.value)" 
+                 onkeydown="if(event.key==='Enter'){ this.blur(); }">
         </td>
         <td>
           <select class="status-select ${currentStatus === '진료중' ? 'status-treat' : currentStatus === '진료완료' ? 'status-done' : 'status-wait'}"
@@ -340,7 +374,6 @@ async function loadQrList(){
   }
 }
 
-// 자동 저장 함수들
 function autoSaveQrCategory(key, val){
   const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
   savedCategories[key] = val;
@@ -355,18 +388,20 @@ function autoSaveQrStatus(key, val){
 }
 
 async function autoSaveQrMinutes(key, val){
+  const minVal = Number(val);
+  if(isNaN(minVal) || minVal <= 0) return;
   try {
     await fetch(API_BASE + "/estimates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: key, minutes: Number(val) })
+      body: JSON.stringify({ key: key, minutes: minVal })
     });
   } catch(e) { console.error(e); }
 }
 
 renderManualTable();
 loadQrList();
-setInterval(loadQrList, 3000); // 3초 주기 자동 동기화
+setInterval(loadQrList, 3000);
 </script>
 </body>
 </html>
