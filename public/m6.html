@@ -64,7 +64,7 @@
   }
   input:focus, select:focus { border-color: var(--primary); }
 
-  /* 숫자 입력창 스핀 버튼 제거 */
+  /* 숫자 입력창 스핀 버튼(화살표) 제거 */
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -89,7 +89,6 @@
   th { background: #f8fafc; padding: 7px 6px; border-bottom: 1px solid var(--border); color: #64748b; font-weight: 800; }
   td { padding: 7px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; }
   
-  /* 진료완료 행 스타일 (취소선 없이 은은한 완료 표시) */
   tr.row-done {
     background: #f8fafc;
     opacity: 0.75;
@@ -107,7 +106,6 @@
     border-radius: 4px;
   }
 
-  /* 타이머 배지 */
   .timer-badge {
     display: inline-flex;
     align-items: center;
@@ -141,7 +139,6 @@
     100% { opacity: 1; transform: scale(1.02); }
   }
 
-  /* 4가지 상태 셀렉트박스 스타일 */
   .status-select {
     padding: 4px 6px;
     border-radius: 4px;
@@ -345,7 +342,6 @@ function addManualBooking(){
 }
 
 function updateManualStatus(id, newStatus){
-  // '자료삭제' 선택 시 즉시 삭제 처리
   if(newStatus === "자료삭제"){
     deleteManualBooking(id);
     return;
@@ -358,7 +354,7 @@ function updateManualStatus(id, newStatus){
         if(!item.startTime) item.startTime = Date.now();
         item.endTime = null;
       } else if(newStatus === "진료완료"){
-        if(item.startTime && !item.endTime) item.endTime = Date.now(); // 타이머 종료 시점 고정
+        if(item.startTime && !item.endTime) item.endTime = Date.now();
       } else if(newStatus === "접수대기"){
         item.startTime = null;
         item.endTime = null;
@@ -466,7 +462,6 @@ async function loadQrList(){
     const tbody = document.querySelector("#table-qr tbody");
     if(!tbody) return;
 
-    // '자료삭제' 또는 서버상 완전 취소된 것만 제외하고, '진료완료'는 검토를 위해 화면에 유지
     const activeList = items.filter(i => {
       const k = String(i.id ?? i.reception_id ?? "");
       if(deletedKeys.includes(k)) return false;
@@ -532,6 +527,7 @@ async function loadQrList(){
   }
 }
 
+/* 🔔 바로 이 함수가 m5 화면에 0초 딜레이 새로고침 신호를 전달하는 핵심 로직입니다 */
 function notifyM5(){
   try {
     if (window.parent) {
