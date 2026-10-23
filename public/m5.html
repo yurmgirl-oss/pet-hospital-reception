@@ -6,23 +6,24 @@
 <style>
 :root{--green:#15803d;--deep:#14532d;--mint:#ecfdf5;--blue:#1d4ed8;--ink:#172033;--muted:#64748b;--line:#dceee2}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;color:var(--ink);background:linear-gradient(145deg,#f0fdf4 0%,#f8fffb 48%,#eff6ff 100%)}
-body{padding:clamp(18px,2.8vw,42px)}
+body{padding:clamp(14px,2.4vw,34px)}
 header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 4px 22px;border-bottom:2px solid #cdebd7;max-width:1600px;margin:auto}
-.brand{font-size:clamp(27px,2.5vw,38px);font-weight:900;letter-spacing:-.045em;color:#14532d}.sub{color:var(--muted);font-size:clamp(20px,1.55vw,26px);margin-top:7px}
-.live{display:flex;align-items:center;gap:10px;border:1px solid #bbf7d0;background:#f0fdf4;color:var(--deep);border-radius:999px;padding:14px 20px;font-size:clamp(20px,1.55vw,26px);font-weight:800;white-space:nowrap;box-shadow:0 4px 14px #1665340c}
+.brand{font-size:clamp(21px,2vw,31px);font-weight:900;letter-spacing:-.045em;color:#14532d}.sub{color:var(--muted);font-size:clamp(12px,1vw,15px);margin-top:7px}
+.live{display:flex;align-items:center;gap:10px;border:1px solid #bbf7d0;background:#f0fdf4;color:var(--deep);border-radius:999px;padding:11px 16px;font-weight:800;white-space:nowrap;box-shadow:0 4px 14px #1665340c}
 .dot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 5px #bbf7d0;animation:pulse 1.35s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.78)}}
-main{max-width:1800px;margin:30px auto}.columns{display:grid;grid-template-columns:100px minmax(200px,1fr) minmax(240px,1.5fr) minmax(220px,1fr);gap:22px;padding:0 28px 14px;color:#64748b;font-size:clamp(16px,1.2vw,20px);font-weight:850}
- .list{display:flex;flex-direction:column;gap:16px}.entry{display:grid;grid-template-columns:100px minmax(200px,1fr) minmax(240px,1.5fr) minmax(220px,1fr);gap:22px;align-items:center;background:#ffffffed;border:1px solid var(--line);border-radius:26px;padding:24px 28px;box-shadow:0 7px 22px #14532d0b;min-height:180px;animation:arrive .35s ease-out;position:relative;overflow:hidden}
-.entry:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(#4ade80,#86efac)}
+main{max-width:1600px;margin:24px auto}.columns{display:none}
+.list{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px;align-items:stretch}.cardtop{display:flex;align-items:center;gap:18px;min-width:0}
+.entry{display:flex;flex-direction:column;align-items:stretch;gap:16px;background:#ffffffed;border:2px solid var(--line);border-radius:28px;padding:24px;box-shadow:0 10px 28px #14532d12;min-height:390px;animation:arrive .35s ease-out;position:relative;overflow:hidden}
+.entry:before{content:"";position:absolute;left:0;top:0;right:0;height:7px;background:linear-gradient(#4ade80,#86efac)}
 @keyframes arrive{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.num{display:flex;align-items:center;justify-content:center;width:88px;height:88px;border-radius:22px;background:linear-gradient(145deg,#dcfce7,#bbf7d0);color:#166534;font-size:clamp(32px,3vw,44px);font-weight:950;letter-spacing:-.05em;border:1px solid #86efac}
-.patient{display:flex;align-items:center;gap:18px;min-width:0}.animal{width:112px;height:112px;flex:0 0 112px;border-radius:24px;background:linear-gradient(145deg,#f0fdf4,#e0f2fe);border:1px solid #d1fae5;display:flex;align-items:center;justify-content:center;font-size:68px;box-shadow:inset 0 0 0 4px #ffffffa8}.petinfo{min-width:0}.pet{font-size:clamp(27px,2.1vw,36px);font-weight:900;letter-spacing:-.035em;overflow-wrap:anywhere}.kind{display:inline-flex;margin-top:5px;border-radius:999px;padding:3px 9px;background:#f0fdf4;color:#166534;font-size:15px;font-weight:850}
-.reason{font-size:clamp(20px,1.55vw,26px);color:#475569;line-height:1.45;overflow-wrap:anywhere}.right{display:flex;flex-direction:column;align-items:flex-start;gap:12px}.status{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:11px 16px;font-size:clamp(17px,1.25vw,21px);font-weight:850;white-space:nowrap}.status.wait{background:#f0fdf4;color:#166534}.status.wait .sdot{width:11px;height:11px;background:#22c55e;border-radius:50%;animation:pulse 1.15s infinite}.status.treat{background:#eff6ff;color:#1d4ed8}.status.treat .sdot{width:11px;height:11px;background:#3b82f6;border-radius:50%;animation:pulse 1.7s infinite}.estimate{font-size:clamp(18px,1.3vw,22px);font-weight:800;color:#334155}.estimate strong{color:#15803d}
+.num{display:flex;align-items:center;justify-content:center;width:88px;height:78px;border-radius:20px;background:linear-gradient(145deg,#dcfce7,#bbf7d0);color:#166534;font-size:clamp(32px,2.8vw,44px);font-weight:950;letter-spacing:-.05em;border:1px solid #86efac}
+.patient{display:flex;align-items:center;gap:20px;min-width:0}.animal{width:124px;height:124px;flex:0 0 124px;border-radius:20px;background:linear-gradient(145deg,#f0fdf4,#e0f2fe);border:1px solid #d1fae5;display:flex;align-items:center;justify-content:center;font-size:78px;box-shadow:inset 0 0 0 4px #ffffffa8}.petinfo{min-width:0}.pet{font-size:clamp(28px,2.2vw,36px);font-weight:900;letter-spacing:-.035em;overflow-wrap:anywhere}.kind{display:inline-flex;margin-top:5px;border-radius:999px;padding:3px 9px;background:#f0fdf4;color:#166534;font-size:16px;font-weight:800}
+.reason{font-size:clamp(21px,1.65vw,27px);color:#475569;line-height:1.45;overflow-wrap:anywhere}.right{display:flex;flex-direction:column;align-items:flex-start;gap:12px;border-top:1px solid #e2eee5;padding-top:16px;margin-top:auto}.status{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 13px;font-size:clamp(18px,1.4vw,22px);font-weight:850;white-space:nowrap}.status.wait{background:#f0fdf4;color:#166534}.status.wait .sdot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 1.15s infinite}.status.treat{background:#eff6ff;color:#1d4ed8}.status.treat .sdot{width:8px;height:8px;background:#3b82f6;border-radius:50%;animation:pulse 1.7s infinite}.estimate{font-size:clamp(20px,1.5vw,25px);font-weight:800;color:#334155}.estimate strong{color:#15803d}
 .empty{padding:70px 20px;text-align:center;background:#ffffffd9;border:1px dashed #b7d9c2;border-radius:22px;color:#64748b;font-size:clamp(18px,1.8vw,25px);white-space:pre-line}
-footer{max-width:1800px;margin:28px auto 0;display:flex;justify-content:space-between;gap:14px;color:#718096;font-size:15px}
-@media(max-width:850px){body{padding:14px}header{align-items:flex-start}.live{font-size:11px;padding:8px 10px;gap:7px}.columns{display:none}.entry{grid-template-columns:76px minmax(0,1fr);gap:14px 16px;padding:20px 18px;min-height:220px}.num{grid-row:span 2;width:72px;height:72px;font-size:30px;border-radius:18px}.patient{grid-column:2;gap:14px}.animal{width:88px;height:88px;flex-basis:88px;font-size:54px;border-radius:20px}.pet{font-size:27px}.kind{font-size:14px}.reason{grid-column:2;font-size:19px}.right{grid-column:2;flex-direction:row;align-items:center;flex-wrap:wrap;gap:7px}.status{font-size:16px;padding:9px 13px}.estimate{font-size:18px}footer{font-size:13px;flex-direction:column;gap:7px}}
-@media(min-width:851px) and (max-width:1100px){.columns,.entry{grid-template-columns:80px minmax(170px,1.2fr) minmax(190px,1.5fr) minmax(180px,1fr);gap:16px}.entry{padding:20px 22px;min-height:160px}.animal{width:82px;height:82px;flex-basis:82px;font-size:50px}.patient{gap:12px}}
+footer{max-width:1600px;margin:22px auto 0;display:flex;justify-content:space-between;gap:14px;color:#718096;font-size:12px}
+@media(max-width:850px){body{padding:12px}header{align-items:flex-start;flex-direction:column}.live{font-size:15px;padding:10px 13px;gap:8px}.columns{display:none}.list{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}.cardtop{gap:12px;align-items:flex-start}.entry{padding:20px;min-height:340px;border-radius:24px;gap:14px}.num{width:72px;height:64px;font-size:32px;border-radius:16px}.patient{gap:14px}.animal{width:100px;height:100px;flex-basis:100px;font-size:62px;border-radius:20px}.pet{font-size:28px}.kind{font-size:14px;padding:5px 10px}.reason{font-size:21px}.right{gap:10px;padding-top:13px}.status{font-size:17px;padding:9px 12px}.estimate{font-size:20px}footer{font-size:13px;flex-direction:column;gap:6px}}
+@media(min-width:851px) and (max-width:1150px){.list{grid-template-columns:repeat(2,minmax(0,1fr))}.entry{min-height:360px;padding:20px}.animal{width:105px;height:105px;flex-basis:105px;font-size:66px}.pet{font-size:29px}.reason{font-size:22px}}
 </style>
 </head>
 <body>
@@ -51,7 +52,7 @@ function render(items, estimates, animalTypes){
  if(sig===lastSignature)return;lastSignature=sig;listEl.replaceChildren();
  if(!activeItems.length){listEl.append(make("div","empty","현재 대기 중인 접수가 없습니다.\n접수가 등록되면 이 화면에 표시됩니다."));return}
  activeItems.forEach((item,index)=>{
-   const row=make("article","entry"),num=make("div","num",String(index+1).padStart(2,"0"));
+   const row=make("article","entry"),top=make("div","cardtop"),num=make("div","num",String(index+1).padStart(2,"0"));
    const key=String(item.id??item.reception_id??"");
    const pet=make("div","pet",safeText(item.pet_name||item.animal_name||"이름 미입력"));
    const animalType=animalTypes&&animalTypes[key]?animalTypes[key]:"other";
@@ -59,14 +60,14 @@ function render(items, estimates, animalTypes){
    const illustration=make("div","animal",animal.emoji);illustration.setAttribute("aria-label",animal.label);
    const kind=make("div","kind",animal.label);
    const petinfo=make("div","petinfo");petinfo.append(pet,kind);
-   const patient=make("div","patient");patient.append(illustration,petinfo);
+   const patient=make("div","patient");patient.append(illustration,petinfo);top.append(num,patient);
    const payload=getPayload(item);const reason=safeText(payload.reason||item.symptom||item.symptoms||"내원 사유 확인 중");
    const why=make("div","reason",reason);
    const right=make("div","right");const s=statusOf(item);const treating=/진료중|진료 중|치료중|치료 중/.test(s);
    const badge=make("div","status "+(treating?"treat":"wait"));badge.append(make("span","sdot"),document.createTextNode(treating?"진료 진행 중":"접수중"));
    const val=estimates&&Object.prototype.hasOwnProperty.call(estimates,key)?estimates[key]:null;
    right.append(badge,make("div","estimate",estimateText(val)));
-   row.append(num,patient,why,right);listEl.append(row);
+   row.append(top,why,right);listEl.append(row);
  });
 }
 async function refresh(){
