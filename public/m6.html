@@ -71,7 +71,7 @@
     margin: 0;
   }
   input[type="number"] {
-    -moz-appearance: textfield; /* Firefox 지원 */
+    -moz-appearance: textfield;
   }
 
   .btn-add {
@@ -130,7 +130,7 @@
   .min-input:focus {
     background: #fff;
     border-color: #16a34a;
-    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.15);
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
   }
 </style>
 </head>
@@ -177,7 +177,7 @@
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
-      <span class="auto-notice">⚡ 숫자 입력 후 Enter 치면 즉시 자동 저장</span>
+      <span class="auto-notice">⚡ 숫자 입력 후 Enter 치면 자동 저장</span>
     </h2>
     <table id="table-qr">
       <thead>
@@ -198,6 +198,9 @@
 const API_BASE = "https://m5-api.yurmgirl.workers.dev";
 const RECEPTION_API = "/api/receptions";
 const CATEGORIES = ["예방접종", "일반진료", "건강검진", "처치수술", "상담처방", "내복약조제", "특수동물진료"];
+
+// 현재 사용자가 입력 중인지 감지하는 플래그 (입력 도중 DOM 덮어쓰기 방지)
+let isUserInputting = false;
 
 function formatTime(d){
   const date = d ? new Date(d) : new Date();
@@ -264,6 +267,8 @@ function deleteManualBooking(id){
 }
 
 function renderManualTable(){
+  if(isUserInputting) return; // 사용자가 입력 중이면 테이블 재렌더링 보류
+
   const list = getManualBookings();
   const tbody = document.querySelector("#table-manual tbody");
   tbody.innerHTML = "";
@@ -288,7 +293,8 @@ function renderManualTable(){
         <input type="number" 
                class="min-input" 
                value="${item.minutes}" 
-               onchange="updateManualMinutes(${item.id}, this.value)" 
+               onfocus="isUserInputting=true"
+               onblur="isUserInputting=false; updateManualMinutes(${item.id}, this.value)" 
                onkeydown="if(event.key==='Enter'){ this.blur(); }">
       </td>
       <td>
@@ -307,6 +313,9 @@ function renderManualTable(){
 
 // --- QR 접수 로직 ---
 async function loadQrList(){
+  // 사용자가 현재 시간 입력창이나 셀렉트박스를 건드리고 있으면 테이블을 새로고침하지 않음 (팅김 방지)
+  if(isUserInputting) return;
+
   try {
     const [r, e] = await Promise.all([
       fetch(RECEPTION_API, { cache: "no-store" }),
@@ -318,10 +327,11 @@ async function loadQrList(){
     
     const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
     const savedStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
+    const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
     const estimates = estimateData.estimates || {};
 
     const tbody = document.querySelector("#table-qr tbody");
-    tbody.innerHTML = "";
+    if(!tbody) return;
 
     const activeList = items.filter(i => {
       const k = String(i.id ?? i.reception_id ?? "");
@@ -334,10 +344,13 @@ async function loadQrList(){
       return;
     }
 
+    tbody.innerHTML = "";
+
     activeList.forEach((item, idx) => {
       const key = String(item.id ?? item.reception_id ?? "");
       const currentCat = savedCategories[key] || "일반진료";
-      const currentMin = estimates[key] || 15;
+      // 로컬 스토리지에 저장된 최근 입력값이 있으면 우선 적용하여 덮어쓰기 방지
+      const currentMin = localMinutes[key] !== undefined ? localMinutes[key] : (estimates[key] || 15);
       const currentStatus = savedStatuses[key] || item.status || "접수대기";
       const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
 
@@ -355,7 +368,8 @@ async function loadQrList(){
           <input type="number" 
                  class="min-input" 
                  value="${currentMin}" 
-                 onchange="autoSaveQrMinutes('${key}', this.value)" 
+                 onfocus="isUserInputting=true"
+                 onblur="isUserInputting=false; autoSaveQrMinutes('${key}', this.value)" 
                  onkeydown="if(event.key==='Enter'){ this.blur(); }">
         </td>
         <td>
@@ -390,6 +404,13 @@ function autoSaveQrStatus(key, val){
 async function autoSaveQrMinutes(key, val){
   const minVal = Number(val);
   if(isNaN(minVal) || minVal <= 0) return;
+
+  // 1. 로컬에 즉시 기록하여 다음 새로고침 때 되돌아가는 현상 원천 차단
+  const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
+  localMinutes[key] = minVal;
+  localStorage.setItem("m6_qr_minutes", JSON.stringify(localMinutes));
+
+  // 2. 서버로 동기화 전송
   try {
     await fetch(API_BASE + "/estimates", {
       method: "POST",
@@ -401,7 +422,9 @@ async function autoSaveQrMinutes(key, val){
 
 renderManualTable();
 loadQrList();
-setInterval(loadQrList, 3000);
+
+// 4초 주기 자동 갱신 (입력 중일 때는 스킵됨)
+setInterval(loadQrList, 4000);
 </script>
 </body>
 </html>
