@@ -63,10 +63,10 @@
   }
   .btn-all-refresh:hover { background: #0ea144; }
 
-  /* 3 : 3 : 3 (1:1:1) 균등 3분할 뷰 컨테이너 */
+  /* 3 : 3 : 3 균등 3분할 뷰 컨테이너 */
   .grid-container {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* 정확히 3:3:3 균등 가로 3등분 */
+    grid-template-columns: 1fr 1fr 1fr;
     height: calc(100% - 48px);
     width: 100%;
     gap: 6px;
@@ -153,7 +153,6 @@
 </head>
 <body>
 
-  <!-- 최상단 마스터 제어 바 -->
   <header class="top-control">
     <div class="brand-title">
       🐾 23시 하단오거리 동물병원 · 실시간 통합 대시보드 (m3)
@@ -163,7 +162,6 @@
     </div>
   </header>
 
-  <!-- 3:3:3 나란한 3분할 그리드 -->
   <main class="grid-container">
 
     <!-- [창 1] 카운트 (관리 / 접수) -->
@@ -171,14 +169,14 @@
       <div class="panel-header">
         <div class="panel-title">📋 [창 1] 카운트 / 접수관리</div>
         <div class="panel-tools">
-          <input type="text" id="url-count" class="url-input" value="count.html" placeholder="카운트 주소 입력">
+          <input type="text" id="url-count" class="url-input" value="/count.html" placeholder="카운트 주소 입력">
           <button class="p-btn" onclick="applyUrl('frame-count', 'url-count')">이동</button>
           <button class="p-btn" onclick="refreshFrame('frame-count')">새로고침</button>
           <button class="p-btn" onclick="openPopup('url-count')">새창</button>
         </div>
       </div>
       <div class="panel-body">
-        <iframe id="frame-count" src="count.html"></iframe>
+        <iframe id="frame-count" src="/count.html"></iframe>
       </div>
     </section>
 
@@ -187,14 +185,14 @@
       <div class="panel-header">
         <div class="panel-title">🐾 [창 2] m5 접수 대기판</div>
         <div class="panel-tools">
-          <input type="text" id="url-m5" class="url-input" value="m5.html" placeholder="m5 주소 입력">
+          <input type="text" id="url-m5" class="url-input" value="/m5.html" placeholder="m5 주소 입력">
           <button class="p-btn" onclick="applyUrl('frame-m5', 'url-m5')">이동</button>
           <button class="p-btn" onclick="refreshFrame('frame-m5')">새로고침</button>
           <button class="p-btn" onclick="openPopup('url-m5')">새창</button>
         </div>
       </div>
       <div class="panel-body">
-        <iframe id="frame-m5" src="m5.html"></iframe>
+        <iframe id="frame-m5" src="/m5.html"></iframe>
       </div>
     </section>
 
@@ -203,21 +201,20 @@
       <div class="panel-header">
         <div class="panel-title">🩺 [창 3] m6 진료 안내판</div>
         <div class="panel-tools">
-          <input type="text" id="url-m6" class="url-input" value="m6.html" placeholder="m6 주소 입력">
+          <input type="text" id="url-m6" class="url-input" value="/m6.html" placeholder="m6 주소 입력">
           <button class="p-btn" onclick="applyUrl('frame-m6', 'url-m6')">이동</button>
           <button class="p-btn" onclick="refreshFrame('frame-m6')">새로고침</button>
           <button class="p-btn" onclick="openPopup('url-m6')">새창</button>
         </div>
       </div>
       <div class="panel-body">
-        <iframe id="frame-m6" src="m6.html"></iframe>
+        <iframe id="frame-m6" src="/m6.html"></iframe>
       </div>
     </section>
 
   </main>
 
   <script>
-    // 개별 프레임 새로고침
     function refreshFrame(frameId) {
       const frame = document.getElementById(frameId);
       if (frame) {
@@ -225,14 +222,12 @@
       }
     }
 
-    // 3개 프레임 일괄 동시 새로고침
     function refreshAll() {
       refreshFrame('frame-count');
       refreshFrame('frame-m5');
       refreshFrame('frame-m6');
     }
 
-    // 입력된 URL 주소로 프레임 이동
     function applyUrl(frameId, inputId) {
       const frame = document.getElementById(frameId);
       const url = document.getElementById(inputId).value.trim();
@@ -241,7 +236,6 @@
       }
     }
 
-    // 새창으로 단독 띄우기
     function openPopup(inputId) {
       const url = document.getElementById(inputId).value.trim();
       if (url) {
