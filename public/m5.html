@@ -38,7 +38,6 @@ body {
   position: relative;
 }
 
-/* Header & 럭셔리 네온 시계 */
 header {
   display: flex;
   align-items: center;
@@ -81,7 +80,6 @@ header {
   line-height: 1.05;
 }
 
-/* 좌우 5:5 대칭 분할 */
 .split-container {
   flex: 1;
   display: grid;
@@ -101,7 +99,6 @@ header {
   overflow: hidden;
 }
 
-/* 좌측 QR / 우측 일반 헤더 컬러 차별화 */
 .col-header {
   padding: 14px 24px;
   display: flex;
@@ -136,8 +133,6 @@ header {
 .col-qr .col-count { color: #0369a1; border: 2px solid #bae6fd; }
 .col-normal .col-count { color: #b45309; border: 2px solid #fde68a; }
 
-/* 📐 [동일 규격 그리드 템플릿]
-   [번호 90px] - [동물명 210px] - [상태 140px] - [진료분류 180px] - [소요시간 180px] */
 .table-header {
   display: grid;
   grid-template-columns: 90px 210px 140px 180px 180px;
@@ -161,7 +156,6 @@ header {
   padding: 14px;
 }
 
-/* 대기 줄(Row) - 화려하고 널찍한 입체 카드 */
 .table-row {
   display: grid;
   grid-template-columns: 90px 210px 140px 180px 180px;
@@ -180,7 +174,6 @@ header {
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
 
-/* 🩺 진료중인 환자: 강렬한 네온 블루 하이라이트 & 펄스 */
 .table-row.treating {
   background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%);
   border: 3.5px solid #3b82f6;
@@ -192,12 +185,7 @@ header {
   100% { border-color: #60a5fa; box-shadow: 0 0 28px rgba(96, 165, 250, 0.45); }
 }
 
-/* 1. 번호 배지 */
-.col-cell-num {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.col-cell-num { display: flex; justify-content: center; align-items: center; }
 .num-badge {
   display: inline-flex;
   align-items: center;
@@ -219,7 +207,6 @@ header {
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
 }
 
-/* 2. 동물명 */
 .col-cell-pet {
   display: flex;
   align-items: center;
@@ -237,14 +224,9 @@ header {
   line-height: 1.1;
 }
 
-/* 3. 진료 상태 배지 (훨씬 크고 화려하게) */
-.col-cell-status {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.col-cell-status { display: flex; justify-content: center; align-items: center; }
 .pet-status-badge {
-  font-size: 22px; /* 폰트 대폭 확대 */
+  font-size: 22px;
   font-weight: 1000;
   padding: 10px 22px;
   border-radius: 16px;
@@ -268,15 +250,10 @@ header {
   50% { opacity: 0.88; transform: scale(0.96); box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3); }
 }
 
-/* 4. 진료분류 배지 (훨씬 크고 선명하게) */
-.col-cell-category {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.col-cell-category { display: flex; justify-content: center; align-items: center; }
 .category-badge {
   display: inline-block;
-  font-size: clamp(21px, 1.7vw, 25px); /* 폰트 대폭 확대 */
+  font-size: clamp(21px, 1.7vw, 25px);
   font-weight: 1000;
   padding: 10px 20px;
   border-radius: 16px;
@@ -288,12 +265,7 @@ header {
   box-shadow: 0 3px 8px rgba(0,0,0,0.04);
 }
 
-/* 5. 소요시간 배지 (진하고 고급스러운 그라데이션) */
-.col-cell-time {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.col-cell-time { display: flex; justify-content: center; align-items: center; }
 .est-badge {
   font-size: clamp(24px, 2vw, 32px);
   font-weight: 1000;
@@ -320,7 +292,6 @@ header {
   font-weight: 900;
 }
 
-/* 하단 병원 소식 배너 */
 .notice-bar {
   display: flex;
   align-items: center;
@@ -451,7 +422,7 @@ footer {
 
   <main class="split-container">
     
-    <!-- [왼쪽] QR 사전접수 (21번대 시작) -->
+    <!-- [왼쪽] QR 사전접수 (21번대) -->
     <section class="col-panel col-qr">
       <div class="col-header">
         <div class="col-title">📱 QR 사전접수</div>
@@ -469,7 +440,7 @@ footer {
       </div>
     </section>
 
-    <!-- [오른쪽] 일반 현장예약 (31번대 시작) -->
+    <!-- [오른쪽] 일반 현장예약 (31번대) -->
     <section class="col-panel col-normal">
       <div class="col-header">
         <div class="col-title">🏥 일반 현장예약</div>
@@ -496,13 +467,14 @@ footer {
 
   <footer>
     <span>진료 상황에 따라 소요시간은 달라질 수 있습니다.</span>
-    <span id="updated">연결 중</span>
+    <span id="updated">중앙 서버 연결 중</span>
   </footer>
 </div>
 
 <script>
-const API_BASE = "https://m5-api.yurmgirl.workers.dev";
+const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
+
 const listQrEl = document.getElementById("list-qr");
 const listNormalEl = document.getElementById("list-normal");
 const countQrEl = document.getElementById("count-qr");
@@ -546,40 +518,33 @@ function make(tag, cls, txt){
   return e;
 }
 
-function checkUrgentNotice(){
-  const data = JSON.parse(localStorage.getItem("m6_urgent_notice") || "null");
-  if(data && data.active && data.text){
-    urgentModalText.textContent = data.text;
+function handleUrgentNotice(un){
+  if(un && un.active && un.text){
+    urgentModalText.textContent = un.text;
     urgentModal.style.display = "flex";
   } else {
     urgentModal.style.display = "none";
   }
 }
 
-// 📐 완벽하게 정돈된 5개 열 생성 함수 (QR 및 일반 예약 100% 동일 규격)
 function createRow(displayNum, petName, category, minutes, status){
   const treating = status === "진료중";
   const row = make("div", "table-row" + (treating ? " treating" : ""));
 
-  // 1. 번호 (90px)
   const cellNum = make("div", "col-cell-num");
   cellNum.append(make("span", "num-badge", String(displayNum)));
 
-  // 2. 동물명 (210px)
   const cellPet = make("div", "col-cell-pet");
   const nameDiv = make("div", "pet-name", petName);
   cellPet.append(nameDiv);
 
-  // 3. 진료 상태 (140px, 중앙)
   const cellStatus = make("div", "col-cell-status");
   const statusBadge = make("span", "pet-status-badge " + (treating ? "treat" : "wait"), treating ? "진료중" : "대기중");
   cellStatus.append(statusBadge);
 
-  // 4. 진료분류 (180px, 중앙)
   const cellCat = make("div", "col-cell-category");
   cellCat.append(make("span", "category-badge", category || "일반진료"));
 
-  // 5. 소요시간 (180px, 중앙)
   const cellTime = make("div", "col-cell-time");
   const estBadge = make("span", "est-badge", minutes === null ? "시간 미정" : `소요 ${minutes}분`);
   cellTime.append(estBadge);
@@ -588,13 +553,19 @@ function createRow(displayNum, petName, category, minutes, status){
   return row;
 }
 
-function render(qrItems, estimates, categories, qrStatuses, manualBookings, localMinutes, deletedKeys){
-  checkUrgentNotice();
+function render(qrItems, serverState){
+  const categories = serverState.categories || {};
+  const qrStatuses = serverState.qrStatuses || {};
+  const qrMinutes = serverState.qrMinutes || {};
+  const deletedKeys = serverState.qrDeleted || [];
+  const manualBookings = serverState.manualBookings || [];
 
-  // 1. QR 목록 (21번대)
+  handleUrgentNotice(serverState.urgentNotice);
+
+  // 1. QR 목록
   const activeQr = (Array.isArray(qrItems) ? qrItems : []).filter(item => {
     const k = String(item.id ?? item.reception_id ?? "");
-    if (deletedKeys && deletedKeys.includes(k)) return false;
+    if (deletedKeys.includes(k)) return false;
     const st = qrStatuses[k] || item.status || "접수대기";
     return !["완료", "진료완료", "자료삭제", "취소", "종료"].includes(st);
   }).sort((a,b)=>{
@@ -612,20 +583,16 @@ function render(qrItems, estimates, categories, qrStatuses, manualBookings, loca
     activeQr.forEach((item, idx) => {
       const key = String(item.id ?? item.reception_id ?? "");
       const petName = safeText(item.pet_name || item.animal_name || "이름 미입력");
-      const category = categories && categories[key] ? categories[key] : (item.category || "일반진료");
+      const category = categories[key] || item.category || "일반진료";
       const status = qrStatuses[key] || item.status || "접수대기";
+      const minutes = estimateMinutes(qrMinutes[key] !== undefined ? qrMinutes[key] : 15);
 
-      const rawMin = (localMinutes && localMinutes[key] !== undefined)
-        ? localMinutes[key] 
-        : (estimates && estimates[key]);
-
-      const minutes = estimateMinutes(rawMin);
       listQrEl.append(createRow(21 + idx, petName, category, minutes, status));
     });
   }
 
-  // 2. 일반예약 목록 (31번대)
-  const activeManual = (Array.isArray(manualBookings) ? manualBookings : []).filter(item => {
+  // 2. 일반예약 목록
+  const activeManual = manualBookings.filter(item => {
     return item.status !== "진료완료" && item.status !== "자료삭제";
   });
 
@@ -644,42 +611,29 @@ function render(qrItems, estimates, categories, qrStatuses, manualBookings, loca
 
 async function refresh(){
   try {
-    const [r, e] = await Promise.all([
+    const [r, s] = await Promise.all([
       fetch(RECEPTION_API, { cache: "no-store" }),
-      fetch(API_BASE + "/estimates", { cache: "no-store" })
+      fetch(SYNC_API, { cache: "no-store" })
     ]);
     const qrData = r.ok ? await r.json() : [];
-    const estimateData = e.ok ? await e.json() : {};
-
-    const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
-    const savedQrStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
-    const manualBookings = JSON.parse(localStorage.getItem("m6_manual_bookings") || "[]");
-    const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
-    const deletedKeys = JSON.parse(localStorage.getItem("m6_qr_deleted") || "[]");
+    const serverState = s.ok ? await s.json() : {};
 
     render(
       Array.isArray(qrData) ? qrData : (qrData.items || []),
-      estimateData.estimates || {},
-      savedCategories,
-      savedQrStatuses,
-      manualBookings,
-      localMinutes,
-      deletedKeys
+      serverState
     );
-    updatedEl.textContent = "갱신 " + new Date().toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
+    updatedEl.textContent = "실시간 서버 동기화 중 " + new Date().toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
   } catch(err) {
-    updatedEl.textContent = "연결 상태 확인 필요";
+    updatedEl.textContent = "동기화 연결 확인 필요";
   }
 }
 
+// 1.5초 주기 실시간 중앙 서버 폴링
 refresh();
-setInterval(refresh, 1000);
-window.addEventListener("storage", refresh);
+setInterval(refresh, 1500);
 
 window.addEventListener("message", (e) => {
-  if (e.data === "reload_m5" || e.data === "sync_m5") {
-    refresh();
-  }
+  if (e.data === "reload_m5") refresh();
 });
 </script>
 </body>
