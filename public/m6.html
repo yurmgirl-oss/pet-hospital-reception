@@ -47,14 +47,12 @@
     font-weight: 800;
   }
 
-  /* 🚨 긴급 공지 컨트롤 카드 */
+  /* 긴급 공지 컨트롤 카드 */
   .urgent-card {
     border: 2px solid #f87171;
     background: #fff5f5;
   }
-  .urgent-card h2 {
-    color: #991b1b;
-  }
+  .urgent-card h2 { color: #991b1b; }
   .quick-btns {
     display: flex;
     flex-wrap: wrap;
@@ -70,15 +68,9 @@
     font-size: 11px;
     font-weight: 800;
     cursor: pointer;
-    transition: all 0.15s;
   }
-  .quick-btn:hover {
-    background: #fee2e2;
-  }
-  .urgent-form {
-    display: flex;
-    gap: 6px;
-  }
+  .quick-btn:hover { background: #fee2e2; }
+  .urgent-form { display: flex; gap: 6px; }
   .urgent-input {
     flex: 1;
     padding: 7px 10px;
@@ -90,9 +82,7 @@
     outline: none;
     background: #ffffff;
   }
-  .urgent-input:focus {
-    border-color: #ef4444;
-  }
+  .urgent-input:focus { border-color: #ef4444; }
   .btn-urgent-on {
     background: #ef4444;
     color: #ffffff;
@@ -103,7 +93,6 @@
     font-weight: 900;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.15s;
   }
   .btn-urgent-on:hover { background: #dc2626; }
   .btn-urgent-off {
@@ -119,7 +108,7 @@
   }
   .btn-urgent-off:hover { background: #475569; }
 
-  /* 일반 폼 */
+  /* 폼 */
   .manual-form {
     display: grid;
     grid-template-columns: 1.2fr 1.5fr 80px 80px;
@@ -157,13 +146,8 @@
   th { background: #f8fafc; padding: 7px 6px; border-bottom: 1px solid var(--border); color: #64748b; font-weight: 800; }
   td { padding: 7px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; }
   
-  tr.row-done {
-    background: #f8fafc;
-    opacity: 0.75;
-  }
-  tr.row-done td {
-    color: #64748b;
-  }
+  tr.row-done { background: #f8fafc; opacity: 0.75; }
+  tr.row-done td { color: #64748b; }
 
   .time-badge {
     font-size: 11px;
@@ -228,7 +212,6 @@
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.15s;
   }
   .btn-del:hover { background: #dc2626; }
 
@@ -248,10 +231,10 @@
 </head>
 <body>
 
-  <!-- [NEW] 🚨 m5 한가운데 띄우는 긴급 공지 컨트롤 -->
+  <!-- [1] 긴급 공지 컨트롤 -->
   <div class="card urgent-card">
     <h2>
-      <span>🚨 m5 화면 중앙 긴급공지 발령</span>
+      <span>🚨 전 병원 모니터 긴급공지 발령 (중앙 서버 연동)</span>
       <span id="urgent-status-tag" style="font-size:11px; font-weight:800; color:#dc2626;">[현재: 미발령]</span>
     </h2>
     <div class="quick-btns">
@@ -267,11 +250,11 @@
     </div>
   </div>
 
-  <!-- [1] 일반예약 직접 등록 (31번대~) -->
+  <!-- [2] 일반예약 등록 -->
   <div class="card">
     <h2>
       <span>🏥 일반예약 직접 등록 <span class="badge-range">31번대</span></span>
-      <span class="auto-notice">💡 진료완료 후 검토 가능 (자료삭제 선택 시 제거)</span>
+      <span class="auto-notice">🌐 전 컴퓨터 실시간 동기화 모드</span>
     </h2>
     <div class="manual-form">
       <input type="text" id="m-name" placeholder="동물명 (예: 보리)" onkeydown="if(event.key==='Enter') addManualBooking()">
@@ -305,11 +288,11 @@
     </table>
   </div>
 
-  <!-- [2] 원내 QR접수 환자 관리 (21번대~) -->
+  <!-- [3] QR접수 환자 관리 -->
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
-      <span class="auto-notice">💡 진료완료 후 검토 가능 (자료삭제 선택 시 제거)</span>
+      <span class="auto-notice">⚡ 변경 시 전 병원 실시간 반영</span>
     </h2>
     <table id="table-qr">
       <thead>
@@ -329,11 +312,21 @@
   </div>
 
 <script>
-const API_BASE = "https://m5-api.yurmgirl.workers.dev";
+const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
 const CATEGORIES = ["예방접종", "일반진료", "건강검진", "처치수술", "상담처방", "내복약조제", "특수동물진료"];
 
 let isUserInputting = false;
+
+// 전역 서버 상태 메모리
+let GlobalState = {
+  manualBookings: [],
+  categories: {},
+  qrStatuses: {},
+  qrMinutes: {},
+  qrDeleted: [],
+  urgentNotice: null
+};
 
 function formatTime(d){
   const date = d ? new Date(d) : new Date();
@@ -362,101 +355,86 @@ function buildTimerBadge(key, startTime, targetMinutes, status, endTime){
   return `<span class="${cls}" id="timer-${key}">⏱️ ${getElapsedText(startTime)}</span>`;
 }
 
-// 1초마다 타이머 화면 갱신
-setInterval(() => {
-  const manualList = getManualBookings();
-  manualList.forEach(item => {
-    if(item.status === "진료중" && item.startTime){
-      const el = document.getElementById(`timer-m-${item.id}`);
-      if(el){
-        const diffSec = Math.floor((Date.now() - item.startTime) / 1000);
-        const isOver = item.minutes && diffSec > (item.minutes * 60);
-        el.className = isOver ? "timer-badge timer-over" : "timer-badge timer-running";
-        el.textContent = `⏱️ ${getElapsedText(item.startTime)}`;
+// 1. 서버로 상태 전송 함수 (Cloudflare Worker에 저장)
+async function pushStateToServer(partialState){
+  GlobalState = { ...GlobalState, ...partialState };
+  try {
+    await fetch(SYNC_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(partialState)
+    });
+  } catch(e) {
+    console.error("서버 동기화 실패:", e);
+  }
+  notifyLocalFrames();
+}
+
+// 2. 서버에서 전체 상태 불러오기
+async function fetchStateFromServer(){
+  try {
+    const res = await fetch(SYNC_API, { cache: "no-store" });
+    if(res.ok){
+      const data = await res.json();
+      GlobalState = { ...GlobalState, ...data };
+      updateUrgentUI();
+      if(!isUserInputting) {
+        renderManualTable();
+        loadQrList();
       }
     }
-  });
+  } catch(e) {}
+}
 
-  const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
-  const qrStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
-  const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
-
-  Object.keys(qrTimers).forEach(key => {
-    if(qrStatuses[key] === "진료중" && qrTimers[key]?.start){
-      const el = document.getElementById(`timer-qr-${key}`);
-      if(el){
-        const diffSec = Math.floor((Date.now() - qrTimers[key].start) / 1000);
-        const minVal = localMinutes[key] || 15;
-        const isOver = diffSec > (minVal * 60);
-        el.className = isOver ? "timer-badge timer-over" : "timer-badge timer-running";
-        el.textContent = `⏱️ ${getElapsedText(qrTimers[key].start)}`;
+function notifyLocalFrames(){
+  try {
+    if(window.parent){
+      window.parent.postMessage("reload_m5", "*");
+      const m5Frame = window.parent.document.getElementById("frame-m5");
+      if(m5Frame && m5Frame.contentWindow && m5Frame.contentWindow.refresh){
+        m5Frame.contentWindow.refresh();
       }
     }
-  });
-}, 1000);
+  } catch(e){}
+}
 
-// --- 🚨 긴급 공지 제어 로직 ---
+// 긴급공지
 function setUrgentQuick(text){
   document.getElementById("urgent-text").value = text;
 }
-
 function activateUrgentNotice(){
   const text = document.getElementById("urgent-text").value.trim();
-  if(!text){
-    alert("긴급 공지 내용을 입력하세요.");
-    return;
-  }
-  const payload = { active: true, text: text, time: Date.now() };
-  localStorage.setItem("m6_urgent_notice", JSON.stringify(payload));
-  updateUrgentStatusUI(true);
-  notifyM5();
+  if(!text){ alert("공지 내용을 입력하세요."); return; }
+  const notice = { active: true, text: text, time: Date.now() };
+  pushStateToServer({ urgentNotice: notice });
 }
-
 function clearUrgentNotice(){
-  localStorage.removeItem("m6_urgent_notice");
   document.getElementById("urgent-text").value = "";
-  updateUrgentStatusUI(false);
-  notifyM5();
+  pushStateToServer({ urgentNotice: { active: false, text: "" } });
 }
-
-function updateUrgentStatusUI(isActive){
+function updateUrgentUI(){
   const tag = document.getElementById("urgent-status-tag");
-  if(isActive){
-    tag.textContent = "🔴 [현재: m5 화면에 긴급공지 깜빡이는 중!]";
+  const un = GlobalState.urgentNotice;
+  if(un && un.active){
+    tag.textContent = "🔴 [현재: 전 병원 모니터에 긴급공지 팝업 중!]";
     tag.style.color = "#dc2626";
+    if(!document.getElementById("urgent-text").value) {
+      document.getElementById("urgent-text").value = un.text;
+    }
   } else {
     tag.textContent = "⚪ [현재: 미발령]";
     tag.style.color = "#64748b";
   }
 }
 
-function checkUrgentStatusOnInit(){
-  const data = JSON.parse(localStorage.getItem("m6_urgent_notice") || "null");
-  if(data && data.active){
-    document.getElementById("urgent-text").value = data.text;
-    updateUrgentStatusUI(true);
-  } else {
-    updateUrgentStatusUI(false);
-  }
-}
-
-// --- 일반예약 로직 ---
-function getManualBookings(){
-  return JSON.parse(localStorage.getItem("m6_manual_bookings") || "[]");
-}
-function setManualBookings(data){
-  localStorage.setItem("m6_manual_bookings", JSON.stringify(data));
-  notifyM5();
-  renderManualTable();
-}
-
+// 일반예약 관리
 function addManualBooking(){
   const name = document.getElementById("m-name").value.trim();
   const category = document.getElementById("m-category").value;
   const minutes = document.getElementById("m-minutes").value.trim() || 15;
   if(!name){ alert("동물명을 입력하세요."); return; }
 
-  const list = getManualBookings();
+  const list = [...(GlobalState.manualBookings || [])];
   list.push({
     id: Date.now(),
     petName: name,
@@ -467,8 +445,10 @@ function addManualBooking(){
     endTime: null,
     time: formatTime()
   });
-  setManualBookings(list);
+
+  pushStateToServer({ manualBookings: list });
   document.getElementById("m-name").value = "";
+  renderManualTable();
 }
 
 function updateManualStatus(id, newStatus){
@@ -476,8 +456,7 @@ function updateManualStatus(id, newStatus){
     deleteManualBooking(id);
     return;
   }
-
-  const list = getManualBookings().map(item => {
+  const list = (GlobalState.manualBookings || []).map(item => {
     if(item.id === id){
       item.status = newStatus;
       if(newStatus === "진료중"){
@@ -492,36 +471,37 @@ function updateManualStatus(id, newStatus){
     }
     return item;
   });
-  setManualBookings(list);
+  pushStateToServer({ manualBookings: list });
+  renderManualTable();
 }
 
 function updateManualCategory(id, newCat){
-  const list = getManualBookings().map(item => {
+  const list = (GlobalState.manualBookings || []).map(item => {
     if(item.id === id) item.category = newCat;
     return item;
   });
-  setManualBookings(list);
+  pushStateToServer({ manualBookings: list });
 }
 
 function updateManualMinutes(id, newMin){
   const val = Number(newMin);
   if(isNaN(val) || val <= 0) return;
-  const list = getManualBookings().map(item => {
+  const list = (GlobalState.manualBookings || []).map(item => {
     if(item.id === id) item.minutes = val;
     return item;
   });
-  setManualBookings(list);
+  pushStateToServer({ manualBookings: list });
 }
 
 function deleteManualBooking(id){
-  const list = getManualBookings().filter(item => item.id !== id);
-  setManualBookings(list);
+  const list = (GlobalState.manualBookings || []).filter(item => item.id !== id);
+  pushStateToServer({ manualBookings: list });
+  renderManualTable();
 }
 
 function renderManualTable(){
   if(isUserInputting) return;
-
-  const list = getManualBookings();
+  const list = GlobalState.manualBookings || [];
   const tbody = document.querySelector("#table-manual tbody");
   tbody.innerHTML = "";
 
@@ -540,20 +520,14 @@ function renderManualTable(){
       <td style="font-weight:900; color:#b45309;">${31 + idx}</td>
       <td><span class="time-badge">${item.time || formatTime()}</span></td>
       <td style="font-weight:900;">${item.petName}</td>
+      <td><select onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select></td>
       <td>
-        <select onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select>
-      </td>
-      <td>
-        <input type="number" 
-               class="min-input" 
-               value="${item.minutes}" 
+        <input type="number" class="min-input" value="${item.minutes}" 
                onfocus="isUserInputting=true"
                onblur="isUserInputting=false; updateManualMinutes(${item.id}, this.value)" 
                onkeydown="if(event.key==='Enter'){ this.blur(); }">
       </td>
-      <td>
-        ${buildTimerBadge(`m-${item.id}`, item.startTime, item.minutes, item.status, item.endTime)}
-      </td>
+      <td>${buildTimerBadge(`m-${item.id}`, item.startTime, item.minutes, item.status, item.endTime)}</td>
       <td>
         <select class="status-select ${item.status === '진료중' ? 'status-treat' : item.status === '진료완료' ? 'status-done' : 'status-wait'}" 
                 onchange="updateManualStatus(${item.id}, this.value)">
@@ -569,33 +543,26 @@ function renderManualTable(){
   });
 }
 
-// --- QR 접수 로직 ---
+// QR접수 관리
 async function loadQrList(){
   if(isUserInputting) return;
-
   try {
-    const [r, e] = await Promise.all([
-      fetch(RECEPTION_API, { cache: "no-store" }),
-      fetch(API_BASE + "/estimates", { cache: "no-store" })
-    ]);
-    const receptions = r.ok ? await r.json() : [];
-    const estimateData = e.ok ? await e.json() : {};
+    const res = await fetch(RECEPTION_API, { cache: "no-store" });
+    const receptions = res.ok ? await res.json() : [];
     const items = Array.isArray(receptions) ? receptions : (receptions.items || []);
-    
-    const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
-    const savedStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
-    const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
-    const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
-    const deletedKeys = JSON.parse(localStorage.getItem("m6_qr_deleted") || "[]");
-    const estimates = estimateData.estimates || {};
+
+    const categories = GlobalState.categories || {};
+    const statuses = GlobalState.qrStatuses || {};
+    const minutes = GlobalState.qrMinutes || {};
+    const deleted = GlobalState.qrDeleted || [];
 
     const tbody = document.querySelector("#table-qr tbody");
     if(!tbody) return;
 
     const activeList = items.filter(i => {
       const k = String(i.id ?? i.reception_id ?? "");
-      if(deletedKeys.includes(k)) return false;
-      const st = savedStatuses[k] || i.status || "접수대기";
+      if(deleted.includes(k)) return false;
+      const st = statuses[k] || i.status || "접수대기";
       return st !== "자료삭제" && !["취소", "종료"].includes(st);
     });
 
@@ -608,10 +575,9 @@ async function loadQrList(){
 
     activeList.forEach((item, idx) => {
       const key = String(item.id ?? item.reception_id ?? "");
-      const currentCat = savedCategories[key] || "일반진료";
-      const currentMin = localMinutes[key] !== undefined ? localMinutes[key] : (estimates[key] || 15);
-      const currentStatus = savedStatuses[key] || item.status || "접수대기";
-      const timerData = qrTimers[key] || {};
+      const currentCat = categories[key] || "일반진료";
+      const currentMin = minutes[key] !== undefined ? minutes[key] : 15;
+      const currentStatus = statuses[key] || item.status || "접수대기";
       const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
 
       const tr = document.createElement("tr");
@@ -623,120 +589,66 @@ async function loadQrList(){
         <td style="font-weight:900; color:#0369a1;">${21 + idx}</td>
         <td><span class="time-badge">${regTime}</span></td>
         <td style="font-weight:900;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
+        <td><select onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
         <td>
-          <select onchange="autoSaveQrCategory('${key}', this.value)">${catOptions}</select>
-        </td>
-        <td>
-          <input type="number" 
-                 class="min-input" 
-                 value="${currentMin}" 
+          <input type="number" class="min-input" value="${currentMin}" 
                  onfocus="isUserInputting=true"
-                 onblur="isUserInputting=false; autoSaveQrMinutes('${key}', this.value)" 
+                 onblur="isUserInputting=false; saveQrMinutes('${key}', this.value)" 
                  onkeydown="if(event.key==='Enter'){ this.blur(); }">
         </td>
-        <td>
-          ${buildTimerBadge(`qr-${key}`, timerData.start, currentMin, currentStatus, timerData.end)}
-        </td>
+        <td>${buildTimerBadge(`qr-${key}`, null, currentMin, currentStatus, null)}</td>
         <td>
           <select class="status-select ${currentStatus === '진료중' ? 'status-treat' : currentStatus === '진료완료' ? 'status-done' : 'status-wait'}"
-                  onchange="autoSaveQrStatus('${key}', this.value)">
+                  onchange="saveQrStatus('${key}', this.value)">
             <option value="접수대기" ${currentStatus === '접수대기' ? 'selected' : ''}>접수대기</option>
             <option value="진료중" ${currentStatus === '진료중' ? 'selected' : ''}>진료중</option>
             <option value="진료완료" ${currentStatus === '진료완료' ? 'selected' : ''}>진료완료</option>
             <option value="자료삭제" class="status-delete">자료삭제</option>
           </select>
         </td>
-        <td>
-          <button class="btn-del" onclick="deleteQrItem('${key}')">삭제</button>
-        </td>
+        <td><button class="btn-del" onclick="deleteQrItem('${key}')">삭제</button></td>
       `;
       tbody.appendChild(tr);
     });
-  } catch (err) {
-    console.error(err);
-  }
+  } catch(e){}
 }
 
-function notifyM5(){
-  try {
-    if (window.parent) {
-      window.parent.postMessage("reload_m5", "*");
-      const m5Frame = window.parent.document.getElementById("frame-m5");
-      if (m5Frame && m5Frame.contentWindow && m5Frame.contentWindow.refresh) {
-        m5Frame.contentWindow.refresh();
-      }
-    }
-  } catch(e) {}
+function saveQrCategory(key, val){
+  const cats = { ...(GlobalState.categories || {}) };
+  cats[key] = val;
+  pushStateToServer({ categories: cats });
 }
 
-function autoSaveQrCategory(key, val){
-  const savedCategories = JSON.parse(localStorage.getItem("m6_categories") || "{}");
-  savedCategories[key] = val;
-  localStorage.setItem("m6_categories", JSON.stringify(savedCategories));
-  notifyM5();
-}
-
-function autoSaveQrStatus(key, val){
+function saveQrStatus(key, val){
   if(val === "자료삭제"){
     deleteQrItem(key);
     return;
   }
-
-  const savedStatuses = JSON.parse(localStorage.getItem("m6_qr_statuses") || "{}");
-  savedStatuses[key] = val;
-  localStorage.setItem("m6_qr_statuses", JSON.stringify(savedStatuses));
-
-  const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
-  if(!qrTimers[key]) qrTimers[key] = {};
-
-  if(val === "진료중"){
-    if(!qrTimers[key].start) qrTimers[key].start = Date.now();
-    qrTimers[key].end = null;
-  } else if(val === "진료완료"){
-    if(qrTimers[key].start && !qrTimers[key].end) qrTimers[key].end = Date.now();
-  } else if(val === "접수대기"){
-    delete qrTimers[key];
-  }
-  localStorage.setItem("m6_qr_timers", JSON.stringify(qrTimers));
-
-  notifyM5();
+  const sts = { ...(GlobalState.qrStatuses || {}) };
+  sts[key] = val;
+  pushStateToServer({ qrStatuses: sts });
   loadQrList();
+}
+
+function saveQrMinutes(key, val){
+  const minVal = Number(val);
+  if(isNaN(minVal) || minVal <= 0) return;
+  const mins = { ...(GlobalState.qrMinutes || {}) };
+  mins[key] = minVal;
+  pushStateToServer({ qrMinutes: mins });
 }
 
 function deleteQrItem(key){
   if(!confirm("이 접수 건을 목록에서 완전히 삭제하시겠습니까?")) return;
-
-  const deletedKeys = JSON.parse(localStorage.getItem("m6_qr_deleted") || "[]");
-  if(!deletedKeys.includes(key)) deletedKeys.push(key);
-  localStorage.setItem("m6_qr_deleted", JSON.stringify(deletedKeys));
-
-  notifyM5();
+  const dels = [...(GlobalState.qrDeleted || [])];
+  if(!dels.includes(key)) dels.push(key);
+  pushStateToServer({ qrDeleted: dels });
   loadQrList();
 }
 
-async function autoSaveQrMinutes(key, val){
-  const minVal = Number(val);
-  if(isNaN(minVal) || minVal <= 0) return;
-
-  const localMinutes = JSON.parse(localStorage.getItem("m6_qr_minutes") || "{}");
-  localMinutes[key] = minVal;
-  localStorage.setItem("m6_qr_minutes", JSON.stringify(localMinutes));
-
-  notifyM5();
-
-  try {
-    await fetch(API_BASE + "/estimates", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: key, minutes: minVal })
-    });
-  } catch(e) { console.error(e); }
-}
-
-checkUrgentStatusOnInit();
-renderManualTable();
-loadQrList();
-setInterval(loadQrList, 4000);
+// 2.5초 주기 서버 동기화 폴링 (어느 PC에서 변경해도 전 PC 동기화)
+fetchStateFromServer();
+setInterval(fetchStateFromServer, 2500);
 </script>
 </body>
 </html>
