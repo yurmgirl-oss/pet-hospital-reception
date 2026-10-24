@@ -42,44 +42,89 @@ body {
   position: relative;
 }
 
-/* 상단 헤더 & 시계 */
+/* 상단 헤더: 병원명 + 접수안내 + QR바코드 + 통합 시계 */
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 10px 18px;
   background: linear-gradient(135deg, #dcfce7 0%, #ffffff 45%, #e0f2fe 100%);
   border-bottom: 2.5px solid #bbf7d0;
+  gap: 12px;
+}
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .brandname {
-  font-size: clamp(22px, 3.8vw, 28px);
+  font-size: clamp(20px, 3.4vw, 26px);
   font-weight: 1000;
   letter-spacing: -0.04em;
   color: #064e3b;
 }
-.clockbox {
+.brand-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.badge-url {
+  font-size: 13px;
+  font-weight: 900;
+  color: #0369a1;
+  background: #e0f2fe;
+  border: 1.5px solid #bae6fd;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: -0.01em;
+}
+
+/* 헤더 우측: QR 바코드 + 실시간 시계 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.qr-box {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  background: #ffffff;
+  padding: 4px 6px;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.qr-box img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  display: block;
+}
+.qr-tag {
+  font-size: 10px;
+  font-weight: 1000;
+  color: #059669;
+  margin-top: 2px;
+}
+
+.clockbox {
+  display: flex;
   align-items: center;
   justify-content: center;
   background: #ffffff;
   border: 2px solid #86efac;
-  padding: 4px 18px;
+  padding: 8px 16px;
   border-radius: 14px;
   box-shadow: 0 3px 10px rgba(16, 185, 129, 0.15);
 }
-.clock-date {
-  font-size: 13px;
-  font-weight: 900;
-  color: #059669;
-}
-.clock-time {
-  font-size: clamp(26px, 4.4vw, 34px);
+.clock-text {
+  font-size: clamp(16px, 2.5vw, 21px);
   font-weight: 1000;
   color: #064e3b;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
-  line-height: 1.05;
+  white-space: nowrap;
 }
 
 /* 상하 2단 컨테이너 */
@@ -138,7 +183,7 @@ header {
 .panel-qr .panel-count { color: #0369a1; border: 1.5px solid #bae6fd; }
 .panel-normal .panel-count { color: #b45309; border: 1.5px solid #fde68a; }
 
-/* 📐 [균형 재배치된 5개 열 그리드]
+/* 📐 균형 잡힌 5개 열 그리드
    [번호 70px] - [동물명 1.8fr] - [상태 1fr] - [분류 1.3fr] - [소요시간 1.3fr] */
 .table-header {
   display: grid;
@@ -162,7 +207,7 @@ header {
   padding: 10px 12px;
 }
 
-/* 대기 줄(Row) - 높이를 넉넉하게 키워 5개 기준 꽉 차도록 설정 */
+/* 대기 줄(Row) */
 .table-row {
   display: grid;
   grid-template-columns: 70px 1.8fr 1fr 1.3fr 1.3fr;
@@ -404,12 +449,23 @@ footer {
   </div>
 
   <header>
-    <div class="brand">
+    <!-- [좌측] 병원명 및 모바일 접수 바로가기 주소 -->
+    <div class="header-left">
       <div class="brandname">🐾 23시 하단오거리 동물병원</div>
+      <div class="brand-sub">
+        <span class="badge-url">📱 모바일 접수: 23si.net</span>
+      </div>
     </div>
-    <div class="clockbox">
-      <div class="clock-date" id="clock-date">00월 00일 (요일)</div>
-      <div class="clock-time" id="clock-time">00:00:00</div>
+
+    <!-- [우측] QR 바코드 + 실시간 일자/시각 (요청 형식 완벽 반영) -->
+    <div class="header-right">
+      <div class="qr-box">
+        <img id="qr-img" alt="사전접수 QR">
+        <span class="qr-tag">빠른접수 QR</span>
+      </div>
+      <div class="clockbox">
+        <div class="clock-text" id="clock-display">2026년 00월 00일(토) 00:00:00</div>
+      </div>
     </div>
   </header>
 
@@ -455,7 +511,7 @@ footer {
 
   <div class="notice-bar">
     <div class="notice-label">📢 안내</div>
-    <div class="notice-text">출발 전 사전접수하시면 대기시간이 단축됩니다 😊</div>
+    <div class="notice-text">출발 전 사전접수(23si.net)하시면 대기시간이 단축됩니다 😊</div>
   </div>
 
   <footer>
@@ -465,6 +521,9 @@ footer {
 </div>
 
 <script>
+// 업로드해주신 k11 (2).png 접수용 QR코드 자동 렌더링
+document.getElementById("qr-img").src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://23si.net";
+
 const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
 
@@ -473,27 +532,27 @@ const listNormalEl = document.getElementById("list-normal");
 const countQrEl = document.getElementById("count-qr");
 const countNormalEl = document.getElementById("count-normal");
 const updatedEl = document.getElementById("updated");
-const clockDateEl = document.getElementById("clock-date");
-const clockTimeEl = document.getElementById("clock-time");
+const clockDisplayEl = document.getElementById("clock-display");
 
 const urgentModal = document.getElementById("urgent-modal");
 const urgentModalText = document.getElementById("urgent-modal-text");
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
+// 🕒 '2026년 10월 24일(토) 17:00:39' 형식 실시간 1초 갱신
 function tickClock(){
   const d = new Date();
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  const w = WEEKDAYS[d.getDay()];
-  clockDateEl.textContent = `${m}월 ${day}일 (${w})`;
-
-  clockTimeEl.textContent = d.toLocaleTimeString("ko-KR", {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const date = String(d.getDate()).padStart(2, "0");
+  const day = WEEKDAYS[d.getDay()];
+  const time = d.toLocaleTimeString("ko-KR", {
     hour12: false, 
     hour: "2-digit", 
     minute: "2-digit", 
     second: "2-digit"
   });
+  clockDisplayEl.textContent = `${year}년 ${month}월 ${date}일(${day}) ${time}`;
 }
 tickClock();
 setInterval(tickClock, 1000);
@@ -626,7 +685,7 @@ async function refresh(){
   }
 }
 
-// ⏱️ 요청하신 대로 3초 주기(3000ms) 실시간 폴링으로 설정
+// ⏱️ 3초 주기 실시간 폴링
 refresh();
 setInterval(refresh, 3000);
 
