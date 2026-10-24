@@ -3,12 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>23시 하단오거리 동물병원 · 대기 현황판 (m5 세로 키오스크)</title>
+<title>23시 하단오거리 동물병원 · 대기 현황판 (m5 키오스크)</title>
 <style>
 :root {
   --primary-green: #059669;
   --deep-green: #064e3b;
-  --mint-light: #ecfdf5;
   --bg-main: #f0fdf4;
   --ink: #0f172a;
 }
@@ -16,7 +15,7 @@
   box-sizing: border-box; 
   margin: 0; 
   padding: 0; 
-  user-select: none; /* 키오스크 출력 전용: 텍스트 드래그 및 터치 흔들림 방지 */
+  user-select: none;
 }
 html, body {
   width: 100%;
@@ -43,17 +42,17 @@ body {
   position: relative;
 }
 
-/* 상단 헤더 & 디지털 시계 (세로 화면 맞춤 컴팩트 와이드) */
+/* 상단 헤더 & 시계 */
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 18px;
+  padding: 12px 20px;
   background: linear-gradient(135deg, #dcfce7 0%, #ffffff 45%, #e0f2fe 100%);
   border-bottom: 2.5px solid #bbf7d0;
 }
 .brandname {
-  font-size: clamp(20px, 3.8vw, 26px);
+  font-size: clamp(22px, 3.8vw, 28px);
   font-weight: 1000;
   letter-spacing: -0.04em;
   color: #064e3b;
@@ -65,7 +64,7 @@ header {
   justify-content: center;
   background: #ffffff;
   border: 2px solid #86efac;
-  padding: 4px 16px;
+  padding: 4px 18px;
   border-radius: 14px;
   box-shadow: 0 3px 10px rgba(16, 185, 129, 0.15);
 }
@@ -75,7 +74,7 @@ header {
   color: #059669;
 }
 .clock-time {
-  font-size: clamp(24px, 4.4vw, 32px);
+  font-size: clamp(26px, 4.4vw, 34px);
   font-weight: 1000;
   color: #064e3b;
   letter-spacing: 0.02em;
@@ -83,7 +82,7 @@ header {
   line-height: 1.05;
 }
 
-/* 📐 상하(위아래) 2단 레이아웃 메인 컨테이너 */
+/* 상하 2단 컨테이너 */
 .vertical-container {
   flex: 1;
   display: flex;
@@ -104,7 +103,7 @@ header {
   overflow: hidden;
 }
 
-/* 패널 헤더 (상단/하단) */
+/* 패널 헤더 */
 .panel-header {
   padding: 10px 18px;
   display: flex;
@@ -139,17 +138,16 @@ header {
 .panel-qr .panel-count { color: #0369a1; border: 1.5px solid #bae6fd; }
 .panel-normal .panel-count { color: #b45309; border: 1.5px solid #fde68a; }
 
-/* 📐 세로형 키오스크 5개 열 정렬 그리드 템플릿
-   [번호 74px] - [동물명 1fr] - [상태 120px] - [진료분류 140px] - [소요시간 130px] */
+/* 📐 [균형 재배치된 5개 열 그리드]
+   [번호 70px] - [동물명 1.8fr] - [상태 1fr] - [분류 1.3fr] - [소요시간 1.3fr] */
 .table-header {
   display: grid;
-  grid-template-columns: 74px 1fr 120px 140px 130px;
-  justify-content: space-between;
+  grid-template-columns: 70px 1.8fr 1fr 1.3fr 1.3fr;
   align-items: center;
   padding: 10px 16px;
   background: #f8fafc;
   border-bottom: 2px solid #cbd5e1;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 1000;
   color: #64748b;
   text-align: center;
@@ -164,22 +162,20 @@ header {
   padding: 10px 12px;
 }
 
-/* 🚨 큼직한 대기 줄(Row) 카드 */
+/* 대기 줄(Row) - 높이를 넉넉하게 키워 5개 기준 꽉 차도록 설정 */
 .table-row {
   display: grid;
-  grid-template-columns: 74px 1fr 120px 140px 130px;
-  justify-content: space-between;
+  grid-template-columns: 70px 1.8fr 1fr 1.3fr 1.3fr;
   align-items: center;
-  min-height: 84px; /* 세로 화면에서 4~5개 행이 여유롭게 차도록 높이 설정 */
-  padding: 10px 16px;
-  border-radius: 16px;
+  min-height: 104px;
+  padding: 8px 16px;
+  border-radius: 18px;
   background: #ffffff;
   border: 2.5px solid #e2e8f0;
   box-shadow: 0 3px 12px rgba(0,0,0,0.04);
   transition: all 0.2s ease;
 }
 
-/* 🩺 진료중인 환자 하이라이트 (네온 블루) */
 .table-row.treating {
   background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%);
   border: 3.5px solid #2563eb;
@@ -191,7 +187,7 @@ header {
   100% { border-color: #60a5fa; box-shadow: 0 0 26px rgba(96, 165, 250, 0.55); }
 }
 
-/* 1. 번호 배지 (64px 정사각) */
+/* 1. 번호 */
 .col-cell-num { display: flex; justify-content: center; align-items: center; }
 .num-badge {
   display: inline-flex;
@@ -200,7 +196,7 @@ header {
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  font-size: clamp(26px, 3.8vw, 34px);
+  font-size: clamp(28px, 4vw, 36px);
   font-weight: 1000;
   letter-spacing: -0.02em;
 }
@@ -213,15 +209,15 @@ header {
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
-/* 2. 동물명 (초대형화) */
+/* 2. 동물명 */
 .col-cell-pet {
   display: flex;
   align-items: center;
-  padding-left: 10px;
+  padding-left: 12px;
   overflow: hidden;
 }
 .pet-name {
-  font-size: clamp(34px, 4.8vw, 50px); /* 글자 대폭 확대 */
+  font-size: clamp(36px, 5.2vw, 54px);
   font-weight: 1000;
   color: #0f172a;
   white-space: nowrap;
@@ -234,10 +230,10 @@ header {
 /* 3. 진료 상태 배지 */
 .col-cell-status { display: flex; justify-content: center; align-items: center; }
 .pet-status-badge {
-  font-size: clamp(19px, 2.4vw, 24px);
+  font-size: clamp(20px, 2.6vw, 26px);
   font-weight: 1000;
-  padding: 8px 16px;
-  border-radius: 14px;
+  padding: 10px 20px;
+  border-radius: 16px;
   white-space: nowrap;
   letter-spacing: -0.02em;
 }
@@ -258,13 +254,13 @@ header {
 }
 
 /* 4. 진료분류 배지 */
-.col-cell-category { display: flex; justify-content: center; align-items: center; }
+.col-cell-category { display: flex; justify-content: center; align-items: center; padding: 0 4px; }
 .category-badge {
   display: inline-block;
-  font-size: clamp(18px, 2.3vw, 24px);
+  font-size: clamp(20px, 2.6vw, 26px);
   font-weight: 1000;
-  padding: 8px 14px;
-  border-radius: 14px;
+  padding: 10px 18px;
+  border-radius: 16px;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   color: #1e293b;
   border: 2px solid #cbd5e1;
@@ -272,15 +268,15 @@ header {
 }
 
 /* 5. 소요시간 배지 */
-.col-cell-time { display: flex; justify-content: center; align-items: center; }
+.col-cell-time { display: flex; justify-content: center; align-items: center; padding: 0 4px; }
 .est-badge {
-  font-size: clamp(19px, 2.4vw, 26px);
+  font-size: clamp(20px, 2.6vw, 28px);
   font-weight: 1000;
   color: #ffffff;
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
   border: 2px solid #34d399;
-  padding: 8px 16px;
-  border-radius: 14px;
+  padding: 10px 20px;
+  border-radius: 16px;
   white-space: nowrap;
   letter-spacing: -0.02em;
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
@@ -292,21 +288,21 @@ header {
 }
 
 .empty-col {
-  padding: 50px 10px;
+  padding: 70px 10px;
   text-align: center;
   color: #94a3b8;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 900;
 }
 
-/* 하단 알림 & 푸터 */
+/* 하단 배너 & 푸터 */
 .notice-bar {
   display: flex;
   align-items: center;
-  padding: 8px 18px;
+  padding: 10px 20px;
   background: linear-gradient(90deg, #059669, #10b84f 50%, #0284c7 100%);
   color: #ffffff;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 950;
   gap: 12px;
   overflow: hidden;
@@ -315,9 +311,9 @@ header {
   flex: none;
   background: #ffffff;
   color: #064e3b;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 1000;
 }
 .notice-text {
@@ -329,15 +325,15 @@ header {
 footer {
   display: flex;
   justify-content: space-between;
-  padding: 6px 18px;
+  padding: 8px 20px;
   color: #64748b;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   background: #f8fafc;
   border-top: 1.5px solid #e2e8f0;
 }
 
-/* 긴급 공지 팝업 (세로 화면용) */
+/* 긴급 공지 오버레이 */
 .urgent-overlay {
   display: none;
   position: absolute;
@@ -377,7 +373,7 @@ footer {
   margin-bottom: 18px;
 }
 .urgent-text-content {
-  font-size: clamp(24px, 3.4vw, 32px);
+  font-size: clamp(24px, 3.4vw, 34px);
   font-weight: 1000;
   color: #1e293b;
   line-height: 1.4;
@@ -385,7 +381,7 @@ footer {
 }
 .urgent-sub {
   margin-top: 16px;
-  font-size: 14px;
+  font-size: 15px;
   color: #64748b;
   font-weight: 800;
 }
@@ -394,7 +390,6 @@ footer {
 <body>
 <div class="screen">
 
-  <!-- 🚨 긴급 공지 팝업 모달 -->
   <div id="urgent-modal" class="urgent-overlay">
     <div class="urgent-box">
       <div class="urgent-badge">
@@ -418,10 +413,9 @@ footer {
     </div>
   </header>
 
-  <!-- 📐 상하(위아래) 2단 분할 영역 -->
   <main class="vertical-container">
     
-    <!-- [상단] 📱 QR 사전접수 (21번대~) -->
+    <!-- [상단] 📱 QR 사전접수 -->
     <section class="row-panel panel-qr">
       <div class="panel-header">
         <div class="panel-title">📱 QR 사전접수</div>
@@ -429,7 +423,7 @@ footer {
       </div>
       <div class="table-header">
         <div>번호</div>
-        <div style="text-align: left; padding-left: 10px;">동물명</div>
+        <div style="text-align: left; padding-left: 14px;">동물명</div>
         <div>진료상태</div>
         <div>진료분류</div>
         <div>소요시간</div>
@@ -439,7 +433,7 @@ footer {
       </div>
     </section>
 
-    <!-- [하단] 🏥 일반 현장예약 (31번대~) -->
+    <!-- [하단] 🏥 일반 현장예약 -->
     <section class="row-panel panel-normal">
       <div class="panel-header">
         <div class="panel-title">🏥 일반 현장예약</div>
@@ -447,7 +441,7 @@ footer {
       </div>
       <div class="table-header">
         <div>번호</div>
-        <div style="text-align: left; padding-left: 10px;">동물명</div>
+        <div style="text-align: left; padding-left: 14px;">동물명</div>
         <div>진료상태</div>
         <div>진료분류</div>
         <div>소요시간</div>
@@ -526,16 +520,15 @@ function handleUrgentNotice(un){
   }
 }
 
-// 📐 큼직한 행(Row) 생성 함수
 function createRow(displayNum, petName, category, minutes, status){
   const treating = status === "진료중";
   const row = make("div", "table-row" + (treating ? " treating" : ""));
 
-  // 1. 번호 (64px 정사각)
+  // 1. 번호
   const cellNum = make("div", "col-cell-num");
   cellNum.append(make("span", "num-badge", String(displayNum)));
 
-  // 2. 동물명 (초대형화)
+  // 2. 동물명
   const cellPet = make("div", "col-cell-pet");
   const nameDiv = make("div", "pet-name", petName);
   cellPet.append(nameDiv);
@@ -567,7 +560,7 @@ function render(qrItems, serverState){
 
   handleUrgentNotice(serverState.urgentNotice);
 
-  // 1. QR 목록 (상단 패널)
+  // 1. QR 목록
   const activeQr = (Array.isArray(qrItems) ? qrItems : []).filter(item => {
     const k = String(item.id ?? item.reception_id ?? "");
     if (deletedKeys.includes(k)) return false;
@@ -596,7 +589,7 @@ function render(qrItems, serverState){
     });
   }
 
-  // 2. 일반예약 목록 (하단 패널)
+  // 2. 일반예약 목록
   const activeManual = manualBookings.filter(item => {
     return item.status !== "진료완료" && item.status !== "자료삭제";
   });
@@ -633,9 +626,9 @@ async function refresh(){
   }
 }
 
-// 1.5초 주기 실시간 중앙 서버 폴링
+// ⏱️ 요청하신 대로 3초 주기(3000ms) 실시간 폴링으로 설정
 refresh();
-setInterval(refresh, 1500);
+setInterval(refresh, 3000);
 
 window.addEventListener("message", (e) => {
   if (e.data === "reload_m5") refresh();
