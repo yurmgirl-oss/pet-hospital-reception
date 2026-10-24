@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>접수 관리 및 소요시간·타이머 설정 (m6)</title>
+<title>접수 관리 및 타이머·상태 설정 (m6)</title>
 <style>
   :root {
     --primary: #16875a;
@@ -108,29 +108,22 @@
   }
   .btn-urgent-off:hover { background: #475569; }
 
-  /* 폼 */
+  /* 폼 (소요시간 제거 후 3칸 구조로 간결화) */
   .manual-form {
     display: grid;
-    grid-template-columns: 1.2fr 1.5fr 80px 80px;
-    gap: 6px;
+    grid-template-columns: 1fr 180px 100px;
+    gap: 8px;
     margin-top: 6px;
   }
   input, select {
-    padding: 6px 8px;
+    padding: 7px 10px;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 13px;
     outline: none;
     width: 100%;
   }
   input:focus, select:focus { border-color: var(--primary); }
-
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  input[type="number"] { -moz-appearance: textfield; }
 
   .btn-add {
     background: #2563eb;
@@ -140,11 +133,13 @@
     font-weight: 800;
     font-size: 13px;
     cursor: pointer;
+    transition: background 0.15s;
   }
+  .btn-add:hover { background: #1d4ed8; }
 
   table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
-  th { background: #f8fafc; padding: 7px 6px; border-bottom: 1px solid var(--border); color: #64748b; font-weight: 800; }
-  td { padding: 7px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+  th { background: #f8fafc; padding: 8px 6px; border-bottom: 1px solid var(--border); color: #64748b; font-weight: 800; }
+  td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; }
   
   tr.row-done { background: #f8fafc; opacity: 0.75; }
   tr.row-done td { color: #64748b; }
@@ -154,7 +149,7 @@
     font-weight: 800;
     color: #475569;
     background: #f1f5f9;
-    padding: 2px 5px;
+    padding: 3px 6px;
     border-radius: 4px;
   }
 
@@ -165,7 +160,7 @@
     font-family: monospace;
     font-size: 12px;
     font-weight: 900;
-    padding: 3px 6px;
+    padding: 4px 8px;
     border-radius: 6px;
     background: #f1f5f9;
     color: #64748b;
@@ -175,11 +170,6 @@
     color: #1d4ed8;
     border: 1px solid #93c5fd;
     animation: pulseTimer 1s infinite alternate;
-  }
-  .timer-over {
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fca5a5;
   }
   .timer-finished {
     background: #f1f5f9;
@@ -192,8 +182,8 @@
   }
 
   .status-select {
-    padding: 4px 6px;
-    border-radius: 4px;
+    padding: 5px 8px;
+    border-radius: 6px;
     font-size: 11px;
     font-weight: 800;
     cursor: pointer;
@@ -207,26 +197,14 @@
     background: #ef4444;
     color: #fff;
     border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 5px 9px;
+    border-radius: 6px;
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
+    transition: background 0.15s;
   }
   .btn-del:hover { background: #dc2626; }
-
-  .min-input {
-    width: 60px;
-    text-align: center;
-    font-weight: 900;
-    color: #0f172a;
-    background: #fdfdfd;
-  }
-  .min-input:focus {
-    background: #fff;
-    border-color: #16a34a;
-    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
-  }
 </style>
 </head>
 <body>
@@ -250,7 +228,7 @@
     </div>
   </div>
 
-  <!-- [2] 일반예약 등록 -->
+  <!-- [2] 일반예약 등록 (소요시간 입력 제거) -->
   <div class="card">
     <h2>
       <span>🏥 일반예약 직접 등록 <span class="badge-range">31번대</span></span>
@@ -267,7 +245,6 @@
         <option value="내복약조제">내복약조제</option>
         <option value="특수동물진료">특수동물진료</option>
       </select>
-      <input type="number" id="m-minutes" class="min-input" placeholder="분" value="15" onkeydown="if(event.key==='Enter') addManualBooking()">
       <button class="btn-add" onclick="addManualBooking()">추가</button>
     </div>
 
@@ -277,8 +254,7 @@
           <th>번호</th>
           <th>등록시각</th>
           <th>동물명</th>
-          <th>분류</th>
-          <th>소요(분)</th>
+          <th>진료분류</th>
           <th>진료 타이머</th>
           <th>진료상태</th>
           <th>삭제</th>
@@ -288,11 +264,11 @@
     </table>
   </div>
 
-  <!-- [3] QR접수 환자 관리 -->
+  <!-- [3] QR접수 환자 관리 (소요시간 열 제거) -->
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
-      <span class="auto-notice">⚡ 변경 시 전 병원 실시간 반영</span>
+      <span class="auto-notice">⚡ 변경 시 키오스크 및 현황판 실시간 반영</span>
     </h2>
     <table id="table-qr">
       <thead>
@@ -300,8 +276,7 @@
           <th>번호</th>
           <th>접수시각</th>
           <th>동물명</th>
-          <th>분류 선택</th>
-          <th>소요(분)</th>
+          <th>진료분류</th>
           <th>진료 타이머</th>
           <th>진료상태</th>
           <th>삭제</th>
@@ -314,16 +289,14 @@
 <script>
 const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
-const CATEGORIES = ["예방접종", "일반진료", "건강검진", "처치수술", "상담처방", "내복약조제", "특수동물진료"];
+const CATEGORIES = ["일반진료", "예방접종", "건강검진", "처치수술", "상담처방", "내복약조제", "특수동물진료"];
 
 let isUserInputting = false;
 
-// 전역 서버 상태 메모리
 let GlobalState = {
   manualBookings: [],
   categories: {},
   qrStatuses: {},
-  qrMinutes: {},
   qrDeleted: [],
   urgentNotice: null
 };
@@ -342,20 +315,37 @@ function getElapsedText(startTime, endTime){
   return `${m}:${s}`;
 }
 
-function buildTimerBadge(key, startTime, targetMinutes, status, endTime){
+function buildTimerBadge(key, startTime, status, endTime){
   if(status === "진료완료"){
     return `<span class="timer-badge timer-finished" id="timer-${key}">🏁 ${getElapsedText(startTime, endTime)}</span>`;
   }
   if(status !== "진료중" || !startTime){
     return `<span class="timer-badge" id="timer-${key}">대기중</span>`;
   }
-  const diffSec = Math.floor((Date.now() - startTime) / 1000);
-  const isOver = targetMinutes && diffSec > (targetMinutes * 60);
-  const cls = isOver ? "timer-badge timer-over" : "timer-badge timer-running";
-  return `<span class="${cls}" id="timer-${key}">⏱️ ${getElapsedText(startTime)}</span>`;
+  return `<span class="timer-badge timer-running" id="timer-${key}">⏱️ ${getElapsedText(startTime)}</span>`;
 }
 
-// 1. 서버로 상태 전송 함수 (Cloudflare Worker에 저장)
+// 1초마다 실시간 타이머 UI 갱신
+setInterval(() => {
+  const list = GlobalState.manualBookings || [];
+  list.forEach(item => {
+    if(item.status === "진료중" && item.startTime){
+      const el = document.getElementById(`timer-m-${item.id}`);
+      if(el) el.textContent = `⏱️ ${getElapsedText(item.startTime)}`;
+    }
+  });
+
+  const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
+  const statuses = GlobalState.qrStatuses || {};
+  Object.keys(qrTimers).forEach(key => {
+    if(statuses[key] === "진료중" && qrTimers[key]?.start){
+      const el = document.getElementById(`timer-qr-${key}`);
+      if(el) el.textContent = `⏱️ ${getElapsedText(qrTimers[key].start)}`;
+    }
+  });
+}, 1000);
+
+// 서버 동기화 함수
 async function pushStateToServer(partialState){
   GlobalState = { ...GlobalState, ...partialState };
   try {
@@ -370,7 +360,6 @@ async function pushStateToServer(partialState){
   notifyLocalFrames();
 }
 
-// 2. 서버에서 전체 상태 불러오기
 async function fetchStateFromServer(){
   try {
     const res = await fetch(SYNC_API, { cache: "no-store" });
@@ -398,7 +387,7 @@ function notifyLocalFrames(){
   } catch(e){}
 }
 
-// 긴급공지
+// 긴급 공지 제어
 function setUrgentQuick(text){
   document.getElementById("urgent-text").value = text;
 }
@@ -427,11 +416,10 @@ function updateUrgentUI(){
   }
 }
 
-// 일반예약 관리
+// 일반 예약 로직
 function addManualBooking(){
   const name = document.getElementById("m-name").value.trim();
   const category = document.getElementById("m-category").value;
-  const minutes = document.getElementById("m-minutes").value.trim() || 15;
   if(!name){ alert("동물명을 입력하세요."); return; }
 
   const list = [...(GlobalState.manualBookings || [])];
@@ -439,7 +427,6 @@ function addManualBooking(){
     id: Date.now(),
     petName: name,
     category: category,
-    minutes: Number(minutes),
     status: "접수대기",
     startTime: null,
     endTime: null,
@@ -483,16 +470,6 @@ function updateManualCategory(id, newCat){
   pushStateToServer({ manualBookings: list });
 }
 
-function updateManualMinutes(id, newMin){
-  const val = Number(newMin);
-  if(isNaN(val) || val <= 0) return;
-  const list = (GlobalState.manualBookings || []).map(item => {
-    if(item.id === id) item.minutes = val;
-    return item;
-  });
-  pushStateToServer({ manualBookings: list });
-}
-
 function deleteManualBooking(id){
   const list = (GlobalState.manualBookings || []).filter(item => item.id !== id);
   pushStateToServer({ manualBookings: list });
@@ -506,7 +483,7 @@ function renderManualTable(){
   tbody.innerHTML = "";
 
   if(!list.length){
-    tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">등록된 일반예약이 없습니다.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">등록된 일반예약이 없습니다.</td></tr>`;
     return;
   }
 
@@ -519,15 +496,9 @@ function renderManualTable(){
     tr.innerHTML = `
       <td style="font-weight:900; color:#b45309;">${31 + idx}</td>
       <td><span class="time-badge">${item.time || formatTime()}</span></td>
-      <td style="font-weight:900;">${item.petName}</td>
+      <td style="font-weight:900; font-size:13px;">${item.petName}</td>
       <td><select onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select></td>
-      <td>
-        <input type="number" class="min-input" value="${item.minutes}" 
-               onfocus="isUserInputting=true"
-               onblur="isUserInputting=false; updateManualMinutes(${item.id}, this.value)" 
-               onkeydown="if(event.key==='Enter'){ this.blur(); }">
-      </td>
-      <td>${buildTimerBadge(`m-${item.id}`, item.startTime, item.minutes, item.status, item.endTime)}</td>
+      <td>${buildTimerBadge(`m-${item.id}`, item.startTime, item.status, item.endTime)}</td>
       <td>
         <select class="status-select ${item.status === '진료중' ? 'status-treat' : item.status === '진료완료' ? 'status-done' : 'status-wait'}" 
                 onchange="updateManualStatus(${item.id}, this.value)">
@@ -543,7 +514,7 @@ function renderManualTable(){
   });
 }
 
-// QR접수 관리
+// QR 접수 로직
 async function loadQrList(){
   if(isUserInputting) return;
   try {
@@ -553,8 +524,8 @@ async function loadQrList(){
 
     const categories = GlobalState.categories || {};
     const statuses = GlobalState.qrStatuses || {};
-    const minutes = GlobalState.qrMinutes || {};
     const deleted = GlobalState.qrDeleted || [];
+    const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
 
     const tbody = document.querySelector("#table-qr tbody");
     if(!tbody) return;
@@ -567,7 +538,7 @@ async function loadQrList(){
     });
 
     if(!activeList.length){
-      tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.</td></tr>`;
       return;
     }
 
@@ -576,9 +547,9 @@ async function loadQrList(){
     activeList.forEach((item, idx) => {
       const key = String(item.id ?? item.reception_id ?? "");
       const currentCat = categories[key] || "일반진료";
-      const currentMin = minutes[key] !== undefined ? minutes[key] : 15;
       const currentStatus = statuses[key] || item.status || "접수대기";
       const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
+      const timerData = qrTimers[key] || {};
 
       const tr = document.createElement("tr");
       if(currentStatus === "진료완료") tr.className = "row-done";
@@ -588,15 +559,9 @@ async function loadQrList(){
       tr.innerHTML = `
         <td style="font-weight:900; color:#0369a1;">${21 + idx}</td>
         <td><span class="time-badge">${regTime}</span></td>
-        <td style="font-weight:900;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
+        <td style="font-weight:900; font-size:13px;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
         <td><select onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
-        <td>
-          <input type="number" class="min-input" value="${currentMin}" 
-                 onfocus="isUserInputting=true"
-                 onblur="isUserInputting=false; saveQrMinutes('${key}', this.value)" 
-                 onkeydown="if(event.key==='Enter'){ this.blur(); }">
-        </td>
-        <td>${buildTimerBadge(`qr-${key}`, null, currentMin, currentStatus, null)}</td>
+        <td>${buildTimerBadge(`qr-${key}`, timerData.start, currentStatus, timerData.end)}</td>
         <td>
           <select class="status-select ${currentStatus === '진료중' ? 'status-treat' : currentStatus === '진료완료' ? 'status-done' : 'status-wait'}"
                   onchange="saveQrStatus('${key}', this.value)">
@@ -626,16 +591,22 @@ function saveQrStatus(key, val){
   }
   const sts = { ...(GlobalState.qrStatuses || {}) };
   sts[key] = val;
+
+  const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
+  if(!qrTimers[key]) qrTimers[key] = {};
+
+  if(val === "진료중"){
+    if(!qrTimers[key].start) qrTimers[key].start = Date.now();
+    qrTimers[key].end = null;
+  } else if(val === "진료완료"){
+    if(qrTimers[key].start && !qrTimers[key].end) qrTimers[key].end = Date.now();
+  } else if(val === "접수대기"){
+    delete qrTimers[key];
+  }
+  localStorage.setItem("m6_qr_timers", JSON.stringify(qrTimers));
+
   pushStateToServer({ qrStatuses: sts });
   loadQrList();
-}
-
-function saveQrMinutes(key, val){
-  const minVal = Number(val);
-  if(isNaN(minVal) || minVal <= 0) return;
-  const mins = { ...(GlobalState.qrMinutes || {}) };
-  mins[key] = minVal;
-  pushStateToServer({ qrMinutes: mins });
 }
 
 function deleteQrItem(key){
@@ -646,9 +617,9 @@ function deleteQrItem(key){
   loadQrList();
 }
 
-// 2.5초 주기 서버 동기화 폴링 (어느 PC에서 변경해도 전 PC 동기화)
+// 3초 주기 서버 동기화
 fetchStateFromServer();
-setInterval(fetchStateFromServer, 2500);
+setInterval(fetchStateFromServer, 3000);
 </script>
 </body>
 </html>
