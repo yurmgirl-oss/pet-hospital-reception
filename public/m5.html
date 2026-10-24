@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>23시 하단오거리 동물병원 · 대기 현황판 (m5)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>23시 하단오거리 동물병원 · 대기 현황판 (m5 세로 키오스크)</title>
 <style>
 :root {
   --primary-green: #059669;
@@ -12,144 +12,146 @@
   --bg-main: #f0fdf4;
   --ink: #0f172a;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  user-select: none; /* 키오스크 출력 전용: 텍스트 드래그 및 터치 흔들림 방지 */
+}
 html, body {
   width: 100%;
   height: 100%;
   font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   color: var(--ink);
-  background: linear-gradient(135deg, #eef9f2 0%, #e0f2fe 100%);
+  background: #0f172a;
   overflow: hidden;
 }
 body {
-  padding: 10px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 .screen {
   flex: 1;
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 20px;
   overflow: hidden;
-  border: 2px solid #bbf7d0;
-  box-shadow: 0 16px 40px rgba(6, 78, 59, 0.12);
+  border: 2px solid #334155;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   position: relative;
 }
 
-/* Header & 시계 영역 */
+/* 상단 헤더 & 디지털 시계 (세로 화면 맞춤 컴팩트 와이드) */
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 30px;
-  background: linear-gradient(100deg, #dcfce7 0%, #ffffff 40%, #e0f2fe 100%);
-  border-bottom: 3px solid #bbf7d0;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #dcfce7 0%, #ffffff 45%, #e0f2fe 100%);
+  border-bottom: 2.5px solid #bbf7d0;
 }
 .brandname {
-  font-size: clamp(26px, 2.4vw, 38px);
+  font-size: clamp(20px, 3.8vw, 26px);
   font-weight: 1000;
   letter-spacing: -0.04em;
   color: #064e3b;
-  text-shadow: 0 2px 4px rgba(6, 78, 59, 0.08);
 }
-
 .clockbox {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  border: 3.5px solid #86efac;
-  padding: 6px 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+  border: 2px solid #86efac;
+  padding: 4px 16px;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.15);
 }
 .clock-date {
-  font-size: clamp(16px, 1.2vw, 20px);
+  font-size: 13px;
   font-weight: 900;
   color: #059669;
-  letter-spacing: -0.02em;
 }
 .clock-time {
-  font-size: clamp(36px, 3.2vw, 54px);
+  font-size: clamp(24px, 4.4vw, 32px);
   font-weight: 1000;
   color: #064e3b;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   line-height: 1.05;
 }
 
-/* 좌우 5:5 대칭 분할 메인 컨테이너 */
-.split-container {
+/* 📐 상하(위아래) 2단 레이아웃 메인 컨테이너 */
+.vertical-container {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 16px;
-  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+  background: #f1f5f9;
   overflow: hidden;
 }
-.col-panel {
+.row-panel {
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border-radius: 24px;
-  border: 3.5px solid #cbd5e1;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+  border: 2.5px solid #cbd5e1;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
   overflow: hidden;
 }
 
-/* 컬럼 헤더 */
-.col-header {
-  padding: 14px 26px;
+/* 패널 헤더 (상단/하단) */
+.panel-header {
+  padding: 10px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 3.5px solid #e2e8f0;
+  border-bottom: 2.5px solid #e2e8f0;
 }
-.col-qr .col-header {
+.panel-qr .panel-header {
   background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
   border-bottom-color: #93c5fd;
 }
-.col-normal .col-header {
+.panel-normal .panel-header {
   background: linear-gradient(135deg, #fef3c7 0%, #fff7ed 100%);
   border-bottom-color: #fcd34d;
 }
-.col-title {
-  font-size: clamp(28px, 2.3vw, 36px);
+.panel-title {
+  font-size: clamp(22px, 3.6vw, 28px);
   font-weight: 1000;
   letter-spacing: -0.03em;
 }
-.col-qr .col-title { color: #0284c7; }
-.col-normal .col-title { color: #d97706; }
+.panel-qr .panel-title { color: #0284c7; }
+.panel-normal .panel-title { color: #d97706; }
 
-.col-count {
-  font-size: 22px;
+.panel-count {
+  font-size: 16px;
   font-weight: 1000;
-  padding: 6px 20px;
+  padding: 4px 14px;
   border-radius: 999px;
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
-.col-qr .col-count { color: #0369a1; border: 2.5px solid #bae6fd; }
-.col-normal .col-count { color: #b45309; border: 2.5px solid #fde68a; }
+.panel-qr .panel-count { color: #0369a1; border: 1.5px solid #bae6fd; }
+.panel-normal .panel-count { color: #b45309; border: 1.5px solid #fde68a; }
 
-/* 📐 [초대형 고정 열 그리드 규격]
-   [번호 110px] - [동물명 240px] - [상태 160px] - [진료분류 210px] - [소요시간 210px] */
+/* 📐 세로형 키오스크 5개 열 정렬 그리드 템플릿
+   [번호 74px] - [동물명 1fr] - [상태 120px] - [진료분류 140px] - [소요시간 130px] */
 .table-header {
   display: grid;
-  grid-template-columns: 110px 240px 160px 210px 210px;
+  grid-template-columns: 74px 1fr 120px 140px 130px;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 24px;
-  background: #f1f5f9;
-  border-bottom: 3px solid #cbd5e1;
-  font-size: 20px;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-bottom: 2px solid #cbd5e1;
+  font-size: 16px;
   font-weight: 1000;
-  color: #475569;
+  color: #64748b;
   text-align: center;
 }
 
@@ -158,65 +160,60 @@ header {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
+  gap: 10px;
+  padding: 10px 12px;
 }
 
-/* 🚨 4~5명이 찼을 때 화면을 꽉 채우는 초대형 카드 (최소 높이 140px 이상) */
+/* 🚨 큼직한 대기 줄(Row) 카드 */
 .table-row {
   display: grid;
-  grid-template-columns: 110px 240px 160px 210px 210px;
+  grid-template-columns: 74px 1fr 120px 140px 130px;
   justify-content: space-between;
   align-items: center;
-  min-height: 140px;
-  padding: 16px 24px;
-  border-radius: 26px;
+  min-height: 84px; /* 세로 화면에서 4~5개 행이 여유롭게 차도록 높이 설정 */
+  padding: 10px 16px;
+  border-radius: 16px;
   background: #ffffff;
-  border: 3.5px solid #cbd5e1;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  border: 2.5px solid #e2e8f0;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.04);
   transition: all 0.2s ease;
 }
 
-/* 🩺 진료중인 환자 (초강력 네온 블루 강조) */
+/* 🩺 진료중인 환자 하이라이트 (네온 블루) */
 .table-row.treating {
   background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%);
-  border: 4.5px solid #2563eb;
-  box-shadow: 0 10px 32px rgba(37, 99, 235, 0.35);
+  border: 3.5px solid #2563eb;
+  box-shadow: 0 6px 22px rgba(37, 99, 235, 0.28);
   animation: glowCard 1.8s infinite alternate;
 }
 @keyframes glowCard {
-  0% { border-color: #2563eb; box-shadow: 0 0 20px rgba(37, 99, 235, 0.3); }
-  100% { border-color: #60a5fa; box-shadow: 0 0 35px rgba(96, 165, 250, 0.6); }
+  0% { border-color: #2563eb; box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); }
+  100% { border-color: #60a5fa; box-shadow: 0 0 26px rgba(96, 165, 250, 0.55); }
 }
 
-/* 1. 번호 배지 (88px 정사각) */
-.col-cell-num {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+/* 1. 번호 배지 (64px 정사각) */
+.col-cell-num { display: flex; justify-content: center; align-items: center; }
 .num-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 88px;
-  height: 88px;
-  border-radius: 24px;
-  font-size: clamp(40px, 3.2vw, 52px);
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  font-size: clamp(26px, 3.8vw, 34px);
   font-weight: 1000;
   letter-spacing: -0.02em;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
-.col-qr .num-badge { background: #e0f2fe; color: #0284c7; border: 3px solid #93c5fd; }
-.col-normal .num-badge { background: #fef3c7; color: #d97706; border: 3px solid #fcd34d; }
+.panel-qr .num-badge { background: #e0f2fe; color: #0284c7; border: 2.5px solid #93c5fd; }
+.panel-normal .num-badge { background: #fef3c7; color: #d97706; border: 2.5px solid #fcd34d; }
 .table-row.treating .num-badge { 
   background: linear-gradient(135deg, #2563eb, #1d4ed8); 
   color: #ffffff; 
   border-color: #93c5fd; 
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
-/* 2. 동물명 (초대형화: 최대 80px급) */
+/* 2. 동물명 (초대형화) */
 .col-cell-pet {
   display: flex;
   align-items: center;
@@ -224,41 +221,36 @@ header {
   overflow: hidden;
 }
 .pet-name {
-  font-size: clamp(52px, 4.4vw, 76px);
+  font-size: clamp(34px, 4.8vw, 50px); /* 글자 대폭 확대 */
   font-weight: 1000;
   color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: -0.05em;
-  line-height: 1.05;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
 }
 
 /* 3. 진료 상태 배지 */
-.col-cell-status {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.col-cell-status { display: flex; justify-content: center; align-items: center; }
 .pet-status-badge {
-  font-size: clamp(24px, 1.8vw, 30px);
+  font-size: clamp(19px, 2.4vw, 24px);
   font-weight: 1000;
-  padding: 12px 26px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 14px;
   white-space: nowrap;
   letter-spacing: -0.02em;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 .pet-status-badge.wait {
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
   color: #14532d;
-  border: 3px solid #86efac;
+  border: 2px solid #86efac;
 }
 .pet-status-badge.treat {
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: #ffffff;
-  border: 3px solid #93c5fd;
-  box-shadow: 0 6px 22px rgba(37, 99, 235, 0.5);
+  border: 2px solid #93c5fd;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
   animation: pulseTreat 1.2s infinite;
 }
 @keyframes pulseTreat {
@@ -266,78 +258,67 @@ header {
 }
 
 /* 4. 진료분류 배지 */
-.col-cell-category {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.col-cell-category { display: flex; justify-content: center; align-items: center; }
 .category-badge {
   display: inline-block;
-  font-size: clamp(26px, 2vw, 34px);
+  font-size: clamp(18px, 2.3vw, 24px);
   font-weight: 1000;
-  padding: 12px 24px;
-  border-radius: 20px;
+  padding: 8px 14px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   color: #1e293b;
-  border: 3px solid #cbd5e1;
+  border: 2px solid #cbd5e1;
   white-space: nowrap;
-  letter-spacing: -0.03em;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-/* 5. 소요시간 배지 (초대형 에메랄드/블루) */
-.col-cell-time {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+/* 5. 소요시간 배지 */
+.col-cell-time { display: flex; justify-content: center; align-items: center; }
 .est-badge {
-  font-size: clamp(28px, 2.2vw, 38px);
+  font-size: clamp(19px, 2.4vw, 26px);
   font-weight: 1000;
   color: #ffffff;
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  border: 3.5px solid #34d399;
-  padding: 12px 26px;
-  border-radius: 22px;
+  border: 2px solid #34d399;
+  padding: 8px 16px;
+  border-radius: 14px;
   white-space: nowrap;
   letter-spacing: -0.02em;
-  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
 }
 .table-row.treating .est-badge {
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   border-color: #60a5fa;
-  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.45);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
 }
 
 .empty-col {
-  padding: 120px 10px;
+  padding: 50px 10px;
   text-align: center;
   color: #94a3b8;
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 900;
 }
 
-/* 하단 병원 소식 배너 */
+/* 하단 알림 & 푸터 */
 .notice-bar {
   display: flex;
   align-items: center;
-  padding: 12px 30px;
+  padding: 8px 18px;
   background: linear-gradient(90deg, #059669, #10b84f 50%, #0284c7 100%);
   color: #ffffff;
-  font-size: 19px;
+  font-size: 14px;
   font-weight: 950;
-  gap: 16px;
+  gap: 12px;
   overflow: hidden;
 }
 .notice-label {
   flex: none;
   background: #ffffff;
   color: #064e3b;
-  padding: 6px 16px;
-  border-radius: 12px;
-  font-size: 16px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 1000;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 .notice-text {
   flex: 1;
@@ -348,73 +329,63 @@ header {
 footer {
   display: flex;
   justify-content: space-between;
-  padding: 8px 30px;
+  padding: 6px 18px;
   color: #64748b;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 800;
   background: #f8fafc;
   border-top: 1.5px solid #e2e8f0;
 }
 
-/* 긴급 공지 팝업 */
+/* 긴급 공지 팝업 (세로 화면용) */
 .urgent-overlay {
   display: none;
   position: absolute;
   inset: 0;
   background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
   z-index: 999;
   align-items: center;
   justify-content: center;
-  padding: 30px;
+  padding: 24px;
 }
 .urgent-box {
   background: #ffffff;
-  border: 8px solid #ef4444;
-  border-radius: 36px;
-  padding: 48px 56px;
-  max-width: 900px;
-  width: 92%;
+  border: 6px solid #ef4444;
+  border-radius: 28px;
+  padding: 34px 28px;
+  width: 90%;
   text-align: center;
-  box-shadow: 0 24px 60px rgba(239, 68, 68, 0.45);
+  box-shadow: 0 20px 50px rgba(239, 68, 68, 0.45);
   animation: urgentBlink 1.2s infinite alternate ease-in-out;
 }
 @keyframes urgentBlink {
-  0% {
-    border-color: #ef4444;
-    box-shadow: 0 0 40px rgba(239, 68, 68, 0.7), inset 0 0 15px rgba(239, 68, 68, 0.2);
-    transform: scale(0.98);
-  }
-  100% {
-    border-color: #f59e0b;
-    box-shadow: 0 0 70px rgba(245, 158, 11, 0.95), inset 0 0 25px rgba(245, 158, 11, 0.3);
-    transform: scale(1.02);
-  }
+  0% { border-color: #ef4444; transform: scale(0.98); }
+  100% { border-color: #f59e0b; transform: scale(1.02); }
 }
 .urgent-badge {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   background: #fee2e2;
   color: #b91c1c;
-  border: 3px solid #ef4444;
-  padding: 12px 32px;
+  border: 2px solid #ef4444;
+  padding: 8px 20px;
   border-radius: 999px;
-  font-size: clamp(24px, 2.2vw, 32px);
+  font-size: 18px;
   font-weight: 1000;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 .urgent-text-content {
-  font-size: clamp(34px, 3.4vw, 54px);
+  font-size: clamp(24px, 3.4vw, 32px);
   font-weight: 1000;
   color: #1e293b;
-  line-height: 1.35;
-  letter-spacing: -0.04em;
+  line-height: 1.4;
   word-break: keep-all;
 }
 .urgent-sub {
-  margin-top: 24px;
-  font-size: clamp(18px, 1.5vw, 24px);
+  margin-top: 16px;
+  font-size: 14px;
   color: #64748b;
   font-weight: 800;
 }
@@ -423,6 +394,7 @@ footer {
 <body>
 <div class="screen">
 
+  <!-- 🚨 긴급 공지 팝업 모달 -->
   <div id="urgent-modal" class="urgent-overlay">
     <div class="urgent-box">
       <div class="urgent-badge">
@@ -438,7 +410,7 @@ footer {
 
   <header>
     <div class="brand">
-      <div class="brandname">🐾 23시 하단오거리 동물병원 · 실시간 접수 대기판</div>
+      <div class="brandname">🐾 23시 하단오거리 동물병원</div>
     </div>
     <div class="clockbox">
       <div class="clock-date" id="clock-date">00월 00일 (요일)</div>
@@ -446,13 +418,14 @@ footer {
     </div>
   </header>
 
-  <main class="split-container">
+  <!-- 📐 상하(위아래) 2단 분할 영역 -->
+  <main class="vertical-container">
     
-    <!-- [왼쪽] QR 사전접수 (21번대) -->
-    <section class="col-panel col-qr">
-      <div class="col-header">
-        <div class="col-title">📱 QR 사전접수</div>
-        <div class="col-count" id="count-qr">0명 대기</div>
+    <!-- [상단] 📱 QR 사전접수 (21번대~) -->
+    <section class="row-panel panel-qr">
+      <div class="panel-header">
+        <div class="panel-title">📱 QR 사전접수</div>
+        <div class="panel-count" id="count-qr">0명 대기</div>
       </div>
       <div class="table-header">
         <div>번호</div>
@@ -466,11 +439,11 @@ footer {
       </div>
     </section>
 
-    <!-- [오른쪽] 일반 현장예약 (31번대) -->
-    <section class="col-panel col-normal">
-      <div class="col-header">
-        <div class="col-title">🏥 일반 현장예약</div>
-        <div class="col-count" id="count-normal">0명 대기</div>
+    <!-- [하단] 🏥 일반 현장예약 (31번대~) -->
+    <section class="row-panel panel-normal">
+      <div class="panel-header">
+        <div class="panel-title">🏥 일반 현장예약</div>
+        <div class="panel-count" id="count-normal">0명 대기</div>
       </div>
       <div class="table-header">
         <div>번호</div>
@@ -487,12 +460,12 @@ footer {
   </main>
 
   <div class="notice-bar">
-    <div class="notice-label">📢 병원 소식</div>
-    <div class="notice-text">“병원 출발 전, 미리 사전접수! 기다림은 줄이고 진료는 편리하게 😊” | 응급환자 발생 시 진료 순서가 일부 조정될 수 있습니다.</div>
+    <div class="notice-label">📢 안내</div>
+    <div class="notice-text">출발 전 사전접수하시면 대기시간이 단축됩니다 😊</div>
   </div>
 
   <footer>
-    <span>진료 상황에 따라 소요시간은 달라질 수 있습니다.</span>
+    <span>진료 상황에 따라 소요시간이 변동될 수 있습니다.</span>
     <span id="updated">중앙 서버 연결 중</span>
   </footer>
 </div>
@@ -519,7 +492,7 @@ function tickClock(){
   const m = d.getMonth() + 1;
   const day = d.getDate();
   const w = WEEKDAYS[d.getDay()];
-  clockDateEl.textContent = `📅 ${m}월 ${day}일 (${w})`;
+  clockDateEl.textContent = `${m}월 ${day}일 (${w})`;
 
   clockTimeEl.textContent = d.toLocaleTimeString("ko-KR", {
     hour12: false, 
@@ -553,21 +526,21 @@ function handleUrgentNotice(un){
   }
 }
 
-// 📐 초대형 행(Row) 생성 함수
+// 📐 큼직한 행(Row) 생성 함수
 function createRow(displayNum, petName, category, minutes, status){
   const treating = status === "진료중";
   const row = make("div", "table-row" + (treating ? " treating" : ""));
 
-  // 1. 번호 (88px)
+  // 1. 번호 (64px 정사각)
   const cellNum = make("div", "col-cell-num");
   cellNum.append(make("span", "num-badge", String(displayNum)));
 
-  // 2. 동물명 (초대형)
+  // 2. 동물명 (초대형화)
   const cellPet = make("div", "col-cell-pet");
   const nameDiv = make("div", "pet-name", petName);
   cellPet.append(nameDiv);
 
-  // 3. 진료 상태
+  // 3. 진료상태
   const cellStatus = make("div", "col-cell-status");
   const statusBadge = make("span", "pet-status-badge " + (treating ? "treat" : "wait"), treating ? "진료중" : "대기중");
   cellStatus.append(statusBadge);
@@ -594,7 +567,7 @@ function render(qrItems, serverState){
 
   handleUrgentNotice(serverState.urgentNotice);
 
-  // 1. QR 목록
+  // 1. QR 목록 (상단 패널)
   const activeQr = (Array.isArray(qrItems) ? qrItems : []).filter(item => {
     const k = String(item.id ?? item.reception_id ?? "");
     if (deletedKeys.includes(k)) return false;
@@ -623,7 +596,7 @@ function render(qrItems, serverState){
     });
   }
 
-  // 2. 일반예약 목록
+  // 2. 일반예약 목록 (하단 패널)
   const activeManual = manualBookings.filter(item => {
     return item.status !== "진료완료" && item.status !== "자료삭제";
   });
@@ -660,6 +633,7 @@ async function refresh(){
   }
 }
 
+// 1.5초 주기 실시간 중앙 서버 폴링
 refresh();
 setInterval(refresh, 1500);
 
