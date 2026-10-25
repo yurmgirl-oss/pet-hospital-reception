@@ -9,10 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
-    body { font-family: 'Pretendard', sans-serif; }
-    
-    /* 3분할 창(30% 너비)에 최적화된 글자 크기 및 슬림 폰트 스케일 */
-    body { font-size: 14px; }
+    body { font-family: 'Pretendard', sans-serif; font-size: 14px; }
     header h1 { font-size: 1.4rem !important; }
     header p { font-size: 0.82rem !important; }
     #list-container > div { font-size: 0.85rem; }
@@ -25,7 +22,7 @@
     #adminNoticeInput { font-size: 0.85rem !important; }
     #print-sheet { font-size: initial; }
 
-    /* A4 표준 1장 규격 (794px x 1123px, 96 DPI 기준 정확한 1 : 1.414 비율) */
+    /* A4 표준 1장 규격 (794px x 1123px) */
     #print-sheet {
       position: fixed;
       left: -9999px;
@@ -40,22 +37,16 @@
       flex-direction: column;
       justify-content: space-between;
     }
-
-    #print-sheet table {
-      border-collapse: collapse;
-    }
+    #print-sheet table { border-collapse: collapse; }
     #print-sheet table th,
-    #print-sheet table td {
-      vertical-align: middle !important;
-      line-height: 1.4;
-    }
+    #print-sheet table td { vertical-align: middle !important; line-height: 1.4; }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 p-2 sm:p-4">
 
   <div class="max-w-6xl mx-auto space-y-4">
     
-    <!-- 1. 헤더 (컴팩트 규격) -->
+    <!-- 1. 헤더 -->
     <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 gap-3">
       <div>
         <div class="flex items-center gap-2">
@@ -107,7 +98,7 @@
     </div>
 
     <!-- 2. 요약 통계 -->
-    <div class="grid grid-cols-3 gap-2.5">
+    <div class="grid grid-cols-4 gap-2.5">
       <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm text-center">
         <p class="text-[11px] font-semibold text-slate-400">접수 대기</p>
         <p id="count-waiting" class="text-xl font-bold text-amber-600 mt-0.5">0</p>
@@ -120,12 +111,32 @@
         <p class="text-[11px] font-semibold text-slate-400">오늘 완료</p>
         <p id="count-done" class="text-xl font-bold text-slate-500 mt-0.5">0</p>
       </div>
+      <div class="bg-amber-50/60 p-2.5 rounded-lg border border-amber-200 shadow-sm text-center">
+        <p class="text-[11px] font-semibold text-amber-700">📅 예약 보관</p>
+        <p id="count-reserved" class="text-xl font-bold text-amber-800 mt-0.5">0</p>
+      </div>
     </div>
 
-    <!-- 3. 접수 목록 -->
+    <!-- 3. 오늘 접수/대기 환자 목록 (예약대기는 여기서 자동 제외되어 화면 깔끔!) -->
     <div id="list-container" class="space-y-2.5">
       <div class="text-center py-8 text-slate-400 text-xs">접수 내역을 확인하는 중입니다...</div>
     </div>
+
+    <!-- 4. 📅 카운터 예약대기 보관함 (필요할 때만 펼쳐봄) -->
+    <div class="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden">
+      <div onclick="toggleCounterReserveBox()" class="p-3 bg-amber-50/70 border-b border-amber-200 flex justify-between items-center cursor-pointer select-none">
+        <div class="flex items-center gap-2">
+          <span class="text-base">📅</span>
+          <span class="font-bold text-xs text-amber-900">사전접수 예약대기 보관함 (<span id="box-reserved-count">0</span>명)</span>
+          <span class="text-[11px] text-amber-700 font-medium">· 내원 시 [대기 복귀] 클릭</span>
+        </div>
+        <span id="reserve-toggle-arrow" class="text-xs text-amber-800 font-bold">펼치기 ▼</span>
+      </div>
+      <div id="counter-reserve-container" class="p-3 space-y-2 hidden bg-amber-50/20">
+        <!-- 예약대기 카드 동적 삽입 -->
+      </div>
+    </div>
+
   </div>
 
   <!-- 원클릭 복사 시 뜨는 플로팅 토스트 알림 -->
@@ -326,26 +337,32 @@
       }, 2200);
     }
 
+    // 🛡️ 삭제 시 실수 방지: '예약대기'로 보관할지, 영구 삭제할지 선택 가능
     async function deleteReception(id, petName) {
-      if (!confirm(`[${petName}] 환자의 접수 내역을 정말 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) {
+      const choice = confirm(`[${petName}] 환자를 어떻게 처리할까요?\n\n• [확인] 누름: 목록에서 가리고 【예약대기로 보관】 (추천 - 데이터 유지)\n• [취소] 누름: 영구 삭제할지 다시 선택`);
+      
+      if (choice) {
+        // 예약대기로 전환하여 화면에서 정리
+        await updateStatus(id, '예약대기');
+        showToast(`📅 [${petName}] 환자가 예약대기로 안전 보관되었습니다.`);
         return;
       }
 
-      try {
-        const res = await fetch(`/api/receptions?id=${id}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: id })
-        });
+      // 진짜 영구 삭제를 원하는지 2차 확인
+      if (confirm(`⚠️ [${petName}] 환자의 데이터를 영구적으로 완전히 삭제하시겠습니까?\n(원장실 및 대기판에서도 완전히 지워집니다)`)) {
+        try {
+          const res = await fetch(`/api/receptions?id=${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+          });
 
-        if (!res.ok) {
-          throw new Error('삭제 처리 오류 (' + res.status + ')');
+          if (!res.ok) throw new Error('삭제 처리 오류 (' + res.status + ')');
+          showToast(`🗑️ [${petName}] 접수 내역이 영구 삭제되었습니다.`);
+          fetchReceptions();
+        } catch (err) {
+          alert('삭제 실패: ' + err.message);
         }
-
-        showToast(`🗑️ [${petName}] 접수 내역이 삭제되었습니다.`);
-        fetchReceptions();
-      } catch (err) {
-        alert('삭제 실패: ' + err.message);
       }
     }
 
@@ -394,6 +411,18 @@
       }
     }
 
+    function toggleCounterReserveBox() {
+      const box = document.getElementById('counter-reserve-container');
+      const arrow = document.getElementById('reserve-toggle-arrow');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        arrow.innerText = '접기 ▲';
+      } else {
+        box.classList.add('hidden');
+        arrow.innerText = '펼치기 ▼';
+      }
+    }
+
     async function fetchReceptions(manual = false) {
       try {
         const res = await fetch('/api/receptions');
@@ -402,17 +431,19 @@
 
         currentList = data;
 
-        let waiting = 0, progress = 0, done = 0;
+        let waiting = 0, progress = 0, done = 0, reserved = 0;
         let hasNew = false;
 
         data.forEach(item => {
           const isWait = (item.status === '접수대기' || item.status === '대기');
           const isProg = (item.status === '진료중');
           const isComp = (item.status === '완료');
+          const isRes = (item.status === '예약대기');
 
           if (isWait) waiting++;
           else if (isProg) progress++;
           else if (isComp) done++;
+          else if (isRes) reserved++;
 
           if (!isFirstLoad && !knownIds.has(item.id) && isWait) {
             hasNew = true;
@@ -422,6 +453,8 @@
         document.getElementById('count-waiting').innerText = waiting;
         document.getElementById('count-progress').innerText = progress;
         document.getElementById('count-done').innerText = done;
+        document.getElementById('count-reserved').innerText = reserved;
+        document.getElementById('box-reserved-count').innerText = reserved;
 
         if (hasNew) playDingDong();
 
@@ -507,16 +540,51 @@
     }
 
     // ==========================================================
-    // 🎨 [컴팩트 & 줄 밀림 방지 최적화 렌더링 함수]
+    // 🎨 [목록 렌더링: 예약대기는 메인 목록에서 숨기고 보관함으로 분리]
     // ==========================================================
     function renderList(list) {
       const container = document.getElementById('list-container');
-      if (list.length === 0) {
+      const reserveContainer = document.getElementById('counter-reserve-container');
+
+      // 1. 예약대기 환자 분리
+      const activeList = list.filter(item => item.status !== '예약대기');
+      const reservedList = list.filter(item => item.status === '예약대기');
+
+      // 예약대기 보관함 렌더링
+      if (reservedList.length === 0) {
+        reserveContainer.innerHTML = `<div class="text-xs text-amber-700/70 py-2 text-center">보관함에 대기 중인 예약 환자가 없습니다.</div>`;
+      } else {
+        reserveContainer.innerHTML = reservedList.map(item => {
+          const payload = unwrapPayload(item.payload);
+          const safePetName = (item.pet_name || '환자').replace(/'/g, "\\'");
+          return `
+            <div class="bg-white p-2.5 rounded-lg border border-amber-200 flex items-center justify-between gap-2 shadow-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="bg-amber-100 text-amber-900 font-bold text-[10px] px-1.5 py-0.5 rounded">예약대기</span>
+                <span class="font-bold text-xs text-slate-800 truncate">${item.pet_name || '이름 없음'}</span>
+                <span class="text-[11px] text-slate-500">(${payload.guardian_name || item.owner_name || '보호자'})</span>
+                <span class="text-[11px] text-indigo-600 font-medium">${payload.expected_date ? `📅 ${payload.expected_date}` : ''}</span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="updateStatus(${item.id}, '접수대기')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold transition shadow-xs">
+                  🐾 내원함 (대기 복귀)
+                </button>
+                <button onclick="deleteReception(${item.id}, '${safePetName}')" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded text-[11px] font-bold border border-slate-200 transition">
+                  삭제
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 2. 오늘 내원 접수 리스트 렌더링
+      if (activeList.length === 0) {
         container.innerHTML = `<div class="bg-white p-8 text-center rounded-xl border border-slate-200 text-slate-400 text-xs">현재 대기 중인 접수 환자가 없습니다.</div>`;
         return;
       }
 
-      container.innerHTML = list.map(item => {
+      container.innerHTML = activeList.map(item => {
         const payload = unwrapPayload(item.payload);
 
         const isFirst = item.type === 'FIRST' || item.type === '초진';
@@ -527,10 +595,12 @@
         const isWait = (item.status === '접수대기' || item.status === '대기');
         const isProg = (item.status === '진료중');
         const isComp = (item.status === '완료');
+        const isRes = (item.status === '예약대기');
 
         let statusClass = "bg-amber-50 text-amber-700 border-amber-200";
         if (isProg) statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
         if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
+        if (isRes) statusClass = "bg-amber-100 text-amber-900 border-amber-300";
 
         const downloadBtn = isFirst ? `
           <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2 py-0.5 text-[11px] font-semibold rounded bg-sky-50 hover:bg-sky-100 text-sky-700 transition flex items-center gap-1 border border-sky-200 shadow-sm">
@@ -573,18 +643,10 @@
         const genderVal = getGenderText(payload, item);
 
         function getGenderBadgeHtml(value) {
-          if (value === '♂✓') {
-            return `<span class="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.2 rounded bg-violet-50 border border-violet-400 text-violet-900 font-bold text-[10px]" title="중성화수컷">♂✓</span>`;
-          }
-          if (value === '♀✓') {
-            return `<span class="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.2 rounded bg-violet-50 border border-violet-400 text-violet-900 font-bold text-[10px]" title="중성화암컷">♀✓</span>`;
-          }
-          if (value === '♂') {
-            return `<span class="inline-flex items-center ml-1 px-1.5 py-0.2 rounded bg-blue-50 border border-blue-400 text-blue-700 font-bold text-xs" title="수컷">♂</span>`;
-          }
-          if (value === '♀') {
-            return `<span class="inline-flex items-center ml-1 px-1.5 py-0.2 rounded bg-rose-50 border border-rose-400 text-rose-600 font-bold text-xs" title="암컷">♀</span>`;
-          }
+          if (value === '♂✓') return `<span class="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.2 rounded bg-violet-50 border border-violet-400 text-violet-900 font-bold text-[10px]" title="중성화수컷">♂✓</span>`;
+          if (value === '♀✓') return `<span class="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.2 rounded bg-violet-50 border border-violet-400 text-violet-900 font-bold text-[10px]" title="중성화암컷">♀✓</span>`;
+          if (value === '♂') return `<span class="inline-flex items-center ml-1 px-1.5 py-0.2 rounded bg-blue-50 border border-blue-400 text-blue-700 font-bold text-xs" title="수컷">♂</span>`;
+          if (value === '♀') return `<span class="inline-flex items-center ml-1 px-1.5 py-0.2 rounded bg-rose-50 border border-rose-400 text-rose-600 font-bold text-xs" title="암컷">♀</span>`;
           return value ? `<span class="ml-1 font-semibold text-xs">${value}</span>` : '';
         }
         const genderBadge = getGenderBadgeHtml(genderVal);
@@ -674,7 +736,6 @@
                 <span class="text-slate-500 font-medium">${payload.breed ? ` · ${payload.breed}` : ''}${genderBadge}${birthBadge}${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
               </div>
 
-              <!-- 내원 사유 상자 (줄임 최적화) -->
               <div 
                 onclick="copyReason(${item.id})" 
                 title="클릭 시 내원 사유가 복사됩니다"
@@ -692,10 +753,11 @@
               ${treatmentsHtml}
             </div>
 
-            <!-- 우측 액션: 상태 셀렉트박스 & 삭제 버튼 (슬림화) -->
+            <!-- 우측 액션: 📅 예약대기 옵션이 추가된 상태 드롭다운 & 삭제 버튼 -->
             <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center mt-1 sm:mt-0">
               <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-2 py-1.5 rounded-lg border ${statusClass} focus:outline-none cursor-pointer">
                 <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 대기</option>
+                <option value="예약대기" ${isRes ? 'selected' : ''}>📅 예약대기 (목록서 숨김)</option>
                 <option value="진료중" ${isProg ? 'selected' : ''}>🩺 진료중</option>
                 <option value="완료" ${isComp ? 'selected' : ''}>✅ 완료</option>
               </select>
@@ -703,7 +765,7 @@
               <button 
                 type="button" 
                 onclick="deleteReception(${item.id}, '${safePetName}')" 
-                title="접수 내역 삭제"
+                title="접수 내역 처리"
                 class="px-2 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center gap-0.5 transition shadow-sm"
               >
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -724,6 +786,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id, status: newStatus })
         });
+        showToast(newStatus === '예약대기' ? '📅 예약대기로 보관되었습니다.' : '상태가 변경되었습니다.');
         fetchReceptions();
       } catch (err) {
         alert('상태 변경 실패: ' + err.message);
