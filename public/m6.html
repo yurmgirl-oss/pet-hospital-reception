@@ -108,7 +108,7 @@
   }
   .btn-urgent-off:hover { background: #475569; }
 
-  /* 폼 (소요시간 제거 후 3칸 구조로 간결화) */
+  /* 폼 */
   .manual-form {
     display: grid;
     grid-template-columns: 1fr 180px 100px;
@@ -143,6 +143,7 @@
   
   tr.row-done { background: #f8fafc; opacity: 0.75; }
   tr.row-done td { color: #64748b; }
+  tr.row-reserve { background: #fffbeb; }
 
   .time-badge {
     font-size: 11px;
@@ -173,7 +174,7 @@
   }
   .timer-finished {
     background: #f1f5f9;
-    color: #475569;
+    color: #64748b;
     border: 1px solid #cbd5e1;
   }
   @keyframes pulseTimer {
@@ -189,6 +190,7 @@
     cursor: pointer;
   }
   .status-wait { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+  .status-reserve { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; } /* 📅 예약대기 스타일 */
   .status-treat { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
   .status-done { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
   .status-delete { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
@@ -228,7 +230,7 @@
     </div>
   </div>
 
-  <!-- [2] 일반예약 등록 (소요시간 입력 제거) -->
+  <!-- [2] 일반예약 등록 -->
   <div class="card">
     <h2>
       <span>🏥 일반예약 직접 등록 <span class="badge-range">31번대</span></span>
@@ -264,7 +266,7 @@
     </table>
   </div>
 
-  <!-- [3] QR접수 환자 관리 (소요시간 열 제거) -->
+  <!-- [3] QR접수 환자 관리 -->
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
@@ -319,10 +321,20 @@ function buildTimerBadge(key, startTime, status, endTime){
   if(status === "진료완료"){
     return `<span class="timer-badge timer-finished" id="timer-${key}">🏁 ${getElapsedText(startTime, endTime)}</span>`;
   }
+  if(status === "예약대기"){
+    return `<span class="timer-badge" id="timer-${key}" style="color:#b45309; background:#fffbeb;">📅 예약보관</span>`;
+  }
   if(status !== "진료중" || !startTime){
     return `<span class="timer-badge" id="timer-${key}">대기중</span>`;
   }
   return `<span class="timer-badge timer-running" id="timer-${key}">⏱️ ${getElapsedText(startTime)}</span>`;
+}
+
+function getStatusClass(status){
+  if(status === "진료중") return "status-treat";
+  if(status === "진료완료") return "status-done";
+  if(status === "예약대기") return "status-reserve";
+  return "status-wait";
 }
 
 // 1초마다 실시간 타이머 UI 갱신
@@ -451,7 +463,7 @@ function updateManualStatus(id, newStatus){
         item.endTime = null;
       } else if(newStatus === "진료완료"){
         if(item.startTime && !item.endTime) item.endTime = Date.now();
-      } else if(newStatus === "접수대기"){
+      } else if(newStatus === "접수대기" || newStatus === "예약대기"){
         item.startTime = null;
         item.endTime = null;
       }
@@ -490,6 +502,7 @@ function renderManualTable(){
   list.forEach((item, idx) => {
     const tr = document.createElement("tr");
     if(item.status === "진료완료") tr.className = "row-done";
+    if(item.status === "예약대기") tr.className = "row-reserve";
 
     let catOpts = CATEGORIES.map(c => `<option value="${c}" ${item.category===c?'selected':''}>${c}</option>`).join("");
     
@@ -500,9 +513,10 @@ function renderManualTable(){
       <td><select onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select></td>
       <td>${buildTimerBadge(`m-${item.id}`, item.startTime, item.status, item.endTime)}</td>
       <td>
-        <select class="status-select ${item.status === '진료중' ? 'status-treat' : item.status === '진료완료' ? 'status-done' : 'status-wait'}" 
+        <select class="status-select ${getStatusClass(item.status)}" 
                 onchange="updateManualStatus(${item.id}, this.value)">
           <option value="접수대기" ${item.status === '접수대기' ? 'selected' : ''}>접수대기</option>
+          <option value="예약대기" ${item.status === '예약대기' ? 'selected' : ''}>📅 예약대기</option>
           <option value="진료중" ${item.status === '진료중' ? 'selected' : ''}>진료중</option>
           <option value="진료완료" ${item.status === '진료완료' ? 'selected' : ''}>진료완료</option>
           <option value="자료삭제" class="status-delete">자료삭제</option>
@@ -553,6 +567,7 @@ async function loadQrList(){
 
       const tr = document.createElement("tr");
       if(currentStatus === "진료완료") tr.className = "row-done";
+      if(currentStatus === "예약대기") tr.className = "row-reserve";
 
       let catOptions = CATEGORIES.map(c => `<option value="${c}" ${currentCat === c ? "selected" : ""}>${c}</option>`).join("");
 
@@ -563,9 +578,10 @@ async function loadQrList(){
         <td><select onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
         <td>${buildTimerBadge(`qr-${key}`, timerData.start, currentStatus, timerData.end)}</td>
         <td>
-          <select class="status-select ${currentStatus === '진료중' ? 'status-treat' : currentStatus === '진료완료' ? 'status-done' : 'status-wait'}"
+          <select class="status-select ${getStatusClass(currentStatus)}"
                   onchange="saveQrStatus('${key}', this.value)">
             <option value="접수대기" ${currentStatus === '접수대기' ? 'selected' : ''}>접수대기</option>
+            <option value="예약대기" ${currentStatus === '예약대기' ? 'selected' : ''}>📅 예약대기</option>
             <option value="진료중" ${currentStatus === '진료중' ? 'selected' : ''}>진료중</option>
             <option value="진료완료" ${currentStatus === '진료완료' ? 'selected' : ''}>진료완료</option>
             <option value="자료삭제" class="status-delete">자료삭제</option>
@@ -600,7 +616,7 @@ function saveQrStatus(key, val){
     qrTimers[key].end = null;
   } else if(val === "진료완료"){
     if(qrTimers[key].start && !qrTimers[key].end) qrTimers[key].end = Date.now();
-  } else if(val === "접수대기"){
+  } else if(val === "접수대기" || val === "예약대기"){
     delete qrTimers[key];
   }
   localStorage.setItem("m6_qr_timers", JSON.stringify(qrTimers));
