@@ -120,7 +120,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 #counterFallback{padding:12px;font-size:13px;color:#8a3b2f}
 #medicationPanel{display:contents}
 #medicationPanel .wrap{display:contents}
-#medicationPanel .panel{min-width:0;padding:12px;height:calc(100vh - 44px);box-sizing:border-radius:12px}
+#medicationPanel .panel{min-width:0;padding:12px;height:calc(100vh - 44px);box-sizing:border-box;border-radius:12px}
 #medicationPanel .grid3{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 #medicationPanel .row{grid-template-columns:minmax(65px,.65fr) minmax(65px,.8fr) minmax(90px,1.4fr) 48px;gap:8px}
 #medicationPanel input,#medicationPanel select{box-sizing:border-box;min-width:0;font-size:12px;padding:7px}
@@ -348,274 +348,20 @@ html,body{width:100%;height:100%;overflow:hidden}
   <button type="button" id="globalRefreshChartBtn" style="padding:9px 13px;background:#334155;color:#fff;border:0;border-radius:9px;font-weight:800;box-shadow:0 2px 10px #0003;cursor:pointer">🔄 현황+챠트</button>
 </div>
 
-<script>
-const t=new Date();
-const today=t.toISOString().slice(0,10);
-start.value=today;
-endDate.value=30;
-todayText.textContent=today;
-const months=[0,1].map(i=>new Date(t.getFullYear(),t.getMonth()+i,1));
-const selected=new Set(), events=[];
-const painted=new Map();
-function sync(){ppet.textContent=pet.value||'—';pdisease.textContent=disease.value||'—';pstart.textContent=start.value}
-pet.oninput=disease.oninput=start.oninput=sync;sync();
-memoInput.oninput=()=>{pmemo.textContent=memoInput.value;};
-const cautionStyles=['#fff3cd|#f4b400','#fff3cd|#f4b400','#ffebee|#e53935','#f5f5f5|#757575','#e8f5e9|#43a047','#fff3e0|#fb8c00','#e3f2fd|#1e88e5','#f3e5f5|#8e24aa','#ffebee|#e53935'];
-function refreshCautions(){
- const selectedCautions=[...document.querySelectorAll('.cautionCheck:checked')].map((el,i)=>({text:el.value,style:cautionStyles[[...document.querySelectorAll('.cautionCheck')].indexOf(el)]||cautionStyles[0]}));
- const all=selectedCautions;
- const box=document.getElementById('printedCautionBox'),list=document.getElementById('printedCautionList');
- list.innerHTML='';
- all.forEach(item=>{const [bg,border]=item.style.split('|');const div=document.createElement('div');div.style.cssText=`background:${bg};border-left:4px solid ${border};padding:5px 7px;border-radius:4px;white-space:pre-wrap`;div.textContent=item.text;list.appendChild(div)});
- box.style.display=all.length?'block':'none';
-}
-document.querySelectorAll('.cautionCheck').forEach(el=>el.addEventListener('change',refreshCautions));
-refreshCautions();
-
-function renderMonths(){
- cals.innerHTML='';
- months.forEach(m=>{
-  let f=new Date(m.getFullYear(),m.getMonth(),1).getDay();
-  let last=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();
-  let h=`<div class=cal><h3>${m.getFullYear()}년 ${m.getMonth()+1}월</h3><table><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr><tr>`;
-  for(let i=0;i<f;i++)h+="<td></td>";
-  for(let d=1;d<=last;d++){
-    let key=`${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    let cls="pick";
-    if(key===today)cls+=" today";
-    if(selected.has(key))cls+=" sel";
-    const list=events.filter(e=>e.date===key).slice(0,3);
-    const labels=list.map(ev=>{
-      let t=(ev.text||'').replace(/\(.+?\)/g,'').trim().slice(0,6);
-      const clean=(ev.text||'').replace(/\(.+?\)/g,'').trim();
-      const uniqueTexts=[...new Set(events.map(e=>(e.text||'').replace(/\(.+?\)/g,'').trim()).filter(Boolean))];
-      const idx=((uniqueTexts.indexOf(clean)%15)+15)%15;
-      return `<span class="ev txt${idx}">${t}</span>`;
-    }).join('');
-    h+=`<td class="${cls}" data-date="${key}"><div class="daynum">${d}</div>${labels}</td>`;
-    if((f+d)%7==0)h+="</tr><tr>";
-  }
-  h+="</tr></table></div>"; cals.insertAdjacentHTML('beforeend',h);
- });
- bind();
-}
-let dragging=false;
-function bind(){
- document.querySelectorAll('.pick').forEach(td=>{
-  td.onmousedown=e=>{dragging=true;pick(td);e.preventDefault();};
-  td.onmouseenter=()=>{if(dragging)pick(td);};
- });
- document.body.onmouseup=()=>dragging=false;
- document.querySelectorAll('.pick').forEach(td=>{
-   const c=painted.get(td.dataset.date);
-   td.style.background='';
-   td.style.color='';
-   if(c==='yellow') td.style.background='#f4b400';
-   if(c==='green'){ td.style.background='#2f8f68'; td.style.color='#fff';}
-   if(c==='red'){ td.style.background='#d9534f'; td.style.color='#fff';}
- });
-}
-function pick(td){
- const k=td.dataset.date;
- if(selected.has(k)){selected.delete(k);td.classList.remove('sel');}
- else{selected.add(k);td.classList.add('sel');}
- count.textContent=selected.size;
-}
-function refresh(){
- days.innerHTML='';
- const map=new Map();
- events.sort((a,b)=>a.date.localeCompare(b.date));
- events.forEach(e=>{
-   if(!map.has(e.date)) map.set(e.date,[]);
-   if(e.text && !map.get(e.date).includes(e.text)) map.get(e.date).push(e.text);
- });
- [...painted.keys()].sort().forEach(date=>{
-   if(!map.has(date)) map.set(date,[]);
- });
- [...map.keys()].sort().forEach(date=>{
-   const texts=map.get(date);
-   let div=document.createElement('div');
-   div.className='card';
-   const c=painted.get(date);
-   if(c==='yellow'){div.style.background='#f4b400';div.style.color='#111';}
-   if(c==='green'){div.style.background='#2f8f68';div.style.color='#fff';}
-   if(c==='red'){div.style.background='#d9534f';div.style.color='#fff';}
-   div.innerHTML=`<b>${date}</b><div class=small>${texts.map(t=>'☐ '+t).join('<br>')}</div>`;
-   days.appendChild(div);
- });
-}
-let lastSelectedDates=new Set();
-function clearSel(){selected.clear();count.textContent=0;renderMonths();}
-function quickFill(id,text){
- const el=document.getElementById(id);
- if(!el)return;
- el.value=text;
- el.focus();
- el.setSelectionRange(el.value.length,el.value.length);
-}
-
-function selectToday(){
- selected.clear();
- selected.add(today);
- lastSelectedDates=new Set(selected);
- count.textContent=selected.size;
- renderMonths();
-}
-
-function addSelected(){
- if(selected.size===0){
-   if(lastSelectedDates.size===0)return alert("날짜를 선택하세요.");
-   lastSelectedDates.forEach(d=>events.push({date:d,text:specificText.value,color:'none'}));
-   refresh();
-   return;
- }
- if(!specificText.value){lastSelectedDates=new Set(selected);clearSel();return;}
- lastSelectedDates=new Set(selected);
- selected.forEach(d=>events.push({date:d,text:specificText.value,color:'none'}));
- clearSel();refresh();
-}
-
-function deleteSelected(){
-  const targets=selected.size>0 ? selected : lastSelectedDates;
-  if(targets.size===0) return alert("삭제할 날짜를 선택하세요.");
-
-  targets.forEach(d=>{
-    painted.delete(d);
-    for(let i=events.length-1;i>=0;i--){
-      if(events[i].date===d){
-        events.splice(i,1);
-      }
-    }
-  });
-
-  lastSelectedDates=new Set();
-  clearSel();
-  renderMonths();
-  refresh();
-}
-
-function paintSelected(color){
-  const targets=selected.size>0 ? selected : lastSelectedDates;
-  if(targets.size===0) return alert("날짜를 선택하세요.");
-
-  lastSelectedDates=new Set(targets);
-  targets.forEach(d=>{
-    if(painted.get(d)===color){
-      painted.delete(d);
-    }else{
-      painted.set(d,color);
-    }
-  });
-
-  clearSel();
-  renderMonths();
-  refresh();
-}
-
-function addRepeat(){
- if(!repeatText.value)return alert("내용을 입력하세요.");
- let startDate=new Date(start.value);
- let d=new Date(startDate);
- let end=new Date(startDate);
- let step=parseInt(interval.value);
- let days=parseInt(endDate.value)||0;
- end.setDate(end.getDate()+days);
- d.setDate(d.getDate()+step);
- while(d<=end){
-   events.push({date:d.toISOString().slice(0,10),text:repeatText.value,color:'none'});
-   d.setDate(d.getDate()+step);
- }
- renderMonths();
- refresh();
-}
-
-function issueOutputId(){
-  const now=new Date();
-  const pad=n=>String(n).padStart(2,'0');
-  const date=now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate());
-  const time=pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds());
-  const suffix=Math.floor(Math.random()*9000)+1000;
-  const id='23SI-'+date+'-'+time+'-'+suffix;
-  const value=document.getElementById('outputIdValue');
-  if(value) value.textContent=id;
-  return id;
-}
-
-function savePreviewImage(){
-  issueOutputId();
-  const pet=(document.getElementById('pet')?.value||'동물').trim()||'동물';
-  const start=(document.getElementById('start')?.value||new Date().toISOString().slice(0,10));
-  const fileName=`${pet}_${start}.png`;
-  const preview=document.querySelector('.preview');
-  html2canvas(preview,{scale:2,backgroundColor:'#ffffff',onclone:(clonedDoc)=>{const headline=clonedDoc.querySelector('.bookingHeadline');if(headline){headline.style.setProperty('font-size','10px','important');headline.style.setProperty('letter-spacing','-0.5px','important');headline.style.setProperty('white-space','nowrap','important');headline.style.setProperty('line-height','1.1','important');}const banner=clonedDoc.querySelector('.preview .banner');if(banner){banner.style.setProperty('padding','5px','important');}}}).then(canvas=>{
-    const a=document.createElement('a');
-    a.download=fileName;
-    a.href=canvas.toDataURL('image/png');
-    a.click();
-  });
-}
-
-function applyPromisePlan(){
- const choice=document.getElementById('promisePlan')?.value;
- if(!choice)return alert('약속처방을 선택해 주세요.');
- if(!start.value)return alert('시작일을 먼저 선택해 주세요.');
- const base=new Date(start.value+'T12:00:00');
- const dateAt=(offset)=>{const d=new Date(base);d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
- if(choice==='sevenDay' || choice==='specialAnimal' || choice==='dermatitis' || choice==='conjunctivitis' || choice==='otitis' || choice==='arthritisPain' || choice==='specialAnimalDisinfection' || choice==='renalFailure' || choice==='liverLipid' || choice==='gastroenteritis' || choice==='postOpCare' || choice==='parrotFracture' || choice==='temporaryBandage' || choice==='catGeneralCare'){
-   const template=choice;
-   for(let i=events.length-1;i>=0;i--){if(events[i].template===template)events.splice(i,1);}
-   if(choice==='specialAnimal'){
-     for(let day=0;day<7;day++) events.push({date:dateAt(day),text:'물약(저녁)',color:'none',template});
-     events.push({date:dateAt(2),text:'사진촬영',color:'none',template});
-     events.push({date:dateAt(6),text:'병원내원',color:'yellow',template});
-     events.push({date:dateAt(6),text:'추가처방예정(7일)',color:'none',template});
-   } else if(choice==='dermatitis'){
-     events.push({date:dateAt(0),text:'내복약(저녁)',color:'none',template});
-     events.push({date:dateAt(0),text:'소독, 연고(저녁)',color:'none',template});
-     for(let day=1;day<7;day++){
-       events.push({date:dateAt(day),text:'내복약(아침)',color:'none',template});
-       events.push({date:dateAt(day),text:'내복약(저녁)',color:'none',template});
-       events.push({date:dateAt(day),text:'소독, 연고(하루 2회)',color:'none',template});
-     }
-     events.push({date:dateAt(2),text:'사진촬영',color:'none',template});
-     events.push({date:dateAt(6),text:'병원내원',color:'yellow',template});
-     events.push({date:dateAt(20),text:'처방식 사료 유지',color:'none',template});
-     for(let day=14;day<=89;day+=15) events.push({date:dateAt(day),text:'사진촬영',color:'none',template});
-     for(let day=29;day<=89;day+=30) events.push({date:dateAt(day),text:'병원내원',color:'yellow',template});
-     events.push({date:dateAt(27),text:'혈액검사(간,신장)',color:'none',template});
-   }
-   pmemo.textContent=memoInput.value;
-   renderMonths();refresh();
-   alert('약속처방 일정이 추가되었습니다. 약 종류와 용량은 환자별로 직접 입력해 주세요.');
- }
-}
-
-renderMonths();refresh();
-
-// =========================================================================
-// 🏥 [카운터 접수 현황판 - 📅 예약대기 완벽 연동 버전]
-// =========================================================================
-const counterAppHTML = `<!DOCTYPE html>
+<!-- ========================================================================= -->
+<!-- 1. 좌측 카운터 현황판 템플릿 (📅 예약대기 완벽 연동 + 문법에러 방지 안전 템플릿) -->
+<!-- ========================================================================= -->
+<template id="tpl-counter">
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>원내 접수 현황판</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     body { font-family: 'Pretendard', sans-serif; font-size: 13px; }
-    header h1 { font-size: 1.25rem !important; }
-    header p { font-size: 0.75rem !important; }
-    #list-container > div { font-size: 0.78rem; }
-    #list-container h3 { font-size: 1rem !important; }
-    #list-container .text-xs { font-size: 0.7rem !important; }
-    #list-container .text-sm { font-size: 0.78rem !important; }
-    #list-container .text-lg { font-size: 1.05rem !important; }
-    #list-container button, #list-container select { font-size: 0.78rem !important; }
-    #list-container .text-\\[10px\\], #list-container .text-\\[11px\\] { font-size: 0.9rem !important; }
-    #adminNoticeInput { font-size: 0.8rem !important; }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 p-3 sm:p-5">
@@ -627,7 +373,7 @@ const counterAppHTML = `<!DOCTYPE html>
           <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
           <h1 class="text-xl font-bold text-slate-900 tracking-tight">원내 접수 현황판</h1>
         </div>
-        <p class="text-xs text-slate-500 mt-0.5">실시간 접수 현황 관리</p>
+        <p class="text-xs text-slate-500 mt-0.5">실시간 접수 현황 및 초진 관리</p>
       </div>
       <div class="flex items-center gap-2">
         <button id="soundToggleBtn" onclick="toggleSound()" class="px-2.5 py-1.5 rounded-lg border text-xs font-medium flex items-center gap-1 bg-slate-100 text-slate-600 border-slate-300">
@@ -639,7 +385,7 @@ const counterAppHTML = `<!DOCTYPE html>
       </div>
     </header>
 
-    <!-- 요약 통계: 📅 예약 보관함 추가 -->
+    <!-- 요약 통계: 접수대기 / 진료중 / 오늘완료 / 📅 예약보관 -->
     <div class="grid grid-cols-4 gap-2.5">
       <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm text-center">
         <p class="text-[11px] font-semibold text-slate-400">접수 대기</p>
@@ -659,12 +405,12 @@ const counterAppHTML = `<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- 오늘 접수/대기 리스트 (예약대기는 여기서 자동 제외되어 화면 깔끔!) -->
+    <!-- 오늘 접수 목록 (예약대기는 여기서 자동 제외되어 화면 깔끔!) -->
     <div id="list-container" class="space-y-3">
       <div class="text-center py-8 text-slate-400 text-xs">접수 내역을 확인하는 중입니다...</div>
     </div>
 
-    <!-- 📅 카운터 예약대기 보관함 (접기/펼치기) -->
+    <!-- 📅 예약대기 보관함 (접기/펼치기) -->
     <div class="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden">
       <div onclick="toggleCounterReserveBox()" class="p-3 bg-amber-50/70 border-b border-amber-200 flex justify-between items-center cursor-pointer select-none">
         <div class="flex items-center gap-2">
@@ -674,9 +420,7 @@ const counterAppHTML = `<!DOCTYPE html>
         </div>
         <span id="reserve-toggle-arrow" class="text-xs text-amber-800 font-bold">펼치기 ▼</span>
       </div>
-      <div id="counter-reserve-container" class="p-3 space-y-2 hidden bg-amber-50/20">
-        <!-- 예약대기 카드 -->
-      </div>
+      <div id="counter-reserve-container" class="p-3 space-y-2 hidden bg-amber-50/20"></div>
     </div>
 
   </div>
@@ -687,228 +431,236 @@ const counterAppHTML = `<!DOCTYPE html>
   </div>
 
   <script>
-    let soundEnabled = true;
-    let knownIds = new Set();
-    let isFirstLoad = true;
-    let currentList = [];
+    var soundEnabled = true;
+    var currentList = [];
 
     function showToast(msg) {
-      const toast = document.getElementById('copyToast');
-      const toastMsg = document.getElementById('toastMsg');
+      var toast = document.getElementById('copyToast');
+      var toastMsg = document.getElementById('toastMsg');
       if (!toast) return;
       toastMsg.innerText = msg;
       toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
       toast.classList.add('opacity-100', 'translate-y-0');
       clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(() => {
+      window.toastTimer = setTimeout(function() {
         toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
         toast.classList.remove('opacity-100', 'translate-y-0');
       }, 2200);
     }
 
-    function toggleCounterReserveBox() {
-      const box = document.getElementById('counter-reserve-container');
-      const arrow = document.getElementById('reserve-toggle-arrow');
-      if (box.classList.contains('hidden')) {
-        box.classList.remove('hidden');
-        arrow.innerText = '접기 ▲';
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      var icon = document.getElementById('soundIcon');
+      var text = document.getElementById('soundText');
+      if (soundEnabled) {
+        icon.innerText = "🔔"; text.innerText = "알림음 켜짐";
       } else {
-        box.classList.add('hidden');
-        arrow.innerText = '펼치기 ▼';
+        icon.innerText = "🔇"; text.innerText = "알림음 켜기";
       }
     }
 
-    async function deleteReception(id, petName) {
-      const choice = confirm(\`[\${petName}] 환자를 어떻게 처리할까요?\\n\\n• [확인] 누름: 목록에서 가리고 【예약대기로 안전보관】 (추천 - 데이터 보존)\\n• [취소] 누름: 영구 삭제할지 다시 선택\`);
+    function toggleCounterReserveBox() {
+      var box = document.getElementById('counter-reserve-container');
+      var arrow = document.getElementById('reserve-toggle-arrow');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden'); arrow.innerText = '접기 ▲';
+      } else {
+        box.classList.add('hidden'); arrow.innerText = '펼치기 ▼';
+      }
+    }
+
+    function deleteReception(id, petName) {
+      var choice = confirm("[" + petName + "] 환자를 어떻게 처리할까요?\n\n• [확인] 누름: 목록에서 가리고 【예약대기로 안전보관】 (추천 - 데이터 보존)\n• [취소] 누름: 영구 삭제할지 다시 선택");
       if (choice) {
-        await updateStatus(id, '예약대기');
-        showToast(\`📅 [\${petName}] 환자가 예약대기로 안전 보관되었습니다.\`);
+        updateStatus(id, '예약대기');
+        showToast("📅 [" + petName + "] 환자가 예약대기로 안전 보관되었습니다.");
         return;
       }
-      if (confirm(\`⚠️ [\${petName}] 환자의 데이터를 영구적으로 완전히 삭제하시겠습니까?\\n(원장실 및 대기판에서도 완전히 지워집니다)\`)) {
-        try {
-          const res = await fetch(\`/api/receptions?id=\${id}\`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-          });
+      if (confirm("⚠️ [" + petName + "] 환자의 데이터를 영구적으로 완전히 삭제하시겠습니까?\n(원장실 및 대기판에서도 완전히 지워집니다)")) {
+        fetch('/api/receptions?id=' + id, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        }).then(function(res) {
           if (!res.ok) throw new Error('삭제 처리 오류');
-          showToast(\`🗑️ [\${petName}] 접수 내역이 삭제되었습니다.\`);
+          showToast("🗑️ [" + petName + "] 접수 내역이 삭제되었습니다.");
           fetchReceptions();
-        } catch (err) { alert('삭제 실패: ' + err.message); }
+        }).catch(function(err) { alert('삭제 실패: ' + err.message); });
       }
     }
 
-    async function updateStatus(id, newStatus) {
-      try {
-        await fetch('/api/receptions', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, status: newStatus })
-        });
+    function updateStatus(id, newStatus) {
+      fetch('/api/receptions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id, status: newStatus })
+      }).then(function(res) {
         showToast(newStatus === '예약대기' ? '📅 예약대기로 보관되었습니다.' : '상태가 변경되었습니다.');
         fetchReceptions();
-      } catch (err) { alert('상태 변경 실패: ' + err.message); }
+      }).catch(function(err) { alert('상태 변경 실패: ' + err.message); });
     }
 
     function unwrapPayload(raw) {
       if (!raw) return {};
-      let current = raw;
-      try { while (typeof current === 'string') current = JSON.parse(current); } catch (e) {}
-      return (current && typeof current === 'object') ? current : {};
+      var cur = raw;
+      try { while (typeof cur === 'string') cur = JSON.parse(cur); } catch(e){}
+      return (cur && typeof cur === 'object') ? cur : {};
     }
 
-    async function fetchReceptions(manual = false) {
-      try {
-        const res = await fetch('/api/receptions');
-        const data = await res.json();
-        if (!Array.isArray(data)) return;
+    function fetchReceptions(manual) {
+      fetch('/api/receptions')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!Array.isArray(data)) return;
+          currentList = data;
+          var waiting = 0, progress = 0, done = 0, reserved = 0;
 
-        currentList = data;
-        let waiting = 0, progress = 0, done = 0, reserved = 0;
+          data.forEach(function(item) {
+            var st = item.status || '접수대기';
+            if (st === '접수대기' || st === '대기') waiting++;
+            else if (st === '진료중') progress++;
+            else if (st === '완료') done++;
+            else if (st === '예약대기') reserved++;
+          });
 
-        data.forEach(item => {
-          const isWait = (item.status === '접수대기' || item.status === '대기');
-          const isProg = (item.status === '진료중');
-          const isComp = (item.status === '완료');
-          const isRes = (item.status === '예약대기');
+          document.getElementById('count-waiting').innerText = waiting;
+          document.getElementById('count-progress').innerText = progress;
+          document.getElementById('count-done').innerText = done;
+          document.getElementById('count-reserved').innerText = reserved;
+          document.getElementById('box-reserved-count').innerText = reserved;
 
-          if (isWait) waiting++;
-          else if (isProg) progress++;
-          else if (isComp) done++;
-          else if (isRes) reserved++;
-        });
-
-        document.getElementById('count-waiting').innerText = waiting;
-        document.getElementById('count-progress').innerText = progress;
-        document.getElementById('count-done').innerText = done;
-        document.getElementById('count-reserved').innerText = reserved;
-        document.getElementById('box-reserved-count').innerText = reserved;
-
-        renderList(data);
-      } catch (e) { console.error("조회 실패:", e); }
+          renderList(data);
+        }).catch(function(e) { console.error("조회 실패:", e); });
     }
 
     function renderList(list) {
-      const container = document.getElementById('list-container');
-      const reserveContainer = document.getElementById('counter-reserve-container');
+      var container = document.getElementById('list-container');
+      var reserveContainer = document.getElementById('counter-reserve-container');
 
-      // 1. 예약대기 분리
-      const activeList = list.filter(item => item.status !== '예약대기');
-      const reservedList = list.filter(item => item.status === '예약대기');
+      var activeList = list.filter(function(i) { return i.status !== '예약대기'; });
+      var reservedList = list.filter(function(i) { return i.status === '예약대기'; });
 
-      // 예약대기 보관함
-      if (reservedList.length === 0) {
+      // 1. 보관함 렌더링
+      if (!reservedList.length) {
         reserveContainer.innerHTML = '<div class="text-xs text-amber-700/70 py-2 text-center">보관함에 대기 중인 예약 환자가 없습니다.</div>';
       } else {
-        reserveContainer.innerHTML = reservedList.map(item => {
-          const payload = unwrapPayload(item.payload);
-          const safePetName = (item.pet_name || '환자').replace(/'/g, "\\\\'");
-          return \`
-            <div class="bg-white p-2.5 rounded-lg border border-amber-200 flex items-center justify-between gap-2 shadow-xs">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="bg-amber-100 text-amber-900 font-bold text-[10px] px-1.5 py-0.5 rounded">예약대기</span>
-                <span class="font-bold text-xs text-slate-800 truncate">\${item.pet_name || '이름 없음'}</span>
-                <span class="text-[11px] text-slate-500">(\${payload.guardian_name || item.owner_name || '보호자'})</span>
-                <span class="text-[11px] text-indigo-600 font-medium">\${payload.expected_date ? \`📅 \${payload.expected_date}\` : ''}</span>
-              </div>
-              <div class="flex items-center gap-1.5 shrink-0">
-                <button onclick="updateStatus(\${item.id}, '접수대기')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold transition shadow-xs">
-                  🐾 내원함 (대기 복귀)
-                </button>
-                <button onclick="deleteReception(\${item.id}, '\${safePetName}')" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded text-[11px] font-bold border border-slate-200 transition">
-                  삭제
-                </button>
-              </div>
-            </div>
-          \`;
+        reserveContainer.innerHTML = reservedList.map(function(item) {
+          var payload = unwrapPayload(item.payload);
+          var petName = item.pet_name || item.animal_name || '이름 없음';
+          var safeName = petName.replace(/'/g, "\\'");
+          var gName = payload.guardian_name || item.owner_name || '보호자';
+          var exp = payload.expected_date ? ("📅 " + payload.expected_date) : '';
+
+          return '<div class="bg-white p-2.5 rounded-lg border border-amber-200 flex items-center justify-between gap-2 shadow-xs">' +
+                   '<div class="flex items-center gap-2 min-w-0">' +
+                     '<span class="bg-amber-100 text-amber-900 font-bold text-[10px] px-1.5 py-0.5 rounded">예약대기</span>' +
+                     '<span class="font-bold text-xs text-slate-800 truncate">' + petName + '</span>' +
+                     '<span class="text-[11px] text-slate-500">(' + gName + ')</span>' +
+                     '<span class="text-[11px] text-indigo-600 font-medium">' + exp + '</span>' +
+                   '</div>' +
+                   '<div class="flex items-center gap-1.5 shrink-0">' +
+                     '<button onclick="updateStatus(' + item.id + ', \'접수대기\')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold transition shadow-xs">🐾 내원함 (대기 복귀)</button>' +
+                     '<button onclick="deleteReception(' + item.id + ', \'' + safeName + '\')" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded text-[11px] font-bold border border-slate-200 transition">삭제</button>' +
+                   '</div>' +
+                 '</div>';
         }).join('');
       }
 
-      // 2. 메인 오늘 접수 리스트 (예약대기는 안 보임)
-      if (activeList.length === 0) {
+      // 2. 메인 오늘 접수 리스트 (예약대기는 가려짐)
+      if (!activeList.length) {
         container.innerHTML = '<div class="bg-white p-8 text-center rounded-xl border border-slate-200 text-slate-400 text-xs">현재 대기 중인 접수 환자가 없습니다.</div>';
         return;
       }
 
-      container.innerHTML = activeList.map(item => {
-        const payload = unwrapPayload(item.payload);
-        const isWait = (item.status === '접수대기' || item.status === '대기');
-        const isProg = (item.status === '진료중');
-        const isComp = (item.status === '완료');
-        const isRes = (item.status === '예약대기');
+      container.innerHTML = activeList.map(function(item) {
+        var payload = unwrapPayload(item.payload);
+        var isWait = (item.status === '접수대기' || item.status === '대기');
+        var isProg = (item.status === '진료중');
+        var isComp = (item.status === '완료');
+        var isRes = (item.status === '예약대기');
 
-        let statusClass = "bg-amber-50 text-amber-700 border-amber-200";
+        var statusClass = "bg-amber-50 text-amber-700 border-amber-200";
         if (isProg) statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
         if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
         if (isRes) statusClass = "bg-amber-100 text-amber-900 border-amber-300";
 
-        const safePetName = (item.pet_name || '환자').replace(/'/g, "\\\\'");
+        var petName = item.pet_name || item.animal_name || '이름 없음';
+        var safeName = petName.replace(/'/g, "\\'");
+        var timeStr = item.created_at ? item.created_at.slice(11, 16) : '';
+        var guardian = payload.guardian_name || item.owner_name || '-';
+        var phone = item.phone || item.owner_phone || '-';
+        var breed = payload.breed ? (" · " + payload.breed) : '';
+        var reason = payload.reason || item.symptom || '내원 사유 없음';
 
-        return \`
-          <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <div class="space-y-1 min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <span class="bg-sky-100 text-sky-800 text-[10px] px-1.5 py-0.5 rounded font-bold">\${item.type === 'FIRST' ? '초진' : '재진'}</span>
-                <h3 class="text-base font-bold text-slate-900">\${item.pet_name || '이름 없음'}</h3>
-                <span class="text-xs text-slate-400 font-mono">\${item.created_at ? item.created_at.slice(11, 16) : ''}</span>
-              </div>
-              <div class="text-xs text-slate-600 flex items-center gap-1.5">
-                <span>보호자: \${payload.guardian_name || item.owner_name || '-'}</span>
-                <span class="text-slate-400">|</span>
-                <span>\${item.phone || item.owner_phone || '-'}</span>
-                <span class="text-slate-500">(\${payload.breed || ''})</span>
-              </div>
-              <div class="text-xs bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-700 leading-relaxed">
-                \${payload.reason || item.symptom || '내원 사유 없음'}
-              </div>
-            </div>
-
-            <!-- 우측 상태 선택 (📅 예약대기 옵션 포함) -->
-            <div class="flex items-center gap-2 shrink-0 self-end md:self-center">
-              <select onchange="updateStatus(\${item.id}, this.value)" class="text-xs font-bold px-2 py-1.5 rounded-lg border \${statusClass} focus:outline-none cursor-pointer">
-                <option value="접수대기" \${isWait ? 'selected' : ''}>⏳ 접수 대기</option>
-                <option value="예약대기" \${isRes ? 'selected' : ''}>📅 예약대기 (목록서 숨김)</option>
-                <option value="진료중" \${isProg ? 'selected' : ''}>🩺 진료 중</option>
-                <option value="완료" \${isComp ? 'selected' : ''}>✅ 진료 완료</option>
-              </select>
-
-              <button type="button" onclick="deleteReception(\${item.id}, '\${safePetName}')" class="px-2 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs">
-                삭제
-              </button>
-            </div>
-          </div>
-        \`;
+        return '<div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3">' +
+                 '<div class="space-y-1 min-w-0 flex-1">' +
+                   '<div class="flex items-center gap-2">' +
+                     '<span class="bg-sky-100 text-sky-800 text-[10px] px-1.5 py-0.5 rounded font-bold">' + (item.type === 'FIRST' ? '초진' : '재진') + '</span>' +
+                     '<h3 class="text-base font-bold text-slate-900">' + petName + '</h3>' +
+                     '<span class="text-xs text-slate-400 font-mono">' + timeStr + '</span>' +
+                   '</div>' +
+                   '<div class="text-xs text-slate-600 flex items-center gap-1.5">' +
+                     '<span>보호자: ' + guardian + '</span>' +
+                     '<span class="text-slate-400">|</span>' +
+                     '<span>' + phone + '</span>' +
+                     '<span class="text-slate-500">' + breed + '</span>' +
+                   '</div>' +
+                   '<div class="text-xs bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-700 leading-relaxed">' +
+                     reason +
+                   '</div>' +
+                 '</div>' +
+                 '<div class="flex items-center gap-2 shrink-0 self-end md:self-center">' +
+                   '<select onchange="updateStatus(' + item.id + ', this.value)" class="text-xs font-bold px-2 py-1.5 rounded-lg border ' + statusClass + ' focus:outline-none cursor-pointer">' +
+                     '<option value="접수대기" ' + (isWait ? 'selected' : '') + '>⏳ 접수 대기</option>' +
+                     '<option value="예약대기" ' + (isRes ? 'selected' : '') + '>📅 예약대기 (보관)</option>' +
+                     '<option value="진료중" ' + (isProg ? 'selected' : '') + '>🩺 진료 중</option>' +
+                     '<option value="완료" ' + (isComp ? 'selected' : '') + '>✅ 진료 완료</option>' +
+                   '</select>' +
+                   '<button type="button" onclick="deleteReception(' + item.id + ', \'' + safeName + '\')" class="px-2 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs">삭제</button>' +
+                 '</div>' +
+               '</div>';
       }).join('');
     }
 
     fetchReceptions();
     setInterval(fetchReceptions, 5000);
-  <\/script>
+  </script>
 </body>
-</html>`;
+</html>
+</template>
 
+<script>
+// iframe에 HTML을 문법 에러 없이 안전하게 주입
 const counterFrame = document.getElementById('counterFrame');
 const chronicFrame = document.getElementById('chronicFrame');
 const chronicToggle = document.getElementById('chronicChartToggle');
 const integratedShell = document.getElementById('integratedShell');
 
-if (counterFrame) counterFrame.srcdoc = counterAppHTML;
+function initCounterFrame() {
+  const tpl = document.getElementById('tpl-counter');
+  if (counterFrame && tpl) {
+    counterFrame.srcdoc = tpl.innerHTML;
+  }
+}
+initCounterFrame();
 
 let chronicLoaded = false;
 function loadChronicOnce(){
-  if(!chronicLoaded){ 
-    // 집중챠트 로딩 로직 유지
+  if(!chronicLoaded && chronicFrame){ 
+    chronicFrame.src = "https://23si.net/counter";
     chronicLoaded = true; 
   }
 }
 
 function setLayout(mode){
+  if(mode === 'focus' || mode === 'focus-expanded' || mode === 'three') loadChronicOnce();
   integratedShell.dataset.layout = mode;
   const globalControls = document.getElementById('expandedGlobalControls');
   if(globalControls) globalControls.style.display = mode === 'focus-expanded' ? 'flex' : 'none';
   if(mode === 'focus'){
     chronicToggle.textContent = '💊 복약관리 2화면으로';
+  } else if(mode === 'focus-expanded'){
+    chronicToggle.textContent = '↩️ 기본 화면으로';
   } else {
     chronicToggle.textContent = '📋 집중관리 2화면';
   }
@@ -921,7 +673,7 @@ chronicToggle.addEventListener('click', () => {
 function showInitialScreen(){ setLayout('medication'); }
 function refreshReceptionAndChart(){
   setLayout('focus');
-  try { if(counterFrame) counterFrame.srcdoc = counterAppHTML; } catch(err){}
+  try { initCounterFrame(); } catch(err){}
 }
 
 document.getElementById('globalInitialScreenBtn')?.addEventListener('click', showInitialScreen);
