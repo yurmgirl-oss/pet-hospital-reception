@@ -42,7 +42,6 @@ body {
   position: relative;
 }
 
-/* 상단 헤더: 병원명 + 접수안내 + QR바코드 + 통합 시계 */
 header {
   display: flex;
   align-items: center;
@@ -126,7 +125,6 @@ header {
   white-space: nowrap;
 }
 
-/* 상하 2단 컨테이너 */
 .vertical-container {
   flex: 1;
   display: flex;
@@ -147,7 +145,6 @@ header {
   overflow: hidden;
 }
 
-/* 패널 헤더 */
 .panel-header {
   padding: 10px 18px;
   display: flex;
@@ -182,8 +179,6 @@ header {
 .panel-qr .panel-count { color: #0369a1; border: 1.5px solid #bae6fd; }
 .panel-normal .panel-count { color: #b45309; border: 1.5px solid #fde68a; }
 
-/* 📐 [새로운 5개 열 그리드: 소요시간 제거 및 공간 재배치]
-   [번호 74px] - [접수시각 95px] - [동물명 1.8fr] - [진료상태 1.2fr] - [진료분류 1.3fr] */
 .table-header {
   display: grid;
   grid-template-columns: 74px 95px 1.8fr 1.2fr 1.3fr;
@@ -206,7 +201,6 @@ header {
   padding: 10px 12px;
 }
 
-/* 대기 줄(Row) */
 .table-row {
   display: grid;
   grid-template-columns: 74px 95px 1.8fr 1.2fr 1.3fr;
@@ -231,7 +225,6 @@ header {
   100% { border-color: #60a5fa; box-shadow: 0 0 26px rgba(96, 165, 250, 0.55); }
 }
 
-/* 1. 번호 배지 */
 .col-cell-num { display: flex; justify-content: center; align-items: center; }
 .num-badge {
   display: inline-flex;
@@ -253,7 +246,6 @@ header {
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
-/* 2. 접수시각 (요청하신 대로 작고 단정하게 배치) */
 .col-cell-time { display: flex; justify-content: center; align-items: center; }
 .reg-time-badge {
   font-size: clamp(13px, 1.8vw, 15px);
@@ -267,7 +259,6 @@ header {
   font-variant-numeric: tabular-nums;
 }
 
-/* 3. 동물명 (소요시간이 빠져 훨씬 더 커진 초대형 폰트) */
 .col-cell-pet {
   display: flex;
   align-items: center;
@@ -275,7 +266,7 @@ header {
   overflow: hidden;
 }
 .pet-name {
-  font-size: clamp(44px, 6vw, 62px); /* 기존보다 대폭 확대 */
+  font-size: clamp(44px, 6vw, 62px);
   font-weight: 1000;
   color: #0f172a;
   white-space: nowrap;
@@ -285,10 +276,9 @@ header {
   line-height: 1.05;
 }
 
-/* 4. 진료 상태 배지 (더 크고 뚜렷하게) */
 .col-cell-status { display: flex; justify-content: center; align-items: center; padding: 0 6px; }
 .pet-status-badge {
-  font-size: clamp(24px, 3.2vw, 32px); /* 크기 대폭 확대 */
+  font-size: clamp(24px, 3.2vw, 32px);
   font-weight: 1000;
   padding: 12px 24px;
   border-radius: 18px;
@@ -312,11 +302,10 @@ header {
   50% { opacity: 0.88; transform: scale(0.96); }
 }
 
-/* 5. 진료분류 배지 (더 큼직하고 여유로운 크기) */
 .col-cell-category { display: flex; justify-content: center; align-items: center; padding: 0 6px; }
 .category-badge {
   display: inline-block;
-  font-size: clamp(24px, 3.2vw, 32px); /* 크기 대폭 확대 */
+  font-size: clamp(24px, 3.2vw, 32px);
   font-weight: 1000;
   padding: 12px 22px;
   border-radius: 18px;
@@ -335,7 +324,6 @@ header {
   font-weight: 900;
 }
 
-/* 하단 배너 & 푸터 */
 .notice-bar {
   display: flex;
   align-items: center;
@@ -373,7 +361,6 @@ footer {
   border-top: 1.5px solid #e2e8f0;
 }
 
-/* 긴급 공지 오버레이 */
 .urgent-overlay {
   display: none;
   position: absolute;
@@ -514,7 +501,6 @@ footer {
 </div>
 
 <script>
-// k11 (2).png 접수용 QR코드 렌더링
 document.getElementById("qr-img").src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://23si.net";
 
 const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
@@ -570,30 +556,24 @@ function handleUrgentNotice(un){
   }
 }
 
-// 📐 큼직한 행(Row) 생성: [번호] [접수시각] [동물명] [진료상태] [진료분류]
 function createRow(displayNum, regTime, petName, category, status){
   const treating = status === "진료중";
   const row = make("div", "table-row" + (treating ? " treating" : ""));
 
-  // 1. 번호
   const cellNum = make("div", "col-cell-num");
   cellNum.append(make("span", "num-badge", String(displayNum)));
 
-  // 2. 접수시각 (작고 단정하게)
   const cellTime = make("div", "col-cell-time");
   cellTime.append(make("span", "reg-time-badge", regTime || ""));
 
-  // 3. 동물명 (초대형화)
   const cellPet = make("div", "col-cell-pet");
   const nameDiv = make("div", "pet-name", petName);
   cellPet.append(nameDiv);
 
-  // 4. 진료상태 (초대형화)
   const cellStatus = make("div", "col-cell-status");
   const statusBadge = make("span", "pet-status-badge " + (treating ? "treat" : "wait"), treating ? "진료중" : "대기중");
   cellStatus.append(statusBadge);
 
-  // 5. 진료분류 (초대형화)
   const cellCat = make("div", "col-cell-category");
   cellCat.append(make("span", "category-badge", category || "일반진료"));
 
@@ -609,12 +589,12 @@ function render(qrItems, serverState){
 
   handleUrgentNotice(serverState.urgentNotice);
 
-  // 1. QR 목록
+  // 1. QR 목록 (예약대기/완료/삭제/취소/종료 모두 대기목록에서 제외)
   const activeQr = (Array.isArray(qrItems) ? qrItems : []).filter(item => {
     const k = String(item.id ?? item.reception_id ?? "");
     if (deletedKeys.includes(k)) return false;
     const st = qrStatuses[k] || item.status || "접수대기";
-    return !["완료", "진료완료", "자료삭제", "취소", "종료"].includes(st);
+    return !["완료", "진료완료", "예약대기", "자료삭제", "취소", "종료"].includes(st);
   }).sort((a,b)=>{
     const ta = Date.parse(a.created_at || a.createdAt || 0) || 0;
     const tb = Date.parse(b.created_at || b.createdAt || 0) || 0;
@@ -638,9 +618,9 @@ function render(qrItems, serverState){
     });
   }
 
-  // 2. 일반예약 목록
+  // 2. 일반예약 목록 (예약대기/진료완료/자료삭제 모두 현황판에서 제외)
   const activeManual = manualBookings.filter(item => {
-    return item.status !== "진료완료" && item.status !== "자료삭제";
+    return item.status !== "진료완료" && item.status !== "자료삭제" && item.status !== "예약대기";
   });
 
   listNormalEl.replaceChildren();
@@ -674,7 +654,6 @@ async function refresh(){
   }
 }
 
-// ⏱️ 3초 주기 실시간 폴링
 refresh();
 setInterval(refresh, 3000);
 
