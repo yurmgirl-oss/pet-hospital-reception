@@ -11,7 +11,6 @@ body{margin:0;background:#eef3ef;font-family:"Malgun Gothic",sans-serif}
 .panel{background:#fff;border-radius:18px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,.08);height:calc(100vh - 36px);overflow:auto}
 .grid3{display:grid;grid-template-columns:150px 200px 180px;gap:38px;justify-content:start}
 label{font-size:12px;font-weight:bold;color:#345}
-/* 주의사항: 체크박스를 문장 앞에 두고 글자와 수직 정렬 */
 .cautionOptions label{display:flex;align-items:center;gap:9px;font-size:15px;line-height:1.45;min-height:30px;cursor:pointer}
 .cautionOptions input[type="checkbox"]{width:18px;height:18px;min-width:18px;margin:0;flex:0 0 18px;padding:0;accent-color:#2f8f68}
 input,select{width:100%;padding:8px;border:1px solid #b8c8be;border-radius:8px}
@@ -110,7 +109,6 @@ button.yellow{background:#f4b400;color:#111}
   }
 }
 
-/* 통합 화면: 왼쪽 접수 현황판 + 오른쪽 기존 복약관리 */
 html,body{width:100%;height:100%;overflow:hidden}
 #integratedShell{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100vw;height:100vh;box-sizing:border-box;padding:10px;background:#eef3ef}
 #counterPanel{min-width:0;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #dce6ee;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)}
@@ -141,7 +139,6 @@ html,body{width:100%;height:100%;overflow:hidden}
 @media(max-width:1100px){#integratedShell{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px}#medicationPanel .panel{padding:8px}#medicationPanel h2{font-size:17px}#medicationPanel .quickItem{font-size:9px!important;padding:4px!important}}
 @media print{html,body{height:auto;overflow:visible}#integratedShell{display:block;width:auto;height:auto;padding:0;background:#fff}#counterPanel,#chronicPanel{display:none!important}#medicationPanel{display:block!important;overflow:visible}#medicationPanel .wrap{display:flex!important;padding:0!important}#medicationPanel .panel:first-child{display:none!important}#medicationPanel .panel:nth-child(2){display:flex!important;width:100%!important;height:auto!important;overflow:visible!important;padding:0!important}#medicationPanel .preview{width:196mm!important;height:283mm!important;max-width:196mm!important;padding:6mm!important;border:2px solid #b9cdbd!important;border-radius:16px!important;box-sizing:border-box!important;aspect-ratio:auto!important}}
 
-/* 화면 구성: 접수 현황판 40%, 입력 30%, 실시간 출력 30% */
 #integratedShell{grid-template-columns:minmax(0,4fr) minmax(0,3fr) minmax(0,3fr);gap:8px;padding:8px}
 #counterPanel{grid-column:1;grid-row:1}
 #medicationPanel{grid-column:2 / 4;grid-row:1;min-width:0;min-height:0}
@@ -171,7 +168,6 @@ html,body{width:100%;height:100%;overflow:hidden}
  #medicationPanel .banner div[style*="font-size:48px"]{font-size:28pt!important;text-shadow:none!important}
 }
 
-/* 화면 모드: 기본 2화면(접수+복약), 집중관리 2화면, 전체 3화면 */
 #integratedShell[data-layout="three"]{grid-template-columns:minmax(0,3fr) minmax(0,3fr) minmax(0,4fr)!important}
 #integratedShell[data-layout="three"] #counterPanel{grid-column:1;grid-row:1}
 #integratedShell[data-layout="three"] #chronicPanel{display:block!important;grid-column:2;grid-row:1;height:calc(100vh - 16px)!important}
@@ -686,7 +682,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 
 <script>
 // =========================================================================
-// 2. 통합 제어 스크립트 (현황판 + 집중관리 차트 + 전송 연동 완벽 유지)
+// 2. 통합 제어 스크립트 (가볍고 빠르며 안정적인 주입)
 // =========================================================================
 const counterFrame = document.getElementById('counterFrame');
 const chronicFrame = document.getElementById('chronicFrame');
@@ -704,6 +700,7 @@ initCounterFrame();
 let chronicLoaded = false;
 function loadChronicOnce(){
   if(!chronicLoaded && chronicFrame){ 
+    // 집중챠트 URL 로드
     chronicFrame.src = "https://23si.net/counter";
     chronicLoaded = true; 
   }
@@ -736,7 +733,7 @@ function refreshReceptionAndChart(){
 document.getElementById('globalInitialScreenBtn')?.addEventListener('click', showInitialScreen);
 document.getElementById('globalRefreshChartBtn')?.addEventListener('click', refreshReceptionAndChart);
 
-// 🚀 [핵심 복원]: 현황판에서 '집중관리 전송' 버튼 누르면 챠트 화면을 열고 데이터 자동 입력
+// 🚀 [원클릭 집중관리 전송 연동]
 let pendingCarePatient = null;
 window.addEventListener('message', (event) => {
   if(event.data && event.data.type === 'send-reception-to-care' && event.data.patient) {
