@@ -613,16 +613,51 @@ function playChime(callback) {
   }
 }
 
-// 한국어 TTS 발화
+// 한국어 고음질 보이스 탐색 및 음성 발화
+let availableVoices = [];
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return;
+  availableVoices = window.speechSynthesis.getVoices();
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function getBestKoreanVoice() {
+  const koVoices = availableVoices.filter(v => v.lang.includes('ko') || v.lang.includes('KO'));
+  if (!koVoices.length) return null;
+
+  // 1순위: Edge / Windows 11 Natural 음성 (선희/혜미 내추럴 - 실제 아나운서처럼 매우 자연스러움)
+  const naturalVoice = koVoices.find(v => v.name.includes('Natural') || v.name.includes('Online'));
+  if (naturalVoice) return naturalVoice;
+
+  // 2순위: Chrome Google 한국어 고음질 음성
+  const googleVoice = koVoices.find(v => v.name.includes('Google'));
+  if (googleVoice) return googleVoice;
+
+  // 3순위: 기타 고음질/여성 음성
+  const femaleVoice = koVoices.find(v => v.name.includes('SunHi') || v.name.includes('Heami') || v.name.includes('Yuna'));
+  if (femaleVoice) return femaleVoice;
+
+  return koVoices[0];
+}
+
+// 한국어 TTS 발화 (자연스러운 백그라운드 톤 적용)
 function speakVoice(text) {
   if (!('speechSynthesis' in window)) return;
   try {
     window.speechSynthesis.cancel();
     playChime(() => {
       const utter = new SpeechSynthesisUtterance(text);
+      const bestVoice = getBestKoreanVoice();
+      if (bestVoice) {
+        utter.voice = bestVoice;
+      }
       utter.lang = 'ko-KR';
-      utter.rate = 0.95;  // 전달력 높은 템포
-      utter.pitch = 1.05; // 부드럽고 친절한 톤
+      // 기계적인 딱딱함을 줄이기 위해 속도를 살짝 낮추고 톤을 안정적으로 조율
+      utter.rate = 0.90;  // 0.90 ~ 0.93: 백화점/병원 안내방송 특유의 편안하고 자연스러운 속도
+      utter.pitch = 1.0;  // 1.0: 기계음처럼 가늘어지지 않는 자연스러운 성우 톤
       window.speechSynthesis.speak(utter);
     });
   } catch (e) {
