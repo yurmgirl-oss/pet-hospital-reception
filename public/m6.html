@@ -651,15 +651,13 @@ function deleteQrItem(key){
 // 📢 긴급공지 문구 프리셋 관리 (저장, 선택, 삭제)
 // ========================================================
 const DEFAULT_PRESETS = [
+  "📱 [접수안내] 안녕하세요. 어서오세요. 진료를 원하시면 QR코드로 접수해 주시기 바랍니다. 어려우시면 직원을 호출해 주세요.",
   "🚨 응급 수술 진행 중입니다. 잠시만 대기해 주세요.",
   "⏳ 잠시 자리를 비웁니다. 곧 돌아오겠습니다.",
   "🍱 직원 식사 및 휴게 시간입니다. (문의는 벨을 눌러주세요)",
   "⚠️ 응급 환자 처치로 인해 진료가 일시 지연되고 있습니다.",
   "🩺 지금은 원내 소독 및 준비 시간입니다."
-];
-
-function getSavedPresets() {
-  const saved = localStorage.getItem("m6_notice_presets");
+];ce_presets");
   if (!saved) return DEFAULT_PRESETS;
   try {
     const parsed = JSON.parse(saved);
