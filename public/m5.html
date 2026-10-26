@@ -446,6 +446,9 @@ footer {
       <div class="clockbox">
         <div class="clock-text" id="clock-display">2026년 00월 00일(토) 00:00:00</div>
       </div>
+      <div id="audio-unlock-hint" onclick="unlockAudio()" style="cursor:pointer; background:#fef3c7; border:2px solid #f59e0b; color:#b45309; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:900; display:flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1); animation:pulseTreat 1.5s infinite;">
+        <span>🔊</span><span>음성안내 켜기(클릭)</span>
+      </div>
     </div>
   </header>
 
@@ -547,6 +550,141 @@ function make(tag, cls, txt){
   return e;
 }
 
+
+/* ========================================================
+   [음성 안내 시스템: 차임벨 + 환자 호출 + 휴식/긴급공지 반복]
+   ======================================================== */
+let audioUnlocked = false;
+let audioContext = null;
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+  try {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+  } catch(e){}
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.resume();
+  }
+  audioUnlocked = true;
+  const hint = document.getElementById("audio-unlock-hint");
+  if (hint) hint.style.display = "none";
+}
+window.addEventListener("click", unlockAudio, { once: true });
+window.addEventListener("touchstart", unlockAudio, { once: true });
+
+// 띵동 차임벨 효과음
+function playChime(callback) {
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    const now = audioContext.currentTime;
+
+    // 솔(G5: 784Hz) -> 미(E5: 659Hz) 차임벨
+    const osc1 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    osc1.frequency.setValueAtTime(783.99, now);
+    gain1.gain.setValueAtTime(0.18, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+    osc1.connect(gain1);
+    gain1.connect(audioContext.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.42);
+
+    const osc2 = audioContext.createOscillator();
+    const gain2 = audioContext.createGain();
+    osc2.frequency.setValueAtTime(659.25, now + 0.22);
+    gain2.gain.setValueAtTime(0.22, now + 0.22);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+    osc2.connect(gain2);
+    gain2.connect(audioContext.destination);
+    osc2.start(now + 0.22);
+    osc2.stop(now + 0.75);
+
+    setTimeout(() => { if (callback) callback(); }, 750);
+  } catch (e) {
+    if (callback) callback();
+  }
+}
+
+// 한국어 TTS 발화
+function speakVoice(text) {
+  if (!('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    playChime(() => {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'ko-KR';
+      utter.rate = 0.95;  // 전달력 높은 템포
+      utter.pitch = 1.05; // 부드럽고 친절한 톤
+      window.speechSynthesis.speak(utter);
+    });
+  } catch (e) {
+    console.warn("음성 합성 오류:", e);
+  }
+}
+
+// 1. 환자 진료실 입장 호출 제어 (중복 호출 방지용 Set)
+const announcedTreatingPatients = new Set();
+let isInitialVoiceLoad = true;
+
+function checkPatientCall(activeList) {
+  // activeList: 현재 '진료중' 상태인 환자 목록
+  const currentTreating = activeList.filter(item => item.status === "진료중");
+  
+  currentTreating.forEach(p => {
+    const pKey = `${p.type || ''}_${p.key || p.id}_${p.name}`;
+    if (!announcedTreatingPatients.has(pKey)) {
+      announcedTreatingPatients.add(pKey);
+      // 첫 로드 시 바로 소리치는 것을 방지하고 이후 변경될 때 호출
+      if (!isInitialVoiceLoad) {
+        speakVoice(`고객 ${p.name} 진료실로 들어오실게요.`);
+      }
+    }
+  });
+
+  // 진료 완료 등으로 빠진 환자는 호출 기록에서 제거 (재입장 가능하도록)
+  const currentKeys = new Set(currentTreating.map(p => `${p.type || ''}_${p.key || p.id}_${p.name}`));
+  announcedTreatingPatients.forEach(k => {
+    if (!currentKeys.has(k)) announcedTreatingPatients.delete(k);
+  });
+
+  isInitialVoiceLoad = false;
+}
+
+// 2. 휴식시간 / 점심시간 / 긴급공지 자동 반복 안내
+let urgentVoiceInterval = null;
+let currentUrgentVoiceText = "";
+
+function handleUrgentVoice(un) {
+  if (un && un.active && un.text) {
+    const text = un.text.trim();
+    if (currentUrgentVoiceText !== text) {
+      currentUrgentVoiceText = text;
+      // 첫 멘트 송출
+      speakVoice(`안내 말씀 드립니다. ${text}`);
+      
+      // 2분마다 리마인드 반복 방송
+      if (urgentVoiceInterval) clearInterval(urgentVoiceInterval);
+      urgentVoiceInterval = setInterval(() => {
+        speakVoice(`안내 말씀 드립니다. ${text}`);
+      }, 120000);
+    }
+  } else {
+    if (urgentVoiceInterval) {
+      clearInterval(urgentVoiceInterval);
+      urgentVoiceInterval = null;
+    }
+    currentUrgentVoiceText = "";
+  }
+}
+
 function handleUrgentNotice(un){
   if(un && un.active && un.text){
     urgentModalText.textContent = un.text;
@@ -554,6 +692,7 @@ function handleUrgentNotice(un){
   } else {
     urgentModal.style.display = "none";
   }
+  handleUrgentVoice(un);
 }
 
 function createRow(displayNum, regTime, petName, category, status){
@@ -633,6 +772,19 @@ function render(qrItems, serverState){
       listNormalEl.append(createRow(31 + idx, item.time || "", item.petName, item.category, item.status));
     });
   }
+
+  // 진료실 호출 음성 감지
+  const allTreating = [];
+  activeQr.forEach(item => {
+    const key = String(item.id ?? item.reception_id ?? "");
+    const status = qrStatuses[key] || item.status || "접수대기";
+    const name = safeText(item.pet_name || item.animal_name || "");
+    allTreating.push({ type: "qr", key, name, status });
+  });
+  activeManual.forEach((item, idx) => {
+    allTreating.push({ type: "manual", key: String(item.id || idx), name: item.petName, status: item.status });
+  });
+  checkPatientCall(allTreating);
 }
 
 async function refresh(){
