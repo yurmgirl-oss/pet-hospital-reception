@@ -133,7 +133,6 @@
     font-weight: 800;
     font-size: 13px;
     cursor: pointer;
-    transition: background 0.15s;
   }
   .btn-add:hover { background: #1d4ed8; }
 
@@ -143,7 +142,6 @@
   
   tr.row-done { background: #f8fafc; opacity: 0.75; }
   tr.row-done td { color: #64748b; }
-  tr.row-reserve { background: #fffbeb; }
 
   .time-badge {
     font-size: 11px;
@@ -190,7 +188,7 @@
     cursor: pointer;
   }
   .status-wait { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
-  .status-reserve { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; } /* 📅 예약대기 스타일 */
+  .status-reserve { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
   .status-treat { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
   .status-done { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
   .status-delete { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
@@ -204,9 +202,30 @@
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.15s;
   }
   .btn-del:hover { background: #dc2626; }
+
+  .btn-restore {
+    background: #059669;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .btn-restore:hover { background: #047857; }
+
+  /* 📅 예약대기 보관함 카드 디자인 */
+  .reserve-card {
+    border: 2px solid #fde68a;
+    background: #fffdf5;
+  }
+  .reserve-card h2 {
+    color: #b45309;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -230,7 +249,7 @@
     </div>
   </div>
 
-  <!-- [2] 일반예약 등록 -->
+  <!-- [2] 일반예약 직접 등록 -->
   <div class="card">
     <h2>
       <span>🏥 일반예약 직접 등록 <span class="badge-range">31번대</span></span>
@@ -270,7 +289,7 @@
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
-      <span class="auto-notice">⚡ 변경 시 키오스크 및 현황판 실시간 반영</span>
+      <span class="auto-notice">⚡ 오늘 내원/대기 환자 목록</span>
     </h2>
     <table id="table-qr">
       <thead>
@@ -288,12 +307,52 @@
     </table>
   </div>
 
+  <!-- [4] 📅 예약대기 보관함 -->
+  <div class="card reserve-card">
+    <h2 onclick="toggleReserveBox()">
+      <span>📅 예약대기 보관함 (<span id="reserve-count">0</span>마리 보관 중) <span style="font-size:12px; font-weight:normal; color:#78350f;">[클릭하여 접기/펼치기]</span></span>
+      <span style="font-size:11px; color:#b45309; font-weight:800;">💡 m5 현황판에는 안 보이며, 내원 시 [대기 복귀]를 누르시면 됩니다.</span>
+    </h2>
+    <div id="reserve-box-content">
+      <table id="table-reserve">
+        <thead>
+          <tr style="background:#fef3c7;">
+            <th>구분</th>
+            <th>접수/등록시각</th>
+            <th>동물명</th>
+            <th>진료분류</th>
+            <th>진료상태</th>
+            <th>내원 시 조치</th>
+            <th>완전삭제</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
 <script>
 const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
 const CATEGORIES = ["일반진료", "예방접종", "건강검진", "처치수술", "상담처방", "내복약조제", "특수동물진료"];
 
-let isUserInputting = false;
+// 🛡️ [핵심 방어 로직] 사용자가 메뉴나 텍스트를 조작 중인지 감지하는 전역 플래그
+let isUserInteracting = false;
+
+// 페이지 내 모든 input, select에 조작 감지 이벤트 자동 연결
+document.addEventListener("focusin", (e) => {
+  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") {
+    isUserInteracting = true;
+  }
+});
+document.addEventListener("focusout", (e) => {
+  if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") {
+    // 포커스가 빠져나간 뒤 0.5초 후 렌더링 잠금 해제
+    setTimeout(() => {
+      isUserInteracting = false;
+    }, 500);
+  }
+});
 
 let GlobalState = {
   manualBookings: [],
@@ -322,7 +381,7 @@ function buildTimerBadge(key, startTime, status, endTime){
     return `<span class="timer-badge timer-finished" id="timer-${key}">🏁 ${getElapsedText(startTime, endTime)}</span>`;
   }
   if(status === "예약대기"){
-    return `<span class="timer-badge" id="timer-${key}" style="color:#b45309; background:#fffbeb;">📅 예약보관</span>`;
+    return `<span class="timer-badge" id="timer-${key}" style="color:#b45309; background:#fffbeb;">📅 보관</span>`;
   }
   if(status !== "진료중" || !startTime){
     return `<span class="timer-badge" id="timer-${key}">대기중</span>`;
@@ -337,7 +396,7 @@ function getStatusClass(status){
   return "status-wait";
 }
 
-// 1초마다 실시간 타이머 UI 갱신
+// 1초 타이머 갱신 (테이블을 다시 그리지 않고 타이머 글자만 조용히 변경)
 setInterval(() => {
   const list = GlobalState.manualBookings || [];
   list.forEach(item => {
@@ -357,7 +416,6 @@ setInterval(() => {
   });
 }, 1000);
 
-// 서버 동기화 함수
 async function pushStateToServer(partialState){
   GlobalState = { ...GlobalState, ...partialState };
   try {
@@ -379,7 +437,9 @@ async function fetchStateFromServer(){
       const data = await res.json();
       GlobalState = { ...GlobalState, ...data };
       updateUrgentUI();
-      if(!isUserInputting) {
+
+      // 🛡️ 사용자가 드롭다운을 조작 중이거나 글을 입력 중일 때는 화면 덮어쓰기 건너뛰기!
+      if (!isUserInteracting) {
         renderManualTable();
         loadQrList();
       }
@@ -399,7 +459,6 @@ function notifyLocalFrames(){
   } catch(e){}
 }
 
-// 긴급 공지 제어
 function setUrgentQuick(text){
   document.getElementById("urgent-text").value = text;
 }
@@ -428,7 +487,11 @@ function updateUrgentUI(){
   }
 }
 
-// 일반 예약 로직
+function toggleReserveBox(){
+  const box = document.getElementById("reserve-box-content");
+  box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
 function addManualBooking(){
   const name = document.getElementById("m-name").value.trim();
   const category = document.getElementById("m-category").value;
@@ -451,6 +514,7 @@ function addManualBooking(){
 }
 
 function updateManualStatus(id, newStatus){
+  isUserInteracting = false; // 선택 완료 시 잠금 즉시 해제
   if(newStatus === "자료삭제"){
     deleteManualBooking(id);
     return;
@@ -472,9 +536,11 @@ function updateManualStatus(id, newStatus){
   });
   pushStateToServer({ manualBookings: list });
   renderManualTable();
+  renderReserveTable();
 }
 
 function updateManualCategory(id, newCat){
+  isUserInteracting = false;
   const list = (GlobalState.manualBookings || []).map(item => {
     if(item.id === id) item.category = newCat;
     return item;
@@ -486,23 +552,23 @@ function deleteManualBooking(id){
   const list = (GlobalState.manualBookings || []).filter(item => item.id !== id);
   pushStateToServer({ manualBookings: list });
   renderManualTable();
+  renderReserveTable();
 }
 
 function renderManualTable(){
-  if(isUserInputting) return;
-  const list = GlobalState.manualBookings || [];
+  if(isUserInteracting) return;
+  const list = (GlobalState.manualBookings || []).filter(item => item.status !== "예약대기");
   const tbody = document.querySelector("#table-manual tbody");
   tbody.innerHTML = "";
 
   if(!list.length){
-    tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">등록된 일반예약이 없습니다.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">현재 대기 중인 일반예약이 없습니다.</td></tr>`;
     return;
   }
 
   list.forEach((item, idx) => {
     const tr = document.createElement("tr");
     if(item.status === "진료완료") tr.className = "row-done";
-    if(item.status === "예약대기") tr.className = "row-reserve";
 
     let catOpts = CATEGORIES.map(c => `<option value="${c}" ${item.category===c?'selected':''}>${c}</option>`).join("");
     
@@ -516,7 +582,7 @@ function renderManualTable(){
         <select class="status-select ${getStatusClass(item.status)}" 
                 onchange="updateManualStatus(${item.id}, this.value)">
           <option value="접수대기" ${item.status === '접수대기' ? 'selected' : ''}>접수대기</option>
-          <option value="예약대기" ${item.status === '예약대기' ? 'selected' : ''}>📅 예약대기</option>
+          <option value="예약대기" ${item.status === '예약대기' ? 'selected' : ''}>📅 예약대기 (보관)</option>
           <option value="진료중" ${item.status === '진료중' ? 'selected' : ''}>진료중</option>
           <option value="진료완료" ${item.status === '진료완료' ? 'selected' : ''}>진료완료</option>
           <option value="자료삭제" class="status-delete">자료삭제</option>
@@ -528,13 +594,13 @@ function renderManualTable(){
   });
 }
 
-// QR 접수 로직
+let rawQrItems = [];
 async function loadQrList(){
-  if(isUserInputting) return;
+  if(isUserInteracting) return;
   try {
     const res = await fetch(RECEPTION_API, { cache: "no-store" });
     const receptions = res.ok ? await res.json() : [];
-    const items = Array.isArray(receptions) ? receptions : (receptions.items || []);
+    rawQrItems = Array.isArray(receptions) ? receptions : (receptions.items || []);
 
     const categories = GlobalState.categories || {};
     const statuses = GlobalState.qrStatuses || {};
@@ -544,63 +610,64 @@ async function loadQrList(){
     const tbody = document.querySelector("#table-qr tbody");
     if(!tbody) return;
 
-    const activeList = items.filter(i => {
+    const activeList = rawQrItems.filter(i => {
       const k = String(i.id ?? i.reception_id ?? "");
       if(deleted.includes(k)) return false;
       const st = statuses[k] || i.status || "접수대기";
-      return st !== "자료삭제" && !["취소", "종료"].includes(st);
+      return st !== "자료삭제" && st !== "예약대기" && !["취소", "종료"].includes(st);
     });
 
     if(!activeList.length){
-      tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.</td></tr>`;
-      return;
+      tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">현재 대기 중인 QR접수가 없습니다.</td></tr>`;
+    } else {
+      tbody.innerHTML = "";
+      activeList.forEach((item, idx) => {
+        const key = String(item.id ?? item.reception_id ?? "");
+        const currentCat = categories[key] || "일반진료";
+        const currentStatus = statuses[key] || item.status || "접수대기";
+        const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
+        const timerData = qrTimers[key] || {};
+
+        const tr = document.createElement("tr");
+        if(currentStatus === "진료완료") tr.className = "row-done";
+
+        let catOptions = CATEGORIES.map(c => `<option value="${c}" ${currentCat === c ? "selected" : ""}>${c}</option>`).join("");
+
+        tr.innerHTML = `
+          <td style="font-weight:900; color:#0369a1;">${21 + idx}</td>
+          <td><span class="time-badge">${regTime}</span></td>
+          <td style="font-weight:900; font-size:13px;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
+          <td><select onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
+          <td>${buildTimerBadge(`qr-${key}`, timerData.start, currentStatus, timerData.end)}</td>
+          <td>
+            <select class="status-select ${getStatusClass(currentStatus)}"
+                    onchange="saveQrStatus('${key}', this.value)">
+              <option value="접수대기" ${currentStatus === '접수대기' ? 'selected' : ''}>접수대기</option>
+              <option value="예약대기" ${currentStatus === '예약대기' ? 'selected' : ''}>📅 예약대기 (보관)</option>
+              <option value="진료중" ${currentStatus === '진료중' ? 'selected' : ''}>진료중</option>
+              <option value="진료완료" ${currentStatus === '진료완료' ? 'selected' : ''}>진료완료</option>
+              <option value="자료삭제" class="status-delete">자료삭제</option>
+            </select>
+          </td>
+          <td><button class="btn-del" onclick="deleteQrItem('${key}')">삭제</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    tbody.innerHTML = "";
-
-    activeList.forEach((item, idx) => {
-      const key = String(item.id ?? item.reception_id ?? "");
-      const currentCat = categories[key] || "일반진료";
-      const currentStatus = statuses[key] || item.status || "접수대기";
-      const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
-      const timerData = qrTimers[key] || {};
-
-      const tr = document.createElement("tr");
-      if(currentStatus === "진료완료") tr.className = "row-done";
-      if(currentStatus === "예약대기") tr.className = "row-reserve";
-
-      let catOptions = CATEGORIES.map(c => `<option value="${c}" ${currentCat === c ? "selected" : ""}>${c}</option>`).join("");
-
-      tr.innerHTML = `
-        <td style="font-weight:900; color:#0369a1;">${21 + idx}</td>
-        <td><span class="time-badge">${regTime}</span></td>
-        <td style="font-weight:900; font-size:13px;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
-        <td><select onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
-        <td>${buildTimerBadge(`qr-${key}`, timerData.start, currentStatus, timerData.end)}</td>
-        <td>
-          <select class="status-select ${getStatusClass(currentStatus)}"
-                  onchange="saveQrStatus('${key}', this.value)">
-            <option value="접수대기" ${currentStatus === '접수대기' ? 'selected' : ''}>접수대기</option>
-            <option value="예약대기" ${currentStatus === '예약대기' ? 'selected' : ''}>📅 예약대기</option>
-            <option value="진료중" ${currentStatus === '진료중' ? 'selected' : ''}>진료중</option>
-            <option value="진료완료" ${currentStatus === '진료완료' ? 'selected' : ''}>진료완료</option>
-            <option value="자료삭제" class="status-delete">자료삭제</option>
-          </select>
-        </td>
-        <td><button class="btn-del" onclick="deleteQrItem('${key}')">삭제</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
+    renderReserveTable();
   } catch(e){}
 }
 
 function saveQrCategory(key, val){
+  isUserInteracting = false;
   const cats = { ...(GlobalState.categories || {}) };
   cats[key] = val;
   pushStateToServer({ categories: cats });
 }
 
 function saveQrStatus(key, val){
+  isUserInteracting = false;
   if(val === "자료삭제"){
     deleteQrItem(key);
     return;
@@ -626,14 +693,67 @@ function saveQrStatus(key, val){
 }
 
 function deleteQrItem(key){
-  if(!confirm("이 접수 건을 목록에서 완전히 삭제하시겠습니까?")) return;
+  if(!confirm("이 접수 건을 완전히 삭제하시겠습니까?")) return;
   const dels = [...(GlobalState.qrDeleted || [])];
   if(!dels.includes(key)) dels.push(key);
   pushStateToServer({ qrDeleted: dels });
   loadQrList();
 }
 
-// 3초 주기 서버 동기화
+function renderReserveTable(){
+  const tbody = document.querySelector("#table-reserve tbody");
+  tbody.innerHTML = "";
+
+  const statuses = GlobalState.qrStatuses || {};
+  const categories = GlobalState.categories || {};
+  const deleted = GlobalState.qrDeleted || [];
+
+  const reservedQr = (rawQrItems || []).filter(i => {
+    const k = String(i.id ?? i.reception_id ?? "");
+    return !deleted.includes(k) && statuses[k] === "예약대기";
+  });
+
+  const reservedManual = (GlobalState.manualBookings || []).filter(i => i.status === "예약대기");
+
+  const totalCount = reservedQr.length + reservedManual.length;
+  document.getElementById("reserve-count").textContent = totalCount;
+
+  if(!totalCount){
+    tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:12px;">현재 보관함에 보관 중인 예약 환자가 없습니다.</td></tr>`;
+    return;
+  }
+
+  reservedQr.forEach(item => {
+    const k = String(item.id ?? item.reception_id ?? "");
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><span style="color:#0369a1; font-weight:800;">📱 QR사전</span></td>
+      <td><span class="time-badge">${formatTime(item.created_at || item.createdAt)}</span></td>
+      <td style="font-weight:900;">${item.pet_name || item.animal_name}</td>
+      <td>${categories[k] || "일반진료"}</td>
+      <td><span class="status-select status-reserve">📅 예약대기</span></td>
+      <td><button class="btn-restore" onclick="saveQrStatus('${k}', '접수대기')">🐾 내원함 (대기 복귀)</button></td>
+      <td><button class="btn-del" onclick="deleteQrItem('${k}')">삭제</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  reservedManual.forEach(item => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><span style="color:#b45309; font-weight:800;">🏥 일반현장</span></td>
+      <td><span class="time-badge">${item.time || formatTime()}</span></td>
+      <td style="font-weight:900;">${item.petName}</td>
+      <td>${item.category || "일반진료"}</td>
+      <td><span class="status-select status-reserve">📅 예약대기</span></td>
+      <td><button class="btn-restore" onclick="updateManualStatus(${item.id}, '접수대기')">🐾 내원함 (대기 복귀)</button></td>
+      <td><button class="btn-del" onclick="deleteManualBooking(${item.id})">삭제</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ⏱️ 3초 주기 자동 동기화 (입력 중일 땐 렌더링 건너뜀)
 fetchStateFromServer();
 setInterval(fetchStateFromServer, 3000);
 </script>
