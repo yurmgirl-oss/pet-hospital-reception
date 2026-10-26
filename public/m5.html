@@ -703,20 +703,22 @@ function announcePatientCall(petName) {
     utter.rate = 0.90;
     utter.pitch = 1.0;
 
-    // 2. 동물 이름 부른 직후 준비된 MP3 파일("진료실로 들어오실게요") 재생
+    // 2. 동물 이름 부른 직후 준비된 MP3 파일("로진료실.mp3" - 진료실로 천천히 들어오실게요) 재생
     utter.onend = () => {
       const callMp3Candidates = [
+        "로진료실.mp3",
+        "/audio/로진료실.mp3",
+        "/로진료실.mp3",
         "진료실안내.mp3",
         "진료실로들어오실게요.mp3",
         "진료실.mp3",
         "enter_room.mp3",
         "/audio/진료실안내.mp3",
-        "/audio/진료실로들어오실게요.mp3",
-        "/audio/enter_room.mp3"
+        "/audio/진료실로들어오실게요.mp3"
       ];
       playFirstAvailableAudio(callMp3Candidates, () => {
-        // 서버에 아직 mp3 파일이 업로드되지 않았을 때의 안전한 TTS 자동 대체
-        const tailUtter = new SpeechSynthesisUtterance("진료실로 들어오실게요.");
+        // 서버에 파일이 없을 경우 대비 안전한 TTS 자동 대체
+        const tailUtter = new SpeechSynthesisUtterance("진료실로 천천히 들어오실게요.");
         if (bestVoice) tailUtter.voice = bestVoice;
         tailUtter.lang = 'ko-KR';
         tailUtter.rate = 0.90;
