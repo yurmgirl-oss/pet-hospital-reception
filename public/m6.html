@@ -190,7 +190,7 @@
     cursor: pointer;
   }
   .status-wait { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
-  .status-reserve { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; } /* 📅 예약대기 스타일 */
+  .status-reserve { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
   .status-treat { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
   .status-done { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
   .status-delete { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
@@ -646,7 +646,6 @@ function deleteQrItem(key){
   loadQrList();
 }
 
-
 // ========================================================
 // 📢 긴급공지 문구 프리셋 관리 (저장, 선택, 삭제)
 // ========================================================
@@ -657,11 +656,22 @@ const DEFAULT_PRESETS = [
   "🍱 직원 식사 및 휴게 시간입니다. (문의는 벨을 눌러주세요)",
   "⚠️ 응급 환자 처치로 인해 진료가 일시 지연되고 있습니다.",
   "🩺 지금은 원내 소독 및 준비 시간입니다."
-];ce_presets");
+];
+
+function getSavedPresets() {
+  const guidePreset = "📱 [접수안내] 안녕하세요. 어서오세요. 진료를 원하시면 QR코드로 접수해 주시기 바랍니다. 어려우시면 직원을 호출해 주세요.";
+  const saved = localStorage.getItem("m6_notice_presets");
   if (!saved) return DEFAULT_PRESETS;
   try {
-    const parsed = JSON.parse(saved);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_PRESETS;
+    let parsed = JSON.parse(saved);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      if (!parsed.some(p => p.includes("QR코드로 접수해 주시기 바랍니다"))) {
+        parsed.unshift(guidePreset);
+        localStorage.setItem("m6_notice_presets", JSON.stringify(parsed));
+      }
+      return parsed;
+    }
+    return DEFAULT_PRESETS;
   } catch(e) {
     return DEFAULT_PRESETS;
   }
@@ -674,7 +684,7 @@ function renderPresetsUI() {
   
   if (select) {
     select.innerHTML = '<option value="">-- 자주 쓰는 공지문 선택 --</option>';
-    presets.forEach((text, idx) => {
+    presets.forEach((text) => {
       const opt = document.createElement("option");
       opt.value = text;
       opt.textContent = text.length > 30 ? text.substring(0, 30) + "..." : text;
@@ -688,7 +698,7 @@ function renderPresetsUI() {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "quick-btn";
-      const shortText = text.replace(/^[🚨⏳🍱⚠️🩺\s]+/, "").substring(0, 10);
+      const shortText = text.replace(/^[📱🚨⏳🍱⚠️🩺\s]+/, "").substring(0, 10);
       btn.textContent = text.substring(0, 2) + " " + shortText;
       btn.title = text;
       btn.onclick = () => setUrgentQuick(text);
@@ -723,7 +733,6 @@ function saveCurrentPreset() {
   localStorage.setItem("m6_notice_presets", JSON.stringify(presets));
   renderPresetsUI();
 
-  // 방금 저장한 항목을 셀렉트박스에서 선택 상태로 유지
   const select = document.getElementById("preset-select");
   if (select) select.value = text;
   alert("새 공지 문구가 목록에 저장되었습니다!");
