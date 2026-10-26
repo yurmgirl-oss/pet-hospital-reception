@@ -670,6 +670,8 @@ function announcePatientCall(petName) {
   if (!petName) return;
 
   playChime(() => {
+    // 차임벨이 끝난 뒤 1초 쉬었다가 동물 이름을 호출
+    setTimeout(() => {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
 
@@ -696,6 +698,7 @@ function announcePatientCall(petName) {
     };
 
     window.speechSynthesis.speak(utter);
+    }, 1000);
   });
 }
 
