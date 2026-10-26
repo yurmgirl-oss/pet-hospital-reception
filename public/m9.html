@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23시 하단오거리 동물병원 · 통합 관제 포털 (m9 테스트)</title>
+<style>
+  :root {
+    --header-bg: #12382e;
+    --bar-border: #1e5244;
+    --panel-header: #1c4d3f;
+    --text-light: #e6f7ee;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    background: #091c17;
+    color: #fff;
+  }
+
+  /* 최상단 마스터 컨트롤 바 */
+  .top-control {
+    height: 48px;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--bar-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+  .top-control .brand-title {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #bbf7d0;
+  }
+
+  /* 중간/우측 화면 전환 탭 버튼 그룹 */
+  .view-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px;
+    border-radius: 10px;
+  }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #cbd5e1;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .tab-btn.active {
+    background: #10b84f;
+    color: #fff;
+    border-color: #34d399;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .btn-all-refresh {
+    background: #047857;
+    color: #fff;
+    border: 1px solid #059669;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.15s;
+  }
+  .btn-all-refresh:hover { background: #065f46; }
+
+  /* 메인 레이아웃: 좌측 30% 고정 + 우측 70% 전환 영역 */
+  .main-container {
+    display: grid;
+    grid-template-columns: 3fr 7fr;
+    height: calc(100% - 48px);
+    width: 100%;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  /* 패널 공통 */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #1e5244;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  }
+  .panel-header {
+    height: 38px;
+    background: var(--panel-header);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .panel-title {
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .p-btn {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .p-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+  .panel-body {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: #f8fafc;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* M5(40%) + M6(30%) 듀얼 서브그리드 */
+  .dual-subgrid {
+    display: grid;
+    grid-template-columns: 4fr 3fr;
+    width: 100%;
+    height: 100%;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 최상단 마스터 제어 바 -->
+  <header class="top-control">
+    <div class="brand-title">
+      🐾 23시 하단오거리 동물병원 · 통합 멀티 관제 포털 (m9)
+    </div>
+
+    <!-- 중앙/우측 전환 탭 -->
+    <div class="view-tabs">
+      <button class="tab-btn active" id="tab-m3" onclick="switchRightView('m3_duo')">1️⃣ M5 대기판 + M6 관리 (F1)</button>
+      <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 시스템 (F2)</button>
+      <button class="tab-btn" id="tab-focus" onclick="switchRightView('focus')">3️⃣ 📋 집중관리 챠트 (F3)</button>
+    </div>
+
+    <div>
+      <button class="btn-all-refresh" onclick="refreshAllFrames()">🔄 전체 새로고침</button>
+    </div>
+  </header>
+
+  <!-- 메인 분할 영역 -->
+  <main class="main-container">
+
+    <!-- [창 1: 좌측 30% 항상 고정] M3의 검증된 정상 카운터 접수현황판 -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 원내 접수 현황판 (M3 고정)</div>
+        <div>
+          <button class="p-btn" onclick="document.getElementById('frame-desk').contentWindow.location.reload()">새로고침</button>
+          <button class="p-btn" onclick="window.open('/desk.html', '_blank')">새창</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <iframe id="frame-desk" src="/desk.html"></iframe>
+      </div>
+    </section>
+
+    <!-- [중간 + 우측 70% 영역: 탭에 따라 스위칭] -->
+    <section id="right-work-area" style="width: 100%; height: 100%;">
+      
+      <!-- 1번 뷰: M5 대기판(40%) + M6 접수관리(30%) -->
+      <div id="view-m3-duo" class="dual-subgrid" style="display: grid;">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🐾 [창 2] m5 접수 대기판</div>
+            <button class="p-btn" onclick="document.getElementById('frame-m5').contentWindow.location.reload()">새로고침</button>
+          </div>
+          <div class="panel-body">
+            <iframe id="frame-m5" src="/m5.html"></iframe>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🩺 [창 3] m6 접수 관리</div>
+            <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
+          </div>
+          <div class="panel-body">
+            <iframe id="frame-m6" src="/m6.html"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2번 뷰: 복약관리 입력 + A4 실시간 출력창 (M1 연동) -->
+      <div id="view-medication" class="panel" style="width: 100%; height: 100%; display: none;">
+        <div class="panel-header">
+          <div class="panel-title">💊 복약관리 시스템 & 실시간 출력 미리보기</div>
+          <button class="p-btn" onclick="document.getElementById('frame-med').contentWindow.location.reload()">새로고침</button>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-med" src="/m1.html"></iframe>
+        </div>
+      </div>
+
+      <!-- 3번 뷰: 집중관리 & 만성챠트 -->
+      <div id="view-focus" class="panel" style="width: 100%; height: 100%; display: none;">
+        <div class="panel-header">
+          <div class="panel-title">📋 중환자 집중관리 및 만성처방 챠트</div>
+          <button class="p-btn" onclick="document.getElementById('frame-focus').contentWindow.location.reload()">새로고침</button>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-focus" src="/m1.html"></iframe>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    // 화면 전환 함수
+    function switchRightView(viewMode) {
+      document.getElementById('view-m3-duo').style.display = 'none';
+      document.getElementById('view-medication').style.display = 'none';
+      document.getElementById('view-focus').style.display = 'none';
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      if (viewMode === 'm3_duo') {
+        document.getElementById('view-m3-duo').style.display = 'grid';
+        document.getElementById('tab-m3').classList.add('active');
+      } else if (viewMode === 'medication') {
+        document.getElementById('view-medication').style.display = 'flex';
+        document.getElementById('tab-med').classList.add('active');
+        const medFrame = document.getElementById('frame-med');
+        if (medFrame && medFrame.contentWindow) {
+          medFrame.contentWindow.postMessage({ type: 'show-initial-screen' }, '*');
+        }
+      } else if (viewMode === 'focus') {
+        document.getElementById('view-focus').style.display = 'flex';
+        document.getElementById('tab-focus').classList.add('active');
+        const focusFrame = document.getElementById('frame-focus');
+        if (focusFrame && focusFrame.contentWindow) {
+          focusFrame.contentWindow.postMessage({ type: 'show-focus-expanded' }, '*');
+        }
+      }
+    }
+
+    // 모든 창 일괄 새로고침
+    function refreshAllFrames() {
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(f => {
+        try { f.contentWindow.location.reload(); } catch(e){}
+      });
+    }
+
+    // 진료실용 원터치 단축키 (F1: M3 대기/관리, F2: 복약지도, F3: 집중차트)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F1') { e.preventDefault(); switchRightView('m3_duo'); }
+      if (e.key === 'F2') { e.preventDefault(); switchRightView('medication'); }
+      if (e.key === 'F3') { e.preventDefault(); switchRightView('focus'); }
+    });
+  </script>
+</body>
+</html>
