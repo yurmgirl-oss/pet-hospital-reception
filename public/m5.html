@@ -697,18 +697,39 @@ function checkPatientCall(activeList) {
 let urgentVoiceInterval = null;
 let currentUrgentVoiceText = "";
 
+// 공지문 음성/MP3 재생 통합 지원
+function playNoticeAudioOrSpeech(rawText) {
+  // 접수안내 등 괄호 태그 및 이모지 제거하여 음성 발음 자연스럽게 정제
+  const cleanText = rawText.replace(/^[📱🚨⏳🍱⚠️🩺\s]*\[[^\]]+\]\s*/, "").trim();
+
+  // 만약 서버에 reception_guide.mp3 등 전용 녹음 파일이 있을 경우 파일 우선 재생 시도
+  if (rawText.includes("QR코드로 접수") || rawText.includes("접수안내")) {
+    const audio = new Audio("/audio/reception_guide.mp3");
+    audio.play().then(() => {
+      // mp3 재생 성공
+    }).catch(() => {
+      // mp3 파일이 없거나 브라우저 정책 시 자연스러운 TTS 음성으로 자동 대체
+      speakVoice(cleanText);
+    });
+    return;
+  }
+
+  // 일반 공지문 발화
+  speakVoice(`안내 말씀 드립니다. ${cleanText}`);
+}
+
 function handleUrgentVoice(un) {
   if (un && un.active && un.text) {
     const text = un.text.trim();
     if (currentUrgentVoiceText !== text) {
       currentUrgentVoiceText = text;
-      // 첫 멘트 송출
-      speakVoice(`안내 말씀 드립니다. ${text}`);
+      // 첫 멘트 즉시 송출
+      playNoticeAudioOrSpeech(text);
       
       // 2분마다 리마인드 반복 방송
       if (urgentVoiceInterval) clearInterval(urgentVoiceInterval);
       urgentVoiceInterval = setInterval(() => {
-        speakVoice(`안내 말씀 드립니다. ${text}`);
+        playNoticeAudioOrSpeech(text);
       }, 120000);
     }
   } else {
