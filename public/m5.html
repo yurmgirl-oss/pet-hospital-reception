@@ -449,6 +449,7 @@ footer {
       <div id="audio-unlock-hint" onclick="unlockAudio()" style="cursor:pointer; background:#fef3c7; border:2px solid #f59e0b; color:#b45309; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:900; display:flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1); animation:pulseTreat 1.5s infinite;">
         <span>🔊</span><span>음성안내 켜기(클릭)</span>
       </div>
+      <button id="audio-test-button" type="button" onclick="testReceptionVoice()" style="cursor:pointer;background:#dcfce7;border:2px solid #16a34a;color:#166534;padding:7px 12px;border-radius:12px;font-size:12px;font-weight:900;">🔔 방송 테스트</button>
     </div>
   </header>
 
@@ -670,6 +671,14 @@ let receptionAnnouncementInitialized = false;
 const pendingReceptionAnnouncements = [];
 let receptionSpeechBusy = false;
 
+function testReceptionVoice() {
+  // 버튼 클릭은 브라우저 음성 재생을 허용하는 사용자 동작으로 처리됩니다.
+  unlockAudio();
+  pendingReceptionAnnouncements.length = 0;
+  receptionSpeechBusy = false;
+  playReceptionAnnouncement("음성안내 테스트");
+}
+
 function announceReceptionRegistered(petName) {
   const name = safeText(petName).trim();
   if (!name) return;
@@ -722,7 +731,7 @@ function checkNewReceptionAnnouncements(qrItems, manualBookings, qrStatuses) {
     const rawKey = item.id ?? item.reception_id;
     if (rawKey == null) return;
     const key = String(rawKey);
-    const status = String((qrStatuses && qrStatuses[key]) || item.status || "접수대기");
+    const status = String((qrStatuses && qrStatuses[key]) || item.status || "접수대기").replace(/\s+/g, "").trim();
     if (["자료삭제", "취소", "종료", "완료", "진료완료", "예약대기"].includes(status)) return;
     current.set(`qr_${key}`, {
       name: safeText(item.pet_name || item.animal_name || "이름 미입력"),
@@ -736,7 +745,7 @@ function checkNewReceptionAnnouncements(qrItems, manualBookings, qrStatuses) {
     const key = `manual_${String(item.id)}`;
     current.set(key, {
       name: safeText(item.petName || item.pet_name || item.animal_name || "이름 미입력"),
-      status: String(item.status || "접수대기")
+      status: String(item.status || "접수대기").replace(/\s+/g, "").trim()
     });
   });
 
@@ -751,7 +760,9 @@ function checkNewReceptionAnnouncements(qrItems, manualBookings, qrStatuses) {
     const existedBefore = previousReceptionStates.has(k);
     const oldStatus = previousReceptionStates.get(k);
     // 새로 추가된 접수대기 환자 또는 다른 상태에서 접수대기로 바뀐 환자 안내
-    if (v.status === "접수대기" && (!existedBefore || oldStatus !== "접수대기")) {
+    const isWaiting = ["접수대기", "진료대기"].includes(v.status);
+    const wasWaiting = ["접수대기", "진료대기"].includes(oldStatus);
+    if (isWaiting && (!existedBefore || !wasWaiting)) {
       announceReceptionRegistered(v.name);
     }
     previousReceptionStates.set(k, v.status);
