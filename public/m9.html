@@ -1,9 +1,965 @@
+
+Gemini
+
+새 채팅
+라이브러리
+이미지
+예약됨
+맞춤설정
+동영상
+새 노트북
+M3 대시보드 셸 구조 설계
+동물병원 접수 모니터 UI 수정
+동해국수 길찾기
+만성관리 탭 환자 정보 누락 수정
+집중관리 2화면 빈 화면 오류 원인 및 해결 방법
+여기에서 다른것은 절대 건드리지 말구 좌측 현황판의 글자들이 너무 커서 실제로 자료들을 한눈에 보기 힘들구 동시에 여러챠트들을 볼수가 없어..글자 크기를 조금 많이 작게해줘..다른
+접수 현황판 집중관리 전송 연동
+모임 연락 및 일정 조율
+애견 건강관리 챠트 생성
+병원 재진 접수 UX 개선 방안
+동물병원 재진 접수서 캘린더 기능 개선
+병원 전화 응대 및 시간 관리 전략
+말티즈 믹스 피하 결절 감별 진단
+병원 접수 화면 공지사항 UI 구상
+응급 상황의 잇몸 충혈 감별 진단
+기관 튜브 커프 팽창의 위험성 비교
+동물병원 현황판 성격 누락 해결 방법
+초진 동의서 코드 일치화
+동물병원 재진 접수서 모바일 최적화
+HTML 메일 링크 연결 방법
+동물병원 접수 페이지 메일 추가
+환경별 인덱스 변경 방법
+동물병원 접수 폼 테두리 가시성 개선
+동물병원 접수 현황판 생년월일 추가
+동물병원 접수 페이지 모바일 최적화
+동물병원 재진 접수서 코드 수정
+카카오 토큰 유효기간 및 갱신 주기
+카카오톡 메시지 전송 연동 가이드
+동물병원 온라인 접수 메일 알림 추가
+23si.net 도메인 이메일 설정 방법
+초간단 3일 자동삭제 접수 시스템 설계
+Resend 이메일 발신 및 수신 주소 변경 방법
+접수 현황판 삭제 버튼 추가 요청
+처음부터 다시 정리하기
+초진접수챠트 UI 수정 코드
+새로운 시작과 준비
+코딩 지원 가능 여부 및 역할
+의사소통 오류
+프로그래밍 작업 시작하기
+앵무새 KGB 검사 인스타툰 기획
+고추기 구매와 앞으로의 계획
+찍찍이 구매 깜빡함
+Gemini와의 대화
+이번에는 큰 건이야..조금 신경쓰볼께...이게 M3에서 index를 거쳐 비밀번호를 치고 들어오면 이렇게 나와..그런데 처음부터 이렇게 나오게 할려면 이 구조가 어떻게 들어오는지를 모르겠어..조금 정리해주고...여기서 M1도 똑같은 접수현황판을 좌측에 공유하고 있어..그런데 모두 메뉴가 다르고 M3 현황판처럼 하고 싶은데 들어가는 구조가 달라...그래서 3분할화면에서 좌측은 항상 M3의 화면을 고정으로 정해놓고 중간과 우측을 복약지도, 집중관리챠트, (M5,M6 )의 3화면으로 왔다갔다 하는 구조로 만들수 있을까?
+
+요청하신 구조는 대시보드 셸(Shell) 구조로 구현할 수 있습니다.
+
+현재 시스템의 작동 원리와 원하시는 "좌측 고정 + 중간/우측 동적 전환" 화면 구성 방법을 정리해 드립니다.
+
+1. 현재 화면이 들어오는 기본 구조 (동작 원리)
+현재 첫 번째 화면([실시간 통합 대시보드 (M3)])과 두 번째 화면([원내 접수 + 복약관리 시스템])은 공통적으로 3분할 레이아웃(Flexbox/Grid 또는 iframe) 방식을 사용하고 있습니다.
+
+인증 흐름 (index -> 비밀번호 -> 대시보드):
+
+index.html에서 비밀번호를 검증한 뒤 세션 스토리지(sessionStorage) 또는 브라우저 쿠키에 인증 토큰(인증 플래그)을 저장하고 메인 대시보드 파일(예: m3_dashboard.html 또는 dashboard.html)로 이동(Redirect)시키는 구조입니다.
+
+처음부터 바로 접속하게 하려면:
+
+매번 비밀번호를 거치지 않고 특정 내부 PC나 전용 모니터에서 열리게 하려면, URL 파라미터로 자동 인증 키를 전달(예: ?auth=my_secret_token)하거나, 해당 브라우저의 localStorage에 로그인 완료 상태를 저장해 두어 접속 즉시 비밀번호 모달을 건너뛰도록 분기 코드를 추가하면 됩니다.
+
+2. 제안: 좌측 고정 + 중간/우측 탭 전환 통합 대시보드 구조
+좌측에는 원내 접수 현황판(M3/M1 공통 컴포넌트)을 항시 30% 비율로 고정하고, 나머지 70% 영역(중간 + 우측)을 원하는 모듈(복약지도, 집중관리차트, M5, M6 등)로 자유롭게 스위칭하는 구조입니다.
+
+가장 빠르고 유지보수가 쉬운 방식은 <iframe> 기반의 메인 프레임 셸(Master Shell)을 구성하는 것입니다.
+
+통합 대시보드 레이아웃 구조 (master_dashboard.html)
+HTML
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>24시 통합 컨트롤 대시보드</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; font-family: sans-serif; background: #1a1a1a; }
+    
+    /* 상단 통합 제어바 */
+    header {
+      height: 48px; background: #134e3f; color: white;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+    }
+    .menu-tabs button {
+      background: #2a7260; border: none; color: white;
+      padding: 6px 14px; margin-left: 6px; border-radius: 4px; cursor: pointer; font-weight: bold;
+    }
+    .menu-tabs button.active {
+      background: #ffb822; color: #111;
+    }
+
+    /* 본체 3분할 / 2섹션 영역 */
+    .dashboard-container {
+      display: flex; flex: 1; width: 100%; height: calc(100vh - 48px);
+    }
+
+    /* 좌측 고정 영역 (30%) */
+    .fixed-left {
+      width: 30%; height: 100%; border-right: 2px solid #333;
+    }
+
+    /* 중간 + 우측 동적 영역 (70%) */
+    .dynamic-right {
+      width: 70%; height: 100%; display: flex;
+    }
+    
+    iframe { width: 100%; height: 100%; border: none; }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 컨트롤러: 중간/우측 화면 전환 버튼 -->
+  <header>
+    <div style="font-size: 1.1rem; font-weight: bold;">🏥 24시 하단오거리 동물병원 - 통합 통합 콘솔</div>
+    <div class="menu-tabs">
+      <button onclick="switchView('m3_view')" id="btn-m3" class="active">접수대기 + 긴급/예약 (M3)</button>
+      <button onclick="switchView('medication')" id="btn-med">복약관리 + 실시간출력</button>
+      <button onclick="switchView('chart')" id="btn-chart">집중관리챠트 (M5/M6)</button>
+    </div>
+  </header>
+
+  <!-- 메인 프레임 -->
+  <div class="dashboard-container">
+    
+    <!-- 1. 좌측 30%: 원내 접수 현황판 (항상 고정) -->
+    <div class="fixed-left">
+      <iframe src="reception_left.html" title="원내 접수 현황판"></iframe>
+    </div>
+
+    <!-- 2. 중앙 + 우측 70%: 선택한 화면에 따라 URL 전환 -->
+    <div class="dynamic-right">
+      <iframe id="main-content-frame" src="m3_right_panel.html" title="중앙 및 우측 업무 화면"></iframe>
+    </div>
+
+  </div>
+
+  <script>
+    // 각 모드별로 연결할 HTML 파일 또는 웹페이지 주소
+    const viewPages = {
+      'm3_view': 'm3_center_right.html',       // 기존 M3 중앙 대기판 + 우측 긴급공지/관리
+      'medication': 'medication_system.html',  // 스크린샷 2번의 복약관리 + 실시간 출력
+      'chart': 'intensive_chart.html'          // M5, M6 집중관리챠트
+    };
+
+    function switchView(viewKey) {
+      // 1. 프레임 URL 변경
+      document.getElementById('main-content-frame').src = viewPages[viewKey];
+
+      // 2. 버튼 활성화 스타일 처리
+      document.querySelectorAll('.menu-tabs button').forEach(btn => btn.classList.remove('active'));
+      if(viewKey === 'm3_view') document.getElementById('btn-m3').classList.add('active');
+      if(viewKey === 'medication') document.getElementById('btn-med').classList.add('active');
+      if(viewKey === 'chart') document.getElementById('btn-chart').classList.add('active');
+    }
+  </script>
+</body>
+</html>
+3. 이 구조로 변경할 때 핵심 포인트
+좌측 현황판 파일 분리 (reception_left.html):
+
+M1, M3 등에서 공통으로 쓰는 좌측 컴포넌트 코드를 독립된 단일 HTML 파일로 추출해 놓으면, 좌측 프레임(iframe src="reception_left.html")에 항상 고정된 상태로 띄울 수 있습니다.
+
+중앙 + 우측 묶음 처리:
+
+[M3 모드]: 중앙(QR사전접수/현장예약) + 우측(긴급공지/접수관리)이 들어있는 화면
+
+[복약지도 모드]: 중앙(복약관리 달력/입력기) + 우측(실시간 출력창)이 들어있는 화면
+
+[집중관리차트 모드 (M5, M6)]: 환자별 모니터링/집중차트 뷰
+
+위와 같이 2개 화면 묶음을 각각 하나의 독립 페이지로 만들어 두고 상단 버튼 클릭 시 우측 프레임의 src만 변경해주면 페이지 전체를 새로고침하지 않고도 가볍게 전환됩니다.
+
+단축키/원터치 연동:
+
+상단 버튼 외에도 키보드 단축키(예: F1 접수현황, F2 복약지도, F3 집중차트)를 자바스크립트 이벤트로 넣어두면 진료실 및 접수처에서 훨씬 빠르게 전환하며 사용할 수 있습니다.
+
+현재 파일들이 어떤 기술(순수 HTML/JS 파일인지, Node/React/Vue 등 별도 프레임워크인지)로 빌드되어 있는지 알려주시면 소스 코드 연동 방식을 더 구체적으로 맞춰드릴 수 있습니다.
+
+보내주신 M3와 M1의 실제 소스 코드를 분석해보니, 현재 구조와 원하시는 3분할 통합 전환 방식이 명확히 파악되었습니다.   
+HTML
++ 1
+
+1. 현재 구조와 진입 방식 분석
+M3의 구조 (m3.html):
+
+3:4:3 비율의 그리드(3fr 4fr 3fr) 프레임 구조입니다.   
+HTML
+
+좌측: /desk.html (접수현황판)   
+HTML
+
+중앙: /m5.html (접수 대기판)   
+HTML
+
+우측: /m6.html (접수 소요시간 & 관리)   
+HTML
+
+비밀번호를 치고 들어오는 이유: index.html에서 패스워드 검증을 거친 후 m3.html로 리다이렉트되도록 설계되어 있습니다. 처음부터 M3로 바로 들어오게 하려면 브라우저 즐겨찾기 주소를 m3.html로 직접 설정하거나, index.html에서 내부 IP 또는 자동 로그인 플래그(localStorage.setItem('auth', 'ok'))를 확인해 검증을 건너뛰도록 하면 됩니다.
+
+M1의 구조 (m1.html):
+
+내부에 복약관리 시스템 + 실시간 출력 화면이 기본으로 탑재되어 있고, 좌측 패널에 원내 접수현황판(counterAppHTML)과 집중관리차트(chronicAppHTML)를 스크립트로 품고 있습니다.   
+HTML
+
+2. 해결 방안: "좌측 고정 + 중간/우측 동적 전환" 대시보드
+좌측 (30% 고정): 항상 접수현황판(/desk.html)이 작동합니다.   
+HTML
+
+중간 + 우측 (70% 영역): 상단 탭 버튼 클릭 하나로 3가지 모드로 부드럽게 스위칭됩니다:
+
+모드 1 [M5 대기판 + M6 관리]: 기존 M3의 중간(M5) + 우측(M6) 화면 세트   
+HTML
+
+모드 2 [복약지도 + 실시간출력]: M1의 복약관리 폼 + A4 출력 미리보기 세트   
+HTML
+
+모드 3 [집중관리챠트]: 환자 집중관리(위험도 A~H) 모니터링 세트   
+HTML
+
+3. 통합 마스터 대시보드 코드 (master_m3.html)
+기존 m3.html을 아래와 같이 교체하거나 새 파일로 저장하여 실행하시면 됩니다.   
+HTML
+
+HTML
 <!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>23시 하단오거리 동물병원 · 통합 관제 포털 (m9 테스트)</title>
+<title>23시 하단오거리 동물병원 · 통합 멀티 관제 콘솔</title>
+<style>
+  :root {
+    --header-bg: #12382e;
+    --bar-border: #1e5244;
+    --accent-green: #10b84f;
+    --panel-header: #1c4d3f;
+    --text-light: #e6f7ee;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    background: #091c17;
+    color: #fff;
+  }
+
+  /* 최상단 마스터 컨트롤 바 */
+  .top-control {
+    height: 50px;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--bar-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+  .top-control .brand-title {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #bbf7d0;
+  }
+
+  /* 중앙/우측 전환 탭 메뉴 */
+  .view-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 4px;
+    border-radius: 10px;
+  }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #d1fae5;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .tab-btn.active {
+    background: #10b84f;
+    color: #fff;
+    border-color: #34d399;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+
+  .btn-all-refresh {
+    background: #047857;
+    color: #fff;
+    border: 1px solid #059669;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.15s;
+  }
+  .btn-all-refresh:hover { background: #065f46; }
+
+  /* 메인 레이아웃: 좌측 30% 고정 + 우측 70% 가변 */
+  .main-container {
+    display: grid;
+    grid-template-columns: 3fr 7fr;
+    height: calc(100% - 50px);
+    width: 100%;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  /* 패널 공통 스타일 */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #1e5244;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  }
+  .panel-header {
+    height: 38px;
+    background: var(--panel-header);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .panel-title {
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .p-btn {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .p-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+  .panel-body {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: #f8fafc;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* 우측 70% 내부 2분할 뷰 (M5:M6 분할 전용) */
+  .dual-subgrid {
+    display: grid;
+    grid-template-columns: 4fr 3fr; /* 40% : 30% 비율 유지 */
+    width: 100%;
+    height: 100%;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 최상단 마스터 제어 바 -->
+  <header class="top-control">
+    <div class="brand-title">
+      🐾 23시 하단오거리 동물병원 · 통합 멀티 관제
+    </div>
+
+    <!-- 중간/우측 화면 전환 탭 -->
+    <div class="view-tabs">
+      <button class="tab-btn active" id="tab-m3" onclick="switchRightView('m3_duo')">1️⃣ M5 대기판 + M6 관리</button>
+      <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 + 실시간출력</button>
+      <button class="tab-btn" id="tab-focus" onclick="switchRightView('focus')">3️⃣ 📋 집중관리챠트 (만성케어)</button>
+    </div>
+
+    <div style="display:flex; gap:8px;">
+      <button class="btn-all-refresh" onclick="refreshAllFrames()">🔄 전체 새로고침</button>
+    </div>
+  </header>
+
+  <!-- 메인 분할 영역 -->
+  <main class="main-container">
+
+    <!-- [좌측 30% 항상 고정] 원내 접수 현황판 (/desk.html) -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 원내 접수 현황판 (30% 고정)</div>
+        <div>
+          <button class="p-btn" onclick="document.getElementById('frame-desk').contentWindow.location.reload()">새로고침</button>
+          <button class="p-btn" onclick="window.open('/desk.html', '_blank')">새창</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <iframe id="frame-desk" src="/desk.html"></iframe>
+      </div>
+    </section>
+
+    <!-- [중간+우측 70% 동적 스위칭 영역] -->
+    <section id="right-work-area" style="width: 100%; height: 100%;">
+      
+      <!-- 뷰 1: M5 대기판 + M6 관리 (기존 M3 중앙/우측 세트) -->
+      <div id="view-m3-duo" class="dual-subgrid" style="display: grid;">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🐾 [M5] 접수 대기판</div>
+            <button class="p-btn" onclick="document.getElementById('frame-m5').contentWindow.location.reload()">새로고침</button>
+          </div>
+          <div class="panel-body">
+            <iframe id="frame-m5" src="/m5.html"></iframe>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🩺 [M6] 접수 관리</div>
+            <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
+          </div>
+          <div class="panel-body">
+            <iframe id="frame-m6" src="/m6.html"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- 뷰 2: 복약지도 + 실시간 출력창 (M1 본체) -->
+      <div id="view-medication" class="panel" style="width: 100%; height: 100%; display: none;">
+        <div class="panel-header">
+          <div class="panel-title">💊 복약관리 시스템 & 실시간 출력</div>
+          <button class="p-btn" onclick="document.getElementById('frame-med').contentWindow.location.reload()">새로고침</button>
+        </div>
+        <div class="panel-body">
+          <!-- 복약관리 단독 파일 또는 m1.html을 로드 -->
+          <iframe id="frame-med" src="/m1.html"></iframe>
+        </div>
+      </div>
+
+      <!-- 뷰 3: 집중관리/만성관리 챠트 -->
+      <div id="view-focus" class="panel" style="width: 100%; height: 100%; display: none;">
+        <div class="panel-header">
+          <div class="panel-title">📋 집중관리 & 만성처방 모니터링 챠트</div>
+          <button class="p-btn" onclick="document.getElementById('frame-focus').contentWindow.location.reload()">새로고침</button>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-focus" src="/m1.html?view=focus"></iframe>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    // 중간/우측 화면 전환 함수
+    function switchRightView(viewMode) {
+      document.getElementById('view-m3-duo').style.display = 'none';
+      document.getElementById('view-medication').style.display = 'none';
+      document.getElementById('view-focus').style.display = 'none';
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      if (viewMode === 'm3_duo') {
+        document.getElementById('view-m3-duo').style.display = 'grid';
+        document.getElementById('tab-m3').classList.add('active');
+      } else if (viewMode === 'medication') {
+        document.getElementById('view-medication').style.display = 'flex';
+        document.getElementById('tab-med').classList.add('active');
+      } else if (viewMode === 'focus') {
+        document.getElementById('view-focus').style.display = 'flex';
+        document.getElementById('tab-focus').classList.add('active');
+      }
+    }
+
+    // 전체 새로고침
+    function refreshAllFrames() {
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(f => {
+        try { f.contentWindow.location.reload(); } catch(e){}
+      });
+    }
+
+    // 키보드 단축키 지원 (F1: M3 뷰, F2: 복약지도, F3: 집중차트)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F1') { e.preventDefault(); switchRightView('m3_duo'); }
+      if (e.key === 'F2') { e.preventDefault(); switchRightView('medication'); }
+      if (e.key === 'F3') { e.preventDefault(); switchRightView('focus'); }
+    });
+  </script>
+</body>
+</html>
+4. 적용 시 확인해야 할 점
+경로 확인:
+
+위 코드 내의 /desk.html, /m5.html, /m6.html, /m1.html 주소가 서버상 파일 위치와 일치하는지 확인해 주세요.   
+HTML
+
+복약지도 띄울 때 M1 레이아웃 조절:
+
+m1.html을 단독으로 우측 프레임에 넣을 경우, M1 자체의 좌측 접수창이 중복되어 보일 수 있습니다. 이 경우 m1.html 내의 CSS에서 #counterPanel { display: none; } 처리된 단독 복약용 페이지(예: medication_only.html)를 따로 분리해서 연결하시면 화면을 온전히 넓게 활용하실 수 있습니다.   
+HTML
++ 1
+
+단축키:
+
+진료 및 접수 중 바쁠 때 마우스 조작 없이 키보드의 F1, F2, F3 키만 눌러도 즉시 화면이 전환됩니다.
+
+어려워..일단 M1의 접수현황판은 지금 에러가 발생하고 있어 M3의 접수현황판은 예약대기까지 모든게 좀 완전해..그래서 M3의 접수현황판을 우선으로 하고싶어..니가 알아서 잘 해줘..부탁해..그래서 내가 원하는건 한 사이트에 접속하면 이리저리 M1 M3를 왔다갔다 하지않고 싶어...M3의 현황판 구조를 잘 보고 이걸 중심으로 모든걸 만들어줘
+
+M3와 M1의 구조 차이와 원인을 정확히 짚어냈습니다.
+
+M1이 에러 나는 이유: m1.html은 HTML 코드 내부에 접수 스크립트(counterAppHTML)와 집중관리 스크립트(chronicAppHTML)를 문자열로 통째로 쑤셔넣어 srcdoc으로 띄우는 구조라 데이터 연동 및 인증에서 에러가 잘 납니다.   
+HTML
+
+M3가 안정적인 이유: m3.html은 깔끔하게 서버 파일인 /desk.html(원내 접수현황판), /m5.html(대기판), /m6.html(접수 관리)을 각각 독립된 <iframe>으로 불러오기 때문에 에러 없이 완벽히 동작합니다.   
+HTML
+
+따라서 원장님이 원하시는 대로 가장 완벽한 M3의 접수현황판(/desk.html)을 좌측 30%에 항시 고정하고, 중간과 우측 영역만 [기존 M3 대기/관리판]과 [M1의 복약관리/출력], [집중관리차트]로 한 사이트 안에서 마우스 클릭이나 단축키로 자유롭게 오가도록 완성 코드를 짜드렸습니다.   
+HTML
+
+통합 단일 대시보드 (m3.html 교체용 최종 코드)
+기존 m3.html 파일 내용을 모두 지우고 아래 코드를 그대로 붙여넣으시면 됩니다.   
+HTML
+
+HTML
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23시 하단오거리 동물병원 · 통합 관제 대시보드</title>
+<style>
+  :root {
+    --header-bg: #12382e;
+    --bar-border: #1e5244;
+    --panel-header: #1c4d3f;
+    --text-light: #e6f7ee;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    background: #091c17;
+    color: #fff;
+  }
+
+  /* 최상단 마스터 컨트롤 바 */
+  .top-control {
+    height: 48px;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--bar-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+  .top-control .brand-title {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #bbf7d0;
+  }
+
+  /* 중간/우측 화면 전환 탭 버튼 그룹 */
+  .view-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px;
+    border-radius: 10px;
+  }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #cbd5e1;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .tab-btn.active {
+    background: #10b84f;
+    color: #fff;
+    border-color: #34d399;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .btn-all-refresh {
+    background: #047857;
+    color: #fff;
+    border: 1px solid #059669;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.15s;
+  }
+  .btn-all-refresh:hover { background: #065f46; }
+
+  /* 메인 레이아웃: 좌측 30% 고정 + 우측 70% 전환 영역 */
+  .main-container {
+    display: grid;
+    grid-template-columns: 3fr 7fr;
+    height: calc(100% - 48px);
+    width: 100%;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  /* 패널 공통 */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #1e5244;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  }
+  .panel-header {
+    height: 38px;
+    background: var(--panel-header);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .panel-title {
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .p-btn {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .p-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+  .panel-body {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: #f8fafc;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* M5(40%) + M6(30%) 듀얼 서브그리드 */
+  .dual-subgrid {
+    display: grid;
+    grid-template-columns: 4fr 3fr;
+    width: 100%;
+    height: 100%;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 최상단 마스터 제어 바 -->
+  <header class="top-control">
+    <div class="brand-title">
+      🐾 23시 하단오거리 동물병원 · 실시간 통합 대시보드
+    </div>
+
+    <!-- 중앙/우측 전환 탭 -->
+    <div class="view-tabs">
+      <button class="tab-btn active" id="tab-m3" onclick="switchRightView('m3_duo')">1️⃣ M5 대기판 + M6 관리 (M3 화면)</button>
+      <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 시스템 (M1 화면)</button>
+      <button class="tab-btn" id="tab-focus" onclick="switchRightView('focus')">3️⃣ 📋 집중관리 & 만성챠트</button>
+    </div>
+
+    <div>
+      <button class="btn-all-refresh" onclick="refreshAllFrames()">🔄 전체 새로고침</button>
+    </div>
+  </header>
+
+  <!-- 메인 분할 영역 -->
+  <main class="main-container">
+
+    <!-- [창 1: 좌측 30% 항상 고정] M3에서 쓰던 가장 완벽한 카운터 접수현황판 -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 원내 접수 현황판 (M3 고정)</div>
+        <div>
+          <button class="p-btn" onclick="document.getElementById('frame-desk').contentWindow.location.reload()">새로고침</button>
+          <button class="p-btn" onclick="window.open('/desk.html', '_blank')">새창</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <iframe id="frame-desk" src="/desk.html"></iframe>
+      </div>
+    </section>
+
+    <!-- [중간 + 우측 70% 영역: 탭에 따라 스위칭] -->
+    <section id="right-work-area" style="width: 100%; height: 100%;">
+      
+      <!-- 1번 뷰: M5 대기판(40%) + M6 접수관리(30%) (기존 M3 그대로) -->
+      <div id="view-m3-duo" class="dual-subgrid" style="display: grid;">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🐾 [창 2] m5 접수 대기판</div>
+            <button class="p-btn" onclick="document.getElementById('frame-m5').contentWindow.location.reload()">새로고침</button>
+          </div>
+          <div class="panel-body">
+            <iframe id="frame-m5" src="/m5.html"></iframe>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🩺 [창 3] m6 접수 관리</div>
+            <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
+          </div>
+          <div class="panel-body">
+            <iframe id="frame-m6" src="/m6.html"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2번 뷰: 복약관리 입력 + A4 실시간 출력창 (M1) -->
+      <div id="view-medication" class="panel" style="width: 100%; height: 100%; display: none;">
+        <div class="panel-header">
+          <div class="panel-title">💊 복약관리 시스템 & 실시간 출력 미리보기</div>
+          <button class="p-btn" onclick="document.getElementById('frame-med').contentWindow.location.reload()">새로고침</button>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-med" src="/m1.html"></iframe>
+        </div>
+      </div>
+
+      <!-- 3번 뷰: 집중관리 & 만성챠트 -->
+      <div id="view-focus" class="panel" style="width: 100%; height: 100%; display: none;">
+        <div class="panel-header">
+          <div class="panel-title">📋 중환자 집중관리 및 만성처방 챠트</div>
+          <button class="p-btn" onclick="document.getElementById('frame-focus').contentWindow.location.reload()">새로고침</button>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-focus" src="/m1.html"></iframe>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    // 화면 전환 함수
+    function switchRightView(viewMode) {
+      document.getElementById('view-m3-duo').style.display = 'none';
+      document.getElementById('view-medication').style.display = 'none';
+      document.getElementById('view-focus').style.display = 'none';
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      if (viewMode === 'm3_duo') {
+        document.getElementById('view-m3-duo').style.display = 'grid';
+        document.getElementById('tab-m3').classList.add('active');
+      } else if (viewMode === 'medication') {
+        document.getElementById('view-medication').style.display = 'flex';
+        document.getElementById('tab-med').classList.add('active');
+        // m1 프레임이 초기 'medication' 모드로 표시되도록 메시지 전달
+        const medFrame = document.getElementById('frame-med');
+        if (medFrame && medFrame.contentWindow) {
+          medFrame.contentWindow.postMessage({ type: 'show-initial-screen' }, '*');
+        }
+      } else if (viewMode === 'focus') {
+        document.getElementById('view-focus').style.display = 'flex';
+        document.getElementById('tab-focus').classList.add('active');
+        // m1 프레임이 'focus' 집중관리 모드로 표시되도록 메시지 전달
+        const focusFrame = document.getElementById('frame-focus');
+        if (focusFrame && focusFrame.contentWindow) {
+          focusFrame.contentWindow.postMessage({ type: 'show-focus-expanded' }, '*');
+        }
+      }
+    }
+
+    // 모든 창 일괄 새로고침
+    function refreshAllFrames() {
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(f => {
+        try { f.contentWindow.location.reload(); } catch(e){}
+      });
+    }
+
+    // 진료실용 원터치 단축키 (F1: M3 대기/관리, F2: 복약지도, F3: 집중차트)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F1') { e.preventDefault(); switchRightView('m3_duo'); }
+      if (e.key === 'F2') { e.preventDefault(); switchRightView('medication'); }
+      if (e.key === 'F3') { e.preventDefault(); switchRightView('focus'); }
+    });
+  </script>
+</body>
+</html>
+무엇이 해결되었는가?
+M1 에러 탈출: 불안정한 M1 내장 스크립트 대신, M3에서 검증된 /desk.html을 좌측 30%에 단독으로 띄워 항상 정상 작동합니다.   
+HTML
+
+단일 주소 접속: 이제 M1, M3 주소를 번갈아 칠 필요 없이, 이 페이지 하나만 띄워놓으면 병원 업무가 모두 끝납니다.
+
+원클릭 / 단축키 전환: 상단 버튼(1️⃣, 2️⃣, 3️⃣)이나 키보드 F1, F2, F3만 누르면 중앙과 우측 화면이 즉시 전환됩니다.
+
+m1.html을 2번 탭(복약관리)에 띄웠을 때 M1 내부의 좌측 에러 창을 완전히 숨기고 복약관리 캘린더와 실시간 출력만 100% 꽉 차게 보이도록 CSS 튜닝을 도와드릴까요?
+
+혹시나 틀릴수 있으니까 m9으로 하나 만들고 이걸 기준으로 테스트해보고 포털로 할께
+
+기존 파일들(m1, m3)은 건드리지 않고, 테스트 및 최종 포털로 사용하실 수 있는 m9.html 파일을 생성해 두었습니다.   
+HTML
++ 1
+
+Your HTML file is ready:
+
+HTML 아이콘
+m9
+ HTML 
+m9.html 동작 및 테스트 안내
+서버 반영 방법:
+
+생성된 m9.html 파일을 웹 서버(또는 호스팅 환경)의 루트 경로(기존 m3.html이 있는 위치)에 업로드해 주세요.   
+HTML
+
+브라우저에서 https://사이트도메인/m9.html로 접속하시면 즉시 테스트하실 수 있습니다.
+
+화면 배치 및 핵심 구조:
+
+좌측 30% 영역 (고정):
+
+에러 없이 모든 예약 대기가 안정적으로 작동하는 M3의 카운터 접수현황판(/desk.html)이 상시 고정 작동합니다.   
+HTML
+
+중간 + 우측 70% 영역 (탭 및 단축키 전환):
+
+1️⃣번 탭 (단축키 F1): 기존 M3의 M5 접수 대기판(40%) + M6 접수 관리(30%) 세트 뷰   
+HTML
+
+2️⃣번 탭 (단축키 F2): M1의 복약관리 캘린더 입력 + 실시간 A4 출력창 뷰   
+HTML
+
+3️⃣번 탭 (단축키 F3): 중환자 집중관리 및 만성처방 챠트 모니터링 뷰   
+HTML
+
+우측 상단 🔄 전체 새로고침:
+
+화면 이동 없이 띄워져 있는 모든 프레임 데이터를 일괄 갱신합니다.
+
+향후 포털 확정 시:
+
+m9.html에서 브라우징 및 진료 테스트를 해보신 후 이상이 없으면, 나중에 메인 진입 파일(index.html 또는 메인 접속 링크)의 연결 대상을 m9.html로 설정해 주시면 됩니다.
+
+m9.html 테스트 중 화면 비율 조정이나 2번 탭(복약관리) 내부 여백 최적화가 필요하시면 언제든 말씀해 주세요.
+
+좋은데 여기서 F2의 접수현황판이 필요없고 복약관리시스템과 실시간 출력만 있으면 되는데..좌측 의 접수현황판과 우측의 접수현황판이 서로 내용이 달라서 너무 복잡해,,우측의 접수현황판은 없애주고
+
+Your HTML file is ready:
+
+HTML 아이콘
+m9
+ HTML 
+수정 반영 사항 (m9.html)
+F2 (복약관리) 중복 접수현황판 완전 제거:
+
+M1 내부 코드에 포함되어 있던 에러 나고 내용이 다른 접수현황판(#counterPanel)을 깨끗하게 숨김 처리했습니다.   
+HTML
+
+중간+우측 영역 전체를 오직 [복약관리 입력(50%)] + [A4 실시간 출력 미리보기(50%)]로만 꽉 차게 2분할 배치하여 훨씬 넓고 시원하게 진료 및 출력을 진행하실 수 있습니다.   
+HTML
+
+좌측 단일 기준 확립:
+
+병원 전체에서 오직 좌측 30%의 M3 접수현황판(/desk.html) 하나만 기준으로 돌아갑니다.   
+HTML
+
+F1(M5/M6 대기판), F2(복약관리), F3(집중관리) 어떤 모드로 넘어가도 좌측의 정확한 접수현황판은 그대로 고정 유지됩니다.   
+HTML
+
+F3 (집중관리 차트) 최적화:
+
+F3을 누를 때도 잡다한 중복 패널 없이 중환자 및 만성 모니터링 차트가 70% 전면에 가득 차도록 정리했습니다.   
+HTML
+
+다운로드된 m9.html 파일로 서버에서 교체 후 테스트해 보시면, 복잡함 없이 좌측 접수현황판 하나만 보면서 복약지도와 출력을 다루실 수 있습니다.
+
+m9.html에서 F2 복약관리의 달력이나 A4 실시간 출력창 너비/글자 크기 등 미세하게 조정하고 싶은 부분이 있으시면 편하게 말씀해 주세요!
+
+
+
+
+
+Gemini는 AI이며 인물 등에 관한 정보 제공 시 실수를 할 수 있습니다. 개인 정보 보호 및 Gemini새 창에서 열기
+
+코드에서 처리 및 분석됨
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23시 하단오거리 동물병원 · 통합 관제 포털 (m9)</title>
 <style>
   :root {
     --header-bg: #12382e;
@@ -174,7 +1130,7 @@
     <!-- 중앙/우측 전환 탭 -->
     <div class="view-tabs">
       <button class="tab-btn active" id="tab-m3" onclick="switchRightView('m3_duo')">1️⃣ M5 대기판 + M6 관리 (F1)</button>
-      <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 시스템 (F2)</button>
+      <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 전용 (F2)</button>
       <button class="tab-btn" id="tab-focus" onclick="switchRightView('focus')">3️⃣ 📋 집중관리 챠트 (F3)</button>
     </div>
 
@@ -225,25 +1181,25 @@
         </div>
       </div>
 
-      <!-- 2번 뷰: 복약관리 입력 + A4 실시간 출력창 (M1 연동) -->
+      <!-- 2번 뷰: 복약관리 입력 + A4 실시간 출력창 (내부 중복 접수현황판 완전 제거) -->
       <div id="view-medication" class="panel" style="width: 100%; height: 100%; display: none;">
         <div class="panel-header">
-          <div class="panel-title">💊 복약관리 시스템 & 실시간 출력 미리보기</div>
+          <div class="panel-title">💊 복약관리 시스템 & 실시간 출력 전용</div>
           <button class="p-btn" onclick="document.getElementById('frame-med').contentWindow.location.reload()">새로고침</button>
         </div>
         <div class="panel-body">
-          <iframe id="frame-med" src="/m1.html"></iframe>
+          <iframe id="frame-med" src="/m1.html" onload="cleanMedicationFrame()"></iframe>
         </div>
       </div>
 
-      <!-- 3번 뷰: 집중관리 & 만성챠트 -->
+      <!-- 3번 뷰: 집중관리 & 만성챠트 (전체화면 집중 모드) -->
       <div id="view-focus" class="panel" style="width: 100%; height: 100%; display: none;">
         <div class="panel-header">
           <div class="panel-title">📋 중환자 집중관리 및 만성처방 챠트</div>
           <button class="p-btn" onclick="document.getElementById('frame-focus').contentWindow.location.reload()">새로고침</button>
         </div>
         <div class="panel-body">
-          <iframe id="frame-focus" src="/m1.html"></iframe>
+          <iframe id="frame-focus" src="/m1.html" onload="cleanFocusFrame()"></iframe>
         </div>
       </div>
 
@@ -252,6 +1208,97 @@
   </main>
 
   <script>
+    // F2(복약관리) 뷰 로드 시 내부의 중복된 접수현황판(#counterPanel)을 완전히 숨기고
+    // 복약관리 폼과 실시간 출력이 70% 영역을 꽉 채우도록 5:5 그리드로 강제 적용
+    function cleanMedicationFrame() {
+      const f = document.getElementById('frame-med');
+      try {
+        const doc = f.contentDocument || f.contentWindow.document;
+        if (!doc) return;
+
+        let style = doc.getElementById('med-clean-style');
+        if (!style) {
+          style = doc.createElement('style');
+          style.id = 'med-clean-style';
+          doc.head.appendChild(style);
+        }
+        style.textContent = `
+          /* 중복되는 내부 접수현황판과 집중관리창 완전히 숨김 */
+          #counterPanel, #chronicPanel, #expandedGlobalControls { display: none !important; }
+          
+          /* 전체 쉘을 복약관리 100% 영역으로 확장 */
+          #integratedShell {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            padding: 8px !important;
+            margin: 0 !important;
+          }
+          #medicationPanel {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+          }
+          /* 좌: 복약관리 입력(50%), 우: 실시간 A4 출력(50%) */
+          #medicationPanel .wrap {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 12px !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          #medicationPanel .panel {
+            height: calc(100vh - 66px) !important;
+            overflow-y: auto !important;
+          }
+        `;
+      } catch (e) {
+        console.warn('iframe 접근 제약:', e);
+      }
+    }
+
+    // F3(집중관리) 뷰 로드 시 접수현황판과 복약관리를 숨기고 차트만 전체 표시
+    function cleanFocusFrame() {
+      const f = document.getElementById('frame-focus');
+      try {
+        const doc = f.contentDocument || f.contentWindow.document;
+        if (!doc) return;
+
+        if (f.contentWindow.setLayout) {
+          f.contentWindow.setLayout('focus-expanded');
+        }
+
+        let style = doc.getElementById('focus-clean-style');
+        if (!style) {
+          style = doc.createElement('style');
+          style.id = 'focus-clean-style';
+          doc.head.appendChild(style);
+        }
+        style.textContent = `
+          #counterPanel, #medicationPanel, #expandedGlobalControls { display: none !important; }
+          #integratedShell {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          #chronicPanel {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            border-radius: 0 !important;
+          }
+        `;
+      } catch (e) {
+        console.warn('iframe 접근 제약:', e);
+      }
+    }
+
     // 화면 전환 함수
     function switchRightView(viewMode) {
       document.getElementById('view-m3-duo').style.display = 'none';
@@ -266,17 +1313,11 @@
       } else if (viewMode === 'medication') {
         document.getElementById('view-medication').style.display = 'flex';
         document.getElementById('tab-med').classList.add('active');
-        const medFrame = document.getElementById('frame-med');
-        if (medFrame && medFrame.contentWindow) {
-          medFrame.contentWindow.postMessage({ type: 'show-initial-screen' }, '*');
-        }
+        cleanMedicationFrame();
       } else if (viewMode === 'focus') {
         document.getElementById('view-focus').style.display = 'flex';
         document.getElementById('tab-focus').classList.add('active');
-        const focusFrame = document.getElementById('frame-focus');
-        if (focusFrame && focusFrame.contentWindow) {
-          focusFrame.contentWindow.postMessage({ type: 'show-focus-expanded' }, '*');
-        }
+        cleanFocusFrame();
       }
     }
 
@@ -288,7 +1329,7 @@
       });
     }
 
-    // 진료실용 원터치 단축키 (F1: M3 대기/관리, F2: 복약지도, F3: 집중차트)
+    // 진료실용 원터치 단축키 (F1: M3 대기/관리, F2: 복약지도 전용, F3: 집중차트)
     window.addEventListener('keydown', (e) => {
       if (e.key === 'F1') { e.preventDefault(); switchRightView('m3_duo'); }
       if (e.key === 'F2') { e.preventDefault(); switchRightView('medication'); }
@@ -297,3 +1338,5 @@
   </script>
 </body>
 </html>
+m9.html
+m9.html 항목을 표시하는 중입니다.
