@@ -22,11 +22,19 @@ header{display:flex;flex-direction:column;align-items:center;text-align:center;g
 .paw-deco{position:fixed;z-index:0;pointer-events:none;color:#ffd9b4;font-size:58px;opacity:.72}
 .paw-a{top:26%;left:max(14px,calc((100vw - 1050px)/2));transform:rotate(-20deg)}
 .paw-b{top:26%;right:max(14px,calc((100vw - 1050px)/2));transform:rotate(18deg)}
-.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;position:relative;z-index:1}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;position:relative;z-index:1}
 .card{display:flex;flex-direction:column;align-items:stretch;min-width:0;min-height:0;height:clamp(570px,61vh,660px);padding:0 12px 13px;border-radius:35px;overflow:hidden;text-decoration:none;position:relative;isolation:isolate;transition:transform .15s ease,filter .15s ease}
 .card:active{transform:translateY(4px) scale(.992);filter:saturate(1.08)}
 .card.first{background:linear-gradient(150deg,#ff9b46 0%,#ff7628 38%,#ff5b1e 100%);border:4px solid #ff8c2b;box-shadow:inset 0 4px 0 #fff7df,inset 0 -6px 0 #e94d17,0 9px 0 #f4c5a5,0 18px 28px #b64c2525}
 .card.return{background:linear-gradient(150deg,#fff16d 0%,#ffdf35 48%,#ffcb20 100%);border:4px solid #ffd22a;box-shadow:inset 0 4px 0 #fffedb,inset 0 -6px 0 #e9a70a,0 9px 0 #f2dfa3,0 18px 28px #a47a1c20}
+.card.visit{background:linear-gradient(150deg,#65d7c5 0%,#22b8a7 48%,#07877e 100%);border:4px solid #36c9b7;box-shadow:inset 0 4px 0 #e7fffb,inset 0 -6px 0 #08756d,0 9px 0 #b1e8df,0 18px 28px #08756d20}
+.visit .pill{color:#075e58;background:#e8fffb;border-color:#c9fff6}
+.visit .mascot-frame{background:linear-gradient(145deg,#d8fff7,#9aeee1);display:flex;align-items:center;justify-content:center}
+.visit .visit-symbol{font-size:clamp(88px,10vw,150px);line-height:1;filter:drop-shadow(0 7px 0 #08756d20)}
+.visit h3{color:#fff;text-shadow:0 3px 0 #08756d,0 5px 8px #075e5845}
+.visit .description{color:#064e49;background:#e8fffb}
+.visit .action{color:#08756d;box-shadow:0 5px 0 #9bded4,0 9px 15px #08756d22,inset 0 2px 0 #fff}
+
 .pill{align-self:center;position:relative;z-index:2;margin:0 0 10px;padding:8px 18px;border:1px solid #ffffff80;border-radius:999px;background:#ffffff42;color:#fff;font-size:16px;line-height:1.1;font-weight:850;box-shadow:0 3px 8px #783c1715}
 .return .pill{color:#70450a;background:#fff9d87a;border-color:#fff4b4}
 .mascot-frame{width:calc(100% + 24px);height:clamp(215px,27vw,280px);margin:0 -12px;overflow:hidden;flex:0 0 auto;background:#ff7a2c}
@@ -154,6 +162,13 @@ footer a{color:inherit;text-decoration:none}
     <h3>재진</h3>
     <div class="description"><span>기존에 진료받은</span><span>기록이 있는 경우</span></div>
     <div class="action">재진 접수하기 <span aria-hidden="true">❯</span></div>
+  </a>
+  <a class="card visit" href="visit.html" aria-label="방문 및 상담 접수하기">
+    <span class="pill">💬 방문 · 상담</span>
+    <div class="mascot-frame" aria-hidden="true"><span class="visit-symbol">💬</span></div>
+    <h3>상담</h3>
+    <div class="description"><span>서류·약 수령</span><span>검사 결과·일반 문의</span></div>
+    <div class="action">방문·상담 접수하기 <span aria-hidden="true">❯</span></div>
   </a>
 </section>
 
