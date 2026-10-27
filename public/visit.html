@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>방문·상담 접수 | 23시 하단오거리동물병원</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<style>
+:root{--ink:#20323d;--teal:#087f75;--mint:#e8f7f3;--line:#d9e6e3;--muted:#657780}
+*{box-sizing:border-box}body{margin:0;padding:20px;background:linear-gradient(135deg,#f1fbf8,#fffaf3);font-family:Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:var(--ink)}
+main{max-width:760px;margin:0 auto}.brand{background:#fff;border:2px solid #b6e9df;border-radius:22px;padding:18px;text-align:center;box-shadow:0 6px 0 #dcefe8}
+h1{margin:0;font-size:clamp(24px,5vw,34px);letter-spacing:-.04em}.brand p{margin:8px 0 0;color:var(--muted);font-weight:650}
+form,.result{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:clamp(18px,4vw,28px);box-shadow:0 12px 30px #244b3c0c}
+h2{font-size:21px;margin:0 0 18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{display:flex;flex-direction:column;gap:7px}.wide{grid-column:1/-1}label{font-weight:800;font-size:15px}input,select,textarea{font:inherit;width:100%;padding:13px 14px;border:1px solid #cbd8d6;border-radius:12px;background:#fff;color:var(--ink);min-width:0}textarea{min-height:120px;resize:vertical}input:focus,select:focus,textarea:focus{outline:3px solid #b6e9df;border-color:var(--teal)}
+.hint{font-size:13px;color:var(--muted);line-height:1.5}.required{color:#c2410c}.actions{display:flex;gap:10px;margin-top:20px}.btn{border:0;border-radius:13px;padding:14px 18px;font:inherit;font-weight:850;cursor:pointer}.submit{background:var(--teal);color:#fff;flex:1}.back{background:#edf3f2;color:#30434b;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+#message{display:none;margin-top:16px;padding:14px;border-radius:12px;font-weight:750;line-height:1.5}#message.ok{display:block;background:#e8f7ee;color:#17643c}#message.err{display:block;background:#fff0ee;color:#a52d20}
+.result{display:none;text-align:center}.result h2{color:var(--teal)}.result p{line-height:1.7}
+@media(max-width:560px){body{padding:10px}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.brand{padding:15px}.actions{flex-direction:column}.btn{width:100%}}
+</style>
+</head>
+<body>
+<main>
+<header class="brand"><h1>23시 하단오거리동물병원</h1><p>방문 · 상담 접수</p></header>
+<form id="visitForm">
+<h2>방문 정보를 입력해 주세요</h2>
+<div class="grid">
+<div class="field"><label for="visitor_name">방문자 성함 <span class="required">*</span></label><input id="visitor_name" name="visitor_name" maxlength="80" autocomplete="name" required></div>
+<div class="field"><label for="phone">연락처 <span class="required">*</span></label><input id="phone" name="phone" type="tel" maxlength="30" autocomplete="tel" placeholder="010-0000-0000" required></div>
+<div class="field"><label for="animal_name">동물 이름</label><input id="animal_name" name="animal_name" maxlength="80" placeholder="해당하는 경우 입력"></div>
+<div class="field"><label for="scheduled_at">방문 예정 일시 <span class="required">*</span></label><input id="scheduled_at" name="scheduled_at" type="datetime-local" required></div>
+<div class="field wide"><label for="purpose">방문 목적 <span class="required">*</span></label>
+<select id="purpose" name="purpose" required>
+<option value="">방문 목적을 선택해 주세요</option>
+<option>일반 상담</option><option>서류발급및 수령</option><option>약처방및 수령</option><option>검사 결과</option><option>업체 방문</option><option>사료·용품 문의</option><option>기타 방문</option>
+</select></div>
+<div class="field wide"><label for="request_details">요청 사항 <span class="required">*</span></label><textarea id="request_details" name="request_details" maxlength="1500" required placeholder="방문 목적이나 미리 전달할 내용을 적어주세요."></textarea><div class="hint">입력하신 정보는 방문·상담 접수 확인을 위해 사용됩니다. 긴급한 진료가 필요한 경우 병원으로 직접 전화해 주세요.</div></div>
+</div>
+<div id="message" role="status" aria-live="polite"></div>
+<div class="actions"><button class="btn submit" id="submitBtn" type="submit">방문·상담 접수하기</button><a class="btn back" href="index.html">첫 화면으로</a></div>
+</form>
+<section class="result" id="success" aria-live="polite"><h2>접수가 완료되었습니다</h2><p id="successText"></p><a class="btn back" href="index.html">첫 화면으로 돌아가기</a></section>
+</main>
+<script>
+const API = "https://23si-visit-api.yurmgirl.workers.dev";
+const form = document.getElementById("visitForm");
+const msg = document.getElementById("message");
+const btn = document.getElementById("submitBtn");
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  msg.className = ""; msg.textContent = ""; msg.style.display = "none";
+  btn.disabled = true; btn.textContent = "접수 중...";
+  const data = Object.fromEntries(new FormData(form).entries());
+  try {
+    const response = await fetch(`${API}/api/visits`, {
+      method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(data)
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.ok) throw new Error(result.error || `접수 실패 (${response.status})`);
+    form.style.display = "none";
+    document.getElementById("successText").textContent = `접수번호 ${result.id}번으로 접수되었습니다. 방문 일정 변경은 병원으로 문의해 주세요.`;
+    document.getElementById("success").style.display = "block";
+  } catch (error) {
+    msg.className = "err"; msg.textContent = error.message || "접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."; msg.style.display = "block";
+  } finally {
+    btn.disabled = false; btn.textContent = "방문·상담 접수하기";
+  }
+});
+</script>
+</body>
+</html>
