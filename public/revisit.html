@@ -268,6 +268,8 @@
 </div>
 </div>
             
+      </div>
+
       <!-- 카드 3: 추가 처치 의뢰 -->
       <div class="bg-white rounded-2xl p-3.5 md:p-4 border border-slate-300 shadow-sm space-y-2.5">
         <div class="flex items-center justify-between">
@@ -414,6 +416,31 @@
 
   <script>
     let selectedTimeSlot = '';
+    let currentVisitTimestamp = '';
+
+    // '지금 현장' 버튼: 현재 날짜와 시각을 입력
+    function setCurrentVisitTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      const dateString = `${year}-${month}-${day}`;
+      const timeString = `${hours}:${minutes}`;
+
+      document.getElementById('expectedDate').value = dateString;
+      currentVisitTimestamp = timeString;
+
+      const display = document.getElementById('currentVisitTimeDisplay');
+      display.textContent = `✓ 현장 접수 시각: ${year}.${month}.${day} ${timeString}`;
+      display.classList.remove('hidden');
+
+      const btn = document.getElementById('nowVisitBtn');
+      btn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
+      btn.classList.add('bg-emerald-700');
+    }
 
     function formatPhone(input) {
       let val = input.value.replace(/[^0-9]/g, '');
@@ -472,6 +499,16 @@
       if (confirm('작성 중인 내용을 모두 지우고 처음부터 다시 작성하시겠습니까?')) {
         document.getElementById('receptionForm').reset();
         selectedTimeSlot = '';
+        currentVisitTimestamp = '';
+
+        const visitDisplay = document.getElementById('currentVisitTimeDisplay');
+        visitDisplay.textContent = '';
+        visitDisplay.classList.add('hidden');
+
+        const nowBtn = document.getElementById('nowVisitBtn');
+        nowBtn.classList.remove('bg-emerald-700');
+        nowBtn.classList.add('bg-teal-600', 'hover:bg-teal-700');
+
         document.querySelectorAll('.time-slot-btn').forEach(btn => {
           btn.style.borderColor = '#94a3b8';
           btn.style.backgroundColor = '#ffffff';
@@ -503,7 +540,9 @@
         weight: petWeight,
         reason: reason,
         expected_date: expectedDate,
-        expected_time: selectedTimeSlot,
+        expected_time: currentVisitTimestamp
+          ? `현장 접수 ${currentVisitTimestamp}`
+          : selectedTimeSlot,
         treatments: treatments
       };
 
