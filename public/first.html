@@ -475,7 +475,7 @@
     </div>
   </div>
 </div>
-
+</div>
 
       <!-- 카드 3: 추가 처치 의뢰 -->
       <div class="bg-white rounded-2xl p-3.5 md:p-4 border border-slate-300 shadow-sm space-y-2.5">
@@ -723,7 +723,31 @@
     let selectedGender = '';
     let selectedPersonality = '';
     let selectedTimeSlot = '';
+    let currentVisitTimestamp = '';
     let isSigned = false;
+
+    function setCurrentVisitTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      const dateString = `${year}-${month}-${day}`;
+      const timeString = `${hours}:${minutes}`;
+
+      document.getElementById('expectedDate').value = dateString;
+      currentVisitTimestamp = timeString;
+
+      const display = document.getElementById('currentVisitTimeDisplay');
+      display.textContent = `✓ 현장 접수 시각: ${year}.${month}.${day} ${timeString}`;
+      display.classList.remove('hidden');
+
+      const btn = document.getElementById('nowVisitBtn');
+      btn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
+      btn.classList.add('bg-emerald-700');
+    }
 
     function initBirthDropdowns() {
       const yearSel = document.getElementById('birthYear');
@@ -1044,6 +1068,15 @@
         selectedGender = '';
         selectedPersonality = '';
         selectedTimeSlot = '';
+        currentVisitTimestamp = '';
+
+        const visitDisplay = document.getElementById('currentVisitTimeDisplay');
+        visitDisplay.textContent = '';
+        visitDisplay.classList.add('hidden');
+
+        const nowBtn = document.getElementById('nowVisitBtn');
+        nowBtn.classList.remove('bg-emerald-700');
+        nowBtn.classList.add('bg-teal-600', 'hover:bg-teal-700');
 
         document.querySelectorAll('.species-btn, .gender-btn, .personality-btn, .time-slot-btn').forEach(btn => {
           btn.style.borderColor = '#94a3b8';
@@ -1136,7 +1169,7 @@
         personality: selectedPersonality,
         reason: reason,
         expected_date: expectedDate,
-        expected_time: selectedTimeSlot,
+        expected_time: currentVisitTimestamp ? `현장 접수 ${currentVisitTimestamp}` : selectedTimeSlot,
         treatments: treatments,
         signature: signatureDataUrl,
         privacy_agreed: true,
