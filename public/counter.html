@@ -547,7 +547,7 @@
       const reserveContainer = document.getElementById('counter-reserve-container');
 
       // 1. 예약대기 환자 분리
-      const activeList = list.filter(item => item.status !== '예약대기');
+      const activeList = list.filter(item => item.status !== '예약대기' && item.status !== '완료');
       const reservedList = list.filter(item => item.status === '예약대기');
 
       // 예약대기 보관함 렌더링
