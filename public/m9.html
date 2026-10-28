@@ -175,6 +175,20 @@
   @media (max-width: 900px) {
     .visit-subgrid { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
   }
+
+  /* F5: 원내 접수현황판 + 방문상담 현황판 + M6 접수관리 3분할 */
+  #view-f5 {
+    position: fixed; z-index: 50; top: 56px; right: 8px; bottom: 8px; left: 8px;
+    display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+    background: #091c17;
+  }
+  #view-f5 > .panel { min-width: 0; min-height: 0; }
+  @media (max-width: 1050px) {
+    #view-f5 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+    #view-f5 .panel-title { font-size: 11px; }
+    #view-f5 .panel-header { padding: 0 6px; }
+  }
+
 </style>
 </head>
 <body>
@@ -191,6 +205,7 @@
       <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 전용 (F2)</button>
       <button class="tab-btn" id="tab-focus" onclick="switchRightView('focus')">3️⃣ 📋 집중관리 챠트 (F3)</button>
       <button class="tab-btn" id="tab-visit" onclick="switchRightView('visit')">4️⃣ 🗓️ 방문·상담 + 현황판 (F4)</button>
+      <button class="tab-btn" id="tab-f5" onclick="switchRightView('f5')">5️⃣ 🖥️ 3개 현황창 (F5)</button>
     </div>
 
     <div>
@@ -283,6 +298,31 @@
     </section>
 
   </main>
+
+  <!-- F5: 원내 접수현황판 + 방문상담 현황판 + M6 접수관리 -->
+  <section id="view-f5" aria-label="3개 현황창">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 원내 접수현황판</div>
+        <button class="p-btn" onclick="document.getElementById('frame-f5-desk').contentWindow.location.reload()">새로고침</button>
+      </div>
+      <div class="panel-body"><iframe id="frame-f5-desk" src="/desk.html"></iframe></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🗓️ 방문·상담 현황판</div>
+        <button class="p-btn" onclick="document.getElementById('frame-f5-visits').contentWindow.location.reload()">새로고침</button>
+      </div>
+      <div class="panel-body"><iframe id="frame-f5-visits" src="/visits-admin.html"></iframe></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🩺 M6 접수관리</div>
+        <button class="p-btn" onclick="document.getElementById('frame-f5-m6').contentWindow.location.reload()">새로고침</button>
+      </div>
+      <div class="panel-body"><iframe id="frame-f5-m6" src="/m6.html"></iframe></div>
+    </div>
+  </section>
 
   <script>
     // F2(복약관리) 뷰 로드 시 내부의 중복된 접수현황판(#counterPanel)을 완전히 숨기고
@@ -382,6 +422,7 @@
       document.getElementById('view-medication').style.display = 'none';
       document.getElementById('view-focus').style.display = 'none';
       document.getElementById('view-visit').style.display = 'none';
+      document.getElementById('view-f5').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -400,6 +441,10 @@
         document.getElementById('view-visit').style.display = 'grid';
         document.getElementById('tab-visit').classList.add('active');
       }
+      else if (viewMode === 'f5') {
+        document.getElementById('view-f5').style.display = 'grid';
+        document.getElementById('tab-f5').classList.add('active');
+      }
     }
 
     // 모든 창 일괄 새로고침
@@ -416,6 +461,7 @@
       if (e.key === 'F2') { e.preventDefault(); switchRightView('medication'); }
       if (e.key === 'F3') { e.preventDefault(); switchRightView('focus'); }
       if (e.key === 'F4') { e.preventDefault(); switchRightView('visit'); }
+      if (e.key === 'F5') { e.preventDefault(); switchRightView('f5'); }
     });
   </script>
 </body>
