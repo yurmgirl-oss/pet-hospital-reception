@@ -6,18 +6,20 @@
   <title>특수동물 약물 용량 계산기 (100g Formulary)</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome 6 Pro/Free Icons -->
+  <!-- FontAwesome 6 Free Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Google Fonts: Inter & Pretendard-like Noto Sans KR -->
+  <!-- html2canvas 라이브러리 (이미지 저장용) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Google Fonts: Inter & Noto Sans KR -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700;800&family=Noto+Sans+KR:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Noto Sans KR"', 'system-ui', 'sans-serif'],
+            sans: ['"Noto Sans KR"', 'sans-serif'],
             mono: ['"Fira Code"', 'monospace'],
           }
         }
@@ -33,126 +35,130 @@
     input[type=number] {
       -moz-appearance: textfield;
     }
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white !important; font-size: 11px; }
-      #drugTable { border: 1px solid #cbd5e1; }
-    }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-black">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white">
 
-  <!-- 컴팩트 최상단 헤더 -->
-  <header class="bg-slate-950 border-b border-slate-800 px-4 py-2 sticky top-0 z-30 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <div class="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-sm">
+  <!-- 밝고 세련된 상단 헤더 -->
+  <header class="bg-white border-b border-slate-200 shadow-sm px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
         <i class="fa-solid fa-syringe"></i>
       </div>
-      <h1 class="text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-2">
-        특수동물 100g 기준 약물 계산기
-        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">v2.5 Fast</span>
-      </h1>
+      <div>
+        <h1 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+          특수동물 약물 용량 계산기
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">100g 기준 실전 Formulary</span>
+        </h1>
+      </div>
     </div>
     
-    <div class="flex items-center gap-2 no-print">
-      <button onclick="resetForm()" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1">
+    <div class="flex items-center gap-2">
+      <button onclick="resetForm()" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1 border border-slate-300 shadow-xs">
         <i class="fa-solid fa-rotate-left text-[11px]"></i> 초기화
       </button>
-      <button onclick="window.print()" class="px-3 py-1 text-xs font-bold rounded bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition flex items-center gap-1 shadow-sm">
-        <i class="fa-solid fa-print text-[11px]"></i> 인쇄
+      <!-- 인쇄 버튼 대신 이미지 저장 버튼 -->
+      <button onclick="saveAsImage()" id="saveImgBtn" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-700 text-white transition flex items-center gap-1.5 shadow-sm">
+        <i class="fa-solid fa-image text-xs"></i> 이미지 저장
       </button>
     </div>
   </header>
 
-  <main class="flex-grow max-w-7xl w-full mx-auto p-3 sm:p-4 space-y-3">
+  <main class="flex-grow max-w-7xl w-full mx-auto p-3 sm:p-5 space-y-3.5">
 
-    <!-- 1. 동물 8종 원터치 슬림 가로 1줄 탭바 -->
-    <section class="no-print">
+    <!-- 1. 동물 8종 원터치 슬림 가로 탭바 (밝은 라이트 탭 스타일) -->
+    <section>
       <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5" id="speciesTabsContainer">
-        <!-- 8종 가로 1줄 렌더링 -->
+        <!-- 8종 가로 탭 동적 렌더링 -->
       </div>
     </section>
 
-    <!-- 2. 환자 & 체중 초간결 1줄 입력 바 -->
-    <section class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 shadow-sm">
-      <div class="flex flex-wrap items-center gap-2.5 justify-between">
-        
-        <!-- 환자명 + 체중 입력부 -->
-        <div class="flex items-center gap-2 flex-grow min-w-[280px]">
-          <div class="relative w-40 sm:w-52">
-            <span class="absolute inset-y-0 left-2.5 flex items-center text-slate-500 text-xs">
-              <i class="fa-regular fa-user"></i>
-            </span>
-            <input type="text" id="patientName" placeholder="환자명 / 차트No" 
-              class="w-full pl-8 pr-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-              oninput="handlePatientInfoUpdate()">
-          </div>
+    <!-- 이미지 캡처 대상 영역 (환자 정보 + 주사량 테이블) -->
+    <div id="captureArea" class="bg-slate-100 space-y-3.5 p-1 rounded-2xl">
+      
+      <!-- 2. 환자 & 체중 초간결 입력 바 (밝은 화이트 카드) -->
+      <section class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-sm">
+        <div class="flex flex-wrap items-center gap-3 justify-between">
+          
+          <!-- 환자명 + 체중 입력부 -->
+          <div class="flex items-center gap-2.5 flex-grow min-w-[280px]">
+            <div class="relative w-44 sm:w-56">
+              <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 text-xs">
+                <i class="fa-regular fa-user"></i>
+              </span>
+              <input type="text" id="patientName" placeholder="환자명 / 차트No" 
+                class="w-full pl-8 pr-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-50 border border-slate-300 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
+                oninput="handlePatientInfoUpdate()">
+            </div>
 
-          <div class="flex items-center rounded-lg bg-slate-900 border border-slate-700 overflow-hidden focus-within:border-emerald-500">
-            <input type="number" id="weightInput" min="0.01" step="any" placeholder="체중" 
-              class="w-24 sm:w-32 px-3 py-1.5 bg-transparent text-sm sm:text-base font-black font-mono text-emerald-400 focus:outline-none"
-              oninput="calculateAllDoses()">
-            <div class="flex p-0.5 gap-0.5 bg-slate-800">
-              <button type="button" id="unitG" onclick="setUnit('g')" class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-500 text-slate-950">g</button>
-              <button type="button" id="unitKg" onclick="setUnit('kg')" class="px-2 py-0.5 text-xs font-bold rounded text-slate-400 hover:text-white">kg</button>
+            <div class="flex items-center rounded-lg bg-slate-50 border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:bg-white transition">
+              <input type="number" id="weightInput" min="0.01" step="any" placeholder="체중" 
+                class="w-24 sm:w-32 px-3 py-1.5 bg-transparent text-sm sm:text-base font-black font-mono text-teal-700 focus:outline-none"
+                oninput="calculateAllDoses()">
+              <div class="flex p-0.5 gap-0.5 bg-slate-200/80">
+                <button type="button" id="unitG" onclick="setUnit('g')" class="px-2.5 py-0.5 text-xs font-bold rounded bg-teal-600 text-white shadow-xs">g</button>
+                <button type="button" id="unitKg" onclick="setUnit('kg')" class="px-2.5 py-0.5 text-xs font-bold rounded text-slate-600 hover:text-slate-900">kg</button>
+              </div>
+            </div>
+
+            <div class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-lg bg-teal-50 text-xs font-mono font-bold text-teal-800 border border-teal-200" id="convertedWeightText">
+              ≈ 0.000 kg
             </div>
           </div>
 
-          <div class="hidden sm:inline-flex items-center px-2.5 py-1 rounded bg-slate-900 text-xs font-mono font-bold text-slate-300 border border-slate-800" id="convertedWeightText">
-            ≈ 0.000 kg
+          <!-- 선택 동물 주의사항 배지 -->
+          <div class="flex items-center gap-2 text-xs">
+            <span id="speciesBadge" class="px-2.5 py-1 rounded-lg font-bold bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1.5 shadow-2xs">
+              <i id="speciesBadgeIcon" class="fa-solid fa-dragon text-teal-600"></i>
+              <span id="selectedSpeciesName">게코</span>
+            </span>
+            <span id="speciesNotesShort" class="text-[11px] font-semibold text-amber-900 bg-amber-50 border border-amber-200/90 px-2.5 py-1 rounded-lg truncate max-w-[340px] sm:max-w-none shadow-2xs">
+              전반신 근육/피하 투여 (신문맥계 우회)
+            </span>
           </div>
+
         </div>
+      </section>
 
-        <!-- 선택 동물 핵심 주의사항 배지 -->
-        <div class="flex items-center gap-2 text-xs">
-          <span id="speciesBadge" class="px-2 py-1 rounded-md font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
-            <i id="speciesBadgeIcon" class="fa-solid fa-dragon"></i>
-            <span id="selectedSpeciesName">게코</span>
-          </span>
-          <span id="speciesNotesShort" class="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-md truncate max-w-[320px] sm:max-w-none">
-            전반신 근육/피하 투여 (신문맥계 우회)
-          </span>
+      <!-- 3. 주사량 계산 테이블 (가로 폭 넉넉히 확대, 1줄 배치로 시인성 대폭 개선) -->
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse" id="drugTable">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 text-xs font-bold border-b border-slate-200 uppercase tracking-wide">
+                <!-- 약물명 컬럼 폭을 넓혀 줄바꿈 방지 -->
+                <th class="py-3 px-4 min-w-[280px] w-80">약물 제형 (원내 고정 규격)</th>
+                <th class="py-3 px-3 w-40 bg-amber-50/60 text-amber-900 border-x border-slate-200">100g당 기준량</th>
+                <th class="py-3 px-3 w-32">총 처방량</th>
+                <th class="py-3 px-4 min-w-[230px] bg-teal-50/70 text-teal-900 border-x border-teal-100 font-extrabold">실제 주사량 (Volume / U-100)</th>
+                <th class="py-3 px-4 min-w-[200px]">투여 간격 & 권장 경로</th>
+              </tr>
+            </thead>
+            <tbody id="drugTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm font-medium">
+              <!-- 계산 테이블 행 동적 삽입 -->
+            </tbody>
+          </table>
         </div>
+      </section>
 
-      </div>
-    </section>
+    </div><!-- //captureArea 끝 -->
 
-    <!-- 3. 초강렬 계산 테이블 (눈금 & ml 강조) -->
-    <section class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse" id="drugTable">
-          <thead>
-            <tr class="bg-slate-900 text-slate-400 text-xs font-bold border-b border-slate-800 uppercase tracking-wider">
-              <th class="py-2.5 px-3 w-40">약물 제형 (원내규격)</th>
-              <th class="py-2.5 px-3 w-36 bg-amber-950/20 text-amber-300 border-x border-slate-800/80">100g당 기준량</th>
-              <th class="py-2.5 px-3 w-32">총 처방량</th>
-              <th class="py-2.5 px-4 w-60 bg-emerald-950/40 text-emerald-300 border-x border-emerald-800/50 font-black">실제 주사량 (Volume / U-100)</th>
-              <th class="py-2.5 px-3">투여 경로 & 간격</th>
-            </tr>
-          </thead>
-          <tbody id="drugTableBody" class="divide-y divide-slate-800/80 text-xs sm:text-sm">
-            <!-- 동적 주사제 로우 삽입 -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- 4. 원클릭 EMR 복사 & 슬림 하단 바 -->
-    <section class="bg-slate-950 rounded-xl border border-slate-800 p-2.5 flex flex-col sm:flex-row gap-2.5 items-center">
+    <!-- 4. 원클릭 EMR 복사 및 알림 영역 -->
+    <section class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm flex flex-col sm:flex-row gap-2.5 items-center">
       <div class="flex-grow w-full">
         <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-            <i class="fa-regular fa-clipboard text-emerald-400"></i> 전자 차트(EMR) 복사용 텍스트
+          <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <i class="fa-regular fa-clipboard text-teal-600"></i> 전자 차트(EMR) 복사용 텍스트
           </span>
-          <button onclick="copyChartSummary()" class="px-2.5 py-1 text-xs font-bold rounded bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1 transition">
-            <i class="fa-regular fa-copy"></i> 복사하기
+          <button onclick="copyChartSummary()" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 flex items-center gap-1 transition">
+            <i class="fa-regular fa-copy"></i> 차트 텍스트 복사
           </button>
         </div>
         <textarea id="chartSummaryText" readonly rows="2" 
-          class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs font-mono text-emerald-300 focus:outline-none resize-none leading-relaxed"></textarea>
+          class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono text-slate-700 focus:outline-none resize-none leading-relaxed selection:bg-teal-100"></textarea>
       </div>
-      <div id="copyAlertToast" class="hidden px-3 py-1.5 bg-emerald-500 text-slate-950 font-bold rounded text-xs shrink-0 whitespace-nowrap shadow-lg">
-        ✓ EMR 복사 완료!
+      <div id="copyAlertToast" class="hidden px-3.5 py-2 bg-emerald-600 text-white font-bold rounded-lg text-xs shrink-0 whitespace-nowrap shadow-md">
+        <i class="fa-solid fa-check mr-1"></i> EMR 복사 완료!
       </div>
     </section>
 
@@ -160,7 +166,7 @@
 
   <script>
     /* ==========================================================================
-       1. 데이터 정의 (8종 동물 및 6개 핵심 제형)
+       1. 데이터 정의 (동물 8종 & 병원 규격 6대 주사제)
        ========================================================================== */
     const SPECIES_CONFIG = [
       { id: 'gecko', name: '게코', icon: 'fa-dragon', defaultUnit: 'g', typicalWeight: 45, notes: '전반신 근육/피하 필수 (신문맥계 우회)' },
@@ -212,12 +218,12 @@
         concentration: 10.0,
         unitType: 'mg',
         speciesDosing: {
-          gecko: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q72h (3일1회)', route: '앞다리 IM' },
+          gecko: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q72h (3일 1회)', route: '앞다리 IM' },
           parrot: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q12h (교대)', route: '흉근 IM' },
-          tortoise: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q72h (3일1회)', route: '앞다리 IM' },
+          tortoise: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q72h (3일 1회)', route: '앞다리 IM' },
           hamster: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q24h', route: 'SC' },
-          snake: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q72h (3일1회)', route: '상체 1/3 IM' },
-          chameleon: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q72h (3일1회)', route: '앞다리 IM' },
+          snake: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q72h (3일 1회)', route: '상체 1/3 IM' },
+          chameleon: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q72h (3일 1회)', route: '앞다리 IM' },
           chinchilla: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q12~24h', route: 'SC' },
           hedgehog: { defaultDose100g: 2.0, unit: 'mg', originalKg: '20mg/kg', interval: 'q12~24h', route: '등쪽 SC/대퇴 IM' }
         }
@@ -228,12 +234,12 @@
         concentration: 2.5,
         unitType: 'mg',
         speciesDosing: {
-          gecko: { defaultDose100g: 0.5, unit: 'mg', originalKg: '5mg/kg', interval: 'q7d (주1회)', route: 'SC/IM (전반신)' },
+          gecko: { defaultDose100g: 0.5, unit: 'mg', originalKg: '5mg/kg', interval: 'q7d (주 1회)', route: 'SC/IM (전반신)' },
           parrot: { defaultDose100g: 1.0, unit: 'mg', originalKg: '10mg/kg', interval: 'q5~7d', route: '흉근 IM' },
-          tortoise: { defaultDose100g: 0.5, unit: 'mg', originalKg: '5mg/kg', interval: 'q7d (주1회)', route: '앞다리 IM' },
-          hamster: { defaultDose100g: 0.25, unit: 'mg', originalKg: '2.5mg/kg', interval: 'q7d (주1회)', route: 'SC' },
-          snake: { defaultDose100g: 0.5, unit: 'mg', originalKg: '5mg/kg', interval: 'q7d (주1회)', route: '상체 1/3 SC/IM' },
-          chameleon: { defaultDose100g: 0.5, unit: 'mg', originalKg: '5mg/kg', interval: 'q7d (주1회)', route: '앞다리 IM' },
+          tortoise: { defaultDose100g: 0.5, unit: 'mg', originalKg: '5mg/kg', interval: 'q7d (주 1회)', route: '앞다리 IM' },
+          hamster: { defaultDose100g: 0.25, unit: 'mg', originalKg: '2.5mg/kg', interval: 'q7d (주 1회)', route: 'SC' },
+          snake: { defaultDose100g: 0.5, unit: 'mg', originalKg: '5mg/kg', interval: 'q7d (주 1회)', route: '상체 1/3 SC/IM' },
+          chameleon: { defaultDose100g: 0.5, unit: 'mg', originalKg: '5mg/kg', interval: 'q7d (주 1회)', route: '앞다리 IM' },
           chinchilla: { defaultDose100g: 0.25, unit: 'mg', originalKg: '2.5mg/kg', interval: 'q7d', route: 'SC' },
           hedgehog: { defaultDose100g: 0.25, unit: 'mg', originalKg: '2.5mg/kg', interval: 'q7d', route: '등쪽 SC' }
         }
@@ -249,7 +255,7 @@
           tortoise: { defaultDose100g: 0.05, unit: 'ml', originalKg: '0.5ml/kg', interval: '격주 1회', route: '앞다리 IM' },
           hamster: { defaultDose100g: 0.02, unit: 'ml', originalKg: '0.2ml/kg', interval: '필요시 단회', route: 'SC' },
           snake: { defaultDose100g: 0.02, unit: 'ml', originalKg: '0.2ml/kg', interval: '10~14일 간격', route: 'SC/IM' },
-          chameleon: { defaultDose100g: 0.02, unit: 'ml', originalKg: '0.2ml/kg', interval: '주1회/단회', route: '앞다리 IM' },
+          chameleon: { defaultDose100g: 0.02, unit: 'ml', originalKg: '0.2ml/kg', interval: '주 1회/단회', route: '앞다리 IM' },
           chinchilla: { defaultDose100g: 0.02, unit: 'ml', originalKg: '0.2ml/kg', interval: '필요시 단회', route: 'SC' },
           hedgehog: { defaultDose100g: 0.02, unit: 'ml', originalKg: '0.2ml/kg', interval: '필요시 단회', route: 'SC' }
         }
@@ -290,15 +296,15 @@
         const isActive = sp.id === currentSpeciesId;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = `py-2 px-1.5 rounded-lg border text-center transition-all duration-150 flex flex-col items-center justify-center gap-0.5 ${
+        btn.className = `py-2 px-1.5 rounded-xl border text-center transition-all duration-150 flex flex-col items-center justify-center gap-0.5 ${
           isActive 
-            ? 'bg-emerald-500 text-slate-950 font-black border-emerald-400 shadow-md scale-[1.02]' 
-            : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-600 hover:text-white'
+            ? 'bg-teal-600 text-white font-extrabold border-teal-600 shadow-sm scale-[1.02]' 
+            : 'bg-white text-slate-700 border-slate-200 hover:border-teal-300 hover:bg-teal-50/40 hover:text-teal-800'
         }`;
         btn.onclick = () => selectSpecies(sp.id);
         btn.innerHTML = `
-          <i class="fa-solid ${sp.icon} text-sm ${isActive ? 'text-slate-950' : 'text-emerald-400'}"></i>
-          <span class="text-xs truncate w-full">${sp.name}</span>
+          <i class="fa-solid ${sp.icon} text-sm ${isActive ? 'text-white' : 'text-teal-600'}"></i>
+          <span class="text-xs truncate w-full font-semibold">${sp.name}</span>
         `;
         container.appendChild(btn);
       });
@@ -355,11 +361,11 @@
       const btnG = document.getElementById('unitG');
       const btnKg = document.getElementById('unitKg');
       if (currentUnit === 'g') {
-        btnG.className = 'px-2 py-0.5 text-xs font-bold rounded bg-emerald-500 text-slate-950';
-        btnKg.className = 'px-2 py-0.5 text-xs font-bold rounded text-slate-400 hover:text-white';
+        btnG.className = 'px-2.5 py-0.5 text-xs font-bold rounded bg-teal-600 text-white shadow-xs';
+        btnKg.className = 'px-2.5 py-0.5 text-xs font-bold rounded text-slate-600 hover:text-slate-900';
       } else {
-        btnKg.className = 'px-2 py-0.5 text-xs font-bold rounded bg-emerald-500 text-slate-950';
-        btnG.className = 'px-2 py-0.5 text-xs font-bold rounded text-slate-400 hover:text-white';
+        btnKg.className = 'px-2.5 py-0.5 text-xs font-bold rounded bg-teal-600 text-white shadow-xs';
+        btnG.className = 'px-2.5 py-0.5 text-xs font-bold rounded text-slate-600 hover:text-slate-900';
       }
     }
 
@@ -367,7 +373,7 @@
       const sp = getCurrentSpecies();
       document.getElementById('selectedSpeciesName').textContent = sp.name;
       document.getElementById('speciesNotesShort').textContent = sp.notes;
-      document.getElementById('speciesBadgeIcon').className = `fa-solid ${sp.icon}`;
+      document.getElementById('speciesBadgeIcon').className = `fa-solid ${sp.icon} text-teal-600`;
     }
 
     function getWeightInGrams() {
@@ -427,49 +433,51 @@
         const isMicro = volumeMl > 0 && volumeMl < 0.05;
 
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-900/60 transition-colors";
+        tr.className = "hover:bg-slate-50 transition-colors";
         tr.innerHTML = `
-          <!-- 약물 & 농도 -->
-          <td class="py-2.5 px-3">
-            <div class="font-extrabold text-white text-xs sm:text-sm tracking-tight">${drug.name}</div>
-            <div class="text-[11px] text-slate-400 font-mono mt-0.5">
-              원내: <span class="text-emerald-400 font-bold">${drug.concentration} ${drug.unitType === 'mg' ? 'mg/ml' : '제형'}</span>
+          <!-- 약물 & 농도: 넉넉한 너비로 1줄에 자연스럽게 배치 -->
+          <td class="py-3 px-4">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-slate-900 text-sm tracking-tight">${drug.name}</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-slate-100 text-teal-800 border border-slate-200 font-mono font-bold whitespace-nowrap">
+                ${drug.concentration} ${drug.unitType === 'mg' ? 'mg/ml' : '제형'}
+              </span>
             </div>
           </td>
 
           <!-- 100g당 기준량 (인라인 수정) -->
-          <td class="py-2.5 px-3 bg-amber-950/10 border-x border-slate-800/80">
-            <div class="flex items-center gap-1">
+          <td class="py-3 px-3 bg-amber-50/40 border-x border-slate-200">
+            <div class="flex items-center gap-1.5">
               <input type="number" step="any" min="0" value="${targetDose100g}" 
-                class="w-16 px-1.5 py-1 text-xs font-black rounded bg-slate-900 border border-amber-500/50 text-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-400 font-mono text-center"
+                class="w-16 px-1.5 py-1 text-xs font-bold rounded-md bg-white border border-amber-300 text-amber-900 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono text-center shadow-2xs"
                 onchange="handleDoseChange('${drug.id}', this.value)">
-              <span class="text-[11px] font-bold text-amber-400">${specGuide.unit}/100g</span>
+              <span class="text-xs font-bold text-amber-900 whitespace-nowrap">${specGuide.unit}/100g</span>
             </div>
             <div class="text-[10px] text-slate-500 font-mono mt-0.5">(${specGuide.originalKg})</div>
           </td>
 
           <!-- 총 처방량 -->
-          <td class="py-2.5 px-3">
-            <span class="font-mono font-bold text-slate-200 text-xs px-2 py-0.5 rounded bg-slate-900 border border-slate-800">
+          <td class="py-3 px-3">
+            <span class="font-mono font-bold text-slate-700 text-xs px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 inline-block">
               ${formattedTotalDose}
             </span>
           </td>
 
-          <!-- 주사량 & U-100 눈금 (초강조) -->
-          <td class="py-2.5 px-4 bg-emerald-950/20 border-x border-emerald-800/40">
-            <div class="flex items-baseline gap-2">
-              <span class="text-sm sm:text-base font-black text-emerald-300 font-mono tracking-tight">${formattedVolume}</span>
-              <span class="text-xs font-extrabold text-slate-950 bg-emerald-400 px-1.5 py-0.5 rounded font-mono shadow-sm">
+          <!-- 주사량 & U-100 눈금 (강조) -->
+          <td class="py-3 px-4 bg-teal-50/50 border-x border-teal-100">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-sm sm:text-base font-extrabold text-teal-900 font-mono tracking-tight">${formattedVolume}</span>
+              <span class="text-xs font-bold text-white bg-teal-700 px-2 py-0.5 rounded font-mono shadow-2xs">
                 ${formattedInsulinUnits}
               </span>
             </div>
-            ${isMicro ? '<div class="text-[10px] text-amber-400 font-bold mt-0.5"><i class="fa-solid fa-triangle-exclamation"></i> 초미량(0.3ml 시린지/희석)</div>' : ''}
+            ${isMicro ? '<div class="text-[10px] text-rose-600 font-bold mt-0.5"><i class="fa-solid fa-triangle-exclamation"></i> 초미량 (인슐린시린지/희석)</div>' : ''}
           </td>
 
           <!-- 경로 및 간격 -->
-          <td class="py-2.5 px-3">
-            <div class="text-xs font-bold text-slate-200">${specGuide.interval}</div>
-            <div class="text-[11px] text-slate-400 mt-0.5 font-medium">${specGuide.route}</div>
+          <td class="py-3 px-4">
+            <div class="text-xs font-bold text-slate-800">${specGuide.interval}</div>
+            <div class="text-[11px] text-slate-600 mt-0.5 font-medium">${specGuide.route}</div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -535,6 +543,38 @@
       } catch (err) {
         console.error(err);
       }
+    }
+
+    /* 이미지 저장 기능 (html2canvas) */
+    function saveAsImage() {
+      const btn = document.getElementById('saveImgBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 저장 중...`;
+      btn.disabled = true;
+
+      const captureTarget = document.getElementById('captureArea');
+      const patientName = document.getElementById('patientName').value.trim() || '환자';
+      const sp = getCurrentSpecies();
+      const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+
+      html2canvas(captureTarget, {
+        scale: 2, // 선명한 고화질 캡처
+        backgroundColor: '#f1f5f9', // slate-100
+        useCORS: true,
+        logging: false
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `[처방용량]_${sp.name}_${patientName}_${today}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }).catch(err => {
+        console.error('이미지 저장 오류:', err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      });
     }
 
     function resetForm() {
