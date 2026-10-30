@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>동물 처방 약량 계산기</title>
-  <!-- 화면 캡처용 html2canvas 라이브러리 로드 -->
+  <!-- 화면 캡처용 html2canvas 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 8px; color: #1e293b; background: #f8fafc; margin: 0; }
@@ -14,7 +14,7 @@
     input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; }
 
-    /* 캡처 대상 영역 래퍼 */
+    /* 캡처 대상 영역 */
     #capture-area {
       background: #ffffff;
       padding: 10px;
@@ -22,7 +22,7 @@
       border: 1px solid #cbd5e1;
     }
 
-    /* 상단 컨트롤 바: 체중 + 공통 일수 */
+    /* 상단 컨트롤 바 */
     .top-panel {
       display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
       background: #f8fafc; padding: 6px 10px; border-radius: 6px;
@@ -57,19 +57,24 @@
     th.col-dose { background: #dcfce7; color: #166534; }
     .col-sched { background: #faf5ff; }
     th.col-sched { background: #f3e8ff; color: #6b21a8; }
-    .col-single { background: #fffbeb; }
-    th.col-single { background: #fef3c7; color: #92400e; }
+    
+    /* 앞당긴 총 조제량 (청록) */
     .col-total { background: #f0fdfa; }
     th.col-total { background: #ccfbf1; color: #115e59; }
+
+    /* 뒤로 이동한 1회 조제량 (호박/노랑) */
+    .col-single { background: #fffbeb; }
+    th.col-single { background: #fef3c7; color: #92400e; }
+
     .col-rev { background: #fff1f2; }
     th.col-rev { background: #ffe4e6; color: #9f1239; }
 
-    /* 숫자 강조 */
-    .res-single-num { color: #d97706; font-weight: 800; font-size: 14px; }
+    /* 핵심 강조: 총 필요량 */
     .res-total-highlight {
       font-size: 16px; font-weight: 900; color: #047857;
       background: #a7f3d0 !important; border: 1.5px solid #059669 !important;
     }
+    .res-single-num { color: #d97706; font-weight: 800; font-size: 14px; }
     .res-rev-num { color: #e11d48; font-weight: 800; font-size: 13px; }
 
     /* 입력창 */
@@ -81,7 +86,7 @@
     td input.text-left { text-align: left; padding-left: 4px; }
     td input:focus { outline: none; border-color: #2563eb; background: #f8fafc; }
 
-    /* 버튼 스타일 */
+    /* 버튼 */
     button { padding: 5px 12px; border: none; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.15s; }
     .btn-main { background: #2563eb; color: white; }
     .btn-main:hover { background: #1d4ed8; }
@@ -89,14 +94,8 @@
     .btn-sub:hover { background: #e2e8f0; }
     .btn-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
 
-    /* 이미지 저장 강조 버튼 */
     .btn-img-save {
-      background: #059669;
-      color: white;
-      font-size: 13px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      background: #059669; color: white; font-size: 13px; display: inline-flex; align-items: center; gap: 5px;
       box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
     }
     .btn-img-save:hover { background: #047857; }
@@ -106,14 +105,12 @@
 </head>
 <body>
 
-  <!-- 캡처 영역 시작 (상단 정보 + 테이블 전체) -->
   <div id="capture-area">
     <h2>
       <span>🐾 동물 처방 약량 계산서</span>
       <span id="capture-timestamp" style="font-size: 12px; font-weight: normal; color: #64748b;"></span>
     </h2>
 
-    <!-- 상단 체중 + 공통 처방 일수 일괄 적용창 -->
     <div class="top-panel">
       <div class="input-box">
         <label for="commonWeight">체중:</label>
@@ -125,7 +122,6 @@
         <input type="number" id="commonDays" class="input-days" placeholder="일수" oninput="applyCommonDays()"> 일분
       </div>
 
-      <!-- 패턴 컨트롤 (이미지 저장 시에는 자동으로 제외됨) -->
       <div class="pattern-box no-export">
         <input type="text" id="patternName" placeholder="패턴명" style="width: 85px;">
         <button class="btn-sub" onclick="saveCurrentPattern()">저장</button>
@@ -140,7 +136,6 @@
       </div>
     </div>
 
-    <!-- 계산 테이블 -->
     <div class="table-container">
       <table>
         <thead>
@@ -149,8 +144,10 @@
             <th colspan="2" class="col-drug">약물 규격</th>
             <th class="col-dose">처방</th>
             <th colspan="2" class="col-sched">주기</th>
-            <th colspan="2" class="col-single">1회 조제량</th>
+            <!-- 순서 변경: 총 조제량을 앞쪽으로 배치 -->
             <th colspan="2" class="col-total">총 조제량 (핵심)</th>
+            <!-- 1회 조제량을 뒤로 이동 -->
+            <th colspan="2" class="col-single">1회 조제량</th>
             <th colspan="2" class="col-rev">역산 (총량 1 맞춤)</th>
           </tr>
           <tr>
@@ -159,10 +156,13 @@
             <th class="col-dose" style="width: 50px;">용량<br><small>(mg/kg)</small></th>
             <th class="col-sched" style="width: 45px;">구분</th>
             <th class="col-sched" style="width: 36px;">일수</th>
-            <th class="col-single" style="width: 46px;">성분<br><small>(mg)</small></th>
-            <th class="col-single" style="width: 52px;">분량<br><small>(단위)</small></th>
+            <!-- 총 조제량 컬럼 헤더 -->
             <th class="col-total" style="width: 54px;">총성분<br><small>(mg)</small></th>
             <th class="col-total" style="width: 72px;">총 필요량<br><small>(정,mL)</small></th>
+            <!-- 1회 조제량 컬럼 헤더 -->
+            <th class="col-single" style="width: 46px;">성분<br><small>(mg)</small></th>
+            <th class="col-single" style="width: 52px;">분량<br><small>(단위)</small></th>
+            <!-- 역산 컬럼 헤더 -->
             <th class="col-rev" style="width: 55px;">1일1회<br><small>(SID)</small></th>
             <th class="col-rev" style="width: 55px;">1일2회<br><small>(BID)</small></th>
           </tr>
@@ -171,15 +171,12 @@
       </table>
     </div>
   </div>
-  <!-- 캡처 영역 끝 -->
 
-  <!-- 하단 액션 버튼 바 -->
   <div class="bottom-actions">
     <div>
       <button class="btn-main" onclick="calculateAll()">일괄 재계산</button>
       <button class="btn-sub" onclick="resetForm()">전체 리셋</button>
     </div>
-    <!-- 이미지 파일 저장 버튼 -->
     <div>
       <button class="btn-img-save" onclick="saveAsImage()">
         📷 처방내역 이미지(PNG) 저장
@@ -217,10 +214,16 @@
           <td class="col-dose"><input type="number" step="any" id="dose_${i}" placeholder="용량" oninput="calculateRow(${i})"></td>
           <td class="col-sched" style="font-size: 13px;" id="freq_label_${i}">${freqLabel}<input type="hidden" id="freq_${i}" value="${defaultFreq}"></td>
           <td class="col-sched"><input type="number" id="days_${i}" placeholder="일" oninput="calculateRow(${i})"></td>
-          <td class="col-single" id="res_single_mg_${i}">-</td>
-          <td class="col-single res-single-num" id="res_single_unit_${i}">-</td>
+          
+          <!-- 순서 변경: 총 조제량 셀 -->
           <td class="col-total" id="res_total_mg_${i}">-</td>
           <td class="col-total res-total-highlight" id="res_total_unit_${i}">-</td>
+          
+          <!-- 순서 변경: 1회 조제량 셀 -->
+          <td class="col-single" id="res_single_mg_${i}">-</td>
+          <td class="col-single res-single-num" id="res_single_unit_${i}">-</td>
+
+          <!-- 역산 셀 -->
           <td class="col-rev res-rev-num" id="res_sid_${i}">-</td>
           <td class="col-rev res-rev-num" id="res_bid_${i}">-</td>
         `;
@@ -291,30 +294,26 @@
       for (let i = 1; i <= ROWS_COUNT; i++) calculateRow(i);
     }
 
-    /* 이미지(PNG) 저장 함수 */
     async function saveAsImage() {
       const captureArea = document.getElementById('capture-area');
       const weight = document.getElementById('commonWeight').value || '0';
       const days = document.getElementById('commonDays').value || '0';
 
-      // 캡처 시각 표기
       const now = new Date();
       const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
       const timeElem = document.getElementById('capture-timestamp');
       timeElem.textContent = `[처방일시: ${dateStr}]`;
 
-      // 저장 불필요한 패턴 UI 요소 일시 숨김
       const noExportElements = document.querySelectorAll('.no-export');
       noExportElements.forEach(el => el.style.visibility = 'hidden');
 
       try {
         const canvas = await html2canvas(captureArea, {
-          scale: 2,             // 고해상도(레티나 2배수)로 캡처하여 선명하게 저장
+          scale: 2,
           backgroundColor: '#ffffff',
           useCORS: true
         });
 
-        // 다운로드 실행
         const link = document.createElement('a');
         const filenameDate = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
         link.download = `처방계산_${weight}kg_${days}일분_${filenameDate}.png`;
@@ -324,7 +323,6 @@
         console.error('캡처 오류:', err);
         alert('이미지 저장 중 오류가 발생했습니다.');
       } finally {
-        // UI 복구
         noExportElements.forEach(el => el.style.visibility = 'visible');
       }
     }
