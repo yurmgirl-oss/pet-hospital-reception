@@ -20,6 +20,9 @@
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #cbd5e1;
+      display: inline-block;
+      min-width: 100%;
+      box-sizing: border-box;
     }
 
     /* 상단 컨트롤 바 */
@@ -29,9 +32,12 @@
       border: 1px solid #e2e8f0; margin-bottom: 8px;
     }
     .input-box { display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 14px; }
-    .input-box input { width: 60px; padding: 4px 6px; font-size: 15px; font-weight: 900; border-radius: 4px; text-align: right; }
-    .input-weight { border: 2px solid #2563eb; color: #1d4ed8; }
-    .input-days { border: 2px solid #059669; color: #047857; }
+    .input-box input { padding: 4px 6px; font-size: 14px; font-weight: 900; border-radius: 4px; }
+    
+    /* 신규 환자 이름 입력창 */
+    .input-patient { width: 75px; border: 2px solid #6366f1; color: #4338ca; text-align: left; }
+    .input-weight { width: 55px; border: 2px solid #2563eb; color: #1d4ed8; text-align: right; font-size: 15px; }
+    .input-days { width: 50px; border: 2px solid #059669; color: #047857; text-align: right; font-size: 15px; }
 
     .pattern-box { display: flex; align-items: center; gap: 6px; border-left: 2px solid #cbd5e1; padding-left: 8px; }
     .pattern-box input, .pattern-box select { padding: 4px 6px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 12px; font-weight: 600; }
@@ -58,14 +64,13 @@
     .col-sched { background: #faf5ff; }
     th.col-sched { background: #f3e8ff; color: #6b21a8; }
     
-    /* 앞당긴 총 조제량 (청록) */
+    /* 총 조제량 (청록) */
     .col-total { background: #f0fdfa; }
     th.col-total { background: #ccfbf1; color: #115e59; }
 
-    /* 뒤로 이동한 1회 조제량 (호박/노랑) */
+    /* 1회 조제량 & 역산 (캡처 시 숨겨지는 영역) */
     .col-single { background: #fffbeb; }
     th.col-single { background: #fef3c7; color: #92400e; }
-
     .col-rev { background: #fff1f2; }
     th.col-rev { background: #ffe4e6; color: #9f1239; }
 
@@ -105,13 +110,20 @@
 </head>
 <body>
 
+  <!-- 캡처 영역 시작 -->
   <div id="capture-area">
     <h2>
       <span>🐾 동물 처방 약량 계산서</span>
       <span id="capture-timestamp" style="font-size: 12px; font-weight: normal; color: #64748b;"></span>
     </h2>
 
+    <!-- 상단: 이름 + 체중 + 공통 처방 일수 -->
     <div class="top-panel">
+      <div class="input-box">
+        <label for="patientName">이름:</label>
+        <input type="text" id="patientName" class="input-patient" placeholder="환자명">
+      </div>
+
       <div class="input-box">
         <label for="commonWeight">체중:</label>
         <input type="number" step="any" id="commonWeight" class="input-weight" placeholder="0.0" oninput="calculateAll()"> kg
@@ -136,19 +148,20 @@
       </div>
     </div>
 
+    <!-- 계산 테이블 -->
     <div class="table-container">
-      <table>
+      <table id="mainCalcTable">
         <thead>
           <tr>
             <th rowspan="2" style="width: 22px; background: #f1f5f9;">No</th>
             <th colspan="2" class="col-drug">약물 규격</th>
             <th class="col-dose">처방</th>
             <th colspan="2" class="col-sched">주기</th>
-            <!-- 순서 변경: 총 조제량을 앞쪽으로 배치 -->
+            <!-- 총 조제량 (이미지 캡처의 마지막 열) -->
             <th colspan="2" class="col-total">총 조제량 (핵심)</th>
-            <!-- 1회 조제량을 뒤로 이동 -->
-            <th colspan="2" class="col-single">1회 조제량</th>
-            <th colspan="2" class="col-rev">역산 (총량 1 맞춤)</th>
+            <!-- 캡처 시 자동 제외되는 1회 조제량 & 역산 -->
+            <th colspan="2" class="col-single hide-on-capture">1회 조제량</th>
+            <th colspan="2" class="col-rev hide-on-capture">역산 (총량 1 맞춤)</th>
           </tr>
           <tr>
             <th class="col-drug" style="width: 78px;">약품명</th>
@@ -156,21 +169,21 @@
             <th class="col-dose" style="width: 50px;">용량<br><small>(mg/kg)</small></th>
             <th class="col-sched" style="width: 45px;">구분</th>
             <th class="col-sched" style="width: 36px;">일수</th>
-            <!-- 총 조제량 컬럼 헤더 -->
+            <!-- 총 조제량 -->
             <th class="col-total" style="width: 54px;">총성분<br><small>(mg)</small></th>
             <th class="col-total" style="width: 72px;">총 필요량<br><small>(정,mL)</small></th>
-            <!-- 1회 조제량 컬럼 헤더 -->
-            <th class="col-single" style="width: 46px;">성분<br><small>(mg)</small></th>
-            <th class="col-single" style="width: 52px;">분량<br><small>(단위)</small></th>
-            <!-- 역산 컬럼 헤더 -->
-            <th class="col-rev" style="width: 55px;">1일1회<br><small>(SID)</small></th>
-            <th class="col-rev" style="width: 55px;">1일2회<br><small>(BID)</small></th>
+            <!-- 1회 조제량 & 역산 (캡처 제외) -->
+            <th class="col-single hide-on-capture" style="width: 46px;">성분<br><small>(mg)</small></th>
+            <th class="col-single hide-on-capture" style="width: 52px;">분량<br><small>(단위)</small></th>
+            <th class="col-rev hide-on-capture" style="width: 55px;">1일1회<br><small>(SID)</small></th>
+            <th class="col-rev hide-on-capture" style="width: 55px;">1일2회<br><small>(BID)</small></th>
           </tr>
         </thead>
         <tbody id="calcTableBody"></tbody>
       </table>
     </div>
   </div>
+  <!-- 캡처 영역 끝 -->
 
   <div class="bottom-actions">
     <div>
@@ -195,10 +208,12 @@
       for (let i = 1; i <= ROWS_COUNT; i++) {
         if (i === 1) {
           const h1 = document.createElement('tr');
+          h1.className = 'group-header-row';
           h1.innerHTML = `<td colspan="12" class="group-header-bid">🟠 [그룹 1] 1일 2회 투약 (BID) — 1~5번 약물</td>`;
           tbody.appendChild(h1);
         } else if (i === 6) {
           const h2 = document.createElement('tr');
+          h2.className = 'group-header-row';
           h2.innerHTML = `<td colspan="12" class="group-header-sid">🟣 [그룹 2] 1일 1회 투약 (SID) — 6~10번 약물</td>`;
           tbody.appendChild(h2);
         }
@@ -215,17 +230,15 @@
           <td class="col-sched" style="font-size: 13px;" id="freq_label_${i}">${freqLabel}<input type="hidden" id="freq_${i}" value="${defaultFreq}"></td>
           <td class="col-sched"><input type="number" id="days_${i}" placeholder="일" oninput="calculateRow(${i})"></td>
           
-          <!-- 순서 변경: 총 조제량 셀 -->
+          <!-- 총 조제량 셀 -->
           <td class="col-total" id="res_total_mg_${i}">-</td>
           <td class="col-total res-total-highlight" id="res_total_unit_${i}">-</td>
           
-          <!-- 순서 변경: 1회 조제량 셀 -->
-          <td class="col-single" id="res_single_mg_${i}">-</td>
-          <td class="col-single res-single-num" id="res_single_unit_${i}">-</td>
-
-          <!-- 역산 셀 -->
-          <td class="col-rev res-rev-num" id="res_sid_${i}">-</td>
-          <td class="col-rev res-rev-num" id="res_bid_${i}">-</td>
+          <!-- 1회 조제량 & 역산 셀 (캡처 제외 대상) -->
+          <td class="col-single hide-on-capture" id="res_single_mg_${i}">-</td>
+          <td class="col-single res-single-num hide-on-capture" id="res_single_unit_${i}">-</td>
+          <td class="col-rev res-rev-num hide-on-capture" id="res_sid_${i}">-</td>
+          <td class="col-rev res-rev-num hide-on-capture" id="res_bid_${i}">-</td>
         `;
         tbody.appendChild(tr);
       }
@@ -294,18 +307,29 @@
       for (let i = 1; i <= ROWS_COUNT; i++) calculateRow(i);
     }
 
+    /* 이미지 저장: 총 조제량까지만 슬림하게 캡처 */
     async function saveAsImage() {
       const captureArea = document.getElementById('capture-area');
+      const patient = document.getElementById('patientName').value.trim() || '미지정';
       const weight = document.getElementById('commonWeight').value || '0';
       const days = document.getElementById('commonDays').value || '0';
 
       const now = new Date();
       const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
       const timeElem = document.getElementById('capture-timestamp');
-      timeElem.textContent = `[처방일시: ${dateStr}]`;
+      timeElem.textContent = `[환자: ${patient} | 체중: ${weight}kg | 처방일시: ${dateStr}]`;
 
+      // 1. 패턴 컨트롤 버튼 숨김
       const noExportElements = document.querySelectorAll('.no-export');
-      noExportElements.forEach(el => el.style.visibility = 'hidden');
+      noExportElements.forEach(el => el.style.display = 'none');
+
+      // 2. 1회 조제량 및 역산 컬럼 일시 숨김 (display: none 처리)
+      const hideCols = document.querySelectorAll('.hide-on-capture');
+      hideCols.forEach(el => el.style.display = 'none');
+
+      // 3. 그룹 헤더 colspan을 12 -> 8로 일시 축소
+      const groupHeaders = document.querySelectorAll('.group-header-row td');
+      groupHeaders.forEach(td => td.colSpan = 8);
 
       try {
         const canvas = await html2canvas(captureArea, {
@@ -316,14 +340,17 @@
 
         const link = document.createElement('a');
         const filenameDate = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-        link.download = `처방계산_${weight}kg_${days}일분_${filenameDate}.png`;
+        link.download = `처방_${patient}_${weight}kg_${days}일분_${filenameDate}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       } catch (err) {
         console.error('캡처 오류:', err);
         alert('이미지 저장 중 오류가 발생했습니다.');
       } finally {
-        noExportElements.forEach(el => el.style.visibility = 'visible');
+        // UI 원상 복구
+        noExportElements.forEach(el => el.style.display = '');
+        hideCols.forEach(el => el.style.display = '');
+        groupHeaders.forEach(td => td.colSpan = 12);
       }
     }
 
@@ -399,6 +426,7 @@
     }
 
     function resetForm() {
+      document.getElementById('patientName').value = '';
       document.getElementById('commonWeight').value = '';
       document.getElementById('commonDays').value = '';
       document.getElementById('savedPatternSelect').value = '';
