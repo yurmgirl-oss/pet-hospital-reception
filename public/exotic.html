@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>특수동물 약물 용량 계산기 (Exotic Vet Calculator)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans KR"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            teal: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+            },
+            slate: {
+              850: '#1e293b',
+              900: '#0f172a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 인쇄 전용 스타일 */
+    @media print {
+      body {
+        background-color: white !important;
+        color: black !important;
+        font-size: 11pt;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-shadow-none {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+    }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+
+  <!-- 상단 네비게이션 헤더 -->
+  <header class="bg-gradient-to-r from-teal-800 to-slate-900 text-white shadow-lg sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300 text-xl shadow-inner">
+          <i class="fa-solid fa-staff-snake"></i>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            특수동물 약물 용량 계산기
+            <span class="text-xs px-2 py-0.5 rounded-full bg-teal-400/20 text-teal-300 font-medium border border-teal-400/30">100g 기준 임상 처방</span>
+          </h1>
+          <p class="text-xs text-slate-300">게코 · 앵무새 · 육지거북 · 햄스터 · 뱀 · 카멜레온 전용 소형 환축 처방 시스템</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2 no-print">
+        <button id="resetBtn" onclick="resetForm()" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-arrow-rotate-left"></i> 초기화
+        </button>
+        <button onclick="window.print()" class="px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-lg bg-teal-600 hover:bg-teal-500 text-white shadow-sm transition flex items-center gap-1.5">
+          <i class="fa-solid fa-print"></i> 처방전 인쇄
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 컨테이너 -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    
+    <!-- 1. 동물 종 선택 탭 -->
+    <section class="no-print">
+      <div class="flex items-center justify-between mb-3">
+        <label class="text-sm font-bold text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-paw text-teal-600"></i> 대상 동물 종(Species) 선택
+        </label>
+        <span class="text-xs text-slate-500">종 특이적 대사 및 체질별 권장 용량·투여 간격이 자동 반영됩니다.</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5" id="speciesTabsContainer">
+        <!-- 탭 버튼 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 2. 환자 정보 & 체중 입력 바 -->
+    <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+        <!-- 환자 이름 -->
+        <div class="md:col-span-4">
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+            <i class="fa-regular fa-id-card text-teal-600 mr-1"></i> 환자 이름 / 차트 번호
+          </label>
+          <div class="relative">
+            <input type="text" id="patientName" placeholder="예: 레오 (Gecko-01)" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition text-sm font-medium text-slate-800"
+              oninput="handlePatientInfoUpdate()">
+          </div>
+        </div>
+
+        <!-- 체중 입력 & 단위 변환 -->
+        <div class="md:col-span-5">
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5 flex justify-between">
+            <span><i class="fa-solid fa-weight-scale text-teal-600 mr-1"></i> 체중 입력 (기본: g)</span>
+            <span class="text-teal-700 font-semibold" id="convertedWeightText">0.000 kg</span>
+          </label>
+          <div class="flex rounded-xl shadow-sm border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-teal-500">
+            <input type="number" id="weightInput" min="0.1" step="any" placeholder="체중을 입력하세요" 
+              class="w-full px-3.5 py-2.5 bg-slate-50 focus:bg-white text-base font-bold text-slate-900 focus:outline-none"
+              oninput="calculateAllDoses()">
+            <div class="flex bg-slate-100 border-l border-slate-200 p-1 gap-1">
+              <button type="button" id="unitG" onclick="setUnit('g')" class="px-3 py-1 text-xs font-bold rounded-lg bg-teal-600 text-white shadow-sm transition">g</button>
+              <button type="button" id="unitKg" onclick="setUnit('kg')" class="px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition">kg</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 선택된 종 뱃지 & 요약 카드 -->
+        <div class="md:col-span-3 bg-teal-50/70 border border-teal-200/80 rounded-xl p-3 flex items-center space-x-3">
+          <div id="speciesIconBadge" class="w-12 h-12 rounded-xl bg-teal-600 text-white flex items-center justify-center text-xl shadow-sm flex-shrink-0">
+            <i class="fa-solid fa-dragon"></i>
+          </div>
+          <div class="overflow-hidden">
+            <div class="text-[11px] font-semibold text-teal-800 uppercase tracking-wider">선택된 분류</div>
+            <div id="selectedSpeciesName" class="text-base font-bold text-teal-950 truncate">게코 (Gecko)</div>
+            <div id="speciesNotesShort" class="text-[11px] text-teal-700 truncate">100g 당 기준 처방량 자동 적용</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 주사 처방 계산 테이블 / 카드 목록 -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <!-- 섹션 헤더 -->
+      <div class="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-syringe text-teal-600"></i> 약물 주사량 산출 결과
+            <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200 font-semibold">100g 기준 Formulary</span>
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">환축의 체중(g)에 비례하여 100g당 처방량으로부터 총 처방량(mg) 및 주사량(ml, U-100 눈금)을 즉시 계산합니다.</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span> 자동 계산됨</span>
+          <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> 기준용량(100g당) 수정 가능</span>
+        </div>
+      </div>
+
+      <!-- 반응형 테이블 컨테이너 -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse" id="drugTable">
+          <thead>
+            <tr class="bg-slate-100/80 text-slate-700 text-xs uppercase tracking-wider font-semibold border-b border-slate-200">
+              <th class="py-3 px-4 w-44">약물명 & 원내 규격</th>
+              <th class="py-3 px-4 w-48 bg-amber-50/50 text-amber-900 border-x border-amber-100">기준 처방량 [per 100g]</th>
+              <th class="py-3 px-4 w-36">총 처방량</th>
+              <th class="py-3 px-4 w-52 bg-teal-50/80 text-teal-900 border-x border-teal-100 font-bold">실제 주사량 (Volume)</th>
+              <th class="py-3 px-4">투여 간격 및 경로 (Guide)</th>
+            </tr>
+          </thead>
+          <tbody id="drugTableBody" class="divide-y divide-slate-100 text-sm">
+            <!-- 동적 주사제 로우 삽입 -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 하단 인쇄/차트용 요약 안내 -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+        <div id="chartFooterNote" class="font-medium">
+          환자: <span id="summaryPatientName" class="font-bold text-slate-800">미지정</span> | 
+          분류: <span id="summarySpecies" class="font-bold text-slate-800">게코</span> | 
+          체중: <span id="summaryWeight" class="font-bold text-teal-700">0 g (0.0000 kg)</span>
+        </div>
+        <div class="text-slate-500 font-mono text-[11px]">
+          공식: 총 처방량 = [기준량(/100g) × 체중(g) ÷ 100] | 주사량(ml) = 총처방량 ÷ 원내농도
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 임상 시 주의사항 & 복사하기 섹션 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- 복사용 텍스트 카드 -->
+      <div class="lg:col-span-1 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-regular fa-clipboard text-teal-600"></i> 전자 차트(EMR) 복사용 요약
+            </h3>
+            <button onclick="copyChartSummary()" class="text-xs px-2.5 py-1 bg-teal-50 text-teal-700 hover:bg-teal-100 font-semibold rounded-lg border border-teal-200 transition">
+              <i class="fa-regular fa-copy mr-1"></i>복사
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">클릭 한 번으로 진료 차트용 처방 텍스트를 클립보드에 복사할 수 있습니다.</p>
+          <textarea id="chartSummaryText" readonly rows="8" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono text-slate-700 focus:outline-none resize-none selection:bg-teal-200"></textarea>
+        </div>
+        <div id="copyAlertToast" class="hidden text-xs text-center py-1 mt-2 bg-teal-600 text-white font-medium rounded-lg shadow transition">
+          차트 요약이 클립보드에 복사되었습니다!
+        </div>
+      </div>
+
+      <!-- 임상 주의사항 가이드 -->
+      <div class="lg:col-span-2 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> 특수동물 주사 처치 시 필수 임상 가이드라인
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs leading-relaxed text-slate-600">
+          <div class="p-3 bg-amber-50/60 border border-amber-200/70 rounded-xl">
+            <span class="font-bold text-amber-900 block mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-shield-halved text-amber-600"></i> 파충류의 신문맥계 (Renal Portal System)
+            </span>
+            파충류(게코, 육지거북, 뱀, 카멜레온)는 후구(뒷다리/꼬리)에 투여 시 약물이 신장을 거쳐 신속 배설되거나 신독성을 유발할 수 있으므로, <strong>전반신(앞다리 부위 근육 또는 앞쪽 피하)</strong>에 투여하는 것을 원칙으로 합니다.
+          </div>
+
+          <div class="p-3 bg-teal-50/60 border border-teal-200/70 rounded-xl">
+            <span class="font-bold text-teal-900 block mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-scale-balanced text-teal-600"></i> 초미량 주사기 및 인슐린 실린지 사용
+            </span>
+            햄스터 및 소형 파충류의 경우 1회 주사량이 0.01~0.05ml 이하로 계산될 수 있습니다. 0.3ml 또는 0.5ml 31G 인슐린 주사기를 사용하거나, 생리식염수로 1:5~1:10 희석 후 증량 투여를 고려하십시오.
+          </div>
+
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="font-bold text-slate-800 block mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-temperature-half text-blue-500"></i> 수액(하트만) 투여 시 보온
+            </span>
+            체온 저하를 방지하기 위해 LRS(하트만 수액)는 반드시 <strong>동물의 체온 부근(약 28~35℃)으로 미온 가온</strong> 후 피하(SC) 또는 체강(ICe) 투여를 권장합니다.
+          </div>
+
+          <div class="p-3 bg-rose-50/60 border border-rose-200/70 rounded-xl">
+            <span class="font-bold text-rose-900 block mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-capsules text-rose-600"></i> 비타민 ADEK 투여 시 과비타민증 주의
+            </span>
+            지용성 비타민은 대사가 느리므로 단회 투여를 원칙으로 하거나 최소 7~14일 간격을 유지하며, 거북의 비타민A 결핍 안질환 시에도 과용량 투여를 엄격히 제한합니다.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 5. 면책 고지문 (Legal Disclaimer) -->
+    <footer class="mt-8 pt-4 border-t border-slate-200 text-center text-xs text-slate-400">
+      <p class="font-medium text-slate-500 mb-1">
+        <i class="fa-solid fa-circle-info mr-1"></i> 수의학 임상 참고용 전문 도구 안내
+      </p>
+      <p>본 계산기는 Carpenter's Exotic Animal Formulary 및 표준 수의학 임상 프로토콜을 참고하여 제작된 보조 도구입니다.<br class="hidden sm:inline"> 개체의 탈수 상태, 신장/간 기능 부전, 온도(POTZ), 감염 중증도에 따라 주치의(수의사)의 전문적 판단 하에 감량 또는 조절하여 투여하십시오.</p>
+      <p class="mt-2 text-[11px] text-slate-400">© Exotic Animal Veterinary Injectable Formulary Calculator</p>
+    </footer>
+
+  </main>
+
+  <script>
+    /* ==========================================================================
+       1. 데이터 정의 (동물 종 & 100g 당 기준 처방량/농도/간격/경로)
+       ========================================================================== */
+    const SPECIES_CONFIG = [
+      {
+        id: 'gecko',
+        name: '게코 (도마뱀)',
+        engName: 'Gecko / Lizard',
+        icon: 'fa-dragon',
+        color: 'emerald',
+        defaultUnit: 'g',
+        typicalWeight: 45, // 45g
+        notes: '전반신 근육(IM) 또는 피하(SC) 투여 권장, 신문맥계 회피'
+      },
+      {
+        id: 'parrot',
+        name: '앵무새 (조류)',
+        engName: 'Parrot / Avian',
+        icon: 'fa-dove',
+        color: 'sky',
+        defaultUnit: 'g',
+        typicalWeight: 100, // 100g (왕관앵무 등 기준)
+        notes: '흉근(Pectoral IM) 투여 시 좌우 분할 주사 고려, 고대사율'
+      },
+      {
+        id: 'tortoise',
+        name: '육지거북',
+        engName: 'Tortoise / Chelonian',
+        icon: 'fa-shield-cat',
+        color: 'amber',
+        defaultUnit: 'g',
+        typicalWeight: 350, // 350g
+        notes: '앞다리 상완근 IM 또는 상완와 SC 투여, 긴 반감기 고려'
+      },
+      {
+        id: 'hamster',
+        name: '햄스터 (소동물)',
+        engName: 'Hamster / Rodent',
+        icon: 'fa-cubes-stacked',
+        color: 'orange',
+        defaultUnit: 'g',
+        typicalWeight: 120, // 120g
+        notes: '목덜미 피하(SC) 우선 투여, 자극성 약물은 생식 희석 권장'
+      },
+      {
+        id: 'snake',
+        name: '뱀 (유린목)',
+        engName: 'Snake / Serpent',
+        icon: 'fa-staff-snake',
+        color: 'violet',
+        defaultUnit: 'g',
+        typicalWeight: 250, // 250g
+        notes: '상체 전반부 1/3 척추 주위 근육(IM) 또는 피하(SC)'
+      },
+      {
+        id: 'chameleon',
+        name: '카멜레온',
+        engName: 'Chameleon',
+        icon: 'fa-eye',
+        color: 'teal',
+        defaultUnit: 'g',
+        typicalWeight: 80, // 80g
+        notes: '앞다리 상완골 근육(IM) 또는 피하, 보정 스트레스 최소화'
+      }
+    ];
+
+    /**
+     * 100g 기준 약물 데이터베이스
+     * - 바이트릴 5mg/ml
+     * - 메타캄 0.1mg/ml
+     * - 세프타지딤 10mg/ml
+     * - 툴라스로마이신 2.5mg/ml
+     * - 비타민 ADEK (ml/100g)
+     * - 수액 하트만 (ml/100g)
+     */
+    const DRUG_DATABASE = [
+      {
+        id: 'baytril',
+        name: '바이트릴 (엔로플록사신)',
+        subName: 'Baytril (Enrofloxacin)',
+        concentration: 5.0, // 5 mg/ml
+        unitType: 'mg',
+        colorBadge: 'bg-blue-100 text-blue-800 border-blue-200',
+        speciesDosing: {
+          gecko: { defaultDose100g: 1.0, unit: 'mg/100g', interval: '24~48시간 간격, SC / IM (전반신)', route: 'SC / IM' },
+          parrot: { defaultDose100g: 1.5, unit: 'mg/100g', interval: '12~24시간 간격, IM / SC (흉근 분할)', route: 'IM / SC' },
+          tortoise: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '24~48시간 간격, 앞다리 IM', route: 'IM (전지)' },
+          hamster: { defaultDose100g: 1.0, unit: 'mg/100g', interval: '12~24시간 간격, SC / PO', route: 'SC / PO' },
+          snake: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '48시간 간격, 상체 1/3 IM / SC', route: 'IM / SC' },
+          chameleon: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '24~48시간 간격, 앞다리 IM', route: 'IM' }
+        }
+      },
+      {
+        id: 'metacam',
+        name: '메타캄 (멜록시캄)',
+        subName: 'Metacam (Meloxicam)',
+        concentration: 0.1, // 0.1 mg/ml
+        unitType: 'mg',
+        colorBadge: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        speciesDosing: {
+          gecko: { defaultDose100g: 0.05, unit: 'mg/100g', interval: '24시간 간격, SC / PO (탈수 시 보류)', route: 'SC / PO' },
+          parrot: { defaultDose100g: 0.1, unit: 'mg/100g', interval: '12~24시간 간격, IM / PO', route: 'IM / PO' },
+          tortoise: { defaultDose100g: 0.05, unit: 'mg/100g', interval: '24~48시간 간격, SC / IM', route: 'SC / IM' },
+          hamster: { defaultDose100g: 0.1, unit: 'mg/100g', interval: '24시간 간격, SC / PO', route: 'SC / PO' },
+          snake: { defaultDose100g: 0.03, unit: 'mg/100g', interval: '48시간 간격, SC', route: 'SC' },
+          chameleon: { defaultDose100g: 0.05, unit: 'mg/100g', interval: '24시간 간격, SC', route: 'SC' }
+        }
+      },
+      {
+        id: 'ceftazidime',
+        name: '세프타지딤 (3세대 세파)',
+        subName: 'Ceftazidime',
+        concentration: 10.0, // 10 mg/ml
+        unitType: 'mg',
+        colorBadge: 'bg-purple-100 text-purple-800 border-purple-200',
+        speciesDosing: {
+          gecko: { defaultDose100g: 2.0, unit: 'mg/100g', interval: '72시간 간격, 앞다리 IM (파충류 표준)', route: 'IM' },
+          parrot: { defaultDose100g: 10.0, unit: 'mg/100g', interval: '8~12시간 간격, 흉근 IM', route: 'IM (흉근)' },
+          tortoise: { defaultDose100g: 2.0, unit: 'mg/100g', interval: '72시간(3일) 간격, 앞다리 IM', route: 'IM (전지)' },
+          hamster: { defaultDose100g: 5.0, unit: 'mg/100g', interval: '12시간 간격, SC', route: 'SC' },
+          snake: { defaultDose100g: 2.0, unit: 'mg/100g', interval: '72시간(3일) 간격, 상체 1/3 IM', route: 'IM' },
+          chameleon: { defaultDose100g: 2.0, unit: 'mg/100g', interval: '72시간 간격, 앞다리 IM', route: 'IM' }
+        }
+      },
+      {
+        id: 'draxxin',
+        name: '툴라스로마이신 (드락신)',
+        subName: 'Tulathromycin (Draxxin)',
+        concentration: 2.5, // 2.5 mg/ml
+        unitType: 'mg',
+        colorBadge: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+        speciesDosing: {
+          gecko: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '48시간 간격, SC / IM', route: 'SC / IM' },
+          parrot: { defaultDose100g: 1.0, unit: 'mg/100g', interval: '48시간 간격, IM', route: 'IM' },
+          tortoise: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '72~120시간 간격, 앞다리 IM', route: 'IM' },
+          hamster: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '48시간 간격, SC', route: 'SC' },
+          snake: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '72시간 간격, SC / IM', route: 'SC / IM' },
+          chameleon: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '48시간 간격, IM', route: 'IM' }
+        }
+      },
+      {
+        id: 'adek',
+        name: '비타민 ADEK 복합제',
+        subName: 'Vitamin ADEK Complex',
+        concentration: 1.0, // ml 당 제형
+        unitType: 'ml',
+        colorBadge: 'bg-amber-100 text-amber-800 border-amber-200',
+        speciesDosing: {
+          gecko: { defaultDose100g: 0.02, unit: 'ml/100g', interval: '주 1회 또는 단회 투여, SC / IM', route: 'SC / IM' },
+          parrot: { defaultDose100g: 0.01, unit: 'ml/100g', interval: '주 1회, IM', route: 'IM' },
+          tortoise: { defaultDose100g: 0.05, unit: 'ml/100g', interval: '격주 ~ 월 1회 (과비타민증 엄격 주의)', route: 'IM' },
+          hamster: { defaultDose100g: 0.02, unit: 'ml/100g', interval: '필요 시 단회 투여, SC', route: 'SC' },
+          snake: { defaultDose100g: 0.02, unit: 'ml/100g', interval: '10~14일 간격 단회, SC / IM', route: 'SC / IM' },
+          chameleon: { defaultDose100g: 0.02, unit: 'ml/100g', interval: '주 1회 또는 필요 시 단회, IM', route: 'IM' }
+        }
+      },
+      {
+        id: 'hartmann',
+        name: '수액 (하트만 / LRS)',
+        subName: "Hartmann's Sol. (LRS)",
+        concentration: 1.0,
+        unitType: 'ml',
+        colorBadge: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+        speciesDosing: {
+          gecko: { defaultDose100g: 2.5, unit: 'ml/100g', interval: '24시간 간격, SC / ICe (가온 후 미온 투여)', route: 'SC / ICe' },
+          parrot: { defaultDose100g: 5.0, unit: 'ml/100g', interval: '일일 유지량 2~3회 분할 SC', route: 'SC' },
+          tortoise: { defaultDose100g: 2.0, unit: 'ml/100g', interval: '24시간 1회 SC / Epicoelomic', route: 'SC / ICe' },
+          hamster: { defaultDose100g: 6.0, unit: 'ml/100g', interval: '24시간 2~3회 분할 SC (보온 유지)', route: 'SC' },
+          snake: { defaultDose100g: 2.0, unit: 'ml/100g', interval: '24시간 간격 SC / ICe (체강)', route: 'SC / ICe' },
+          chameleon: { defaultDose100g: 2.5, unit: 'ml/100g', interval: '24시간 간격 SC 및 미온수 수침 병행', route: 'SC' }
+        }
+      }
+    ];
+
+    /* ==========================================================================
+       2. 상태 관리 (State)
+       ========================================================================== */
+    let currentSpeciesId = 'gecko';
+    let currentUnit = 'g'; // 'g' | 'kg'
+    let customDoses = {}; // 약물별 100g당 커스텀 처방량 캐시
+
+    /* ==========================================================================
+       3. 초기화 및 UI 렌더링
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSpeciesTabs();
+      initDefaultValues();
+      calculateAllDoses();
+    });
+
+    function renderSpeciesTabs() {
+      const container = document.getElementById('speciesTabsContainer');
+      container.innerHTML = '';
+
+      SPECIES_CONFIG.forEach(sp => {
+        const isActive = sp.id === currentSpeciesId;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `p-3 rounded-xl border text-left transition-all duration-150 flex flex-col justify-between ${
+          isActive 
+            ? 'bg-teal-600 text-white border-teal-600 shadow-md ring-2 ring-teal-500/30' 
+            : 'bg-white text-slate-700 border-slate-200 hover:border-teal-400 hover:bg-teal-50/40'
+        }`;
+        btn.onclick = () => selectSpecies(sp.id);
+
+        btn.innerHTML = `
+          <div class="flex items-center justify-between w-full mb-1">
+            <span class="text-lg"><i class="fa-solid ${sp.icon}"></i></span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 font-semibold'}">${sp.defaultUnit}</span>
+          </div>
+          <div>
+            <div class="font-bold text-sm tracking-tight">${sp.name}</div>
+            <div class="text-[10px] opacity-75 truncate">${sp.engName}</div>
+          </div>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    function initDefaultValues() {
+      const sp = getCurrentSpecies();
+      const weightInput = document.getElementById('weightInput');
+      currentUnit = sp.defaultUnit;
+      updateUnitButtons();
+      weightInput.value = sp.typicalWeight;
+      customDoses = {};
+      updateSpeciesCard();
+    }
+
+    function selectSpecies(speciesId) {
+      if (currentSpeciesId === speciesId) return;
+      currentSpeciesId = speciesId;
+      customDoses = {};
+      const sp = getCurrentSpecies();
+      
+      currentUnit = sp.defaultUnit;
+      updateUnitButtons();
+      
+      const weightInput = document.getElementById('weightInput');
+      weightInput.value = sp.typicalWeight;
+
+      renderSpeciesTabs();
+      updateSpeciesCard();
+      calculateAllDoses();
+    }
+
+    function getCurrentSpecies() {
+      return SPECIES_CONFIG.find(s => s.id === currentSpeciesId) || SPECIES_CONFIG[0];
+    }
+
+    function setUnit(unit) {
+      if (currentUnit === unit) return;
+      const weightInput = document.getElementById('weightInput');
+      let val = parseFloat(weightInput.value);
+
+      if (!isNaN(val) && val > 0) {
+        if (unit === 'kg' && currentUnit === 'g') {
+          weightInput.value = (val / 1000).toFixed(4).replace(/\.?0+$/, "");
+        } else if (unit === 'g' && currentUnit === 'kg') {
+          weightInput.value = Math.round(val * 1000);
+        }
+      }
+
+      currentUnit = unit;
+      updateUnitButtons();
+      calculateAllDoses();
+    }
+
+    function updateUnitButtons() {
+      const btnG = document.getElementById('unitG');
+      const btnKg = document.getElementById('unitKg');
+
+      if (currentUnit === 'g') {
+        btnG.className = 'px-3 py-1 text-xs font-bold rounded-lg bg-teal-600 text-white shadow-sm transition';
+        btnKg.className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition';
+      } else {
+        btnKg.className = 'px-3 py-1 text-xs font-bold rounded-lg bg-teal-600 text-white shadow-sm transition';
+        btnG.className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition';
+      }
+    }
+
+    function updateSpeciesCard() {
+      const sp = getCurrentSpecies();
+      document.getElementById('selectedSpeciesName').textContent = sp.name;
+      document.getElementById('speciesNotesShort').textContent = sp.notes;
+      document.getElementById('speciesIconBadge').innerHTML = `<i class="fa-solid ${sp.icon}"></i>`;
+    }
+
+    /* ==========================================================================
+       4. 100g 기준 계산 및 테이블 렌더링
+       ========================================================================== */
+    function getWeightInGrams() {
+      const raw = parseFloat(document.getElementById('weightInput').value);
+      if (isNaN(raw) || raw <= 0) return 0;
+      return currentUnit === 'kg' ? raw * 1000 : raw;
+    }
+
+    function handlePatientInfoUpdate() {
+      updateSummaryFooter();
+      generateChartSummaryText();
+    }
+
+    function calculateAllDoses() {
+      const weightG = getWeightInGrams();
+      const weightKg = weightG / 1000;
+      const weightRaw = parseFloat(document.getElementById('weightInput').value) || 0;
+      
+      const convertedText = document.getElementById('convertedWeightText');
+      if (currentUnit === 'g') {
+        convertedText.textContent = `≈ ${(weightKg).toFixed(4)} kg`;
+      } else {
+        convertedText.textContent = `≈ ${Math.round(weightG)} g`;
+      }
+
+      const tbody = document.getElementById('drugTableBody');
+      tbody.innerHTML = '';
+
+      DRUG_DATABASE.forEach(drug => {
+        const specGuide = drug.speciesDosing[currentSpeciesId];
+        // 100g 당 기준 처방량 가져오기
+        const targetDose100g = customDoses[drug.id] !== undefined 
+          ? customDoses[drug.id] 
+          : specGuide.defaultDose100g;
+
+        let totalPrescribed = 0;
+        let volumeMl = 0;
+        let doseUnitLabel = specGuide.unit; // 'mg/100g' or 'ml/100g'
+
+        if (weightG > 0) {
+          // 총 처방량 = (100g 당 용량) * (체중 g / 100)
+          const multiplier = weightG / 100;
+          if (drug.unitType === 'mg') {
+            totalPrescribed = targetDose100g * multiplier;
+            // 주사량(ml) = 총 처방량(mg) / 농도(mg/ml)
+            volumeMl = totalPrescribed / drug.concentration;
+          } else {
+            // 비타민 ADEK, 하트만 수액 (ml/100g 단위)
+            volumeMl = targetDose100g * multiplier;
+            totalPrescribed = volumeMl;
+          }
+        }
+
+        // 포맷팅
+        const formattedTotalDose = drug.unitType === 'mg' 
+          ? (totalPrescribed < 0.01 && totalPrescribed > 0 ? totalPrescribed.toFixed(4) : totalPrescribed.toFixed(3)) + ' mg'
+          : (totalPrescribed < 0.01 && totalPrescribed > 0 ? totalPrescribed.toFixed(4) : totalPrescribed.toFixed(2)) + ' ml';
+
+        // 주사 용량(ml) 포맷팅
+        let formattedVolume = '0.000 ml';
+        if (volumeMl > 0) {
+          if (volumeMl < 0.05) {
+            formattedVolume = volumeMl.toFixed(4) + ' ml';
+          } else if (volumeMl < 1) {
+            formattedVolume = volumeMl.toFixed(3) + ' ml';
+          } else {
+            formattedVolume = volumeMl.toFixed(2) + ' ml';
+          }
+        }
+
+        // 인슐린 시린지(U-100: 1ml = 100 Units) 환산 눈금 계산
+        const insulinUnits = volumeMl * 100;
+        const formattedInsulinUnits = insulinUnits > 0 
+          ? (insulinUnits < 1 ? insulinUnits.toFixed(2) : insulinUnits.toFixed(1)) + ' IU (눈금)'
+          : '-';
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition-colors";
+        tr.innerHTML = `
+          <!-- 약물명 및 제형 농도 -->
+          <td class="py-3 px-4">
+            <div class="font-bold text-slate-800">${drug.name}</div>
+            <div class="text-xs text-slate-500 font-mono mt-0.5">${drug.subName}</div>
+            <span class="inline-block mt-1 text-[11px] px-2 py-0.5 rounded-md font-semibold border ${drug.colorBadge}">
+              규격: ${drug.concentration} ${drug.unitType === 'mg' ? 'mg/ml' : '제형'}
+            </span>
+          </td>
+
+          <!-- 100g 당 기준 처방량 (사용자 변경 가능 입력 인풋) -->
+          <td class="py-3 px-4 bg-amber-50/30 border-x border-amber-100">
+            <div class="flex items-center space-x-1.5">
+              <input type="number" step="any" min="0" value="${targetDose100g}" 
+                class="w-24 px-2 py-1.5 text-xs font-bold rounded-lg border border-amber-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                onchange="handleDoseChange('${drug.id}', this.value)">
+              <span class="text-xs text-amber-900 font-bold">${doseUnitLabel}</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1">기본 권장: ${specGuide.defaultDose100g} ${doseUnitLabel}</div>
+          </td>
+
+          <!-- 총 처방량 (mg / ml) -->
+          <td class="py-3 px-4">
+            <span class="text-sm font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg inline-block font-mono">
+              ${formattedTotalDose}
+            </span>
+          </td>
+
+          <!-- 실제 주사량 (ml & 인슐린 눈금) -->
+          <td class="py-3 px-4 bg-teal-50/40 border-x border-teal-100">
+            <div class="flex items-baseline space-x-1">
+              <span class="text-base font-extrabold text-teal-800 tracking-tight font-mono">${formattedVolume}</span>
+            </div>
+            <div class="text-[11px] font-semibold text-teal-700 mt-0.5 flex items-center gap-1">
+              <i class="fa-solid fa-syringe text-[10px]"></i> U-100: <span class="underline">${formattedInsulinUnits}</span>
+            </div>
+            ${volumeMl > 0 && volumeMl < 0.05 ? '<div class="text-[10px] text-amber-700 font-medium mt-0.5"><i class="fa-solid fa-triangle-exclamation"></i> 0.3ml 시린지 권장</div>' : ''}
+          </td>
+
+          <!-- 투여 간격 및 경로 (Guide) -->
+          <td class="py-3 px-4">
+            <div class="text-xs font-medium text-slate-800">
+              <i class="fa-solid fa-clock text-slate-400 mr-1"></i> ${specGuide.interval}
+            </div>
+            <div class="text-[11px] text-teal-700 font-semibold mt-1">
+              경로: <span class="bg-teal-100/70 text-teal-900 px-1.5 py-0.5 rounded text-[10px]">${specGuide.route}</span>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      updateSummaryFooter();
+      generateChartSummaryText();
+    }
+
+    function handleDoseChange(drugId, newVal) {
+      const val = parseFloat(newVal);
+      if (!isNaN(val) && val >= 0) {
+        customDoses[drugId] = val;
+      }
+      calculateAllDoses();
+    }
+
+    function updateSummaryFooter() {
+      const nameInput = document.getElementById('patientName').value.trim();
+      const weightRaw = parseFloat(document.getElementById('weightInput').value) || 0;
+      const weightG = getWeightInGrams();
+      const sp = getCurrentSpecies();
+
+      document.getElementById('summaryPatientName').textContent = nameInput || '미지정 환자';
+      document.getElementById('summarySpecies').textContent = sp.name;
+      document.getElementById('summaryWeight').textContent = currentUnit === 'g' 
+        ? `${weightRaw} g (${(weightG / 1000).toFixed(4)} kg)`
+        : `${weightRaw} kg (${Math.round(weightG)} g)`;
+    }
+
+    function generateChartSummaryText() {
+      const name = document.getElementById('patientName').value.trim() || '미지정 환자';
+      const weightRaw = parseFloat(document.getElementById('weightInput').value) || 0;
+      const weightG = getWeightInGrams();
+      const sp = getCurrentSpecies();
+
+      let lines = [];
+      lines.push(`[특수동물 주사처방 (100g 기준) - ${sp.name}]`);
+      lines.push(`- 환자명: ${name}`);
+      lines.push(`- 체중: ${currentUnit === 'g' ? weightRaw + 'g' : weightRaw + 'kg'} (${(weightG / 1000).toFixed(4)} kg)`);
+      lines.push(`----------------------------------------`);
+
+      DRUG_DATABASE.forEach(drug => {
+        const specGuide = drug.speciesDosing[currentSpeciesId];
+        const targetDose100g = customDoses[drug.id] !== undefined ? customDoses[drug.id] : specGuide.defaultDose100g;
+        
+        let vol = 0;
+        let doseMg = 0;
+        if (weightG > 0) {
+          const multiplier = weightG / 100;
+          if (drug.unitType === 'mg') {
+            doseMg = targetDose100g * multiplier;
+            vol = doseMg / drug.concentration;
+          } else {
+            vol = targetDose100g * multiplier;
+            doseMg = vol;
+          }
+        }
+
+        const volStr = vol < 0.05 ? vol.toFixed(4) : (vol < 1 ? vol.toFixed(3) : vol.toFixed(2));
+        const iuStr = (vol * 100).toFixed(1);
+        const mgStr = drug.unitType === 'mg' 
+          ? (doseMg < 0.05 ? doseMg.toFixed(4) : doseMg.toFixed(3)) + 'mg' 
+          : doseMg.toFixed(2) + 'ml';
+
+        lines.push(`• ${drug.name}: ${volStr}ml (${iuStr} IU) [기준: ${targetDose100g}${specGuide.unit} -> 처방: ${mgStr}]`);
+        lines.push(`  └ 투여: ${specGuide.route} | ${specGuide.interval}`);
+      });
+      lines.push(`----------------------------------------`);
+      lines.push(`* 주의: 전반신 투여(신문맥계 우회) 및 보온 유지 (U-100 시린지 기준눈금 병기)`);
+
+      document.getElementById('chartSummaryText').value = lines.join('\n');
+    }
+
+    function copyChartSummary() {
+      const copyTextarea = document.getElementById('chartSummaryText');
+      copyTextarea.select();
+      copyTextarea.setSelectionRange(0, 99999);
+
+      try {
+        document.execCommand('copy');
+        const toast = document.getElementById('copyAlertToast');
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 2000);
+      } catch (err) {
+        console.error('클립보드 복사 실패:', err);
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('patientName').value = '';
+      customDoses = {};
+      initDefaultValues();
+      calculateAllDoses();
+    }
+  </script>
+</body>
+</html>
