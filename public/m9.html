@@ -193,7 +193,7 @@
       🐾 23시 하단오거리 동물병원 · 통합 멀티 관제 포털 (m9)
     </div>
 
-    <!-- 중앙/우측 전환 탭: F6 계산기 탭 추가 -->
+    <!-- 중앙/우측 전환 탭: F7 특수동물 탭 추가 -->
     <div class="view-tabs">
       <button class="tab-btn active" id="tab-m3" onclick="switchRightView('m3_duo')">1️⃣ M5 대기판 + M6 관리 (F1)</button>
       <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 전용 (F2)</button>
@@ -201,6 +201,7 @@
       <button class="tab-btn" id="tab-visit" onclick="switchRightView('visit')">4️⃣ 🗓️ 방문·상담 (F4)</button>
       <button class="tab-btn" id="tab-f5" onclick="switchRightView('f5')">5️⃣ 🖥️ 3개 현황창 (F5)</button>
       <button class="tab-btn" id="tab-calc" onclick="switchRightView('calc')" style="color: #fde047;">6️⃣ 🧮 약량계산기 (F6)</button>
+      <button class="tab-btn" id="tab-exotic" onclick="switchRightView('exotic')" style="color: #67e8f9;">7️⃣ 🦎 특수동물 (F7)</button>
     </div>
 
     <div>
@@ -290,7 +291,7 @@
         </div>
       </div>
 
-      <!-- 6번 뷰: 약량 계산기 전용 패널 (F6 신규 추가) -->
+      <!-- 6번 뷰: 약량 계산기 전용 패널 (F6) -->
       <div id="view-calc" class="panel" style="width: 100%; height: 100%; display: none;">
         <div class="panel-header">
           <div class="panel-title">🧮 [창 6] 처방 약량 계산기 및 패턴 관리</div>
@@ -301,6 +302,20 @@
         </div>
         <div class="panel-body">
           <iframe id="frame-calc" src="/calc.html"></iframe>
+        </div>
+      </div>
+
+      <!-- 7번 뷰: 특수동물 전용 패널 (F7 신규 추가) -->
+      <div id="view-exotic" class="panel" style="width: 100%; height: 100%; display: none;">
+        <div class="panel-header">
+          <div class="panel-title">🦎 [창 7] 특수동물(Exotic) 관리</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-exotic').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/exotic.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-exotic" src="/exotic.html"></iframe>
         </div>
       </div>
 
@@ -387,6 +402,7 @@
       document.getElementById('view-visit').style.display = 'none';
       document.getElementById('view-f5').style.display = 'none';
       document.getElementById('view-calc').style.display = 'none';
+      document.getElementById('view-exotic').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -410,6 +426,9 @@
       } else if (viewMode === 'calc') {
         document.getElementById('view-calc').style.display = 'flex';
         document.getElementById('tab-calc').classList.add('active');
+      } else if (viewMode === 'exotic') {
+        document.getElementById('view-exotic').style.display = 'flex';
+        document.getElementById('tab-exotic').classList.add('active');
       }
     }
 
@@ -420,7 +439,7 @@
       });
     }
 
-    // 진료실용 원터치 단축키: F6 핸들러 추가
+    // 진료실용 원터치 단축키: F7 핸들러 추가
     window.addEventListener('keydown', (e) => {
       if (e.key === 'F1') { e.preventDefault(); switchRightView('m3_duo'); }
       if (e.key === 'F2') { e.preventDefault(); switchRightView('medication'); }
@@ -428,6 +447,7 @@
       if (e.key === 'F4') { e.preventDefault(); switchRightView('visit'); }
       if (e.key === 'F5') { e.preventDefault(); switchRightView('f5'); }
       if (e.key === 'F6') { e.preventDefault(); switchRightView('calc'); }
+      if (e.key === 'F7') { e.preventDefault(); switchRightView('exotic'); }
     });
   </script>
 </body>
