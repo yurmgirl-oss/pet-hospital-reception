@@ -281,13 +281,13 @@
     const SPECIES_CONFIG = [
       {
         id: 'gecko',
-        name: '게코 (도마뱀)',
-        engName: 'Gecko / Lizard',
+        name: '레오파드/크레스티드 게코',
+        engName: 'Leopard & Crested Gecko',
         icon: 'fa-dragon',
         color: 'emerald',
         defaultUnit: 'g',
-        typicalWeight: 45, // 45g
-        notes: '전반신 근육(IM) 또는 피하(SC) 투여 권장, 신문맥계 회피'
+        typicalWeight: 45, // 45g (성체 기준 평균)
+        notes: '전반신 근육(앞다리 IM) 또는 피하(SC) 투여 필수 (신문맥계 회피)'
       },
       {
         id: 'parrot',
@@ -297,37 +297,37 @@
         color: 'sky',
         defaultUnit: 'g',
         typicalWeight: 100, // 100g (왕관앵무 등 기준)
-        notes: '흉근(Pectoral IM) 투여 시 좌우 분할 주사 고려, 고대사율'
+        notes: '흉근(Pectoral IM) 투여 시 좌우 분할, 고대사율 반영 단축 간격(q12h)'
       },
       {
         id: 'tortoise',
-        name: '육지거북',
+        name: '육지거북 (파충류)',
         engName: 'Tortoise / Chelonian',
         icon: 'fa-shield-cat',
         color: 'amber',
         defaultUnit: 'g',
         typicalWeight: 350, // 350g
-        notes: '앞다리 상완근 IM 또는 상완와 SC 투여, 긴 반감기 고려'
+        notes: '앞다리 상완근(IM) 또는 상완와(SC) 투여, 신문맥계 회피'
       },
       {
         id: 'hamster',
-        name: '햄스터 (소동물)',
-        engName: 'Hamster / Rodent',
+        name: '햄스터 (소형포유류)',
+        engName: 'Hamster / Small Rodent',
         icon: 'fa-cubes-stacked',
         color: 'orange',
         defaultUnit: 'g',
-        typicalWeight: 120, // 120g
-        notes: '목덜미 피하(SC) 우선 투여, 자극성 약물은 생식 희석 권장'
+        typicalWeight: 120, // 120g (골든햄스터 기준)
+        notes: '목덜미 피하(SC) 우선 투여 권장, 저용량 주사기(U-100) 권장'
       },
       {
         id: 'snake',
         name: '뱀 (유린목)',
-        engName: 'Snake / Serpent',
+        engName: 'Snake / Colubrid & Python',
         icon: 'fa-staff-snake',
         color: 'violet',
         defaultUnit: 'g',
         typicalWeight: 250, // 250g
-        notes: '상체 전반부 1/3 척추 주위 근육(IM) 또는 피하(SC)'
+        notes: '상체 전반부 1/3 척추 주위 근육(IM) 또는 피하(SC), 신문맥계 회피'
       },
       {
         id: 'chameleon',
@@ -337,18 +337,21 @@
         color: 'teal',
         defaultUnit: 'g',
         typicalWeight: 80, // 80g
-        notes: '앞다리 상완골 근육(IM) 또는 피하, 보정 스트레스 최소화'
+        notes: '앞다리 상완골 근육(IM) 또는 피하(SC), 보정 스트레스 최소화'
       }
     ];
 
     /**
-     * 100g 기준 약물 데이터베이스
-     * - 바이트릴 5mg/ml
-     * - 메타캄 0.1mg/ml
-     * - 세프타지딤 10mg/ml
-     * - 툴라스로마이신 2.5mg/ml
+     * [원장님 실전 용량표 완벽 반영 데이터베이스]
+     * 병원 바로 사용 규격 농도:
+     * - 바이트릴 5 mg/mL
+     * - 메타캄 0.1 mg/mL
+     * - 세프타지딤 10 mg/mL
+     * - 툴라스로마이신 2.5 mg/mL
      * - 비타민 ADEK (ml/100g)
      * - 수액 하트만 (ml/100g)
+     *
+     * 100g당 처방량 환산: (mg/kg) ÷ 10 = mg/100g
      */
     const DRUG_DATABASE = [
       {
@@ -359,12 +362,12 @@
         unitType: 'mg',
         colorBadge: 'bg-blue-100 text-blue-800 border-blue-200',
         speciesDosing: {
-          gecko: { defaultDose100g: 1.0, unit: 'mg/100g', interval: '24~48시간 간격, SC / IM (전반신)', route: 'SC / IM' },
-          parrot: { defaultDose100g: 1.5, unit: 'mg/100g', interval: '12~24시간 간격, IM / SC (흉근 분할)', route: 'IM / SC' },
-          tortoise: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '24~48시간 간격, 앞다리 IM', route: 'IM (전지)' },
-          hamster: { defaultDose100g: 1.0, unit: 'mg/100g', interval: '12~24시간 간격, SC / PO', route: 'SC / PO' },
-          snake: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '48시간 간격, 상체 1/3 IM / SC', route: 'IM / SC' },
-          chameleon: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '24~48시간 간격, 앞다리 IM', route: 'IM' }
+          gecko: { defaultDose100g: 1.0, unit: 'mg/100g', originalKg: '10 mg/kg', interval: 'q24h (24시간 간격)', route: '전반신 IM / SC' },
+          parrot: { defaultDose100g: 1.5, unit: 'mg/100g', originalKg: '15 mg/kg', interval: 'q24h (또는 12시간 분할)', route: '흉근 IM / SC' },
+          tortoise: { defaultDose100g: 1.0, unit: 'mg/100g', originalKg: '10 mg/kg', interval: 'q24h (상태 따라 q48h)', route: '앞다리 IM / SC' },
+          hamster: { defaultDose100g: 1.0, unit: 'mg/100g', originalKg: '10 mg/kg', interval: 'q24h (24시간 간격)', route: '목덜미 SC / PO' },
+          snake: { defaultDose100g: 1.0, unit: 'mg/100g', originalKg: '10 mg/kg', interval: 'q48h (48시간 간격)', route: '상체 1/3 IM / SC' },
+          chameleon: { defaultDose100g: 1.0, unit: 'mg/100g', originalKg: '10 mg/kg', interval: 'q24~48h 간격', route: '앞다리 IM / SC' }
         }
       },
       {
@@ -375,12 +378,12 @@
         unitType: 'mg',
         colorBadge: 'bg-emerald-100 text-emerald-800 border-emerald-200',
         speciesDosing: {
-          gecko: { defaultDose100g: 0.05, unit: 'mg/100g', interval: '24시간 간격, SC / PO (탈수 시 보류)', route: 'SC / PO' },
-          parrot: { defaultDose100g: 0.1, unit: 'mg/100g', interval: '12~24시간 간격, IM / PO', route: 'IM / PO' },
-          tortoise: { defaultDose100g: 0.05, unit: 'mg/100g', interval: '24~48시간 간격, SC / IM', route: 'SC / IM' },
-          hamster: { defaultDose100g: 0.1, unit: 'mg/100g', interval: '24시간 간격, SC / PO', route: 'SC / PO' },
-          snake: { defaultDose100g: 0.03, unit: 'mg/100g', interval: '48시간 간격, SC', route: 'SC' },
-          chameleon: { defaultDose100g: 0.05, unit: 'mg/100g', interval: '24시간 간격, SC', route: 'SC' }
+          gecko: { defaultDose100g: 0.02, unit: 'mg/100g', originalKg: '0.2 mg/kg', interval: 'q24h (탈수 시 보류)', route: '전반신 SC / PO' },
+          parrot: { defaultDose100g: 0.05, unit: 'mg/100g', originalKg: '0.5 mg/kg', interval: 'q24h (중증 시 q12h)', route: '흉근 IM / PO' },
+          tortoise: { defaultDose100g: 0.02, unit: 'mg/100g', originalKg: '0.2 mg/kg', interval: 'q24h (24시간 간격)', route: '앞다리 SC / IM' },
+          hamster: { defaultDose100g: 0.03, unit: 'mg/100g', originalKg: '0.3 mg/kg', interval: 'q24h (24시간 간격)', route: 'SC / PO' },
+          snake: { defaultDose100g: 0.02, unit: 'mg/100g', originalKg: '0.2 mg/kg', interval: 'q24~48h 간격', route: '상체 1/3 SC' },
+          chameleon: { defaultDose100g: 0.02, unit: 'mg/100g', originalKg: '0.2 mg/kg', interval: 'q24h (24시간 간격)', route: '앞다리 SC' }
         }
       },
       {
@@ -391,28 +394,28 @@
         unitType: 'mg',
         colorBadge: 'bg-purple-100 text-purple-800 border-purple-200',
         speciesDosing: {
-          gecko: { defaultDose100g: 2.0, unit: 'mg/100g', interval: '72시간 간격, 앞다리 IM (파충류 표준)', route: 'IM' },
-          parrot: { defaultDose100g: 10.0, unit: 'mg/100g', interval: '8~12시간 간격, 흉근 IM', route: 'IM (흉근)' },
-          tortoise: { defaultDose100g: 2.0, unit: 'mg/100g', interval: '72시간(3일) 간격, 앞다리 IM', route: 'IM (전지)' },
-          hamster: { defaultDose100g: 5.0, unit: 'mg/100g', interval: '12시간 간격, SC', route: 'SC' },
-          snake: { defaultDose100g: 2.0, unit: 'mg/100g', interval: '72시간(3일) 간격, 상체 1/3 IM', route: 'IM' },
-          chameleon: { defaultDose100g: 2.0, unit: 'mg/100g', interval: '72시간 간격, 앞다리 IM', route: 'IM' }
+          gecko: { defaultDose100g: 2.0, unit: 'mg/100g', originalKg: '20 mg/kg', interval: 'q72h (3일 1회)', route: '앞다리 IM (전반신)' },
+          parrot: { defaultDose100g: 2.0, unit: 'mg/100g', originalKg: '20 mg/kg', interval: 'q12h (12시간 간격)', route: '흉근 IM (좌우 교대)' },
+          tortoise: { defaultDose100g: 2.0, unit: 'mg/100g', originalKg: '20 mg/kg', interval: 'q72h (3일 1회)', route: '앞다리 상완근 IM' },
+          hamster: { defaultDose100g: 2.0, unit: 'mg/100g', originalKg: '20 mg/kg', interval: 'q24h (24시간 간격)', route: 'SC (피하)' },
+          snake: { defaultDose100g: 2.0, unit: 'mg/100g', originalKg: '20 mg/kg', interval: 'q72h (3일 1회)', route: '상체 1/3 IM' },
+          chameleon: { defaultDose100g: 2.0, unit: 'mg/100g', originalKg: '20 mg/kg', interval: 'q72h (3일 1회)', route: '앞다리 IM' }
         }
       },
       {
         id: 'draxxin',
         name: '툴라스로마이신 (드락신)',
-        subName: 'Tulathromycin (Draxxin)',
+        subName: 'Tulathromycin (Draxxin) ※호흡기 우선',
         concentration: 2.5, // 2.5 mg/ml
         unitType: 'mg',
         colorBadge: 'bg-cyan-100 text-cyan-800 border-cyan-200',
         speciesDosing: {
-          gecko: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '48시간 간격, SC / IM', route: 'SC / IM' },
-          parrot: { defaultDose100g: 1.0, unit: 'mg/100g', interval: '48시간 간격, IM', route: 'IM' },
-          tortoise: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '72~120시간 간격, 앞다리 IM', route: 'IM' },
-          hamster: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '48시간 간격, SC', route: 'SC' },
-          snake: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '72시간 간격, SC / IM', route: 'SC / IM' },
-          chameleon: { defaultDose100g: 0.5, unit: 'mg/100g', interval: '48시간 간격, IM', route: 'IM' }
+          gecko: { defaultDose100g: 0.5, unit: 'mg/100g', originalKg: '5 mg/kg', interval: 'q7d (주 1회, 7일 간격)', route: 'SC / IM (전반신)' },
+          parrot: { defaultDose100g: 1.0, unit: 'mg/100g', originalKg: '10 mg/kg', interval: 'q5~7d (5~7일 간격)', route: '흉근 IM' },
+          tortoise: { defaultDose100g: 0.5, unit: 'mg/100g', originalKg: '5 mg/kg', interval: 'q7d (주 1회, 7일 간격)', route: '앞다리 IM' },
+          hamster: { defaultDose100g: 0.25, unit: 'mg/100g', originalKg: '2.5 mg/kg', interval: 'q7d (주 1회, 7일 간격)', route: 'SC' },
+          snake: { defaultDose100g: 0.5, unit: 'mg/100g', originalKg: '5 mg/kg', interval: 'q7d (주 1회, 7일 간격)', route: '상체 1/3 SC / IM' },
+          chameleon: { defaultDose100g: 0.5, unit: 'mg/100g', originalKg: '5 mg/kg', interval: 'q7d (주 1회, 7일 간격)', route: '앞다리 IM' }
         }
       },
       {
@@ -423,12 +426,12 @@
         unitType: 'ml',
         colorBadge: 'bg-amber-100 text-amber-800 border-amber-200',
         speciesDosing: {
-          gecko: { defaultDose100g: 0.02, unit: 'ml/100g', interval: '주 1회 또는 단회 투여, SC / IM', route: 'SC / IM' },
-          parrot: { defaultDose100g: 0.01, unit: 'ml/100g', interval: '주 1회, IM', route: 'IM' },
-          tortoise: { defaultDose100g: 0.05, unit: 'ml/100g', interval: '격주 ~ 월 1회 (과비타민증 엄격 주의)', route: 'IM' },
-          hamster: { defaultDose100g: 0.02, unit: 'ml/100g', interval: '필요 시 단회 투여, SC', route: 'SC' },
-          snake: { defaultDose100g: 0.02, unit: 'ml/100g', interval: '10~14일 간격 단회, SC / IM', route: 'SC / IM' },
-          chameleon: { defaultDose100g: 0.02, unit: 'ml/100g', interval: '주 1회 또는 필요 시 단회, IM', route: 'IM' }
+          gecko: { defaultDose100g: 0.02, unit: 'ml/100g', originalKg: '0.2 ml/kg', interval: '1~2주 1회 (과비타민증 주의)', route: 'SC / IM' },
+          parrot: { defaultDose100g: 0.01, unit: 'ml/100g', originalKg: '0.1 ml/kg', interval: '주 1회 (필요 시 단회)', route: '흉근 IM' },
+          tortoise: { defaultDose100g: 0.05, unit: 'ml/100g', originalKg: '0.5 ml/kg', interval: '격주 1회 (안검부종/결핍 시)', route: '앞다리 IM' },
+          hamster: { defaultDose100g: 0.02, unit: 'ml/100g', originalKg: '0.2 ml/kg', interval: '필요 시 단회 투여', route: 'SC' },
+          snake: { defaultDose100g: 0.02, unit: 'ml/100g', originalKg: '0.2 ml/kg', interval: '10~14일 간격 단회', route: 'SC / IM' },
+          chameleon: { defaultDose100g: 0.02, unit: 'ml/100g', originalKg: '0.2 ml/kg', interval: '주 1회 또는 단회 투여', route: '앞다리 IM' }
         }
       },
       {
@@ -439,12 +442,12 @@
         unitType: 'ml',
         colorBadge: 'bg-indigo-100 text-indigo-800 border-indigo-200',
         speciesDosing: {
-          gecko: { defaultDose100g: 2.5, unit: 'ml/100g', interval: '24시간 간격, SC / ICe (가온 후 미온 투여)', route: 'SC / ICe' },
-          parrot: { defaultDose100g: 5.0, unit: 'ml/100g', interval: '일일 유지량 2~3회 분할 SC', route: 'SC' },
-          tortoise: { defaultDose100g: 2.0, unit: 'ml/100g', interval: '24시간 1회 SC / Epicoelomic', route: 'SC / ICe' },
-          hamster: { defaultDose100g: 6.0, unit: 'ml/100g', interval: '24시간 2~3회 분할 SC (보온 유지)', route: 'SC' },
-          snake: { defaultDose100g: 2.0, unit: 'ml/100g', interval: '24시간 간격 SC / ICe (체강)', route: 'SC / ICe' },
-          chameleon: { defaultDose100g: 2.5, unit: 'ml/100g', interval: '24시간 간격 SC 및 미온수 수침 병행', route: 'SC' }
+          gecko: { defaultDose100g: 2.5, unit: 'ml/100g', originalKg: '25 ml/kg', interval: 'q24h (반드시 가온 후 미온 투여)', route: 'SC / ICe (체강)' },
+          parrot: { defaultDose100g: 5.0, unit: 'ml/100g', originalKg: '50 ml/kg', interval: 'q12~24h (일일 유지량 분할 투여)', route: '서혜부 피하 SC' },
+          tortoise: { defaultDose100g: 2.0, unit: 'ml/100g', originalKg: '20 ml/kg', interval: 'q24h (가온 후 서서히 주입)', route: '상완와 SC / ICe' },
+          hamster: { defaultDose100g: 6.0, unit: 'ml/100g', originalKg: '60 ml/kg', interval: 'q12~24h (2~3회 분할 SC, 보온)', route: '목덜미 SC' },
+          snake: { defaultDose100g: 2.0, unit: 'ml/100g', originalKg: '20 ml/kg', interval: 'q24h (미온 가온 투여)', route: 'SC / ICe (체강)' },
+          chameleon: { defaultDose100g: 2.5, unit: 'ml/100g', originalKg: '25 ml/kg', interval: 'q24h (미온 가온 및 온욕 병행)', route: 'SC' }
         }
       }
     ];
@@ -660,7 +663,9 @@
                 onchange="handleDoseChange('${drug.id}', this.value)">
               <span class="text-xs text-amber-900 font-bold">${doseUnitLabel}</span>
             </div>
-            <div class="text-[11px] text-slate-400 mt-1">기본 권장: ${specGuide.defaultDose100g} ${doseUnitLabel}</div>
+            <div class="text-[11px] text-slate-500 mt-1 font-medium">
+              실전기준: <span class="text-slate-700 font-semibold">${specGuide.originalKg || ''}</span>
+            </div>
           </td>
 
           <!-- 총 처방량 (mg / ml) -->
@@ -678,17 +683,18 @@
             <div class="text-[11px] font-semibold text-teal-700 mt-0.5 flex items-center gap-1">
               <i class="fa-solid fa-syringe text-[10px]"></i> U-100: <span class="underline">${formattedInsulinUnits}</span>
             </div>
-            ${volumeMl > 0 && volumeMl < 0.05 ? '<div class="text-[10px] text-amber-700 font-medium mt-0.5"><i class="fa-solid fa-triangle-exclamation"></i> 0.3ml 시린지 권장</div>' : ''}
+            ${volumeMl > 0 && volumeMl < 0.05 ? '<div class="text-[10px] text-amber-700 font-medium mt-0.5"><i class="fa-solid fa-triangle-exclamation"></i> 0.3ml/31G 시린지 권장</div>' : ''}
           </td>
 
           <!-- 투여 간격 및 경로 (Guide) -->
           <td class="py-3 px-4">
-            <div class="text-xs font-medium text-slate-800">
-              <i class="fa-solid fa-clock text-slate-400 mr-1"></i> ${specGuide.interval}
+            <div class="text-xs font-bold text-slate-800">
+              <i class="fa-regular fa-clock text-teal-600 mr-1"></i> ${specGuide.interval}
             </div>
-            <div class="text-[11px] text-teal-700 font-semibold mt-1">
-              경로: <span class="bg-teal-100/70 text-teal-900 px-1.5 py-0.5 rounded text-[10px]">${specGuide.route}</span>
+            <div class="text-[11px] text-slate-600 mt-1">
+              경로: <span class="bg-teal-100 text-teal-900 px-1.5 py-0.5 rounded text-[10px] font-semibold">${specGuide.route}</span>
             </div>
+            ${drug.id === 'draxxin' ? '<div class="text-[10px] text-rose-600 font-medium mt-0.5">※ 호흡기 감염 시 우선 고려</div>' : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -754,11 +760,11 @@
           ? (doseMg < 0.05 ? doseMg.toFixed(4) : doseMg.toFixed(3)) + 'mg' 
           : doseMg.toFixed(2) + 'ml';
 
-        lines.push(`• ${drug.name}: ${volStr}ml (${iuStr} IU) [기준: ${targetDose100g}${specGuide.unit} -> 처방: ${mgStr}]`);
-        lines.push(`  └ 투여: ${specGuide.route} | ${specGuide.interval}`);
+        lines.push(`• ${drug.name}: ${volStr}ml (${iuStr} IU) [기준: ${targetDose100g}${specGuide.unit} (${specGuide.originalKg || ''}) -> 총처방: ${mgStr}]`);
+        lines.push(`  └ 투여: ${specGuide.route} | 간격: ${specGuide.interval}`);
       });
       lines.push(`----------------------------------------`);
-      lines.push(`* 주의: 전반신 투여(신문맥계 우회) 및 보온 유지 (U-100 시린지 기준눈금 병기)`);
+      lines.push(`* 참고: 파충류 전반신 투여(신문맥계 우회) 및 수액 체온 가온 투여`);
 
       document.getElementById('chartSummaryText').value = lines.join('\n');
     }
