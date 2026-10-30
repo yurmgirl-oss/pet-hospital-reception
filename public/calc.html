@@ -3,34 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <title>동물 처방 약량 계산기</title>
+  <!-- 화면 캡처용 html2canvas 라이브러리 로드 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 8px; color: #1e293b; background: #f8fafc; margin: 0; }
-    h2 { margin: 0 0 8px 0; font-size: 16px; color: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+    h2 { margin: 0 0 8px 0; font-size: 15px; color: #0f172a; display: flex; align-items: center; justify-content: space-between; }
 
-    /* 숫자 입력 화살표(스피너) 숨김 */
+    /* 숫자 입력 화살표 숨김 */
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; }
 
-    /* 상단 체중 및 패턴 컨트롤 바 */
-    .top-panel {
-      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-      background: #ffffff; padding: 6px 10px; border-radius: 6px;
-      border: 1px solid #cbd5e1; margin-bottom: 8px;
+    /* 캡처 대상 영역 래퍼 */
+    #capture-area {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
     }
-    .weight-box { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px; }
-    .weight-box input { width: 68px; padding: 4px 6px; font-size: 16px; font-weight: 900; border: 2px solid #2563eb; border-radius: 4px; text-align: right; color: #1d4ed8; }
-    
-    .pattern-box { display: flex; align-items: center; gap: 6px; border-left: 2px solid #e2e8f0; padding-left: 8px; }
-    .pattern-box input, .pattern-box select { padding: 4px 6px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 13px; font-weight: 600; }
 
-    /* 테이블 스타일링: 여백은 0에 가깝게, 글자는 큼직하게 */
+    /* 상단 컨트롤 바: 체중 + 공통 일수 */
+    .top-panel {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      background: #f8fafc; padding: 6px 10px; border-radius: 6px;
+      border: 1px solid #e2e8f0; margin-bottom: 8px;
+    }
+    .input-box { display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 14px; }
+    .input-box input { width: 60px; padding: 4px 6px; font-size: 15px; font-weight: 900; border-radius: 4px; text-align: right; }
+    .input-weight { border: 2px solid #2563eb; color: #1d4ed8; }
+    .input-days { border: 2px solid #059669; color: #047857; }
+
+    .pattern-box { display: flex; align-items: center; gap: 6px; border-left: 2px solid #cbd5e1; padding-left: 8px; }
+    .pattern-box input, .pattern-box select { padding: 4px 6px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 12px; font-weight: 600; }
+
+    /* 테이블 스타일링 */
     .table-container { overflow-x: auto; background: white; border-radius: 6px; border: 1px solid #cbd5e1; }
     table { width: 100%; border-collapse: collapse; text-align: center; }
     th { border: 1px solid #cbd5e1; padding: 4px 1px; font-size: 12px; font-weight: 800; line-height: 1.15; }
-    td { border: 1px solid #e2e8f0; padding: 2px 1px; font-size: 14px; height: 32px; white-space: nowrap; }
+    td { border: 1px solid #e2e8f0; padding: 2px 1px; font-size: 14px; height: 30px; white-space: nowrap; }
 
-    /* 열 그룹별 배경색 */
+    /* 그룹 헤더 */
+    .group-header-bid {
+      background: #ffedd5; color: #9a3412; font-weight: 900; font-size: 12px; text-align: left; padding: 4px 10px;
+    }
+    .group-header-sid {
+      background: #ede9fe; color: #5b21b6; font-weight: 900; font-size: 12px; text-align: left; padding: 4px 10px;
+    }
+
+    /* 컬럼 색상 */
     .col-drug { background: #eff6ff; }
     th.col-drug { background: #dbeafe; color: #1e40af; }
     .col-dose { background: #f0fdf4; }
@@ -44,128 +64,158 @@
     .col-rev { background: #fff1f2; }
     th.col-rev { background: #ffe4e6; color: #9f1239; }
 
-    /* 글자 크기 강조 */
+    /* 숫자 강조 */
     .res-single-num { color: #d97706; font-weight: 800; font-size: 14px; }
-    
-    /* 최우선 핵심: 총 필요량 (크고 진하게) */
     .res-total-highlight {
-      font-size: 16px;
-      font-weight: 900;
-      color: #047857;
-      background: #a7f3d0 !important;
-      border: 1.5px solid #059669 !important;
-      letter-spacing: -0.5px;
+      font-size: 16px; font-weight: 900; color: #047857;
+      background: #a7f3d0 !important; border: 1.5px solid #059669 !important;
     }
-
     .res-rev-num { color: #e11d48; font-weight: 800; font-size: 13px; }
 
-    /* 입력창: 칸 크기는 유지하되 내부 글자를 14px 볼드로 확대 */
+    /* 입력창 */
     td input {
-      width: 100%;
-      height: 28px;
-      padding: 0 2px;
-      border: 1px solid #cbd5e0;
-      border-radius: 3px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #0f172a;
-      text-align: center;
-      box-sizing: border-box;
-      background: #fff;
+      width: 100%; height: 26px; padding: 0 2px; border: 1px solid #cbd5e0;
+      border-radius: 3px; font-size: 14px; font-weight: 700; color: #0f172a;
+      text-align: center; box-sizing: border-box; background: #fff;
     }
     td input.text-left { text-align: left; padding-left: 4px; }
     td input:focus { outline: none; border-color: #2563eb; background: #f8fafc; }
 
-    /* 액션 버튼 */
-    button { padding: 4px 10px; border: none; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    /* 버튼 스타일 */
+    button { padding: 5px 12px; border: none; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.15s; }
     .btn-main { background: #2563eb; color: white; }
+    .btn-main:hover { background: #1d4ed8; }
     .btn-sub { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+    .btn-sub:hover { background: #e2e8f0; }
     .btn-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
 
-    .bottom-actions { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+    /* 이미지 저장 강조 버튼 */
+    .btn-img-save {
+      background: #059669;
+      color: white;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
+    }
+    .btn-img-save:hover { background: #047857; }
+
+    .bottom-actions { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
 
-  <h2>
-    <span>💊 처방 약량 계산기</span>
-    <span style="font-size: 12px; font-weight: normal; color: #64748b;">(단축키: F6 전환 모드)</span>
-  </h2>
+  <!-- 캡처 영역 시작 (상단 정보 + 테이블 전체) -->
+  <div id="capture-area">
+    <h2>
+      <span>🐾 동물 처방 약량 계산서</span>
+      <span id="capture-timestamp" style="font-size: 12px; font-weight: normal; color: #64748b;"></span>
+    </h2>
 
-  <!-- 상단 체중 및 패턴 컨트롤러 -->
-  <div class="top-panel">
-    <div class="weight-box">
-      <label for="commonWeight">체중:</label>
-      <input type="number" step="any" id="commonWeight" placeholder="0.0" oninput="calculateAll()"> kg
+    <!-- 상단 체중 + 공통 처방 일수 일괄 적용창 -->
+    <div class="top-panel">
+      <div class="input-box">
+        <label for="commonWeight">체중:</label>
+        <input type="number" step="any" id="commonWeight" class="input-weight" placeholder="0.0" oninput="calculateAll()"> kg
+      </div>
+
+      <div class="input-box">
+        <label for="commonDays">처방 일수:</label>
+        <input type="number" id="commonDays" class="input-days" placeholder="일수" oninput="applyCommonDays()"> 일분
+      </div>
+
+      <!-- 패턴 컨트롤 (이미지 저장 시에는 자동으로 제외됨) -->
+      <div class="pattern-box no-export">
+        <input type="text" id="patternName" placeholder="패턴명" style="width: 85px;">
+        <button class="btn-sub" onclick="saveCurrentPattern()">저장</button>
+      </div>
+
+      <div class="pattern-box no-export">
+        <label for="savedPatternSelect">패턴:</label>
+        <select id="savedPatternSelect" onchange="loadSelectedPattern()" style="max-width: 110px;">
+          <option value="">-- 선택 --</option>
+        </select>
+        <button class="btn-danger" onclick="deleteSelectedPattern()">삭제</button>
+      </div>
     </div>
 
-    <div class="pattern-box">
-      <input type="text" id="patternName" placeholder="패턴명 입력" style="width: 100px;">
-      <button class="btn-sub" onclick="saveCurrentPattern()">저장</button>
-    </div>
-
-    <div class="pattern-box">
-      <label for="savedPatternSelect">패턴:</label>
-      <select id="savedPatternSelect" onchange="loadSelectedPattern()" style="max-width: 130px;">
-        <option value="">-- 선택 --</option>
-      </select>
-      <button class="btn-danger" onclick="deleteSelectedPattern()">삭제</button>
+    <!-- 계산 테이블 -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2" style="width: 22px; background: #f1f5f9;">No</th>
+            <th colspan="2" class="col-drug">약물 규격</th>
+            <th class="col-dose">처방</th>
+            <th colspan="2" class="col-sched">주기</th>
+            <th colspan="2" class="col-single">1회 조제량</th>
+            <th colspan="2" class="col-total">총 조제량 (핵심)</th>
+            <th colspan="2" class="col-rev">역산 (총량 1 맞춤)</th>
+          </tr>
+          <tr>
+            <th class="col-drug" style="width: 78px;">약품명</th>
+            <th class="col-drug" style="width: 48px;">농도<br><small>(단위)</small></th>
+            <th class="col-dose" style="width: 50px;">용량<br><small>(mg/kg)</small></th>
+            <th class="col-sched" style="width: 45px;">구분</th>
+            <th class="col-sched" style="width: 36px;">일수</th>
+            <th class="col-single" style="width: 46px;">성분<br><small>(mg)</small></th>
+            <th class="col-single" style="width: 52px;">분량<br><small>(단위)</small></th>
+            <th class="col-total" style="width: 54px;">총성분<br><small>(mg)</small></th>
+            <th class="col-total" style="width: 72px;">총 필요량<br><small>(정,mL)</small></th>
+            <th class="col-rev" style="width: 55px;">1일1회<br><small>(SID)</small></th>
+            <th class="col-rev" style="width: 55px;">1일2회<br><small>(BID)</small></th>
+          </tr>
+        </thead>
+        <tbody id="calcTableBody"></tbody>
+      </table>
     </div>
   </div>
+  <!-- 캡처 영역 끝 -->
 
-  <!-- 테이블 영역 -->
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th rowspan="2" style="width: 22px; background: #f1f5f9;">No</th>
-          <th colspan="2" class="col-drug">약물 규격</th>
-          <th class="col-dose">처방</th>
-          <th colspan="2" class="col-sched">주기</th>
-          <th colspan="2" class="col-single">1회 조제량</th>
-          <th colspan="2" class="col-total">총 조제량 (핵심)</th>
-          <th colspan="2" class="col-rev">역산 (총량 1 맞춤)</th>
-        </tr>
-        <tr>
-          <!-- 너비는 타이트하게 고정, 글자 가독성은 확보 -->
-          <th class="col-drug" style="width: 78px;">약품명</th>
-          <th class="col-drug" style="width: 48px;">농도<br><small>(단위)</small></th>
-          <th class="col-dose" style="width: 50px;">용량<br><small>(mg/kg)</small></th>
-          <th class="col-sched" style="width: 34px;">회</th>
-          <th class="col-sched" style="width: 34px;">일</th>
-          <th class="col-single" style="width: 46px;">성분<br><small>(mg)</small></th>
-          <th class="col-single" style="width: 52px;">분량<br><small>(단위)</small></th>
-          <th class="col-total" style="width: 54px;">총성분<br><small>(mg)</small></th>
-          <th class="col-total" style="width: 72px;">총 필요량<br><small>(정,mL)</small></th>
-          <th class="col-rev" style="width: 55px;">1일 1회<br><small>(SID)</small></th>
-          <th class="col-rev" style="width: 55px;">1일 2회<br><small>(BID)</small></th>
-        </tr>
-      </thead>
-      <tbody id="calcTableBody"></tbody>
-    </table>
-  </div>
-
+  <!-- 하단 액션 버튼 바 -->
   <div class="bottom-actions">
-    <button class="btn-main" onclick="calculateAll()">일괄 재계산</button>
-    <button class="btn-sub" onclick="resetForm()">전체 리셋</button>
+    <div>
+      <button class="btn-main" onclick="calculateAll()">일괄 재계산</button>
+      <button class="btn-sub" onclick="resetForm()">전체 리셋</button>
+    </div>
+    <!-- 이미지 파일 저장 버튼 -->
+    <div>
+      <button class="btn-img-save" onclick="saveAsImage()">
+        📷 처방내역 이미지(PNG) 저장
+      </button>
+    </div>
   </div>
 
   <script>
     const ROWS_COUNT = 10;
-    const STORAGE_KEY = 'vet_prescription_patterns_v2';
+    const STORAGE_KEY = 'vet_prescription_patterns_v3';
 
     function initRows() {
       const tbody = document.getElementById('calcTableBody');
       tbody.innerHTML = '';
 
       for (let i = 1; i <= ROWS_COUNT; i++) {
+        if (i === 1) {
+          const h1 = document.createElement('tr');
+          h1.innerHTML = `<td colspan="12" class="group-header-bid">🟠 [그룹 1] 1일 2회 투약 (BID) — 1~5번 약물</td>`;
+          tbody.appendChild(h1);
+        } else if (i === 6) {
+          const h2 = document.createElement('tr');
+          h2.innerHTML = `<td colspan="12" class="group-header-sid">🟣 [그룹 2] 1일 1회 투약 (SID) — 6~10번 약물</td>`;
+          tbody.appendChild(h2);
+        }
+
+        const defaultFreq = i <= 5 ? 2 : 1;
+        const freqLabel = i <= 5 ? '<b style="color:#c2410c;">2회</b>' : '<b style="color:#6d28d9;">1회</b>';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="background: #f1f5f9; font-weight: 800; color: #64748b; font-size: 12px;">${i}</td>
           <td class="col-drug"><input type="text" class="text-left" id="name_${i}" placeholder="약품${i}"></td>
           <td class="col-drug"><input type="number" step="any" id="strength_${i}" placeholder="규격" oninput="calculateRow(${i})"></td>
           <td class="col-dose"><input type="number" step="any" id="dose_${i}" placeholder="용량" oninput="calculateRow(${i})"></td>
-          <td class="col-sched"><input type="number" id="freq_${i}" placeholder="회" oninput="calculateRow(${i})"></td>
+          <td class="col-sched" style="font-size: 13px;" id="freq_label_${i}">${freqLabel}<input type="hidden" id="freq_${i}" value="${defaultFreq}"></td>
           <td class="col-sched"><input type="number" id="days_${i}" placeholder="일" oninput="calculateRow(${i})"></td>
           <td class="col-single" id="res_single_mg_${i}">-</td>
           <td class="col-single res-single-num" id="res_single_unit_${i}">-</td>
@@ -176,6 +226,14 @@
         `;
         tbody.appendChild(tr);
       }
+    }
+
+    function applyCommonDays() {
+      const commonDays = document.getElementById('commonDays').value;
+      for (let i = 1; i <= ROWS_COUNT; i++) {
+        document.getElementById(`days_${i}`).value = commonDays;
+      }
+      calculateAll();
     }
 
     function calculateRow(i) {
@@ -233,6 +291,44 @@
       for (let i = 1; i <= ROWS_COUNT; i++) calculateRow(i);
     }
 
+    /* 이미지(PNG) 저장 함수 */
+    async function saveAsImage() {
+      const captureArea = document.getElementById('capture-area');
+      const weight = document.getElementById('commonWeight').value || '0';
+      const days = document.getElementById('commonDays').value || '0';
+
+      // 캡처 시각 표기
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      const timeElem = document.getElementById('capture-timestamp');
+      timeElem.textContent = `[처방일시: ${dateStr}]`;
+
+      // 저장 불필요한 패턴 UI 요소 일시 숨김
+      const noExportElements = document.querySelectorAll('.no-export');
+      noExportElements.forEach(el => el.style.visibility = 'hidden');
+
+      try {
+        const canvas = await html2canvas(captureArea, {
+          scale: 2,             // 고해상도(레티나 2배수)로 캡처하여 선명하게 저장
+          backgroundColor: '#ffffff',
+          useCORS: true
+        });
+
+        // 다운로드 실행
+        const link = document.createElement('a');
+        const filenameDate = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+        link.download = `처방계산_${weight}kg_${days}일분_${filenameDate}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {
+        console.error('캡처 오류:', err);
+        alert('이미지 저장 중 오류가 발생했습니다.');
+      } finally {
+        // UI 복구
+        noExportElements.forEach(el => el.style.visibility = 'visible');
+      }
+    }
+
     function saveCurrentPattern() {
       const name = document.getElementById('patternName').value.trim();
       if (!name) return alert('패턴명을 입력해주세요.');
@@ -243,13 +339,15 @@
           name: document.getElementById(`name_${i}`).value,
           strength: document.getElementById(`strength_${i}`).value,
           dose: document.getElementById(`dose_${i}`).value,
-          freq: document.getElementById(`freq_${i}`).value,
           days: document.getElementById(`days_${i}`).value
         });
       }
 
       const patterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      patterns[name] = rowsData;
+      patterns[name] = {
+        days: document.getElementById('commonDays').value,
+        rows: rowsData
+      };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(patterns));
 
       document.getElementById('patternName').value = '';
@@ -273,16 +371,20 @@
       const name = document.getElementById('savedPatternSelect').value;
       if (!name) return;
       const patterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      const rowsData = patterns[name];
-      if (!rowsData) return;
+      const target = patterns[name];
+      if (!target) return;
 
-      rowsData.forEach((row, idx) => {
+      if (target.days) {
+        document.getElementById('commonDays').value = target.days;
+      }
+
+      const rows = target.rows || target;
+      rows.forEach((row, idx) => {
         const i = idx + 1;
         document.getElementById(`name_${i}`).value = row.name || '';
         document.getElementById(`strength_${i}`).value = row.strength || '';
         document.getElementById(`dose_${i}`).value = row.dose || '';
-        document.getElementById(`freq_${i}`).value = row.freq || '';
-        document.getElementById(`days_${i}`).value = row.days || '';
+        document.getElementById(`days_${i}`).value = row.days || target.days || '';
       });
       calculateAll();
     }
@@ -300,7 +402,9 @@
 
     function resetForm() {
       document.getElementById('commonWeight').value = '';
+      document.getElementById('commonDays').value = '';
       document.getElementById('savedPatternSelect').value = '';
+      document.getElementById('capture-timestamp').textContent = '';
       initRows();
     }
 
