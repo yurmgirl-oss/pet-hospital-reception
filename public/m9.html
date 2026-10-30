@@ -46,7 +46,7 @@
   .view-tabs {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     background: rgba(0, 0, 0, 0.3);
     padding: 4px;
     border-radius: 10px;
@@ -55,7 +55,7 @@
     background: transparent;
     border: 1px solid transparent;
     color: #cbd5e1;
-    padding: 6px 14px;
+    padding: 6px 11px;
     font-size: 12px;
     font-weight: 800;
     border-radius: 7px;
@@ -183,12 +183,6 @@
     background: #091c17;
   }
   #view-f5 > .panel { min-width: 0; min-height: 0; }
-  @media (max-width: 1050px) {
-    #view-f5 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
-    #view-f5 .panel-title { font-size: 11px; }
-    #view-f5 .panel-header { padding: 0 6px; }
-  }
-
 </style>
 </head>
 <body>
@@ -199,13 +193,14 @@
       🐾 23시 하단오거리 동물병원 · 통합 멀티 관제 포털 (m9)
     </div>
 
-    <!-- 중앙/우측 전환 탭 -->
+    <!-- 중앙/우측 전환 탭: F6 계산기 탭 추가 -->
     <div class="view-tabs">
       <button class="tab-btn active" id="tab-m3" onclick="switchRightView('m3_duo')">1️⃣ M5 대기판 + M6 관리 (F1)</button>
       <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 전용 (F2)</button>
       <button class="tab-btn" id="tab-focus" onclick="switchRightView('focus')">3️⃣ 📋 집중관리 챠트 (F3)</button>
-      <button class="tab-btn" id="tab-visit" onclick="switchRightView('visit')">4️⃣ 🗓️ 방문·상담 + 현황판 (F4)</button>
+      <button class="tab-btn" id="tab-visit" onclick="switchRightView('visit')">4️⃣ 🗓️ 방문·상담 (F4)</button>
       <button class="tab-btn" id="tab-f5" onclick="switchRightView('f5')">5️⃣ 🖥️ 3개 현황창 (F5)</button>
+      <button class="tab-btn" id="tab-calc" onclick="switchRightView('calc')" style="color: #fde047;">6️⃣ 🧮 약량계산기 (F6)</button>
     </div>
 
     <div>
@@ -216,7 +211,7 @@
   <!-- 메인 분할 영역 -->
   <main class="main-container">
 
-    <!-- [창 1: 좌측 30% 항상 고정] M3의 검증된 정상 카운터 접수현황판 -->
+    <!-- [창 1: 좌측 30% 항상 고정] 카운터 접수현황판 -->
     <section class="panel">
       <div class="panel-header">
         <div class="panel-title">📋 원내 접수 현황판 (M3 고정)</div>
@@ -233,7 +228,7 @@
     <!-- [중간 + 우측 70% 영역: 탭에 따라 스위칭] -->
     <section id="right-work-area" style="width: 100%; height: 100%;">
       
-      <!-- 1번 뷰: M5 대기판(40%) + M6 접수관리(30%) -->
+      <!-- 1번 뷰: M5 대기판(40%) + M6 접수관리(30%) (F1) -->
       <div id="view-m3-duo" class="dual-subgrid" style="display: grid;">
         <div class="panel">
           <div class="panel-header">
@@ -255,7 +250,7 @@
         </div>
       </div>
 
-      <!-- 2번 뷰: 복약관리 입력 + A4 실시간 출력창 (내부 중복 접수현황판 완전 제거) -->
+      <!-- 2번 뷰: 복약관리 입력 + A4 실시간 출력창 (F2) -->
       <div id="view-medication" class="panel" style="width: 100%; height: 100%; display: none;">
         <div class="panel-header">
           <div class="panel-title">💊 복약관리 시스템 & 실시간 출력 전용</div>
@@ -266,7 +261,7 @@
         </div>
       </div>
 
-      <!-- 3번 뷰: 집중관리 & 만성챠트 (전체화면 집중 모드) -->
+      <!-- 3번 뷰: 집중관리 & 만성챠트 (F3) -->
       <div id="view-focus" class="panel" style="width: 100%; height: 100%; display: none;">
         <div class="panel-header">
           <div class="panel-title">📋 중환자 집중관리 및 만성처방 챠트</div>
@@ -292,6 +287,20 @@
             <button class="p-btn" onclick="document.getElementById('frame-visits-admin').contentWindow.location.reload()">새로고침</button>
           </div>
           <div class="panel-body"><iframe id="frame-visits-admin" src="/visits-admin.html"></iframe></div>
+        </div>
+      </div>
+
+      <!-- 6번 뷰: 약량 계산기 전용 패널 (F6 신규 추가) -->
+      <div id="view-calc" class="panel" style="width: 100%; height: 100%; display: none;">
+        <div class="panel-header">
+          <div class="panel-title">🧮 [창 6] 처방 약량 계산기 및 패턴 관리</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-calc').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/calc.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-calc" src="/calc.html"></iframe>
         </div>
       </div>
 
@@ -325,14 +334,11 @@
   </section>
 
   <script>
-    // F2(복약관리) 뷰 로드 시 내부의 중복된 접수현황판(#counterPanel)을 완전히 숨기고
-    // 복약관리 폼과 실시간 출력이 70% 영역을 꽉 채우도록 5:5 그리드로 강제 적용
     function cleanMedicationFrame() {
       const f = document.getElementById('frame-med');
       try {
         const doc = f.contentDocument || f.contentWindow.document;
         if (!doc) return;
-
         let style = doc.getElementById('med-clean-style');
         if (!style) {
           style = doc.createElement('style');
@@ -340,54 +346,23 @@
           doc.head.appendChild(style);
         }
         style.textContent = `
-          /* 중복되는 내부 접수현황판과 집중관리창 완전히 숨김 */
           #counterPanel, #chronicPanel, #expandedGlobalControls { display: none !important; }
-          
-          /* 전체 쉘을 복약관리 100% 영역으로 확장 */
-          #integratedShell {
-            display: block !important;
-            width: 100% !important;
-            height: 100% !important;
-            padding: 8px !important;
-            margin: 0 !important;
-          }
-          #medicationPanel {
-            display: block !important;
-            width: 100% !important;
-            height: 100% !important;
-          }
-          /* 좌: 복약관리 입력(50%), 우: 실시간 A4 출력(50%) */
-          #medicationPanel .wrap {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 12px !important;
-            width: 100% !important;
-            height: 100% !important;
-            max-width: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-          #medicationPanel .panel {
-            height: calc(100vh - 66px) !important;
-            overflow-y: auto !important;
-          }
+          #integratedShell { display: block !important; width: 100% !important; height: 100% !important; padding: 8px !important; margin: 0 !important; }
+          #medicationPanel { display: block !important; width: 100% !important; height: 100% !important; }
+          #medicationPanel .wrap { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; width: 100% !important; height: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
+          #medicationPanel .panel { height: calc(100vh - 66px) !important; overflow-y: auto !important; }
         `;
       } catch (e) {
         console.warn('iframe 접근 제약:', e);
       }
     }
 
-    // F3(집중관리) 뷰 로드 시 접수현황판과 복약관리를 숨기고 차트만 전체 표시
     function cleanFocusFrame() {
       const f = document.getElementById('frame-focus');
       try {
         const doc = f.contentDocument || f.contentWindow.document;
         if (!doc) return;
-
-        if (f.contentWindow.setLayout) {
-          f.contentWindow.setLayout('focus-expanded');
-        }
-
+        if (f.contentWindow.setLayout) f.contentWindow.setLayout('focus-expanded');
         let style = doc.getElementById('focus-clean-style');
         if (!style) {
           style = doc.createElement('style');
@@ -396,20 +371,8 @@
         }
         style.textContent = `
           #counterPanel, #medicationPanel, #expandedGlobalControls { display: none !important; }
-          #integratedShell {
-            display: block !important;
-            width: 100% !important;
-            height: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-          #chronicPanel {
-            display: block !important;
-            width: 100% !important;
-            height: 100% !important;
-            border: none !important;
-            border-radius: 0 !important;
-          }
+          #integratedShell { display: block !important; width: 100% !important; height: 100% !important; padding: 0 !important; margin: 0 !important; }
+          #chronicPanel { display: block !important; width: 100% !important; height: 100% !important; border: none !important; border-radius: 0 !important; }
         `;
       } catch (e) {
         console.warn('iframe 접근 제약:', e);
@@ -423,6 +386,7 @@
       document.getElementById('view-focus').style.display = 'none';
       document.getElementById('view-visit').style.display = 'none';
       document.getElementById('view-f5').style.display = 'none';
+      document.getElementById('view-calc').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -440,14 +404,15 @@
       } else if (viewMode === 'visit') {
         document.getElementById('view-visit').style.display = 'grid';
         document.getElementById('tab-visit').classList.add('active');
-      }
-      else if (viewMode === 'f5') {
+      } else if (viewMode === 'f5') {
         document.getElementById('view-f5').style.display = 'grid';
         document.getElementById('tab-f5').classList.add('active');
+      } else if (viewMode === 'calc') {
+        document.getElementById('view-calc').style.display = 'flex';
+        document.getElementById('tab-calc').classList.add('active');
       }
     }
 
-    // 모든 창 일괄 새로고침
     function refreshAllFrames() {
       const iframes = document.querySelectorAll('iframe');
       iframes.forEach(f => {
@@ -455,13 +420,14 @@
       });
     }
 
-    // 진료실용 원터치 단축키 (F1: M3 대기/관리, F2: 복약지도 전용, F3: 집중차트)
+    // 진료실용 원터치 단축키: F6 핸들러 추가
     window.addEventListener('keydown', (e) => {
       if (e.key === 'F1') { e.preventDefault(); switchRightView('m3_duo'); }
       if (e.key === 'F2') { e.preventDefault(); switchRightView('medication'); }
       if (e.key === 'F3') { e.preventDefault(); switchRightView('focus'); }
       if (e.key === 'F4') { e.preventDefault(); switchRightView('visit'); }
       if (e.key === 'F5') { e.preventDefault(); switchRightView('f5'); }
+      if (e.key === 'F6') { e.preventDefault(); switchRightView('calc'); }
     });
   </script>
 </body>
