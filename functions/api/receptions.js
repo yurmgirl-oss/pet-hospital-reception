@@ -208,10 +208,6 @@ export async function onRequestGet({ env }) {
 
   try {
 
-    await env.DB.prepare(
-      "DELETE FROM receptions WHERE created_at < datetime('now', '+9 hours', '-3 days')"
-    ).run();
-
     const { results } = await env.DB.prepare(
       "SELECT * FROM receptions ORDER BY id DESC"
     ).all();
@@ -246,10 +242,6 @@ export async function onRequestPost({ request, env }) {
       symptom,
       payload
     } = data;
-
-    await env.DB.prepare(
-      "DELETE FROM receptions WHERE created_at < datetime('now', '+9 hours', '-3 days')"
-    ).run();
 
     // 접수 저장
     const result = await env.DB.prepare(
