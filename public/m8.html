@@ -57,7 +57,8 @@ function exportPatientText(){
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-\nfunction closeModal(){$('modal').style.display='none'}
+
+function closeModal(){$('modal').style.display='none'}
 $('patientForm').addEventListener('submit',async e=>{e.preventDefault();const id=$('pid').value;const data={name:$('name').value.trim(),phone:$('phone').value.trim(),category:$('category').value,registered_at:$('registered').value,last_visit:$('lastVisit').value||null,starred:$('starred').checked,memo:$('memo').value,notes_json:JSON.stringify(noteItems)};try{await api(id?'PATCH':'POST',id?{id,...data}:{...data,notes:noteItems});closeModal();await load()}catch(err){alert(err.message)}});
 async function removePatient(){const id=Number($('pid').value);if(!id||!confirm('이 동물을 F8 관리목록에서만 삭제할까요? 원본 접수기록과 F3 차트는 삭제되지 않습니다.'))return;try{await api('DELETE',{id});closeModal();await load()}catch(e){alert(e.message)}}
 $('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});load();setInterval(load,30000);
