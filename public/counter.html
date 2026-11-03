@@ -383,32 +383,31 @@
       }, 2200);
     }
 
-    // 🛡️ 삭제 시 실수 방지: '예약대기'로 보관할지, 영구 삭제할지 선택 가능
+    // 🛡️ 접수 목록에서만 숨김 처리: D1 접수 원본과 A4 기록은 삭제하지 않음
     async function deleteReception(id, petName) {
-      const choice = confirm(`[${petName}] 환자를 어떻게 처리할까요?\n\n• [확인] 누름: 목록에서 가리고 【예약대기로 보관】 (추천 - 데이터 유지)\n• [취소] 누름: 영구 삭제할지 다시 선택`);
-      
-      if (choice) {
-        // 예약대기로 전환하여 화면에서 정리
-        await updateStatus(id, '예약대기');
-        showToast(`📅 [${petName}] 환자가 예약대기로 안전 보관되었습니다.`);
-        return;
-      }
+      const confirmed = confirm(
+        `[${petName}] 환자를 원내 접수 현황판에서 숨길까요?\n\n` +
+        `• 접수 현황판 목록에서만 숨겨집니다.\n` +
+        `• 접수 원본 데이터는 보존됩니다.\n` +
+        `• A4 기록과 클라우드 이미지도 그대로 보존됩니다.\n\n` +
+        `※ 이 작업은 영구 삭제가 아닙니다.`
+      );
 
-      // 진짜 영구 삭제를 원하는지 2차 확인
-      if (confirm(`⚠️ [${petName}] 환자의 데이터를 영구적으로 완전히 삭제하시겠습니까?\n(원장실 및 대기판에서도 완전히 지워집니다)`)) {
-        try {
-          const res = await fetch(`/api/receptions?id=${id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: id })
-          });
+      if (!confirmed) return;
 
-          if (!res.ok) throw new Error('삭제 처리 오류 (' + res.status + ')');
-          showToast(`🗑️ [${petName}] 접수 내역이 영구 삭제되었습니다.`);
-          fetchReceptions();
-        } catch (err) {
-          alert('삭제 실패: ' + err.message);
-        }
+      try {
+        const res = await fetch('/api/receptions', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status: '목록숨김' })
+        });
+
+        if (!res.ok) throw new Error('목록 숨김 처리 오류 (' + res.status + ')');
+
+        showToast(`📁 [${petName}] 접수 목록에서 숨겼습니다. 원본과 A4 기록은 보존됩니다.`);
+        await fetchReceptions();
+      } catch (err) {
+        alert('숨김 처리 실패: ' + err.message);
       }
     }
 
@@ -481,6 +480,9 @@
         let hasNew = false;
 
         data.forEach(item => {
+          // 목록숨김 상태는 접수 현황 통계와 신규 알림에서 제외
+          if (item.status === '목록숨김') return;
+
           const isWait = (item.status === '접수대기' || item.status === '대기');
           const isProg = (item.status === '진료중');
           const isComp = (item.status === '완료');
@@ -593,8 +595,10 @@
       const reserveContainer = document.getElementById('counter-reserve-container');
 
       // 1. 예약대기 환자 분리
-      const activeList = list.filter(item => item.status !== '예약대기' && item.status !== '완료');
-      const reservedList = list.filter(item => item.status === '예약대기');
+      // 목록숨김은 접수 원본은 유지하되 현황판에서만 제외
+      const visibleList = list.filter(item => item.status !== '목록숨김');
+      const activeList = visibleList.filter(item => item.status !== '예약대기' && item.status !== '완료');
+      const reservedList = visibleList.filter(item => item.status === '예약대기');
 
       // 예약대기 보관함 렌더링
       if (reservedList.length === 0) {
@@ -832,7 +836,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id, status: newStatus })
         });
-        showToast(newStatus === '예약대기' ? '📅 예약대기로 보관되었습니다.' : '상태가 변경되었습니다.');
+        showToast(
+          newStatus === '예약대기'
+            ? '📅 예약대기로 보관되었습니다.'
+            : newStatus === '목록숨김'
+              ? '📁 접수 목록에서 숨겼습니다. 원본과 A4 기록은 보존됩니다.'
+              : '상태가 변경되었습니다.'
+        );
         fetchReceptions();
       } catch (err) {
         alert('상태 변경 실패: ' + err.message);
