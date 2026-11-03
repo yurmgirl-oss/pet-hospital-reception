@@ -12,7 +12,7 @@
 .history-empty{font-size:11px;color:#94a3b8;padding:8px 4px}
 .dialogfoot{display:flex;justify-content:space-between;gap:8px;margin-top:13px}.detailmeta{font-size:12px;color:#64748b;margin-bottom:10px}@media(max-width:1300px){.rooms{min-width:1250px}}
 </style></head><body><header class="top"><strong>🐾 F8 특수환자 통합 현황판</strong><div class="actions"><span id="status" style="font-size:11px;align-self:center;color:#cbd5e1">불러오는 중</span><button class="btn" onclick="load()">새로고침</button><button class="btn primary" onclick="openAdd()">＋ 환자 등록</button></div></header><main class="main"><section class="rooms" id="rooms"></section></main>
-<div class="modal" id="modal"><div class="dialog"><h2 id="modalTitle">특수환자 등록</h2><form id="patientForm"><input type="hidden" id="pid"><div class="formgrid"><label class="field">동물 이름<input id="name" required maxlength="60"></label><label class="field">연락처<input id="phone" maxlength="30" placeholder="010-0000-0000"></label><label class="field">관리실<select id="category"></select></label><label class="field">등록일<input id="registered" type="date"></label><label class="field">최근 방문일<input id="lastVisit" type="date"></label><label class="field" style="justify-content:end"><span><input id="starred" type="checkbox" style="width:auto"> ⭐ 최우선 표시</span></label><label class="field full">관리 메모<input class="memo-input" id="memo" type="text" placeholder="현재 상태 또는 가장 중요한 주의사항"></label><div class="history-box"><div class="field">이전 기록 <span style="font-weight:400;color:#64748b">(기존 입력 내용은 아래에서 읽을 수 있습니다)</span></div><div class="history-list" id="historyList"><div class="history-empty">아직 기록이 없습니다.</div></div><div class="note-entry"><input id="noteInput" type="text" placeholder="새 관리 기록을 한 줄로 입력하고 추가하세요"><button type="button" class="btn" onclick="addNote()">＋ 기록 추가</button></div></div></div><div class="dialogfoot"><button type="button" class="btn" id="deleteBtn" style="display:none;background:#fee2e2;color:#991b1b" onclick="removePatient()">F8에서 삭제</button><div style="margin-left:auto;display:flex;gap:7px"><button type="button" class="btn" onclick="closeModal()">취소</button><button class="btn primary" type="submit">저장</button></div></div></form></div></div>
+<div class="modal" id="modal"><div class="dialog"><h2 id="modalTitle">특수환자 등록</h2><form id="patientForm"><input type="hidden" id="pid"><div class="formgrid"><label class="field">동물 이름<input id="name" required maxlength="60"></label><label class="field">연락처<input id="phone" maxlength="30" placeholder="010-0000-0000"></label><label class="field">관리실<select id="category"></select></label><label class="field">등록일<input id="registered" type="date"></label><label class="field">최근 방문일<input id="lastVisit" type="date"></label><label class="field" style="justify-content:end"><span><input id="starred" type="checkbox" style="width:auto"> ⭐ 최우선 표시</span></label><label class="field full">관리 메모<input class="memo-input" id="memo" type="text" placeholder="현재 상태 또는 가장 중요한 주의사항"></label><div class="history-box"><div class="field">이전 기록 <span style="font-weight:400;color:#64748b">(기존 입력 내용은 아래에서 읽을 수 있습니다)</span></div><div class="history-list" id="historyList"><div class="history-empty">아직 기록이 없습니다.</div></div><div class="note-entry"><input id="noteInput" type="text" placeholder="새 관리 기록을 한 줄로 입력하고 추가하세요"><button type="button" class="btn" onclick="addNote()">＋ 기록 추가</button></div></div></div><div class="dialogfoot"><button type="button" class="btn" id="deleteBtn" style="display:none;background:#fee2e2;color:#991b1b" onclick="removePatient()">F8에서 삭제</button><div style="margin-left:auto;display:flex;gap:7px"><button type="button" class="btn" onclick="exportPatientText()">차트 텍스트 저장</button><button type="button" class="btn" onclick="closeModal()">취소</button><button class="btn primary" type="submit">저장</button></div></div></form></div></div>
 <script>
 const categories=['코드블루','4days','호스피스','수술관리','심폐관리','신부전','종양관리','골관절','피부알러지','발작경련','추적관리','호르몬장애','특수관리'];let patients=[];const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 $('category').innerHTML=categories.map(c=>`<option>${c}</option>`).join('');
@@ -27,7 +27,37 @@ function renderHistory(){const box=$('historyList');if(!noteItems.length){box.in
 function addNote(){const input=$('noteInput');const text=input.value.trim();if(!text)return;noteItems.push({date:new Date().toISOString().slice(0,10),text});input.value='';renderHistory();input.focus()}
 $('noteInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addNote()}});
 function editPatient(id){const p=patients.find(x=>x.id===id);if(!p)return;$('patientForm').reset();$('pid').value=p.id;$('modalTitle').textContent='환자 정보 및 관리 기록';$('name').value=p.name||'';$('phone').value=p.phone||'';$('category').value=p.category;$('registered').value=p.registered_at||'';$('lastVisit').value=p.last_visit||'';$('starred').checked=!!p.starred;$('memo').value=p.memo||'';noteItems=parseNotes(p);$('noteInput').value='';renderHistory();$('deleteBtn').style.display='inline-block';$('modal').style.display='flex'}
-function closeModal(){$('modal').style.display='none'}
+
+function exportPatientText(){
+  const name=$('name').value.trim()||'이름없음';
+  const notes=noteItems.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+  const lines=[
+    '23시 하단오거리 동물병원 - F8 특수환자 관리 기록',
+    '==============================================',
+    `동물 이름: ${name}`,
+    `보호자 연락처: ${$('phone').value.trim()||'-'}`,
+    `관리실: ${$('category').value}`,
+    `등록일: ${$('registered').value||'-'}`,
+    `최근 방문일: ${$('lastVisit').value||'-'}`,
+    `별표 최우선: ${$('starred').checked?'예':'아니오'}`,
+    '',
+    '[현재 관리 메모]',
+    $('memo').value.trim()||'(기록 없음)',
+    '',
+    '[날짜별 관리 기록]',
+    ...(notes.length?notes.map(n=>`${n.date||'날짜 미상'}  ${n.text||''}`):['(기록 없음)']),
+    '',
+    `내보낸 날짜: ${new Date().toLocaleString('ko-KR')}`
+  ];
+  const blob=new Blob(['\\uFEFF'+lines.join('\\r\\n')],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`F8_${name.replace(/[\\\\/:*?"<>|]/g,'_')}_차트.txt`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+\nfunction closeModal(){$('modal').style.display='none'}
 $('patientForm').addEventListener('submit',async e=>{e.preventDefault();const id=$('pid').value;const data={name:$('name').value.trim(),phone:$('phone').value.trim(),category:$('category').value,registered_at:$('registered').value,last_visit:$('lastVisit').value||null,starred:$('starred').checked,memo:$('memo').value,notes_json:JSON.stringify(noteItems)};try{await api(id?'PATCH':'POST',id?{id,...data}:{...data,notes:noteItems});closeModal();await load()}catch(err){alert(err.message)}});
 async function removePatient(){const id=Number($('pid').value);if(!id||!confirm('이 동물을 F8 관리목록에서만 삭제할까요? 원본 접수기록과 F3 차트는 삭제되지 않습니다.'))return;try{await api('DELETE',{id});closeModal();await load()}catch(e){alert(e.message)}}
 $('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});load();setInterval(load,30000);
