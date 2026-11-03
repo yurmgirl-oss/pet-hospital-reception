@@ -251,7 +251,9 @@
     </h2>
     <div class="manual-form">
       <input type="text" id="m-name" placeholder="동물명 (예: 보리)" onkeydown="if(event.key==='Enter') addManualBooking()">
+      <input type="tel" id="m-phone" placeholder="보호자 전화번호 (선택)" style="max-width:190px;">
       <select id="m-category">
+        <option value="단순관리">단순관리</option>
         <option value="코드블루">코드블루</option>
         <option value="4days">4days</option>
         <option value="호스피스">호스피스</option>
@@ -278,6 +280,7 @@
           <th>진료 타이머</th>
           <th>진료상태</th>
           <th>진료분류</th>
+          <th>F8 전송</th>
           <th>삭제</th>
         </tr>
       </thead>
@@ -300,6 +303,7 @@
           <th>진료 타이머</th>
           <th>진료상태</th>
           <th>진료분류</th>
+          <th>F8 전송</th>
           <th>삭제</th>
         </tr>
       </thead>
@@ -310,7 +314,7 @@
 <script>
 const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
-const CATEGORIES = ["코드블루", "4days", "호스피스", "수술관리", "심폐관리", "신부전", "종양관리", "골관절", "피부알러지", "발작경련", "추적관리", "호르몬장애", "특수관리"];
+const CATEGORIES = ["단순관리", "코드블루", "4days", "호스피스", "수술관리", "심폐관리", "신부전", "종양관리", "골관절", "피부알러지", "발작경련", "추적관리", "호르몬장애", "특수관리"];
 
 let isUserInputting = false;
 
@@ -457,6 +461,7 @@ function addManualBooking(){
   list.push({
     id: Date.now(),
     petName: name,
+    phone: (document.getElementById("m-phone")?.value || "").trim(),
     category: category,
     status: "접수대기",
     startTime: null,
@@ -466,6 +471,7 @@ function addManualBooking(){
 
   pushStateToServer({ manualBookings: list });
   document.getElementById("m-name").value = "";
+  if(document.getElementById("m-phone")) document.getElementById("m-phone").value = "";
   renderManualTable();
 }
 
@@ -514,7 +520,7 @@ function renderManualTable(){
   tbody.innerHTML = "";
 
   if(!list.length){
-    tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">등록된 일반예약이 없습니다.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">등록된 일반예약이 없습니다.</td></tr>`;
     return;
   }
 
@@ -541,7 +547,8 @@ function renderManualTable(){
           <option value="자료삭제" class="status-delete">자료삭제</option>
         </select>
       </td>
-      <td><select onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select></td>
+      <td><select id="mcat-${item.id}" onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select></td>
+      <td>${safeCategory === "단순관리" ? '<span style="color:#94a3b8;font-size:11px;">전송 불필요</span>' : `<button class="btn-add" onclick="sendManualToM8(${item.id})">선택 후 보내기</button>`}</td>
       <td><button class="btn-del" onclick="deleteManualBooking(${item.id})">삭제</button></td>
     `;
     tbody.appendChild(tr);
@@ -572,7 +579,7 @@ async function loadQrList(){
     });
 
     if(!activeList.length){
-      tbody.innerHTML = `<tr><td colspan="7" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.</td></tr>`;
       return;
     }
 
@@ -586,6 +593,8 @@ async function loadQrList(){
       const timerData = qrTimers[key] || {};
 
       const tr = document.createElement("tr");
+      tr.dataset.phone = item.phone || "";
+      tr.dataset.receptionTime = item.created_at || item.createdAt || item.registered_at || "";
       if(currentStatus === "진료완료") tr.className = "row-done";
       if(currentStatus === "예약대기") tr.className = "row-reserve";
 
@@ -606,7 +615,8 @@ async function loadQrList(){
             <option value="자료삭제" class="status-delete">자료삭제</option>
           </select>
         </td>
-        <td><select onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
+        <td><select id="qcat-${key}" onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
+        <td>${currentCat === "단순관리" ? '<span style="color:#94a3b8;font-size:11px;">전송 불필요</span>' : `<button class="btn-add" onclick="sendQrToM8('${key}')">선택 후 보내기</button>`}</td>
         <td><button class="btn-del" onclick="deleteQrItem('${key}')">삭제</button></td>
       `;
       tbody.appendChild(tr);
@@ -614,6 +624,36 @@ async function loadQrList(){
   } catch(e){}
 }
 
+async function postPatientToM8({name,phone,category,receptionTime}){
+  if(!name || !category){alert("동물 이름과 진료분류를 확인해 주세요.");return;}
+  if(category==="단순관리"){alert("단순관리는 F8로 전송하지 않습니다.");return;}
+  try{
+    const check=await fetch("/api/m8-management",{cache:"no-store"});
+    if(!check.ok) throw new Error("F8 환자 목록을 불러오지 못했습니다.");
+    const existing=await check.json();
+    const patients=Array.isArray(existing.patients)?existing.patients:[];
+    const normalizedPhone=(phone||"").replace(/\D/g,"");
+    const duplicate=patients.find(p=>String(p.name||"").trim()===name.trim() && (!normalizedPhone || String(p.phone||"").replace(/\D/g,"")===normalizedPhone));
+    if(duplicate){alert("이미 F8에 등록된 환자입니다. 기존 기록은 자동 변경하지 않았습니다.");return;}
+    const res=await fetch("/api/m8-management",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      name, phone:phone||"", category, registered_at:receptionTime||new Date().toISOString()
+    })});
+    const result=await res.json();
+    if(!res.ok || !result.success) throw new Error(result.message||"F8 전송에 실패했습니다.");
+    alert(`${name} 환자를 F8 ${category} 방으로 전송했습니다.`);
+  }catch(e){alert("F8 전송 오류: "+e.message);}
+}
+function sendQrToM8(key){
+  const tr=Array.from(document.querySelectorAll("#table-qr tbody tr")).find(row=>row.querySelector(`[id="qcat-${key}"]`));
+  if(!tr)return;
+  const cat=tr.querySelector(`[id="qcat-${key}"]`).value;
+  postPatientToM8({name:tr.children[2]?.textContent.trim()||"",phone:tr.dataset.phone||"",category:cat,receptionTime:tr.dataset.receptionTime||""});
+}
+function sendManualToM8(id){
+  const item=(GlobalState.manualBookings||[]).find(x=>String(x.id)===String(id));
+  if(!item)return;
+  postPatientToM8({name:item.petName,phone:item.phone||"",category:item.category,receptionTime:item.time||""});
+}
 function saveQrCategory(key, val){
   const cats = { ...(GlobalState.categories || {}) };
   cats[key] = val;
