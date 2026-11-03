@@ -3,9 +3,9 @@
 .memo-input{width:100%;height:36px}
 .history-box{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
 .history-list{border:1px solid #dbe3ee;border-radius:7px;background:#f8fafc;max-height:150px;min-height:48px;overflow:auto;padding:6px}
-.history-item{display:block;width:100%;box-sizing:border-box;padding:8px 5px;border-bottom:1px solid #e5eaf1;font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.history-item{padding:5px 4px;border-bottom:1px solid #e5eaf1;font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
 .history-item:last-child{border-bottom:0}
-.history-date{display:block;width:100%;font-size:11px;color:#475569;font-weight:700;margin:0 0 4px 0}
+.history-date{font-size:10px;color:#64748b;font-weight:700;margin-right:7px}
 .note-entry{display:flex;gap:6px}
 .note-entry input{flex:1;min-width:0;height:36px}
 .note-entry button{white-space:nowrap}
@@ -56,7 +56,7 @@ function exportPatientText(){
     ...historyLines,
     `내보낸 날짜: ${new Date().toLocaleString('ko-KR')}`
   ];
-  const blob=new Blob(['\\uFEFF'+lines.join('\\r\\n')],{type:'text/plain;charset=utf-8'});
+  const blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/plain;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
