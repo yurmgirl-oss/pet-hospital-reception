@@ -23,17 +23,25 @@ async function load(){try{const d=await api('GET');patients=d.patients||[];rende
 function openAdd(cat=categories[0]){$('patientForm').reset();$('pid').value='';$('modalTitle').textContent='특수환자 등록';$('category').value=cat;$('registered').value=new Date().toISOString().slice(0,10);$('lastVisit').value='';$('deleteBtn').style.display='none';noteItems=[];$('noteInput').value='';renderHistory();$('modal').style.display='flex'}
 function parseNotes(p){try{const v=JSON.parse(p.notes_json||'[]');return Array.isArray(v)?v:[]}catch{return []}}
 let noteItems=[];
-function renderHistory(){const box=$('historyList');if(!noteItems.length){box.innerHTML='<div class="history-empty">아직 기록이 없습니다.</div>';return;}box.innerHTML=noteItems.slice().reverse().map(n=>`<div class="history-item"><span class="history-date">${esc(n.date||'날짜 미상')}</span>${esc(n.text||'')}</div>`).join('')}
-function addNote(){const input=$('noteInput');const text=input.value.trim();if(!text)return;noteItems.push({date:new Date().toISOString().slice(0,10),text});input.value='';renderHistory();input.focus()}
+function formatNoteDate(n){
+  if(n.datetime)return n.datetime;
+  if(n.date && n.time)return `${n.date} ${n.time}`;
+  return n.date||'날짜 미상';
+}
+function renderHistory(){const box=$('historyList');if(!noteItems.length){box.innerHTML='<div class="history-empty">아직 기록이 없습니다.</div>';return;}box.innerHTML=noteItems.slice().reverse().map(n=>`<div class="history-item"><div class="history-date">${esc(formatNoteDate(n))}</div><div>${esc(n.text||'')}</div></div>`).join('')}
+function addNote(){const input=$('noteInput');const text=input.value.trim();if(!text)return;const now=new Date();const pad=v=>String(v).padStart(2,'0');const datetime=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;noteItems.push({date:datetime.slice(0,10),time:datetime.slice(11),datetime,text});input.value='';renderHistory();input.focus()}
 $('noteInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addNote()}});
 function editPatient(id){const p=patients.find(x=>x.id===id);if(!p)return;$('patientForm').reset();$('pid').value=p.id;$('modalTitle').textContent='환자 정보 및 관리 기록';$('name').value=p.name||'';$('phone').value=p.phone||'';$('category').value=p.category;$('registered').value=p.registered_at||'';$('lastVisit').value=p.last_visit||'';$('starred').checked=!!p.starred;$('memo').value=p.memo||'';noteItems=parseNotes(p);$('noteInput').value='';renderHistory();$('deleteBtn').style.display='inline-block';$('modal').style.display='flex'}
 
 function exportPatientText(){
   const name=$('name').value.trim()||'이름없음';
-  const notes=noteItems.slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+  const notes=noteItems.slice().sort((a,b)=>String(formatNoteDate(a)).localeCompare(String(formatNoteDate(b))));
+  const historyLines=notes.length?notes.flatMap(n=>[`[${formatNoteDate(n)}]`,n.text||'', '']):['(기록 없음)'];
   const lines=[
     '23시 하단오거리 동물병원 - F8 특수환자 관리 기록',
     '==============================================',
+    '',
+    '[환자 기본정보]',
     `동물 이름: ${name}`,
     `보호자 연락처: ${$('phone').value.trim()||'-'}`,
     `관리실: ${$('category').value}`,
@@ -44,9 +52,8 @@ function exportPatientText(){
     '[현재 관리 메모]',
     $('memo').value.trim()||'(기록 없음)',
     '',
-    '[날짜별 관리 기록]',
-    ...(notes.length?notes.map(n=>`${n.date||'날짜 미상'}  ${n.text||''}`):['(기록 없음)']),
-    '',
+    '[시간순 관리 기록]',
+    ...historyLines,
     `내보낸 날짜: ${new Date().toLocaleString('ko-KR')}`
   ];
   const blob=new Blob(['\\uFEFF'+lines.join('\\r\\n')],{type:'text/plain;charset=utf-8'});
