@@ -164,6 +164,17 @@ header {
   font-size: clamp(22px, 3.6vw, 28px);
   font-weight: 1000;
   letter-spacing: -0.03em;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.panel-title-benefit {
+  font-size: clamp(12px, 1.55vw, 17px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #0f766e;
+  white-space: nowrap;
 }
 .panel-qr .panel-title { color: #0284c7; }
 .panel-normal .panel-title { color: #d97706; }
@@ -474,7 +485,7 @@ footer {
     <!-- [상단] 📱 QR 사전접수 -->
     <section class="row-panel panel-qr">
       <div class="panel-header">
-        <div class="panel-title">📱 QR 사전접수</div>
+        <div class="panel-title">📱 QR 사전접수 <span class="panel-title-benefit">(우선순위 배정 · 추가 의뢰항목 1,000원 할인)</span></div>
         <div class="panel-count" id="count-qr">0명 대기</div>
       </div>
       <div class="table-header">
