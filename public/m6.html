@@ -111,10 +111,13 @@
   /* 폼 */
   .manual-form {
     display: grid;
-    grid-template-columns: 1fr 180px 100px;
+    grid-template-columns: minmax(0, 1fr) 88px;
     gap: 8px;
     margin-top: 6px;
+    align-items: stretch;
   }
+  .manual-form input { min-width: 0; }
+  .manual-form .btn-add { min-height: 34px; }
   input, select {
     padding: 7px 10px;
     border: 1px solid #cbd5e1;
@@ -250,24 +253,7 @@
       <span class="auto-notice">🌐 전 컴퓨터 실시간 동기화 모드</span>
     </h2>
     <div class="manual-form">
-      <input type="text" id="m-name" placeholder="동물명 (예: 보리)" onkeydown="if(event.key==='Enter') addManualBooking()">
-      <input type="tel" id="m-phone" placeholder="보호자 전화번호 (선택)" style="max-width:190px;">
-      <select id="m-category">
-        <option value="단순관리">단순관리</option>
-        <option value="코드블루">코드블루</option>
-        <option value="4days">4days</option>
-        <option value="호스피스">호스피스</option>
-        <option value="수술관리">수술관리</option>
-        <option value="심폐관리">심폐관리</option>
-        <option value="신부전">신부전</option>
-        <option value="종양관리">종양관리</option>
-        <option value="골관절">골관절</option>
-        <option value="피부알러지">피부알러지</option>
-        <option value="발작경련">발작경련</option>
-        <option value="추적관리">추적관리</option>
-        <option value="호르몬장애">호르몬장애</option>
-        <option value="특수관리">특수관리</option>
-      </select>
+      <input type="text" id="m-name" placeholder="동물 이름 입력" onkeydown="if(event.key==='Enter') addManualBooking()">
       <button class="btn-add" onclick="addManualBooking()">추가</button>
     </div>
 
@@ -454,14 +440,15 @@ function updateUrgentUI(){
 // 일반 예약 로직
 function addManualBooking(){
   const name = document.getElementById("m-name").value.trim();
-  const category = document.getElementById("m-category").value;
+  // 일반예약은 우선 단순관리로 등록하고, 필요한 경우 아래 목록에서 진료분류를 변경한다.
+  const category = "단순관리";
   if(!name){ alert("동물명을 입력하세요."); return; }
 
   const list = [...(GlobalState.manualBookings || [])];
   list.push({
     id: Date.now(),
     petName: name,
-    phone: (document.getElementById("m-phone")?.value || "").trim(),
+    phone: "",
     category: category,
     status: "접수대기",
     startTime: null,
@@ -471,7 +458,6 @@ function addManualBooking(){
 
   pushStateToServer({ manualBookings: list });
   document.getElementById("m-name").value = "";
-  if(document.getElementById("m-phone")) document.getElementById("m-phone").value = "";
   renderManualTable();
 }
 
