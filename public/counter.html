@@ -62,6 +62,9 @@
           <span id="soundIcon">🔔</span>
           <span id="soundText">알림음 켜짐</span>
         </button>
+        <button onclick="openImageSearch()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition">
+          🗂️ A4 기록 검색
+        </button>
         <button onclick="fetchReceptions(true)" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition">
           새로고침
         </button>
@@ -271,11 +274,54 @@
     </div>
   </div>
 
+  <!-- 재진 A4 접수 기록 템플릿: 초진 동의서와 별도이며 동의/서명란은 포함하지 않음 -->
+  <div id="revisit-print-sheet" style="position:fixed;left:-9999px;top:-9999px;width:794px;height:1123px;background:#fff;padding:48px 52px;box-sizing:border-box;color:#1e293b;font-family:'Pretendard',sans-serif;">
+    <div style="border-bottom:3px solid #0f766e;padding-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;">
+      <div><div style="font-size:13px;font-weight:800;letter-spacing:2px;color:#0f766e;">23시 하단오거리동물병원 · CLINIC FLOW</div><div style="font-size:30px;font-weight:900;margin-top:8px;">재진 접수 기록</div><div style="font-size:12px;color:#64748b;margin-top:5px;">내원 시 접수된 환자 정보 및 상담 내용</div></div>
+      <div style="text-align:right;font-size:13px;line-height:1.8;"><div id="rev-doc-id">접수번호: -</div><div id="rev-doc-date" style="font-weight:800;">접수일시: -</div></div>
+    </div>
+    <div style="margin-top:34px;border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;">
+      <div style="background:#f1f5f9;padding:12px 16px;font-weight:800;font-size:15px;">보호자 및 반려동물 정보</div>
+      <table style="width:100%;border-collapse:collapse;font-size:15px;">
+        <tr><th style="width:145px;text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">동물 이름</th><td id="rev-doc-pet" style="padding:16px;border:1px solid #e2e8f0;font-weight:800;color:#0f766e;"></td><th style="width:125px;text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">초진/재진</th><td id="rev-doc-type" style="padding:16px;border:1px solid #e2e8f0;">재진</td></tr>
+        <tr><th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">보호자</th><td id="rev-doc-guardian" style="padding:16px;border:1px solid #e2e8f0;"></td><th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">연락처</th><td id="rev-doc-phone" style="padding:16px;border:1px solid #e2e8f0;"></td></tr>
+        <tr><th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">축종 / 품종</th><td id="rev-doc-species" style="padding:16px;border:1px solid #e2e8f0;"></td><th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">성별 / 체중</th><td id="rev-doc-details" style="padding:16px;border:1px solid #e2e8f0;"></td></tr>
+      </table>
+    </div>
+    <div style="margin-top:28px;"><div style="font-size:17px;font-weight:900;border-left:5px solid #0f766e;padding-left:10px;margin-bottom:12px;">내원 사유 및 주요 증상</div><div id="rev-doc-reason" style="border:1px solid #cbd5e1;border-radius:10px;padding:20px;min-height:190px;white-space:pre-wrap;line-height:1.8;font-size:15px;"></div></div>
+    <div style="margin-top:26px;"><div style="font-size:17px;font-weight:900;border-left:5px solid #0f766e;padding-left:10px;margin-bottom:12px;">추가 처치 희망 항목</div><div id="rev-doc-treatments" style="border:1px solid #cbd5e1;border-radius:10px;padding:18px;min-height:80px;font-size:15px;line-height:1.8;"></div></div>
+    <div style="position:absolute;bottom:45px;left:52px;right:52px;border-top:1px solid #cbd5e1;padding-top:12px;display:flex;justify-content:space-between;color:#94a3b8;font-size:11px;"><span>23시 하단오거리동물병원 전자 접수 기록</span><span>출력용 보관 문서</span></div>
+  </div>
+
+  <!-- A4 이미지 미리보기 / 검색 창 -->
+  <div id="imagePreviewModal" class="fixed inset-0 z-[100] bg-slate-950/80 hidden items-center justify-center p-3" onclick="if(event.target===this) closeImagePreview()">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between p-3 border-b"><strong id="imagePreviewTitle">A4 접수 기록 미리보기</strong><button onclick="closeImagePreview()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
+      <div class="overflow-auto bg-slate-200 p-3 text-center"><img id="imagePreviewImg" alt="A4 접수 기록" class="inline-block max-w-full h-auto shadow-lg" style="max-height:78vh;"></div>
+      <div class="p-3 flex justify-end gap-2"><a id="imagePreviewDownload" class="px-4 py-2 rounded bg-slate-900 text-white text-sm font-bold" download="reception.png">PNG 다운로드</a></div>
+    </div>
+  </div>
+  <div id="imageSearchModal" class="fixed inset-0 z-[100] bg-slate-950/70 hidden items-center justify-center p-3" onclick="if(event.target===this) closeImageSearch()">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="flex justify-between items-center p-4 border-b"><strong class="text-lg">🗂️ A4 접수 기록 검색</strong><button onclick="closeImageSearch()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
+      <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <input id="imageSearchName" class="border rounded-lg p-2 text-sm" placeholder="동물 이름">
+        <input id="imageSearchPhone" class="border rounded-lg p-2 text-sm" placeholder="전화번호">
+        <input id="imageSearchDate" type="date" class="border rounded-lg p-2 text-sm">
+        <button onclick="searchReceptionImages()" class="sm:col-span-3 bg-indigo-600 text-white rounded-lg py-2 font-bold">검색</button>
+      </div>
+      <div id="imageSearchResults" class="overflow-auto p-4 pt-0 space-y-2"><p class="text-sm text-slate-400 text-center py-6">동물 이름, 전화번호 또는 날짜를 입력해 검색하세요.</p></div>
+    </div>
+  </div>
+
   <script>
     let soundEnabled = true;
     let knownIds = new Set();
     let isFirstLoad = true;
     let currentList = [];
+    // PIN은 페이지가 열린 동안 메모리에만 보관하며 브라우저 저장소에는 기록하지 않음
+    let receptionImagePin = '';
+    let activePreviewObjectUrl = '';
 
     function copyText(text, label = '텍스트') {
       if (!text || text === '-' || text === '미기재') return;
@@ -602,11 +648,11 @@
         if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
         if (isRes) statusClass = "bg-amber-100 text-amber-900 border-amber-300";
 
-        const downloadBtn = isFirst ? `
-          <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2 py-0.5 text-[11px] font-semibold rounded bg-sky-50 hover:bg-sky-100 text-sky-700 transition flex items-center gap-1 border border-sky-200 shadow-sm">
-            📄 A4 저장
+        const downloadBtn = `
+          <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2 py-0.5 text-[11px] font-semibold rounded ${isFirst ? 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-200' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'} transition flex items-center gap-1 border shadow-sm">
+            📄 A4 ${isFirst ? '초진 동의서' : '재진 기록'}
           </button>
-        ` : '';
+        `;
 
         const dateStrRaw = item.created_at ? item.created_at.replace(' ', 'T') : '';
         const timeStr = dateStrRaw ? new Date(dateStrRaw).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
@@ -793,93 +839,201 @@
       }
     }
 
+    function getReceptionImagePin() {
+      if (receptionImagePin) return receptionImagePin;
+      const entered = prompt('A4 접수 이미지를 저장하거나 검색하려면 관리자 PIN을 입력하세요:');
+      if (entered === null) return '';
+      receptionImagePin = entered.trim();
+      return receptionImagePin;
+    }
+
+    async function apiImageRequest(url, options = {}) {
+      const pin = getReceptionImagePin();
+      if (!pin) throw new Error('관리자 PIN 입력이 취소되었거나 비어 있습니다.');
+      const headers = { ...(options.headers || {}), 'X-Counter-Pin': pin };
+      const response = await fetch(url, { ...options, headers });
+      if (response.status === 401) {
+        receptionImagePin = '';
+        throw new Error('관리자 PIN이 올바르지 않습니다. 다시 시도해 주세요.');
+      }
+      return response;
+    }
+
+    function fillRevisitSheet(item, payload) {
+      const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value || '-'; };
+      set('rev-doc-id', `접수번호: #${item.id}`);
+      set('rev-doc-date', `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`);
+      set('rev-doc-pet', item.pet_name || '이름 없음');
+      set('rev-doc-type', '재진');
+      set('rev-doc-guardian', payload.guardian_name || item.owner_name || '미기재');
+      set('rev-doc-phone', item.phone || item.owner_phone || '미기재');
+      set('rev-doc-species', `${payload.species || item.species || '반려동물'} / ${payload.breed || item.breed || '미기재'}`);
+      set('rev-doc-details', `${payload.gender || item.gender || '성별 미기재'} / ${payload.weight ? payload.weight + ' kg' : '체중 미기재'}`);
+      set('rev-doc-reason', payload.reason || item.symptom || item.symptoms || '기재된 내원 사유가 없습니다.');
+      const treatments = Array.isArray(payload.treatments) ? payload.treatments : (Array.isArray(payload.extras) ? payload.extras : []);
+      set('rev-doc-treatments', treatments.length ? treatments.join('  |  ') : '선택 처치 없음');
+    }
+
     async function downloadIntakeSheet(item) {
       const payload = unwrapPayload(item.payload);
+      const isFirst = item.type === 'FIRST' || item.type === '초진';
+      const sheetElement = document.getElementById(isFirst ? 'print-sheet' : 'revisit-print-sheet');
 
-      document.getElementById('doc-id').innerText = `접수번호: #${item.id}`;
-      document.getElementById('doc-date').innerText = `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`;
-      
-      const guardian = payload.guardian_name || item.owner_name || '미기재';
-      document.getElementById('doc-guardian').innerText = guardian;
-      document.getElementById('doc-sign-guardian').innerText = guardian;
-      
-      document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
-      document.getElementById('doc-address').innerText = payload.address || '미기재';
+      if (isFirst) {
+        // 기존 초진 동의서 양식 및 전자서명 구성은 그대로 유지
+        document.getElementById('doc-id').innerText = `접수번호: #${item.id}`;
+        document.getElementById('doc-date').innerText = `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`;
+        const guardian = payload.guardian_name || item.owner_name || '미기재';
+        document.getElementById('doc-guardian').innerText = guardian;
+        document.getElementById('doc-sign-guardian').innerText = guardian;
+        document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
+        document.getElementById('doc-address').innerText = payload.address || '미기재';
+        document.getElementById('doc-email').innerText = (payload.email || item.email || '').trim();
+        document.getElementById('doc-pet').innerText = item.pet_name || '-';
+        document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
 
-      const email = payload.email || item.email || '';
-      document.getElementById('doc-email').innerText = email.trim();
+        const genderSymbol = getGenderText(payload, item);
+        const neuteredRaw = payload.neutered ?? payload.is_neutered ?? item.neutered;
+        const isNeutered = neuteredRaw === true || neuteredRaw === 'true' || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1 || neuteredRaw === '1';
+        const rawGender = String(payload.gender || item.gender || '').trim().toLowerCase();
+        const isFemale = ['암컷', '여', 'female', 'f', '♀'].includes(rawGender);
+        const isMale = ['수컷', '남', 'male', 'm', '♂'].includes(rawGender);
+        const genderLabel = isFemale ? '암컷' : isMale ? '수컷' : (payload.gender || item.gender || '성별 미선택');
+        const genderColor = isFemale ? 'text-rose-600' : isMale ? 'text-blue-700' : 'text-slate-700';
+        const neuterColor = isNeutered ? 'text-violet-800 font-extrabold' : 'text-slate-600';
+        document.getElementById('doc-gender').innerHTML = `<span class="${genderColor} font-black text-base">${genderSymbol || ''} ${genderLabel}</span> <span class="${neuterColor}">· ${isNeutered ? '중성화' : '미중성화'}</span>`;
 
-      document.getElementById('doc-pet').innerText = item.pet_name || '-';
-      document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
-      
-      const genderSymbol = getGenderText(payload, item);
-      const neuteredRaw = payload.neutered ?? payload.is_neutered ?? item.neutered;
-      const isNeutered = neuteredRaw === true || neuteredRaw === 'true'
-        || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1
-        || neuteredRaw === '1';
-      const rawGender = String(payload.gender || item.gender || '').trim().toLowerCase();
-      const isFemale = ['암컷', '여', 'female', 'f', '♀'].includes(rawGender);
-      const isMale = ['수컷', '남', 'male', 'm', '♂'].includes(rawGender);
-      const genderLabel = isFemale ? '암컷' : isMale ? '수컷' : (payload.gender || item.gender || '성별 미선택');
-      const neuterText = isNeutered ? '중성화' : '미중성화';
-      const genderColor = isFemale ? 'text-rose-600' : isMale ? 'text-blue-700' : 'text-slate-700';
-      const neuterColor = isNeutered ? 'text-violet-800 font-extrabold' : 'text-slate-600';
-      document.getElementById('doc-gender').innerHTML =
-        `<span class="${genderColor} font-black text-base">${genderSymbol || ''} ${genderLabel}</span> ` +
-        `<span class="${neuterColor}">· ${neuterText}</span>`;
-
-      const bDate = getBirthDate(payload, item) || '미기재';
-      const ageText = calculateAgeText(bDate);
-      const wt = payload.weight ? `${payload.weight} kg` : '미기재';
-      const birthWeightEl = document.getElementById('doc-birth-weight');
-      birthWeightEl.innerHTML =
-        `<span>${bDate}</span>` +
-        `${ageText ? ` <span style="display:inline-block;margin-left:4px;padding:2px 7px;border-radius:999px;background:linear-gradient(90deg,#fef3c7,#fce7f3,#ede9fe);border:1px solid #c4b5fd;color:#5b21b6;font-weight:800;">${ageText}</span>` : ''}` +
-        ` <span style="color:#64748b;"> / ${wt}</span>`;
-
-      const charVal = getPetCharacter(payload, item) || '특이사항 없음';
-      const docCharEl = document.getElementById('doc-character');
-      if (docCharEl) docCharEl.innerText = charVal;
-
-      document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
-
-      let treatmentsArray = [];
-      if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
-      else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
-      document.getElementById('doc-treatments').innerText = treatmentsArray.length > 0 ? treatmentsArray.join('  |   ') : '선택 처치 없음';
-
-      const sigImg = document.getElementById('doc-signature-img');
-      const noSigText = document.getElementById('doc-no-sign');
-
-      if (payload.signature && payload.signature.startsWith('data:image')) {
-        sigImg.src = payload.signature;
-        sigImg.classList.remove('hidden');
-        noSigText.classList.add('hidden');
+        const bDate = getBirthDate(payload, item) || '미기재';
+        const ageText = calculateAgeText(bDate);
+        const wt = payload.weight ? `${payload.weight} kg` : '미기재';
+        document.getElementById('doc-birth-weight').innerHTML = `<span>${bDate}</span>${ageText ? ` <span style="display:inline-block;margin-left:4px;padding:2px 7px;border-radius:999px;background:#fef3c7;border:1px solid #c4b5fd;color:#5b21b6;font-weight:800;">${ageText}</span>` : ''} <span style="color:#64748b;"> / ${wt}</span>`;
+        document.getElementById('doc-character').innerText = getPetCharacter(payload, item) || '특이사항 없음';
+        document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
+        const treatments = Array.isArray(payload.treatments) ? payload.treatments : (Array.isArray(payload.extras) ? payload.extras : []);
+        document.getElementById('doc-treatments').innerText = treatments.length ? treatments.join('  |   ') : '선택 처치 없음';
+        const sigImg = document.getElementById('doc-signature-img');
+        const noSigText = document.getElementById('doc-no-sign');
+        if (payload.signature && payload.signature.startsWith('data:image')) {
+          sigImg.src = payload.signature; sigImg.classList.remove('hidden'); noSigText.classList.add('hidden');
+        } else { sigImg.classList.add('hidden'); noSigText.classList.remove('hidden'); }
       } else {
-        sigImg.classList.add('hidden');
-        noSigText.classList.remove('hidden');
+        fillRevisitSheet(item, payload);
       }
-
-      const sheetElement = document.getElementById('print-sheet');
 
       try {
-        const canvas = await html2canvas(sheetElement, { 
-          scale: 2, 
-          useCORS: true, 
-          backgroundColor: '#ffffff' 
-        });
+        const canvas = await html2canvas(sheetElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
         const imageURL = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        
         const petName = (item.pet_name || '환자').trim();
-        const cleanPhone = (item.phone || item.owner_phone || '0000').slice(-4);
-        link.download = `${petName}_${cleanPhone}_초진동의서.png`;
-        
+        const cleanPhone = (item.phone || item.owner_phone || '0000').replace(/\D/g, '').slice(-4);
+        const visitType = isFirst ? '초진' : '재진';
+
+        // 기존 PC 다운로드와 미리보기는 클라우드 상태와 관계없이 먼저 제공
+        const link = document.createElement('a');
+        link.download = `${petName}_${cleanPhone}_${visitType === '초진' ? '초진동의서' : '재진기록'}.png`;
         link.href = imageURL;
         link.click();
+        openImagePreview(imageURL, `${petName} ${visitType} A4 기록 미리보기`);
+
+        // R2 원본 이미지와 D1 검색용 메타데이터 저장
+        showToast('☁️ A4 이미지를 클라우드에 저장하고 있습니다...');
+        try {
+          const saveResponse = await apiImageRequest('/api/reception-images', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image_data: imageURL,
+              reception_id: Number.isFinite(Number(item.id)) ? Number(item.id) : null,
+              pet_name: petName,
+              phone: item.phone || item.owner_phone || '',
+              visit_type: visitType,
+              created_at: item.created_at || new Date().toISOString()
+            })
+          });
+          const saveResult = await saveResponse.json();
+          if (!saveResponse.ok || !saveResult.success) throw new Error(saveResult.error || '클라우드 저장에 실패했습니다.');
+          document.getElementById('imagePreviewTitle').textContent = `${petName} ${visitType} A4 기록 (클라우드 저장 완료)`;
+          showToast(`☁️ ${petName} ${visitType} A4 기록이 클라우드에 저장되었습니다. (번호 ${saveResult.image_id})`);
+        } catch (saveError) {
+          console.error('클라우드 저장 오류:', saveError);
+          showToast('⚠️ PNG는 생성됐지만 클라우드 저장은 실패했습니다.');
+          alert('PNG 파일은 생성했지만 클라우드 저장에 실패했습니다.\n' + saveError.message);
+        }
       } catch (err) {
-        alert('동의서 이미지 생성 실패: ' + err.message);
+        console.error('A4 이미지 생성 오류:', err);
+        alert('A4 이미지 생성 실패: ' + err.message);
       }
+    }
+
+    function openImagePreview(src, title) {
+      if (activePreviewObjectUrl && src !== activePreviewObjectUrl) { URL.revokeObjectURL(activePreviewObjectUrl); activePreviewObjectUrl = ''; }
+      document.getElementById('imagePreviewImg').src = src;
+      document.getElementById('imagePreviewTitle').textContent = title || 'A4 접수 기록 미리보기';
+      document.getElementById('imagePreviewDownload').href = src;
+      document.getElementById('imagePreviewModal').classList.remove('hidden');
+      document.getElementById('imagePreviewModal').classList.add('flex');
+    }
+
+    function closeImagePreview() {
+      const modal = document.getElementById('imagePreviewModal');
+      modal.classList.add('hidden'); modal.classList.remove('flex');
+      document.getElementById('imagePreviewImg').src = '';
+      if (activePreviewObjectUrl) { URL.revokeObjectURL(activePreviewObjectUrl); activePreviewObjectUrl = ''; }
+    }
+
+    function openImageSearch() {
+      const modal = document.getElementById('imageSearchModal');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+      document.getElementById('imageSearchName').focus();
+    }
+    function closeImageSearch() {
+      const modal = document.getElementById('imageSearchModal');
+      modal.classList.add('hidden'); modal.classList.remove('flex');
+    }
+
+    async function searchReceptionImages() {
+      const q = document.getElementById('imageSearchName').value.trim();
+      const phone = document.getElementById('imageSearchPhone').value.trim();
+      const date = document.getElementById('imageSearchDate').value;
+      if (!q && !phone && !date) { alert('동물 이름, 전화번호 또는 날짜 중 하나를 입력해 주세요.'); return; }
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (phone) params.set('phone', phone);
+      if (date) params.set('date', date);
+      const resultBox = document.getElementById('imageSearchResults');
+      resultBox.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">검색 중입니다...</p>';
+      try {
+        const response = await apiImageRequest(`/api/reception-images?${params.toString()}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || '검색에 실패했습니다.');
+        const rows = data.results || [];
+        if (!rows.length) { resultBox.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">검색 결과가 없습니다.</p>'; return; }
+        resultBox.innerHTML = rows.map(row => `
+          <button type="button" onclick="openSavedReceptionImage(${Number(row.id)})" class="w-full text-left border rounded-lg p-3 hover:bg-indigo-50 hover:border-indigo-300 transition flex items-center justify-between gap-3">
+            <span class="min-w-0"><strong class="text-sm text-slate-800">${escapeHtml(row.pet_name || '이름 없음')}</strong><span class="ml-2 text-xs rounded px-1.5 py-0.5 ${row.visit_type === '초진' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}">${escapeHtml(row.visit_type || '접수')}</span><span class="block text-xs text-slate-500 mt-1">${escapeHtml(row.phone || '전화번호 없음')} · ${escapeHtml(row.visit_date || '')}</span></span>
+            <span class="text-indigo-600 text-xs font-bold shrink-0">이미지 열기 →</span>
+          </button>`).join('');
+      } catch (err) {
+        resultBox.innerHTML = `<p class="text-sm text-rose-600 text-center py-6">${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    async function openSavedReceptionImage(id) {
+      try {
+        const response = await apiImageRequest(`/api/reception-images?id=${encodeURIComponent(id)}`);
+        if (!response.ok) {
+          let message = '이미지를 불러오지 못했습니다.';
+          try { const data = await response.json(); message = data.error || message; } catch (_) {}
+          throw new Error(message);
+        }
+        const blob = await response.blob();
+        if (activePreviewObjectUrl) URL.revokeObjectURL(activePreviewObjectUrl);
+        activePreviewObjectUrl = URL.createObjectURL(blob);
+        openImagePreview(activePreviewObjectUrl, `저장된 A4 접수 기록 · 이미지 번호 ${id}`);
+      } catch (err) { alert('이미지 열기 실패: ' + err.message); }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
     }
 
     fetchReceptions();
