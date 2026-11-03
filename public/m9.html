@@ -202,6 +202,7 @@
       <button class="tab-btn" id="tab-f5" onclick="switchRightView('f5')">5️⃣ 🖥️ 3개 현황창 (F5)</button>
       <button class="tab-btn" id="tab-calc" onclick="switchRightView('calc')" style="color: #fde047;">6️⃣ 🧮 약량계산기 (F6)</button>
       <button class="tab-btn" id="tab-exotic" onclick="switchRightView('exotic')" style="color: #67e8f9;">7️⃣ 🦎 특수동물 (F7)</button>
+      <button class="tab-btn" id="tab-m8" onclick="switchRightView('m8')" style="color:#f9a8d4;">8️⃣ ⭐ 특수환자 관리 (F8)</button>
     </div>
 
     <div>
@@ -305,6 +306,18 @@
         </div>
       </div>
 
+      <!-- 8번 뷰: 특수환자 13개 관리실 현황판 (F8 독립) -->
+      <div id="view-m8" class="panel" style="width:100%;height:100%;display:none;">
+        <div class="panel-header">
+          <div class="panel-title">⭐ [창 8] 특수환자 13개 관리실 통합 현황판</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-m8').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/m8.html','_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body"><iframe id="frame-m8" src="/m8.html"></iframe></div>
+      </div>
+
       <!-- 7번 뷰: 특수동물 전용 패널 (F7 신규 추가) -->
       <div id="view-exotic" class="panel" style="width: 100%; height: 100%; display: none;">
         <div class="panel-header">
@@ -403,6 +416,7 @@
       document.getElementById('view-f5').style.display = 'none';
       document.getElementById('view-calc').style.display = 'none';
       document.getElementById('view-exotic').style.display = 'none';
+      document.getElementById('view-m8').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -429,6 +443,9 @@
       } else if (viewMode === 'exotic') {
         document.getElementById('view-exotic').style.display = 'flex';
         document.getElementById('tab-exotic').classList.add('active');
+      } else if (viewMode === 'm8') {
+        document.getElementById('view-m8').style.display = 'flex';
+        document.getElementById('tab-m8').classList.add('active');
       }
     }
 
@@ -448,6 +465,7 @@
       if (e.key === 'F5') { e.preventDefault(); switchRightView('f5'); }
       if (e.key === 'F6') { e.preventDefault(); switchRightView('calc'); }
       if (e.key === 'F7') { e.preventDefault(); switchRightView('exotic'); }
+      if (e.key === 'F8') { e.preventDefault(); switchRightView('m8'); }
     });
   </script>
 </body>
