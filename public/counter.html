@@ -298,7 +298,7 @@
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
       <div class="flex items-center justify-between p-3 border-b"><strong id="imagePreviewTitle">A4 접수 기록 미리보기</strong><button onclick="closeImagePreview()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
       <div class="overflow-auto bg-slate-200 p-3 text-center"><img id="imagePreviewImg" alt="A4 접수 기록" class="inline-block max-w-full h-auto shadow-lg" style="max-height:78vh;"></div>
-      <div class="p-3 flex justify-end gap-2"><a id="imagePreviewDownload" class="px-4 py-2 rounded bg-slate-900 text-white text-sm font-bold" download="reception.png">PNG 다운로드</a></div>
+      <div class="p-3 flex justify-end gap-2"><a id="imagePreviewDownload" class="px-4 py-2 rounded bg-slate-900 text-white text-sm font-bold" download="접수기록.png">PNG 다운로드</a></div>
     </div>
   </div>
   <div id="imageSearchModal" class="fixed inset-0 z-[100] bg-slate-950/70 hidden items-center justify-center p-3" onclick="if(event.target===this) closeImageSearch()">
@@ -926,13 +926,14 @@
         const petName = (item.pet_name || '환자').trim();
         const cleanPhone = (item.phone || item.owner_phone || '0000').replace(/\D/g, '').slice(-4);
         const visitType = isFirst ? '초진' : '재진';
+        const downloadFilename = makeReceptionPngFilename(petName, (item.created_at || new Date().toISOString()).slice(0, 10), visitType);
 
         // 기존 PC 다운로드와 미리보기는 클라우드 상태와 관계없이 먼저 제공
         const link = document.createElement('a');
-        link.download = `${petName}_${cleanPhone}_${visitType === '초진' ? '초진동의서' : '재진기록'}.png`;
+        link.download = downloadFilename;
         link.href = imageURL;
         link.click();
-        openImagePreview(imageURL, `${petName} ${visitType} A4 기록 미리보기`);
+        openImagePreview(imageURL, `${petName} ${visitType} A4 기록 미리보기`, downloadFilename);
 
         // R2 원본 이미지와 D1 검색용 메타데이터 저장
         showToast('☁️ A4 이미지를 클라우드에 저장하고 있습니다...');
@@ -964,11 +965,20 @@
       }
     }
 
-    function openImagePreview(src, title) {
+    function makeReceptionPngFilename(petName, visitDate, visitType) {
+      const safeName = String(petName || '환자').replace(/[\\/:*?"<>|\x00-\x1f]/g, '_').trim() || '환자';
+      const safeDate = String(visitDate || new Date().toISOString().slice(0, 10)).slice(0, 10);
+      const typeLabel = visitType === '초진' ? '초진동의서' : '재진기록';
+      return `${safeName}_${safeDate}_${typeLabel}.png`;
+    }
+
+    function openImagePreview(src, title, filename = '접수기록.png') {
       if (activePreviewObjectUrl && src !== activePreviewObjectUrl) { URL.revokeObjectURL(activePreviewObjectUrl); activePreviewObjectUrl = ''; }
       document.getElementById('imagePreviewImg').src = src;
       document.getElementById('imagePreviewTitle').textContent = title || 'A4 접수 기록 미리보기';
-      document.getElementById('imagePreviewDownload').href = src;
+      const downloadLink = document.getElementById('imagePreviewDownload');
+      downloadLink.href = src;
+      downloadLink.download = filename;
       document.getElementById('imagePreviewModal').classList.remove('hidden');
       document.getElementById('imagePreviewModal').classList.add('flex');
     }
@@ -1008,7 +1018,7 @@
         const rows = data.results || [];
         if (!rows.length) { resultBox.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">검색 결과가 없습니다.</p>'; return; }
         resultBox.innerHTML = rows.map(row => `
-          <button type="button" onclick="openSavedReceptionImage(${Number(row.id)})" class="w-full text-left border rounded-lg p-3 hover:bg-indigo-50 hover:border-indigo-300 transition flex items-center justify-between gap-3">
+          <button type="button" onclick="openSavedReceptionImage(${Number(row.id)}, decodeURIComponent('${encodeURIComponent(String(row.pet_name || '환자')).replace(/'/g, '%27')}'), decodeURIComponent('${encodeURIComponent(String(row.visit_date || '')).replace(/'/g, '%27')}'), decodeURIComponent('${encodeURIComponent(String(row.visit_type || '접수')).replace(/'/g, '%27')}'))" class="w-full text-left border rounded-lg p-3 hover:bg-indigo-50 hover:border-indigo-300 transition flex items-center justify-between gap-3">
             <span class="min-w-0"><strong class="text-sm text-slate-800">${escapeHtml(row.pet_name || '이름 없음')}</strong><span class="ml-2 text-xs rounded px-1.5 py-0.5 ${row.visit_type === '초진' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}">${escapeHtml(row.visit_type || '접수')}</span><span class="block text-xs text-slate-500 mt-1">${escapeHtml(row.phone || '전화번호 없음')} · ${escapeHtml(row.visit_date || '')}</span></span>
             <span class="text-indigo-600 text-xs font-bold shrink-0">이미지 열기 →</span>
           </button>`).join('');
@@ -1017,7 +1027,7 @@
       }
     }
 
-    async function openSavedReceptionImage(id) {
+    async function openSavedReceptionImage(id, petName = '환자', visitDate = '', visitType = '접수') {
       try {
         const response = await apiImageRequest(`/api/reception-images?id=${encodeURIComponent(id)}`);
         if (!response.ok) {
@@ -1028,7 +1038,8 @@
         const blob = await response.blob();
         if (activePreviewObjectUrl) URL.revokeObjectURL(activePreviewObjectUrl);
         activePreviewObjectUrl = URL.createObjectURL(blob);
-        openImagePreview(activePreviewObjectUrl, `저장된 A4 접수 기록 · 이미지 번호 ${id}`);
+        const filename = makeReceptionPngFilename(petName, visitDate, visitType);
+        openImagePreview(activePreviewObjectUrl, `${petName} ${visitType} 접수 기록 · 이미지 번호 ${id}`, filename);
       } catch (err) { alert('이미지 열기 실패: ' + err.message); }
     }
 
