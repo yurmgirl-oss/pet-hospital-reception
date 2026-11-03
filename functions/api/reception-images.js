@@ -231,8 +231,11 @@ export async function onRequestGet({ request, env }) {
         }, 400);
       }
 
+      
       const row = await env.DB.prepare(
-        "SELECT object_key FROM reception_images WHERE id = ?"
+        `SELECT object_key, pet_name, visit_date, visit_type
+         FROM reception_images
+         WHERE id = ?`
       ).bind(id).first();
 
       if (!row) {
@@ -249,21 +252,42 @@ export async function onRequestGet({ request, env }) {
         }, 404);
       }
 
+      // 동물 이름, 날짜, 초진/재진 구분으로 파일명 생성
+      const safePetName = String(row.pet_name || "환자")
+        .replace(/[\\/:*?"<>|\x00-\x1f]/g, "_")
+        .trim()
+        .slice(0, 60) || "환자";
+
+      const safeDate = /^\d{4}-\d{2}-\d{2}$/.test(row.visit_date || "")
+        ? row.visit_date
+        : "날짜미상";
+
+      const typeLabel = row.visit_type === "초진"
+        ? "초진동의서"
+        : row.visit_type === "재진"
+          ? "재진기록"
+          : "접수기록";
+
+      const filename = `${safePetName}_${safeDate}_${typeLabel}.png`;
+
       const headers = new Headers();
 
       object.writeHttpMetadata(headers);
 
       headers.set("Content-Type", "image/png");
       headers.set("Cache-Control", "private, no-store");
+
       headers.set(
         "Content-Disposition",
-        'inline; filename="reception.png"'
+        `inline; filename="reception.png"; filename*=UTF-8''${encodeURIComponent(filename)}`
       );
+
       headers.set("X-Content-Type-Options", "nosniff");
 
       return new Response(object.body, {
         headers
       });
+
     }
 
     // ----------------------------------------
