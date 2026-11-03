@@ -1,552 +1,70 @@
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>F8 특수환자 관리 현황판</title>
-  <style>
-    :root {
-      font-family: Arial, 'Malgun Gothic', sans-serif;
-      color: #172033;
-      background: #eef2f7;
-    }
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .top {
-      height: 54px;
-      background: #142238;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-    }
-    .top strong {
-      font-size: 19px;
-    }
-    .actions {
-      display: flex;
-      gap: 7px;
-    }
-    .btn {
-      border: 0;
-      border-radius: 7px;
-      padding: 8px 12px;
-      font-weight: 700;
-      cursor: pointer;
-      background: #e5eaf2;
-      color: #172033;
-    }
-    .btn.primary {
-      background: #2563eb;
-      color: white;
-    }
-    .main {
-      height: calc(100vh - 54px);
-      padding: 7px;
-      overflow: auto;
-    }
-    .rooms {
-      height: 100%;
-      min-width: 1250px;
-      display: grid;
-      grid-template-columns: repeat(13, minmax(0, 1fr));
-      gap: 5px;
-    }
-    .room {
-      background: white;
-      border: 1px solid #d5dce7;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      overflow: hidden;
-    }
-    .roomhead {
-      height: 39px;
-      flex: none;
-      background: #263b58;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 3px;
-      font-size: clamp(10px, .72vw, 14px);
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    .count {
-      background: #dbeafe;
-      color: #1e40af;
-      border-radius: 20px;
-      padding: 2px 5px;
-      font-size: 10px;
-    }
-    .patients {
-      overflow-y: auto;
-      min-height: 0;
-      padding: 3px;
-    }
-    .patient {
-      border-bottom: 1px solid #e8edf3;
-      padding: 6px 3px 5px;
-      cursor: pointer;
-      min-width: 0;
-    }
-    .patient:hover {
-      background: #eff6ff;
-    }
-    .pname {
-      font-size: clamp(12px, .9vw, 17px);
-      font-weight: 900;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.25;
-    }
-    .meta {
-      font-size: 9px;
-      color: #778397;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 3px;
-    }
-    .star {
-      color: #e5a000;
-    }
-    .empty {
-      color: #b6bfcc;
-      text-align: center;
-      font-size: 10px;
-      padding: 12px 2px;
-    }
-    .add {
-      margin: 4px;
-      border: 1px dashed #b7c3d3;
-      background: #f8fafc;
-      color: #52647d;
-      border-radius: 5px;
-      padding: 5px 1px;
-      font-size: 10px;
-      cursor: pointer;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #0008;
-      z-index: 5;
-      align-items: center;
-      justify-content: center;
-      padding: 15px;
-    }
-    .dialog {
-      background: white;
-      border-radius: 12px;
-      width: min(560px, 96vw);
-      max-height: 90vh;
-      overflow: auto;
-      padding: 18px;
-      box-shadow: 0 20px 60px #0004;
-    }
-    .dialog h2 {
-      margin: 0 0 14px;
-    }
-    .formgrid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .field input, .field select, .field textarea {
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 9px;
-      font: inherit;
-      font-weight: 400;
-    }
-    .field.full {
-      grid-column: 1 / -1;
-    }
-    .field textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-    .memo-input {
-      width: 100%;
-      height: 36px;
-    }
-    .history-box {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .history-list {
-      border: 1px solid #dbe3ee;
-      border-radius: 7px;
-      background: #f8fafc;
-      max-height: 200px;
-      min-height: 48px;
-      overflow-y: auto;
-      padding: 6px;
-    }
-    /* 시간대별 세로 보기 구조 */
-    .history-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 8px 6px;
-      border-bottom: 1px solid #e5eaf1;
-      font-size: 12px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    .history-item:last-child {
-      border-bottom: 0;
-    }
-    .history-date {
-      font-size: 11px;
-      color: #2563eb;
-      font-weight: 700;
-    }
-    .history-content {
-      color: #1e293b;
-      padding-left: 2px;
-    }
-    .note-entry {
-      display: flex;
-      gap: 6px;
-    }
-    .note-entry input {
-      flex: 1;
-      min-width: 0;
-      height: 36px;
-    }
-    .note-entry button {
-      white-space: nowrap;
-    }
-    .history-empty {
-      font-size: 11px;
-      color: #94a3b8;
-      padding: 8px 4px;
-    }
-    .dialogfoot {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-top: 13px;
-    }
-    @media(max-width: 1300px) {
-      .rooms {
-        min-width: 1250px;
-      }
-    }
-  </style>
-</head>
-<body>
-<header class="top">
-  <strong>🐾 F8 특수환자 통합 현황판</strong>
-  <div class="actions">
-    <span id="status" style="font-size:11px;align-self:center;color:#cbd5e1">불러오는 중</span>
-    <button class="btn" onclick="load()">새로고침</button>
-    <button class="btn primary" onclick="openAdd()">＋ 환자 등록</button>
-  </div>
-</header>
-
-<main class="main">
-  <section class="rooms" id="rooms"></section>
-</main>
-
-<div class="modal" id="modal">
-  <div class="dialog">
-    <h2 id="modalTitle">특수환자 등록</h2>
-    <form id="patientForm">
-      <input type="hidden" id="pid">
-      <div class="formgrid">
-        <label class="field">동물 이름<input id="name" required maxlength="60"></label>
-        <label class="field">연락처<input id="phone" maxlength="30" placeholder="010-0000-0000"></label>
-        <label class="field">관리실<select id="category"></select></label>
-        <label class="field">등록일<input id="registered" type="date"></label>
-        <label class="field">최근 방문일<input id="lastVisit" type="date"></label>
-        <label class="field" style="justify-content:end">
-          <span><input id="starred" type="checkbox" style="width:auto"> ⭐ 최우선 표시</span>
-        </label>
-        <label class="field full">관리 메모<input class="memo-input" id="memo" type="text" placeholder="현재 상태 또는 가장 중요한 주의사항"></label>
-        
-        <div class="history-box">
-          <div class="field">이전 기록 <span style="font-weight:400;color:#64748b">(시간대별 세로 기록)</span></div>
-          <div class="history-list" id="historyList">
-            <div class="history-empty">아직 기록이 없습니다.</div>
-          </div>
-          <div class="note-entry">
-            <input id="noteInput" type="text" placeholder="새 관리 기록을 입력하고 추가하세요">
-            <button type="button" class="btn" onclick="addNote()">＋ 기록 추가</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="dialogfoot">
-        <button type="button" class="btn" id="deleteBtn" style="display:none;background:#fee2e2;color:#991b1b" onclick="removePatient()">F8에서 삭제</button>
-        <div style="margin-left:auto;display:flex;gap:7px">
-          <button type="button" class="btn" onclick="exportPatientText()">차트 텍스트 저장</button>
-          <button type="button" class="btn" onclick="closeModal()">취소</button>
-          <button class="btn primary" type="submit">저장</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>F8 특수환자 관리 현황판</title><style>
+:root{font-family:Arial,'Malgun Gothic',sans-serif;color:#172033;background:#eef2f7}*{box-sizing:border-box}body{margin:0;height:100vh;overflow:hidden}.top{height:54px;background:#142238;color:white;display:flex;align-items:center;justify-content:space-between;padding:0 16px}.top strong{font-size:19px}.actions{display:flex;gap:7px}.btn{border:0;border-radius:7px;padding:8px 12px;font-weight:700;cursor:pointer;background:#e5eaf2;color:#172033}.btn.primary{background:#2563eb;color:white}.main{height:calc(100vh - 54px);padding:7px;overflow:auto}.rooms{height:100%;min-width:1250px;display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:5px}.room{background:white;border:1px solid #d5dce7;border-radius:8px;display:flex;flex-direction:column;min-width:0;overflow:hidden}.roomhead{height:39px;flex:none;background:#263b58;color:white;display:flex;align-items:center;justify-content:center;gap:4px;padding:3px;font-size:clamp(10px,.72vw,14px);font-weight:800;white-space:nowrap}.count{background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 5px;font-size:10px}.patients{overflow-y:auto;min-height:0;padding:3px}.patient{border-bottom:1px solid #e8edf3;padding:6px 3px 5px;cursor:pointer;min-width:0}.patient:hover{background:#eff6ff}.pname{font-size:clamp(12px,.9vw,17px);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}.meta{font-size:9px;color:#778397;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}.star{color:#e5a000}.empty{color:#b6bfcc;text-align:center;font-size:10px;padding:12px 2px}.add{margin:4px;border:1px dashed #b7c3d3;background:#f8fafc;color:#52647d;border-radius:5px;padding:5px 1px;font-size:10px;cursor:pointer}.modal{display:none;position:fixed;inset:0;background:#0008;z-index:5;align-items:center;justify-content:center;padding:15px}.dialog{background:white;border-radius:12px;width:min(560px,96vw);max-height:90vh;overflow:auto;padding:18px;box-shadow:0 20px 60px #0004}.dialog h2{margin:0 0 14px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700}.field input,.field select,.field textarea{border:1px solid #cbd5e1;border-radius:6px;padding:9px;font:inherit;font-weight:400}.field.full{grid-column:1/-1}.field textarea{min-height:100px;resize:vertical}
+.memo-input{width:100%;height:36px}
+.history-box{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
+.history-list{border:1px solid #dbe3ee;border-radius:7px;background:#f8fafc;max-height:150px;min-height:48px;overflow:auto;padding:6px}
+.history-item{padding:5px 4px;border-bottom:1px solid #e5eaf1;font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.history-item:last-child{border-bottom:0}
+.history-date{font-size:10px;color:#64748b;font-weight:700;margin-right:7px}
+.note-entry{display:flex;gap:6px}
+.note-entry input{flex:1;min-width:0;height:36px}
+.note-entry button{white-space:nowrap}
+.history-empty{font-size:11px;color:#94a3b8;padding:8px 4px}
+.dialogfoot{display:flex;justify-content:space-between;gap:8px;margin-top:13px}.detailmeta{font-size:12px;color:#64748b;margin-bottom:10px}@media(max-width:1300px){.rooms{min-width:1250px}}
+</style></head><body><header class="top"><strong>🐾 F8 특수환자 통합 현황판</strong><div class="actions"><span id="status" style="font-size:11px;align-self:center;color:#cbd5e1">불러오는 중</span><button class="btn" onclick="load()">새로고침</button><button class="btn primary" onclick="openAdd()">＋ 환자 등록</button></div></header><main class="main"><section class="rooms" id="rooms"></section></main>
+<div class="modal" id="modal"><div class="dialog"><h2 id="modalTitle">특수환자 등록</h2><form id="patientForm"><input type="hidden" id="pid"><div class="formgrid"><label class="field">동물 이름<input id="name" required maxlength="60"></label><label class="field">연락처<input id="phone" maxlength="30" placeholder="010-0000-0000"></label><label class="field">관리실<select id="category"></select></label><label class="field">등록일시<input id="registered" type="text" readonly></label><label class="field" style="justify-content:end"><span><input id="starred" type="checkbox" style="width:auto"> ⭐ 최우선 표시</span></label><div class="history-box"><div class="field">이전 기록 <span style="font-weight:400;color:#64748b">(기존 입력 내용은 아래에서 읽을 수 있습니다)</span></div><div class="history-list" id="historyList"><div class="history-empty">아직 기록이 없습니다.</div></div><div class="note-entry"><input id="noteInput" type="text" placeholder="새 관리 기록을 한 줄로 입력하고 추가하세요"><button type="button" class="btn" onclick="addNote()">＋ 기록 추가</button></div></div></div><div class="dialogfoot"><button type="button" class="btn" id="deleteBtn" style="display:none;background:#fee2e2;color:#991b1b" onclick="removePatient()">F8에서 삭제</button><div style="margin-left:auto;display:flex;gap:7px"><button type="button" class="btn" onclick="exportPatientText()">차트 텍스트 저장</button><button type="button" class="btn" onclick="closeModal()">취소</button><button class="btn primary" type="submit">저장</button></div></div></form></div></div>
 <script>
-const categories = ['코드블루','4days','호스피스','수술관리','심폐관리','신부전','종양관리','골관절','피부알러지','발작경련','추적관리','호르몬장애','특수관리'];
-let patients = [];
-let noteItems = [];
-
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-$('category').innerHTML = categories.map(c => `<option>${c}</option>`).join('');
-
-async function api(method, body) {
-  const r = await fetch('/api/m8-management', {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    ...(body ? { body: JSON.stringify(body) } : {})
-  });
-  const d = await r.json();
-  if (!r.ok || !d.success) throw Error(d.message || '저장 실패');
-  return d;
+const categories=['코드블루','4days','호스피스','수술관리','심폐관리','신부전','종양관리','골관절','피부알러지','발작경련','추적관리','호르몬장애','특수관리'];let patients=[];const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+$('category').innerHTML=categories.map(c=>`<option>${c}</option>`).join('');
+async function api(method,body){const r=await fetch('/api/m8-management',{method,headers:{'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok||!d.success)throw Error(d.message||'저장 실패');return d}
+function sortRows(a,b){if(!!a.starred!==!!b.starred)return Number(!!b.starred)-Number(!!a.starred);const av=a.registered_at||a.created_at||'',bv=b.registered_at||b.created_at||'';if(av!==bv)return bv.localeCompare(av);return String(b.created_at||'').localeCompare(String(a.created_at||''))}
+function render(){ $('rooms').innerHTML=categories.map(cat=>{const list=patients.filter(p=>p.category===cat).sort(sortRows);return `<article class="room"><div class="roomhead">${cat}<span class="count">${list.length}</span></div><div class="patients">${list.length?list.map(p=>`<div class="patient" onclick="editPatient(${p.id})"><div class="pname">${p.starred?'<span class="star">★</span> ':''}${esc(p.name)}</div><div class="meta">${esc(p.phone||'연락처 없음')} · 등록 ${esc(String(p.registered_at||p.created_at||'').replace('T',' ').slice(0,16)||'-')}</div></div>`).join(''):'<div class="empty">등록된 동물 없음</div>'}</div><button class="add" onclick="openAdd('${cat}')">＋ 등록</button></article>`}).join('')}
+async function load(){try{const d=await api('GET');patients=d.patients||[];render();$('status').textContent=`총 ${patients.length}마리 · 서버 저장`; }catch(e){$('status').textContent='연결 오류';alert('F8 데이터를 불러오지 못했습니다. '+e.message)}}
+function localDateTime(){const d=new Date();const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+function openAdd(cat=categories[0]){$('patientForm').reset();$('pid').value='';$('modalTitle').textContent='특수환자 등록';$('category').value=cat;$('registered').value=localDateTime();$('deleteBtn').style.display='none';noteItems=[];$('noteInput').value='';renderHistory();$('modal').style.display='flex'}
+function parseNotes(p){try{const v=JSON.parse(p.notes_json||'[]');return Array.isArray(v)?v:[]}catch{return []}}
+let noteItems=[];
+function formatNoteDate(n){
+  if(n.datetime)return n.datetime;
+  if(n.date && n.time)return `${n.date} ${n.time}`;
+  return n.date||'날짜 미상';
 }
+function renderHistory(){const box=$('historyList');if(!noteItems.length){box.innerHTML='<div class="history-empty">아직 기록이 없습니다.</div>';return;}box.innerHTML=noteItems.slice().reverse().map(n=>`<div class="history-item"><div class="history-date">${esc(formatNoteDate(n))}</div><div>${esc(n.text||'')}</div></div>`).join('')}
+function addNote(){const input=$('noteInput');const text=input.value.trim();if(!text)return;const now=new Date();const pad=v=>String(v).padStart(2,'0');const datetime=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;noteItems.push({date:datetime.slice(0,10),time:datetime.slice(11),datetime,text});input.value='';renderHistory();input.focus()}
+$('noteInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addNote()}});
+function editPatient(id){const p=patients.find(x=>x.id===id);if(!p)return;$('patientForm').reset();$('pid').value=p.id;$('modalTitle').textContent='환자 정보 및 관리 기록';$('name').value=p.name||'';$('phone').value=p.phone||'';$('category').value=p.category;$('registered').value=String(p.registered_at||p.created_at||'').replace('T',' ').slice(0,19);$('starred').checked=!!p.starred;noteItems=parseNotes(p);$('noteInput').value='';renderHistory();$('deleteBtn').style.display='inline-block';$('modal').style.display='flex'}
 
-function sortRows(a, b) {
-  if (!!a.starred !== !!b.starred) return Number(!!b.starred) - Number(!!a.starred);
-  const av = a.last_visit || '', bv = b.last_visit || '';
-  if (av !== bv) return bv.localeCompare(av);
-  return String(b.created_at || '').localeCompare(String(a.created_at || ''));
-}
-
-function render() {
-  $('rooms').innerHTML = categories.map(cat => {
-    const list = patients.filter(p => p.category === cat).sort(sortRows);
-    return `<article class="room">
-      <div class="roomhead">${cat}<span class="count">${list.length}</span></div>
-      <div class="patients">
-        ${list.length ? list.map(p => `
-          <div class="patient" onclick="editPatient(${p.id})">
-            <div class="pname">${p.starred ? '<span class="star">★</span> ' : ''}${esc(p.name)}</div>
-            <div class="meta">${esc(p.phone || '연락처 없음')} · ${p.last_visit ? esc(p.last_visit) + ' 방문' : '방문일 미기록'}</div>
-          </div>
-        `).join('') : '<div class="empty">등록된 동물 없음</div>'}
-      </div>
-      <button class="add" onclick="openAdd('${cat}')">＋ 등록</button>
-    </article>`;
-  }).join('');
-}
-
-async function load() {
-  try {
-    const d = await api('GET');
-    patients = d.patients || [];
-    render();
-    $('status').textContent = `총 ${patients.length}마리 · 서버 저장`;
-  } catch (e) {
-    $('status').textContent = '연결 오류';
-    alert('F8 데이터를 불러오지 못했습니다. ' + e.message);
-  }
-}
-
-function openAdd(cat = categories[0]) {
-  $('patientForm').reset();
-  $('pid').value = '';
-  $('modalTitle').textContent = '특수환자 등록';
-  $('category').value = cat;
-  $('registered').value = new Date().toISOString().slice(0, 10);
-  $('lastVisit').value = '';
-  $('deleteBtn').style.display = 'none';
-  noteItems = [];
-  $('noteInput').value = '';
-  renderHistory();
-  $('modal').style.display = 'flex';
-}
-
-function parseNotes(p) {
-  try {
-    const v = JSON.parse(p.notes_json || '[]');
-    return Array.isArray(v) ? v : [];
-  } catch {
-    return [];
-  }
-}
-
-function formatNoteDate(n) {
-  if (n.datetime) return n.datetime;
-  if (n.date && n.time) return `${n.date} ${n.time}`;
-  return n.date || '날짜 미상';
-}
-
-function renderHistory() {
-  const box = $('historyList');
-  if (!noteItems.length) {
-    box.innerHTML = '<div class="history-empty">아직 기록이 없습니다.</div>';
-    return;
-  }
-  // 최신순 정렬 후 일시와 내용을 상하 세로 구조로 표시
-  box.innerHTML = noteItems.slice().reverse().map(n => `
-    <div class="history-item">
-      <div class="history-date">🕒 ${esc(formatNoteDate(n))}</div>
-      <div class="history-content">${esc(n.text || '')}</div>
-    </div>
-  `).join('');
-}
-
-function addNote() {
-  const input = $('noteInput');
-  const text = input.value.trim();
-  if (!text) return;
-  const now = new Date();
-  const pad = v => String(v).padStart(2, '0');
-  const datetime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  noteItems.push({ date: datetime.slice(0, 10), time: datetime.slice(11), datetime, text });
-  input.value = '';
-  renderHistory();
-  input.focus();
-}
-
-$('noteInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    addNote();
-  }
-});
-
-function editPatient(id) {
-  const p = patients.find(x => x.id === id);
-  if (!p) return;
-  $('patientForm').reset();
-  $('pid').value = p.id;
-  $('modalTitle').textContent = '환자 정보 및 관리 기록';
-  $('name').value = p.name || '';
-  $('phone').value = p.phone || '';
-  $('category').value = p.category;
-  $('registered').value = p.registered_at || '';
-  $('lastVisit').value = p.last_visit || '';
-  $('starred').checked = !!p.starred;
-  $('memo').value = p.memo || '';
-  noteItems = parseNotes(p);
-  $('noteInput').value = '';
-  renderHistory();
-  $('deleteBtn').style.display = 'inline-block';
-  $('modal').style.display = 'flex';
-}
-
-function exportPatientText() {
-  const name = $('name').value.trim() || '이름없음';
-  const notes = noteItems.slice().sort((a, b) => String(formatNoteDate(a)).localeCompare(String(formatNoteDate(b))));
-  
-  const historyLines = notes.length ? notes.flatMap((n, i) => [
-    `[${i + 1}] 기록일시: ${formatNoteDate(n)}`,
-    `내용:`,
-    `${(n.text || '(내용 없음)').split('\n').map(line => '  ' + line).join('\r\n')}`,
-    '------------------------------------------------------------'
-  ]) : ['(기록 없음)'];
-
-  const lines = [
-    '============================================================',
-    '        23시 하단오거리 동물병원 - F8 특수환자 관리 기록        ',
-    '============================================================',
+function exportPatientText(){
+  const name=$('name').value.trim()||'이름없음';
+  const notes=noteItems.slice().sort((a,b)=>String(formatNoteDate(a)).localeCompare(String(formatNoteDate(b))));
+  const historyLines=notes.length?notes.flatMap((n,i)=>[`${i+1}. ${formatNoteDate(n)}`, '----------------------------------------', n.text||'(내용 없음)', '']):['(기록 없음)'];
+  const lines=[
+    '23시 하단오거리 동물병원 - F8 특수환자 관리 기록',
+    '==============================================',
     '',
-    '[환자 기본 정보]',
-    `· 동물 이름    : ${name}`,
-    `· 보호자 연락처: ${$('phone').value.trim() || '-'}`,
-    `· 관리실       : ${$('category').value}`,
-    `· 등록일       : ${$('registered').value || '-'}`,
-    `· 최근 방문일  : ${$('lastVisit').value || '-'}`,
-    `· 최우선 표시  : ${$('starred').checked ? '★ 최우선' : '일반'}`,
+    '[환자 기본정보]',
+    `동물 이름: ${name}`,
+    `보호자 연락처: ${$('phone').value.trim()||'-'}`,
+    `관리실: ${$('category').value}`,
+    `등록일시: ${$('registered').value||'-'}`,
+    `별표 최우선: ${$('starred').checked?'예':'아니오'}`,
     '',
-    '------------------------------------------------------------',
-    '[현재 관리 메모]',
-    $('memo').value.trim() || '(기록 없음)',
-    '------------------------------------------------------------',
-    '',
-    '[시간순 관리 기록 (세로 보기)]',
-    '------------------------------------------------------------',
+'',
+    '[시간순 관리 기록]',
     ...historyLines,
-    '',
-    `내보낸 날짜: ${new Date().toLocaleString('ko-KR')}`,
-    '============================================================'
+    `내보낸 날짜: ${new Date().toLocaleString('ko-KR')}`
   ];
-
-  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `F8_${name.replace(/[\\\\/:*?"<>|]/g, '_')}_차트기록.txt`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`F8_${name.replace(/[\\\\/:*?"<>|]/g,'_')}_차트.txt`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
-function closeModal() {
-  $('modal').style.display = 'none';
-}
-
-$('patientForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const id = $('pid').value;
-  const data = {
-    name: $('name').value.trim(),
-    phone: $('phone').value.trim(),
-    category: $('category').value,
-    registered_at: $('registered').value,
-    last_visit: $('lastVisit').value || null,
-    starred: $('starred').checked,
-    memo: $('memo').value,
-    notes_json: JSON.stringify(noteItems)
-  };
-  try {
-    await api(id ? 'PATCH' : 'POST', id ? { id, ...data } : { ...data, notes: noteItems });
-    closeModal();
-    await load();
-  } catch (err) {
-    alert(err.message);
-  }
-});
-
-async function removePatient() {
-  const id = Number($('pid').value);
-  if (!id || !confirm('이 동물을 F8 관리목록에서만 삭제할까요? 원본 접수기록과 F3 차트는 삭제되지 않습니다.')) return;
-  try {
-    await api('DELETE', { id });
-    closeModal();
-    await load();
-  } catch (e) {
-    alert(e.message);
-  }
-}
-
-$('modal').addEventListener('click', e => {
-  if (e.target === $('modal')) closeModal();
-});
-
-load();
-setInterval(load, 30000);
-</script>
-</body>
-</html>
+function closeModal(){$('modal').style.display='none'}
+$('patientForm').addEventListener('submit',async e=>{e.preventDefault();const id=$('pid').value;const data={name:$('name').value.trim(),phone:$('phone').value.trim(),category:$('category').value,registered_at:$('registered').value,starred:$('starred').checked,notes_json:JSON.stringify(noteItems)};try{await api(id?'PATCH':'POST',id?{id,...data}:{...data,notes:noteItems});closeModal();await load()}catch(err){alert(err.message)}});
+async function removePatient(){const id=Number($('pid').value);if(!id||!confirm('이 동물을 F8 관리목록에서만 삭제할까요? 원본 접수기록과 F3 차트는 삭제되지 않습니다.'))return;try{await api('DELETE',{id});closeModal();await load()}catch(e){alert(e.message)}}
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});load();setInterval(load,30000);
+</script></body></html>
