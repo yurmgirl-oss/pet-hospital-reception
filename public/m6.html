@@ -252,13 +252,19 @@
     <div class="manual-form">
       <input type="text" id="m-name" placeholder="동물명 (예: 보리)" onkeydown="if(event.key==='Enter') addManualBooking()">
       <select id="m-category">
-        <option value="일반진료">일반진료</option>
-        <option value="예방접종">예방접종</option>
-        <option value="건강검진">건강검진</option>
-        <option value="처치수술">처치수술</option>
-        <option value="상담처방">상담처방</option>
-        <option value="내복약조제">내복약조제</option>
-        <option value="특수동물진료">특수동물진료</option>
+        <option value="코드블루">코드블루</option>
+        <option value="4days">4days</option>
+        <option value="호스피스">호스피스</option>
+        <option value="수술관리">수술관리</option>
+        <option value="심폐관리">심폐관리</option>
+        <option value="신부전">신부전</option>
+        <option value="종양관리">종양관리</option>
+        <option value="골관절">골관절</option>
+        <option value="피부알러지">피부알러지</option>
+        <option value="발작경련">발작경련</option>
+        <option value="추적관리">추적관리</option>
+        <option value="호르몬장애">호르몬장애</option>
+        <option value="특수관리">특수관리</option>
       </select>
       <button class="btn-add" onclick="addManualBooking()">추가</button>
     </div>
@@ -269,9 +275,9 @@
           <th>번호</th>
           <th>등록시각</th>
           <th>동물명</th>
-          <th>진료분류</th>
           <th>진료 타이머</th>
           <th>진료상태</th>
+          <th>진료분류</th>
           <th>삭제</th>
         </tr>
       </thead>
@@ -291,9 +297,9 @@
           <th>번호</th>
           <th>접수시각</th>
           <th>동물명</th>
-          <th>진료분류</th>
           <th>진료 타이머</th>
           <th>진료상태</th>
+          <th>진료분류</th>
           <th>삭제</th>
         </tr>
       </thead>
@@ -304,7 +310,7 @@
 <script>
 const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
-const CATEGORIES = ["일반진료", "예방접종", "건강검진", "처치수술", "상담처방", "내복약조제", "특수동물진료"];
+const CATEGORIES = ["코드블루", "4days", "호스피스", "수술관리", "심폐관리", "신부전", "종양관리", "골관절", "피부알러지", "발작경련", "추적관리", "호르몬장애", "특수관리"];
 
 let isUserInputting = false;
 
@@ -517,13 +523,13 @@ function renderManualTable(){
     if(item.status === "진료완료") tr.className = "row-done";
     if(item.status === "예약대기") tr.className = "row-reserve";
 
-    let catOpts = CATEGORIES.map(c => `<option value="${c}" ${item.category===c?'selected':''}>${c}</option>`).join("");
+    const safeCategory = CATEGORIES.includes(item.category) ? item.category : "특수관리";
+    let catOpts = CATEGORIES.map(c => `<option value="${c}" ${safeCategory===c?'selected':''}>${c}</option>`).join("");
     
     tr.innerHTML = `
       <td style="font-weight:900; color:#b45309;">${31 + idx}</td>
       <td><span class="time-badge">${item.time || formatTime()}</span></td>
       <td style="font-weight:900; font-size:13px;">${item.petName}</td>
-      <td><select onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select></td>
       <td>${buildTimerBadge(`m-${item.id}`, item.startTime, item.status, item.endTime)}</td>
       <td>
         <select class="status-select ${getStatusClass(item.status)}" 
@@ -535,6 +541,7 @@ function renderManualTable(){
           <option value="자료삭제" class="status-delete">자료삭제</option>
         </select>
       </td>
+      <td><select onchange="updateManualCategory(${item.id}, this.value)">${catOpts}</select></td>
       <td><button class="btn-del" onclick="deleteManualBooking(${item.id})">삭제</button></td>
     `;
     tbody.appendChild(tr);
@@ -573,7 +580,7 @@ async function loadQrList(){
 
     activeList.forEach((item, idx) => {
       const key = String(item.id ?? item.reception_id ?? "");
-      const currentCat = categories[key] || "일반진료";
+      const currentCat = CATEGORIES.includes(categories[key]) ? categories[key] : "특수관리";
       const currentStatus = statuses[key] || item.status || "접수대기";
       const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
       const timerData = qrTimers[key] || {};
@@ -588,7 +595,6 @@ async function loadQrList(){
         <td style="font-weight:900; color:#0369a1;">${21 + idx}</td>
         <td><span class="time-badge">${regTime}</span></td>
         <td style="font-weight:900; font-size:13px;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
-        <td><select onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
         <td>${buildTimerBadge(`qr-${key}`, timerData.start, currentStatus, timerData.end)}</td>
         <td>
           <select class="status-select ${getStatusClass(currentStatus)}"
@@ -600,6 +606,7 @@ async function loadQrList(){
             <option value="자료삭제" class="status-delete">자료삭제</option>
           </select>
         </td>
+        <td><select onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
         <td><button class="btn-del" onclick="deleteQrItem('${key}')">삭제</button></td>
       `;
       tbody.appendChild(tr);
