@@ -10,7 +10,7 @@
   --bg-app: #f4f6fa;
   --top-bg: #111827;
   --text-main: #0f172a;
-  --text-muted: #64748b;
+  --text-muted: #475569;
   --star-color: #f59e0b;
 }
 
@@ -52,29 +52,29 @@ body {
 
 /* 버튼 기본 스타일 */
 .btn {
-  border: 1px solid #d1d5db;
+  border: 1px solid #94a3b8;
   border-radius: 7px;
   padding: 7px 13px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   background: #ffffff;
-  color: #1f2937;
+  color: #0f172a;
   transition: all 0.15s ease;
 }
 .btn:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background: #e2e8f0;
+  border-color: #64748b;
 }
 .btn.primary {
   background: #2563eb;
-  border-color: #2563eb;
+  border-color: #1d4ed8;
   color: #ffffff;
   box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
 }
 .btn.primary:hover {
   background: #1d4ed8;
-  border-color: #1d4ed8;
+  border-color: #1e40af;
 }
 
 /* 메인 그리드 */
@@ -94,7 +94,7 @@ body {
 /* 룸 컬럼 공통 카드 */
 .room {
   background: #ffffff;
-  border: 1px solid var(--cat-border, #e2e8f0);
+  border: 1px solid var(--cat-border, #cbd5e1);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -107,22 +107,21 @@ body {
   box-shadow: 0 6px 14px rgba(0,0,0,0.07);
 }
 
-/* 칸별 색상 테마 (헤더 및 액센트 컬러) */
-.room[data-cat="코드블루"]   { --cat-head: #dc2626; --cat-badge: #991b1b; --cat-bg: #fef2f2; --cat-border: #fecaca; }
-.room[data-cat="4days"]      { --cat-head: #ea580c; --cat-badge: #9a3412; --cat-bg: #fff7ed; --cat-border: #ffedd5; }
-.room[data-cat="호스피스"]    { --cat-head: #854d0e; --cat-badge: #713f12; --cat-bg: #fefce8; --cat-border: #fef08a; }
-.room[data-cat="수술관리"]    { --cat-head: #0284c7; --cat-badge: #0369a1; --cat-bg: #f0f9ff; --cat-border: #bae6fd; }
-.room[data-cat="심폐관리"]    { --cat-head: #e11d48; --cat-badge: #be123c; --cat-bg: #fff1f2; --cat-border: #fecdd3; }
-.room[data-cat="신부전"]      { --cat-head: #d97706; --cat-badge: #b45309; --cat-bg: #fffbeb; --cat-border: #fde68a; }
-.room[data-cat="종양관리"]    { --cat-head: #7c3aed; --cat-badge: #6d28d9; --cat-bg: #f5f3ff; --cat-border: #ddd6fe; }
-.room[data-cat="골관절"]      { --cat-head: #0d9488; --cat-badge: #0f766e; --cat-bg: #f0fdfa; --cat-border: #99f6e4; }
-.room[data-cat="피부알러지"]  { --cat-head: #16a34a; --cat-badge: #15803d; --cat-bg: #f0fdf4; --cat-border: #bbf7d0; }
-.room[data-cat="발작경련"]    { --cat-head: #9333ea; --cat-badge: #7e22ce; --cat-bg: #faf5ff; --cat-border: #e9d5ff; }
-.room[data-cat="추적관리"]    { --cat-head: #475569; --cat-badge: #334155; --cat-bg: #f8fafc; --cat-border: #cbd5e1; }
-.room[data-cat="호르몬장애"]  { --cat-head: #db2777; --cat-badge: #be185d; --cat-bg: #fdf2f8; --cat-border: #fbcfe8; }
-.room[data-cat="특수관리"]    { --cat-head: #4f46e5; --cat-badge: #4338ca; --cat-bg: #eef2ff; --cat-border: #c7d2fe; }
+/* 칸별 색상 테마 */
+.room[data-cat="코드블루"]   { --cat-head: #dc2626; --cat-badge: #991b1b; --cat-bg: #fef2f2; --cat-border: #fca5a5; }
+.room[data-cat="4days"]      { --cat-head: #ea580c; --cat-badge: #9a3412; --cat-bg: #fff7ed; --cat-border: #fdba74; }
+.room[data-cat="호스피스"]    { --cat-head: #854d0e; --cat-badge: #713f12; --cat-bg: #fefce8; --cat-border: #fde047; }
+.room[data-cat="수술관리"]    { --cat-head: #0284c7; --cat-badge: #0369a1; --cat-bg: #f0f9ff; --cat-border: #7dd3fc; }
+.room[data-cat="심폐관리"]    { --cat-head: #e11d48; --cat-badge: #be123c; --cat-bg: #fff1f2; --cat-border: #fda4af; }
+.room[data-cat="신부전"]      { --cat-head: #d97706; --cat-badge: #b45309; --cat-bg: #fffbeb; --cat-border: #fcd34d; }
+.room[data-cat="종양관리"]    { --cat-head: #7c3aed; --cat-badge: #6d28d9; --cat-bg: #f5f3ff; --cat-border: #c4b5fd; }
+.room[data-cat="골관절"]      { --cat-head: #0d9488; --cat-badge: #0f766e; --cat-bg: #f0fdfa; --cat-border: #5eead4; }
+.room[data-cat="피부알러지"]  { --cat-head: #16a34a; --cat-badge: #15803d; --cat-bg: #f0fdf4; --cat-border: #86efac; }
+.room[data-cat="발작경련"]    { --cat-head: #9333ea; --cat-badge: #7e22ce; --cat-bg: #faf5ff; --cat-border: #d8b4fe; }
+.room[data-cat="추적관리"]    { --cat-head: #334155; --cat-badge: #1e293b; --cat-bg: #f8fafc; --cat-border: #94a3b8; }
+.room[data-cat="호르몬장애"]  { --cat-head: #db2777; --cat-badge: #be185d; --cat-bg: #fdf2f8; --cat-border: #f9a8d4; }
+.room[data-cat="특수관리"]    { --cat-head: #4f46e5; --cat-badge: #4338ca; --cat-bg: #eef2ff; --cat-border: #a5b4fc; }
 
-/* 룸 헤더 */
 .roomhead {
   height: 38px;
   flex: none;
@@ -139,7 +138,7 @@ body {
   letter-spacing: -0.2px;
 }
 .count {
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.25);
   color: #ffffff;
   border-radius: 10px;
   padding: 1px 6px;
@@ -147,12 +146,11 @@ body {
   font-weight: 800;
 }
 
-/* 등록 버튼 (위로 이동) */
 .add {
   margin: 5px 5px 3px 5px;
-  border: 1px dashed var(--cat-head, #94a3b8);
+  border: 1.5px dashed var(--cat-head, #64748b);
   background: var(--cat-bg, #f8fafc);
-  color: var(--cat-head, #334155);
+  color: var(--cat-head, #1e293b);
   border-radius: 6px;
   padding: 6px 2px;
   font-size: 11px;
@@ -167,7 +165,6 @@ body {
   border-style: solid;
 }
 
-/* 환자 목록 */
 .patients {
   flex: 1;
   overflow-y: auto;
@@ -178,12 +175,12 @@ body {
   width: 4px;
 }
 .patients::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #94a3b8;
   border-radius: 4px;
 }
 
 .patient {
-  border: 1px solid #e5e7eb;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
   padding: 7px 6px;
   margin-bottom: 5px;
@@ -194,22 +191,22 @@ body {
 }
 .patient:hover {
   background: var(--cat-bg, #eff6ff);
-  border-color: var(--cat-border, #bfdbfe);
+  border-color: var(--cat-head, #3b82f6);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
 .pname {
   font-size: clamp(12px, 0.82vw, 15px);
   font-weight: 900;
-  color: #0f172a;
+  color: #000000;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.25;
 }
 .meta {
-  font-size: 10px;
-  color: var(--text-muted);
+  font-size: 10.5px;
+  color: #475569;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -222,20 +219,20 @@ body {
   font-weight: 900;
 }
 .empty {
-  color: #94a3b8;
+  color: #64748b;
   text-align: center;
   font-size: 11px;
   padding: 24px 2px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* 모달 */
+/* 선명해진 모달 폼 스타일 */
 .modal {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(3px);
   z-index: 50;
   align-items: center;
   justify-content: center;
@@ -243,114 +240,159 @@ body {
 }
 .dialog {
   background: #ffffff;
-  border-radius: 14px;
-  width: min(580px, 96vw);
-  max-height: 90vh;
+  border-radius: 12px;
+  width: min(640px, 96vw);
+  max-height: 92vh;
   overflow: auto;
-  padding: 22px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-  border: 1px solid #e2e8f0;
+  padding: 24px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  border: 2px solid #64748b;
 }
 .dialog h2 {
   margin: 0 0 16px;
-  font-size: 19px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 900;
   color: #0f172a;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
 }
 .formgrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 .field {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
 }
 .field input, .field select, .field textarea {
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #64748b;
   border-radius: 7px;
-  padding: 9px;
+  padding: 9px 11px;
   font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  color: #0f172a;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #000000;
   outline: none;
   background: #ffffff;
 }
 .field input:focus, .field select:focus, .field textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 .field input[readonly] {
-  background: #f1f5f9;
-  color: #64748b;
+  background: #e2e8f0;
+  color: #1e293b;
+  font-weight: 700;
+  border-color: #94a3b8;
 }
 .field.full { grid-column: 1 / -1; }
 
+/* 기록 관리 박스 - 테두리 진하게 & 1줄 나란히 표시 */
 .history-box {
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-top: 4px;
+}
+.history-box .field-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .history-list {
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #64748b;
   border-radius: 8px;
   background: #f8fafc;
-  max-height: 150px;
-  min-height: 52px;
+  max-height: 180px;
+  min-height: 75px;
   overflow-y: auto;
-  padding: 8px;
+  padding: 6px;
 }
+/* 1줄로 나란히 나오는 기록 아이템 */
 .history-item {
-  padding: 6px 4px;
-  border-bottom: 1px solid #e2e8f0;
-  font-size: 12px;
-  line-height: 1.45;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-bottom: 1px solid #cbd5e1;
+  font-size: 12.5px;
+  color: #000000;
+  background: #ffffff;
+  border-radius: 4px;
+  margin-bottom: 4px;
 }
 .history-item:last-child {
-  border-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 .history-date {
-  font-size: 11px;
-  color: #475569;
-  font-weight: 700;
-  margin-right: 6px;
+  flex: none;
+  font-size: 11.5px;
+  color: #0f172a;
+  font-weight: 800;
   background: #e2e8f0;
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  white-space: nowrap;
 }
+.history-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
 .note-entry {
   display: flex;
   gap: 6px;
+  margin-top: 4px;
 }
 .note-entry input {
   flex: 1;
   min-width: 0;
-  height: 36px;
+  height: 38px;
+  border: 1.5px solid #64748b;
+  border-radius: 7px;
+  padding: 0 11px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #000000;
+}
+.note-entry input:focus {
+  border-color: #1d4ed8;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 .note-entry button {
   white-space: nowrap;
+  font-weight: 800;
 }
 .history-empty {
-  font-size: 11px;
-  color: #94a3b8;
-  padding: 12px 4px;
+  font-size: 12px;
+  color: #64748b;
+  padding: 18px 8px;
   text-align: center;
+  font-weight: 600;
 }
 .dialogfoot {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 2px solid #e2e8f0;
 }
 </style>
 </head>
@@ -377,13 +419,18 @@ body {
         <label class="field">관리실<select id="category"></select></label>
         <label class="field">등록일시<input id="registered" type="text" readonly></label>
         <label class="field" style="justify-content:end">
-          <span style="display:flex;align-items:center;gap:4px;cursor:pointer">
-            <input id="starred" type="checkbox" style="width:16px;height:16px;cursor:pointer"> ⭐ 최우선 표시
+          <span style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:800;color:#0f172a">
+            <input id="starred" type="checkbox" style="width:17px;height:17px;cursor:pointer"> ⭐ 최우선 표시
           </span>
         </label>
         <div class="history-box">
-          <div class="field">이전 기록 <span style="font-weight:400;color:#64748b">(기존 입력 내용은 아래에서 읽을 수 있습니다)</span></div>
-          <div class="history-list" id="historyList"><div class="history-empty">아직 기록이 없습니다.</div></div>
+          <div class="field-title">
+            이전 관리 기록 
+            <span style="font-size:11.5px;font-weight:600;color:#475569">(한 줄로 나란히 표시됩니다)</span>
+          </div>
+          <div class="history-list" id="historyList">
+            <div class="history-empty">아직 기록이 없습니다.</div>
+          </div>
           <div class="note-entry">
             <input id="noteInput" type="text" placeholder="새 관리 기록을 한 줄로 입력하고 추가하세요">
             <button type="button" class="btn" onclick="addNote()">＋ 기록 추가</button>
@@ -391,7 +438,7 @@ body {
         </div>
       </div>
       <div class="dialogfoot">
-        <button type="button" class="btn" id="deleteBtn" style="display:none;background:#fee2e2;color:#b91c1c;border-color:#fca5a5" onclick="removePatient()">F8에서 삭제</button>
+        <button type="button" class="btn" id="deleteBtn" style="display:none;background:#fee2e2;color:#b91c1c;border-color:#ef4444" onclick="removePatient()">F8에서 삭제</button>
         <div style="margin-left:auto;display:flex;gap:7px">
           <button type="button" class="btn" onclick="exportPatientText()">차트 텍스트 저장</button>
           <button type="button" class="btn" onclick="closeModal()">취소</button>
@@ -426,7 +473,6 @@ function sortRows(a,b){
   return String(b.created_at||'').localeCompare(String(a.created_at||''));
 }
 
-/* 등록 버튼을 헤더 바로 아래(.roomhead 밑)로 올림 */
 function render(){
   $('rooms').innerHTML=categories.map(cat=>{
     const list=patients.filter(p=>p.category===cat).sort(sortRows);
@@ -492,6 +538,7 @@ function formatNoteDate(n){
   return n.date||'날짜 미상';
 }
 
+/* 1줄 나란히 렌더링 */
 function renderHistory(){
   const box=$('historyList');
   if(!noteItems.length){
@@ -501,7 +548,7 @@ function renderHistory(){
   box.innerHTML=noteItems.slice().reverse().map(n=>`
     <div class="history-item">
       <span class="history-date">${esc(formatNoteDate(n))}</span>
-      <span>${esc(n.text||'')}</span>
+      <span class="history-text" title="${esc(n.text||'')}">${esc(n.text||'')}</span>
     </div>
   `).join('');
 }
