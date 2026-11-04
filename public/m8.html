@@ -85,7 +85,7 @@ body {
 }
 .rooms {
   height: 100%;
-  min-width: 1350px;
+  min-width: 1400px;
   display: grid;
   grid-template-columns: repeat(13, minmax(0, 1fr));
   gap: 7px;
@@ -107,20 +107,20 @@ body {
   box-shadow: 0 6px 14px rgba(0,0,0,0.07);
 }
 
-/* 칸별 색상 테마 */
-.room[data-cat="코드블루"]   { --cat-head: #dc2626; --cat-badge: #991b1b; --cat-bg: #fef2f2; --cat-border: #fca5a5; }
-.room[data-cat="4days"]      { --cat-head: #ea580c; --cat-badge: #9a3412; --cat-bg: #fff7ed; --cat-border: #fdba74; }
-.room[data-cat="호스피스"]    { --cat-head: #854d0e; --cat-badge: #713f12; --cat-bg: #fefce8; --cat-border: #fde047; }
-.room[data-cat="수술관리"]    { --cat-head: #0284c7; --cat-badge: #0369a1; --cat-bg: #f0f9ff; --cat-border: #7dd3fc; }
-.room[data-cat="심폐관리"]    { --cat-head: #e11d48; --cat-badge: #be123c; --cat-bg: #fff1f2; --cat-border: #fda4af; }
-.room[data-cat="신부전"]      { --cat-head: #d97706; --cat-badge: #b45309; --cat-bg: #fffbeb; --cat-border: #fcd34d; }
-.room[data-cat="종양관리"]    { --cat-head: #7c3aed; --cat-badge: #6d28d9; --cat-bg: #f5f3ff; --cat-border: #c4b5fd; }
-.room[data-cat="골관절"]      { --cat-head: #0d9488; --cat-badge: #0f766e; --cat-bg: #f0fdfa; --cat-border: #5eead4; }
-.room[data-cat="피부알러지"]  { --cat-head: #16a34a; --cat-badge: #15803d; --cat-bg: #f0fdf4; --cat-border: #86efac; }
-.room[data-cat="발작경련"]    { --cat-head: #9333ea; --cat-badge: #7e22ce; --cat-bg: #faf5ff; --cat-border: #d8b4fe; }
-.room[data-cat="추적관리"]    { --cat-head: #334155; --cat-badge: #1e293b; --cat-bg: #f8fafc; --cat-border: #94a3b8; }
-.room[data-cat="호르몬장애"]  { --cat-head: #db2777; --cat-badge: #be185d; --cat-bg: #fdf2f8; --cat-border: #f9a8d4; }
-.room[data-cat="특수관리"]    { --cat-head: #4f46e5; --cat-badge: #4338ca; --cat-bg: #eef2ff; --cat-border: #a5b4fc; }
+/* 칸별 테마 컬러 */
+.room[data-cat="코드블루"], .zoom-box[data-cat="코드블루"]   { --cat-head: #dc2626; --cat-bg: #fef2f2; --cat-border: #fca5a5; }
+.room[data-cat="4days"], .zoom-box[data-cat="4days"]        { --cat-head: #ea580c; --cat-bg: #fff7ed; --cat-border: #fdba74; }
+.room[data-cat="호스피스"], .zoom-box[data-cat="호스피스"]  { --cat-head: #854d0e; --cat-bg: #fefce8; --cat-border: #fde047; }
+.room[data-cat="수술관리"], .zoom-box[data-cat="수술관리"]  { --cat-head: #0284c7; --cat-bg: #f0f9ff; --cat-border: #7dd3fc; }
+.room[data-cat="심폐관리"], .zoom-box[data-cat="심폐관리"]  { --cat-head: #e11d48; --cat-bg: #fff1f2; --cat-border: #fda4af; }
+.room[data-cat="신부전"], .zoom-box[data-cat="신부전"]      { --cat-head: #d97706; --cat-bg: #fffbeb; --cat-border: #fcd34d; }
+.room[data-cat="종양관리"], .zoom-box[data-cat="종양관리"]  { --cat-head: #7c3aed; --cat-bg: #f5f3ff; --cat-border: #c4b5fd; }
+.room[data-cat="골관절"], .zoom-box[data-cat="골관절"]      { --cat-head: #0d9488; --cat-bg: #f0fdfa; --cat-border: #5eead4; }
+.room[data-cat="피부알러지"], .zoom-box[data-cat="피부알러지"]{ --cat-head: #16a34a; --cat-bg: #f0fdf4; --cat-border: #86efac; }
+.room[data-cat="발작경련"], .zoom-box[data-cat="발작경련"]  { --cat-head: #9333ea; --cat-bg: #faf5ff; --cat-border: #d8b4fe; }
+.room[data-cat="추적관리"], .zoom-box[data-cat="추적관리"]  { --cat-head: #334155; --cat-bg: #f8fafc; --cat-border: #94a3b8; }
+.room[data-cat="호르몬장애"], .zoom-box[data-cat="호르몬장애"]{ --cat-head: #db2777; --cat-bg: #fdf2f8; --cat-border: #f9a8d4; }
+.room[data-cat="특수관리"], .zoom-box[data-cat="특수관리"]  { --cat-head: #4f46e5; --cat-bg: #eef2ff; --cat-border: #a5b4fc; }
 
 .roomhead {
   height: 38px;
@@ -136,6 +136,11 @@ body {
   font-weight: 800;
   white-space: nowrap;
   letter-spacing: -0.2px;
+  cursor: pointer;
+  user-select: none;
+}
+.roomhead:hover {
+  filter: brightness(1.1);
 }
 .count {
   background: rgba(0, 0, 0, 0.25);
@@ -146,7 +151,6 @@ body {
   font-weight: 800;
 }
 
-/* 상단 등록 버튼 */
 .add {
   margin: 5px 5px 3px 5px;
   border: 1.5px dashed var(--cat-head, #64748b);
@@ -180,7 +184,7 @@ body {
   border-radius: 4px;
 }
 
-/* 환자 카드 */
+/* 현황판 환자 카드 디자인 */
 .patient {
   border: 1px solid #cbd5e1;
   border-radius: 6px;
@@ -190,19 +194,20 @@ body {
   min-width: 0;
   background: #ffffff;
   transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 .patient:hover {
   background: var(--cat-bg, #eff6ff);
   border-color: var(--cat-head, #3b82f6);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.08);
 }
-
-/* 상단 줄: 이름 + 옆에 작은 전화번호 */
-.patient-row-top {
+.p-top {
   display: flex;
   align-items: baseline;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
 }
 .pname {
@@ -212,7 +217,6 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.25;
 }
 .pphone {
   font-size: 10px;
@@ -223,13 +227,10 @@ body {
   text-overflow: ellipsis;
   flex: 1;
 }
-
-/* 하단 줄: 경과일자(D-day 뱃지) + 등록일시 */
-.patient-row-bottom {
+.p-mid {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
   gap: 4px;
 }
 .pdays {
@@ -239,27 +240,34 @@ body {
   background: #fee2e2;
   border: 1px solid #fca5a5;
   border-radius: 4px;
-  padding: 1px 5px;
+  padding: 1px 4px;
   white-space: nowrap;
-  line-height: 1.2;
 }
 .pdays.today {
   color: #15803d;
   background: #dcfce7;
   border-color: #86efac;
 }
-.meta-date {
-  font-size: 9.5px;
-  color: #64748b;
+.pdate {
+  font-size: 10px;
+  color: #475569;
+  font-weight: 700;
+}
+/* 최근 입력 챠트 1줄 요약 */
+.plastnote {
+  font-size: 10.5px;
+  color: #1e293b;
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 2px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
 }
-
 .star {
   color: var(--star-color);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
 }
 .empty {
@@ -270,12 +278,69 @@ body {
   font-weight: 600;
 }
 
-/* 모달 폼 스타일 */
-.modal {
+/* 관리실(장르) 2.5배 확대 팝업 */
+.zoom-modal {
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 40;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.zoom-box {
+  background: #ffffff;
+  border-radius: 14px;
+  width: min(580px, 92vw);
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+  border: 2px solid var(--cat-border, #cbd5e1);
+  animation: zoomPop 0.2s ease-out;
+}
+@keyframes zoomPop {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.zoom-head {
+  height: 52px;
+  background: var(--cat-head, #1e293b);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.zoom-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  cursor: pointer;
+  font-weight: 800;
+}
+.zoom-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-app);
+}
+
+/* 환자 정보 및 와이드 차트 모달 */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(3px);
   z-index: 50;
   align-items: center;
@@ -284,17 +349,18 @@ body {
 }
 .dialog {
   background: #ffffff;
-  border-radius: 12px;
-  width: min(640px, 96vw);
+  border-radius: 14px;
+  width: min(780px, 96vw); /* 와이드하게 확장 */
   max-height: 92vh;
   overflow: auto;
   padding: 24px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
   border: 2px solid #64748b;
+  animation: zoomPop 0.18s ease-out;
 }
 .dialog h2 {
   margin: 0 0 16px;
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 900;
   color: #0f172a;
   border-bottom: 2px solid #e2e8f0;
@@ -324,7 +390,7 @@ body {
   outline: none;
   background: #ffffff;
 }
-.field input:focus, .field select:focus, .field textarea:focus {
+.field input:focus, .field select:focus {
   border-color: #1d4ed8;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
@@ -334,82 +400,80 @@ body {
   font-weight: 800;
   border-color: #64748b;
 }
-.field.full { grid-column: 1 / -1; }
 
-/* 관리 기록 박스 - 1줄 나란히 표시 */
+/* 차트 전체 이력 뷰어 */
 .history-box {
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 .history-box .field-title {
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 900;
   color: #0f172a;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
 }
 .history-list {
-  border: 1.5px solid #64748b;
+  border: 2px solid #64748b;
   border-radius: 8px;
   background: #f8fafc;
-  max-height: 180px;
-  min-height: 75px;
+  max-height: 250px;
+  min-height: 90px;
   overflow-y: auto;
-  padding: 6px;
+  padding: 8px;
 }
 .history-item {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 8px;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 10px;
   border-bottom: 1px solid #cbd5e1;
-  font-size: 12.5px;
+  font-size: 13px;
   color: #000000;
   background: #ffffff;
-  border-radius: 4px;
-  margin-bottom: 4px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .history-item:last-child {
   margin-bottom: 0;
-  border-bottom: 1px solid #e2e8f0;
 }
 .history-date {
   flex: none;
-  font-size: 11.5px;
+  font-size: 12px;
   color: #0f172a;
   font-weight: 800;
   background: #e2e8f0;
-  padding: 2px 7px;
-  border-radius: 4px;
+  padding: 3px 8px;
+  border-radius: 5px;
   border: 1px solid #cbd5e1;
   white-space: nowrap;
 }
 .history-text {
   flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   font-weight: 600;
+  line-height: 1.45;
+  word-break: break-all;
 }
 
 .note-entry {
   display: flex;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 7px;
+  margin-top: 6px;
 }
 .note-entry input {
   flex: 1;
   min-width: 0;
-  height: 38px;
+  height: 42px;
   border: 1.5px solid #64748b;
   border-radius: 7px;
-  padding: 0 11px;
+  padding: 0 12px;
   font: inherit;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: #000000;
 }
@@ -421,11 +485,12 @@ body {
 .note-entry button {
   white-space: nowrap;
   font-weight: 800;
+  padding: 0 16px;
 }
 .history-empty {
   font-size: 12px;
   color: #64748b;
-  padding: 18px 8px;
+  padding: 24px 8px;
   text-align: center;
   font-weight: 600;
 }
@@ -448,17 +513,35 @@ body {
     <button class="btn primary" onclick="openAdd()">＋ 환자 등록</button>
   </div>
 </header>
+
 <main class="main">
   <section class="rooms" id="rooms"></section>
 </main>
+
+<!-- 장르(관리실) 확대 팝업 -->
+<div class="zoom-modal" id="zoomModal">
+  <div class="zoom-box" id="zoomBox">
+    <div class="zoom-head">
+      <span id="zoomTitle">관리실</span>
+      <button class="zoom-close" onclick="closeZoom()">✕</button>
+    </div>
+    <div style="padding: 8px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size:12px; font-weight:700; color:#64748b;" id="zoomCount">총 0마리</span>
+      <button class="btn primary" id="zoomAddBtn" style="padding:4px 10px; font-size:12px;">＋ 이 관리실에 환자 등록</button>
+    </div>
+    <div class="zoom-content" id="zoomContent"></div>
+  </div>
+</div>
+
+<!-- 환자 정보 & 누적 차트 모달 -->
 <div class="modal" id="modal">
   <div class="dialog">
-    <h2 id="modalTitle">특수환자 등록</h2>
+    <h2 id="modalTitle">특수환자 관리 차트</h2>
     <form id="patientForm">
       <input type="hidden" id="pid">
       <div class="formgrid">
         <label class="field">동물 이름<input id="name" required maxlength="60"></label>
-        <label class="field">연락처<input id="phone" maxlength="30" placeholder="010-0000-0000"></label>
+        <label class="field">보호자 연락처<input id="phone" maxlength="30" placeholder="010-0000-0000"></label>
         <label class="field">관리실<select id="category"></select></label>
         <label class="field">등록일시 (연도-월-일 시:분)<input id="registered" type="text" readonly></label>
         <label class="field" style="justify-content:end">
@@ -468,15 +551,15 @@ body {
         </label>
         <div class="history-box">
           <div class="field-title">
-            이전 관리 기록 
-            <span style="font-size:11.5px;font-weight:600;color:#475569">(한 줄로 나란히 표시)</span>
+            <span>📋 누적 관리 차트 내역</span>
+            <span style="font-size:12px;font-weight:600;color:#64748b">최신순 정렬</span>
           </div>
           <div class="history-list" id="historyList">
             <div class="history-empty">아직 기록이 없습니다.</div>
           </div>
           <div class="note-entry">
-            <input id="noteInput" type="text" placeholder="새 관리 기록을 한 줄로 입력하고 추가하세요">
-            <button type="button" class="btn" onclick="addNote()">＋ 기록 추가</button>
+            <input id="noteInput" type="text" placeholder="새 관리 기록을 입력하세요 (엔터키 또는 추가 버튼)">
+            <button type="button" class="btn primary" onclick="addNote()">＋ 기록 추가</button>
           </div>
         </div>
       </div>
@@ -491,6 +574,7 @@ body {
     </form>
   </div>
 </div>
+
 <script>
 const categories=['코드블루','4days','호스피스','수술관리','심폐관리','신부전','종양관리','골관절','피부알러지','발작경련','추적관리','호르몬장애','특수관리'];
 let patients=[];
@@ -516,53 +600,96 @@ function sortRows(a,b){
   return String(b.created_at||'').localeCompare(String(a.created_at||''));
 }
 
-/* 경과 일수 계산 함수 */
-function getElapsedDays(dateStr){
-  if(!dateStr) return { label: '-', isToday: false };
-  const cleaned = String(dateStr).replace(' ', 'T').slice(0, 10);
-  const regDate = new Date(cleaned);
-  if(isNaN(regDate.getTime())) return { label: '-', isToday: false };
-  
+/* 안전한 날짜 파싱 및 26/11/05 포맷 및 경과일수 계산 */
+function parseDateInfo(rawStr){
+  const now = new Date();
+  let d = null;
+  const str = String(rawStr || '').trim();
+
+  if(str.length >= 8 && str.includes('-')){
+    d = new Date(str.replace(' ', 'T'));
+  }
+  // 시간만 저장되어 있던 구버전 데이터(예: 10:18) 자동 오늘 날짜 보정
+  if(!d || isNaN(d.getTime())){
+    d = new Date();
+  }
+
+  const yy = String(d.getFullYear()).slice(2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const formattedDate = `${yy}/${mm}/${dd}`;
+
+  // 경과 일수 (당일=1일차)
   const today = new Date();
   today.setHours(0,0,0,0);
-  regDate.setHours(0,0,0,0);
-  
-  const diffTime = today.getTime() - regDate.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
-  if(diffDays <= 0) return { label: '오늘(D+0)', isToday: true };
-  return { label: `+${diffDays}일`, isToday: false };
+  const target = new Date(d);
+  target.setHours(0,0,0,0);
+  const diffDays = Math.floor((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
+  const dayCount = Math.max(1, diffDays + 1);
+
+  return {
+    formattedDate,
+    dayCountLabel: `${dayCount}일차`,
+    isToday: diffDays <= 0
+  };
 }
 
-/* 현황판 렌더링: 이름 + 작은 전화번호 / 경과일수 + 등록일시 */
+/* 환자 카드 HTML 생성 */
+function createPatientCardHtml(p, isZoomed = false){
+  const dateInfo = parseDateInfo(p.registered_at || p.created_at);
+  const notes = parseNotes(p);
+  const lastNote = notes.length ? (notes[notes.length - 1].text || '') : '';
+  const phoneDisplay = p.phone ? esc(p.phone) : '연락처 없음';
+
+  return `
+    <div class="patient" onclick="editPatient(${p.id})">
+      <div class="p-top">
+        <span class="pname">${p.starred ? '<span class="star">★</span> ' : ''}${esc(p.name)}</span>
+        <span class="pphone">${phoneDisplay}</span>
+      </div>
+      <div class="p-mid">
+        <span class="pdays ${dateInfo.isToday ? 'today' : ''}">${dateInfo.dayCountLabel}</span>
+        <span class="pdate">${dateInfo.formattedDate}</span>
+      </div>
+      <div class="plastnote" title="${esc(lastNote)}">
+        ${lastNote ? '📝 ' + esc(lastNote) : '<span style="color:#94a3b8">기록 없음</span>'}
+      </div>
+    </div>
+  `;
+}
+
+/* 전체 현황판 렌더링 */
 function render(){
   $('rooms').innerHTML=categories.map(cat=>{
     const list=patients.filter(p=>p.category===cat).sort(sortRows);
     return `<article class="room" data-cat="${cat}">
-      <div class="roomhead">${cat}<span class="count">${list.length}</span></div>
+      <div class="roomhead" onclick="openZoom('${cat}')" title="클릭 시 크게 확대">${cat}<span class="count">${list.length}</span></div>
       <button class="add" onclick="openAdd('${cat}')">＋ 등록</button>
       <div class="patients">
-        ${list.length?list.map(p=>{
-          const regRaw = p.registered_at || p.created_at || '';
-          const regDisplay = String(regRaw).replace('T',' ').slice(0,16) || '-';
-          const elapsed = getElapsedDays(regRaw);
-          const phoneDisplay = p.phone ? esc(p.phone) : '연락처 없음';
-
-          return `<div class="patient" onclick="editPatient(${p.id})">
-            <div class="patient-row-top">
-              <span class="pname">${p.starred?'<span class="star">★</span> ':''}${esc(p.name)}</span>
-              <span class="pphone">${phoneDisplay}</span>
-            </div>
-            <div class="patient-row-bottom">
-              <span class="pdays ${elapsed.isToday ? 'today' : ''}">${elapsed.label}</span>
-              <span class="meta-date">${esc(regDisplay)}</span>
-            </div>
-          </div>`;
-        }).join(''):'<div class="empty">등록된 동물 없음</div>'}
+        ${list.length ? list.map(p => createPatientCardHtml(p)).join('') : '<div class="empty">등록된 동물 없음</div>'}
       </div>
     </article>`;
   }).join('');
 }
+
+/* 관리실(장르) 2.5배 확대 창 열기 */
+function openZoom(cat){
+  const list = patients.filter(p => p.category === cat).sort(sortRows);
+  const box = $('zoomBox');
+  box.setAttribute('data-cat', cat);
+  $('zoomTitle').textContent = `🐾 ${cat} 환자 관리 현황`;
+  $('zoomCount').textContent = `총 ${list.length}마리 등록됨`;
+  $('zoomAddBtn').onclick = () => { closeZoom(); openAdd(cat); };
+
+  $('zoomContent').innerHTML = list.length ? list.map(p => createPatientCardHtml(p, true)).join('') : '<div class="empty" style="padding:40px 0;font-size:14px;">등록된 동물이 없습니다.</div>';
+  $('zoomModal').style.display = 'flex';
+}
+function closeZoom(){
+  $('zoomModal').style.display = 'none';
+}
+$('zoomModal').addEventListener('click', e => {
+  if(e.target === $('zoomModal')) closeZoom();
+});
 
 async function load(){
   try{
@@ -576,7 +703,6 @@ async function load(){
   }
 }
 
-/* 연도-월-일 시:분:초 포맷 */
 function localDateTime(){
   const d=new Date();
   const pad=n=>String(n).padStart(2,'0');
@@ -607,21 +733,22 @@ function parseNotes(p){
 
 let noteItems=[];
 function formatNoteDate(n){
-  if(n.datetime)return n.datetime;
-  if(n.date && n.time)return `${n.date} ${n.time}`;
+  if(n.datetime) return n.datetime;
+  if(n.date && n.time) return `${n.date} ${n.time}`;
   return n.date||'날짜 미상';
 }
 
+/* 환자 차트 전체 내역 시원하게 표시 */
 function renderHistory(){
   const box=$('historyList');
   if(!noteItems.length){
-    box.innerHTML='<div class="history-empty">아직 기록이 없습니다.</div>';
+    box.innerHTML='<div class="history-empty">아직 기록이 없습니다. 아래 입력창에 첫 관리 기록을 남겨보세요.</div>';
     return;
   }
   box.innerHTML=noteItems.slice().reverse().map(n=>`
     <div class="history-item">
       <span class="history-date">${esc(formatNoteDate(n))}</span>
-      <span class="history-text" title="${esc(n.text||'')}">${esc(n.text||'')}</span>
+      <span class="history-text">${esc(n.text||'')}</span>
     </div>
   `).join('');
 }
@@ -649,13 +776,17 @@ $('noteInput').addEventListener('keydown',e=>{
 function editPatient(id){
   const p=patients.find(x=>x.id===id);
   if(!p)return;
+  closeZoom(); // 혹시 줌 창에서 눌렀다면 줌 창 닫기
   $('patientForm').reset();
   $('pid').value=p.id;
-  $('modalTitle').textContent='환자 정보 및 관리 기록';
+  $('modalTitle').textContent=`${p.name} - 환자 정보 및 누적 관리 차트`;
   $('name').value=p.name||'';
   $('phone').value=p.phone||'';
   $('category').value=p.category;
-  $('registered').value=String(p.registered_at||p.created_at||'').replace('T',' ').slice(0,19);
+
+  const rawReg = String(p.registered_at||p.created_at||'').trim();
+  $('registered').value = rawReg.includes('-') ? rawReg.replace('T',' ').slice(0,19) : localDateTime();
+
   $('starred').checked=!!p.starred;
   noteItems=parseNotes(p);
   $('noteInput').value='';
