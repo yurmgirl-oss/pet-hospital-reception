@@ -301,6 +301,51 @@
     <div style="position:absolute;bottom:45px;left:52px;right:52px;border-top:1px solid #cbd5e1;padding-top:12px;display:flex;justify-content:space-between;color:#94a3b8;font-size:11px;"><span>23시 하단오거리동물병원 전자 의무기록 관리 시스템</span><span>출력용 보관 문서</span></div>
   </div>
 
+  <!-- A4 방문·상담 기록 서식 (화면 밖 렌더링 유지) -->
+  <div id="visit-print-sheet" style="position:fixed;left:-9999px;top:-9999px;width:794px;height:1123px;background:#fff;padding:48px 52px;box-sizing:border-box;color:#1e293b;font-family:'Pretendard',sans-serif;">
+    <div style="border-bottom:3px solid #b45309;padding-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;">
+      <div>
+        <div style="font-size:13px;font-weight:800;letter-spacing:2px;color:#b45309;">23시 하단오거리동물병원 · CLINIC FLOW</div>
+        <div style="font-size:30px;font-weight:900;margin-top:8px;">방문·상담 기록</div>
+        <div style="font-size:12px;color:#64748b;margin-top:5px;">방문 및 상담 신청 내용 보관 문서</div>
+      </div>
+      <div style="text-align:right;font-size:13px;line-height:1.8;">
+        <div id="visit-doc-id">상담번호: -</div>
+        <div id="visit-doc-date" style="font-weight:800;">접수일시: -</div>
+      </div>
+    </div>
+    <div style="margin-top:34px;border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;">
+      <div style="background:#fff7ed;padding:12px 16px;font-weight:800;font-size:15px;color:#9a3412;">방문자 및 대상 정보</div>
+      <table style="width:100%;border-collapse:collapse;font-size:15px;">
+        <tr>
+          <th style="width:145px;text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">방문자 / 보호자</th>
+          <td id="visit-doc-visitor" style="padding:16px;border:1px solid #e2e8f0;font-weight:800;"></td>
+          <th style="width:125px;text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">연락처</th>
+          <td id="visit-doc-phone" style="padding:16px;border:1px solid #e2e8f0;"></td>
+        </tr>
+        <tr>
+          <th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">동물 / 업체명</th>
+          <td id="visit-doc-animal" style="padding:16px;border:1px solid #e2e8f0;font-weight:800;color:#9a3412;"></td>
+          <th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">방문 목적</th>
+          <td id="visit-doc-purpose" style="padding:16px;border:1px solid #e2e8f0;"></td>
+        </tr>
+        <tr>
+          <th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">방문 예정</th>
+          <td id="visit-doc-scheduled" style="padding:16px;border:1px solid #e2e8f0;"></td>
+          <th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">현재 상태</th>
+          <td id="visit-doc-status" style="padding:16px;border:1px solid #e2e8f0;"></td>
+        </tr>
+      </table>
+    </div>
+    <div style="margin-top:32px;">
+      <div style="font-size:17px;font-weight:900;border-left:5px solid #b45309;padding-left:10px;margin-bottom:12px;">상담 요청 및 상세 내용</div>
+      <div id="visit-doc-details" style="border:1px solid #cbd5e1;border-radius:10px;padding:22px;min-height:390px;white-space:pre-wrap;line-height:1.9;font-size:15px;color:#1e293b;"></div>
+    </div>
+    <div style="position:absolute;bottom:45px;left:52px;right:52px;border-top:1px solid #cbd5e1;padding-top:12px;display:flex;justify-content:space-between;color:#94a3b8;font-size:11px;">
+      <span>23시 하단오거리동물병원 전자 의무기록 관리 시스템</span><span>방문·상담 보관 문서</span>
+    </div>
+  </div>
+
   <!-- A4 이미지 미리보기 모달 -->
   <div id="imagePreviewModal" class="fixed inset-0 z-[100] bg-slate-950/80 hidden items-center justify-center p-3" onclick="if(event.target===this) closeImagePreview()">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
@@ -613,7 +658,8 @@
           : ['접수대기', '예약대기', '진료중', '완료'];
 
         const actionBtn = isVisit
-          ? `<button onclick='openVisitModal(${JSON.stringify(item.raw)})' class="px-2 py-0.5 text-[11px] font-bold rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 shadow-xs">📋 상세 보기</button>`
+          ? `<button onclick='downloadVisitSheet(${JSON.stringify(item.raw)})' class="px-2 py-0.5 text-[11px] font-bold rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 shadow-xs">📄 A4 상담기록</button>
+             <button onclick='openVisitModal(${JSON.stringify(item.raw)})' class="px-2 py-0.5 text-[11px] font-bold rounded bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-xs">상세 보기</button>`
           : `<button onclick='downloadIntakeSheet(${JSON.stringify(item.raw)})' class="px-2 py-0.5 text-[11px] font-bold rounded ${item.badge === '초진' ? 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-200' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'} shadow-xs border">📄 A4 ${item.badge === '초진' ? '초진 서식' : '재진 기록'}</button>`;
 
         let treatmentsHtml = '';
@@ -841,6 +887,77 @@
       set('rev-doc-treatments', treatments.length ? treatments.join('  |  ') : '선택 처치 없음');
     }
 
+    // 방문·상담 A4 기록 이미지 생성 및 기존 이미지 보관함에 저장
+    async function downloadVisitSheet(item) {
+      const set = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value || '-';
+      };
+      const dateText = item.created_at
+        ? new Date(String(item.created_at).replace(' ', 'T')).toLocaleString('ko-KR')
+        : new Date().toLocaleString('ko-KR');
+      const scheduledText = item.scheduled_at
+        ? new Date(item.scheduled_at).toLocaleString('ko-KR')
+        : '즉시 방문 / 미정';
+
+      set('visit-doc-id', `상담번호: #${item.id ?? '-'}`);
+      set('visit-doc-date', `접수일시: ${dateText}`);
+      set('visit-doc-visitor', item.visitor_name || '미기재');
+      set('visit-doc-phone', item.phone || '미기재');
+      set('visit-doc-animal', item.animal_name || '미기재');
+      set('visit-doc-purpose', item.purpose || '일반 상담');
+      set('visit-doc-scheduled', scheduledText);
+      set('visit-doc-status', item.status || '접수');
+      set('visit-doc-details', item.request_details || '작성된 상담 요청 사항이 없습니다.');
+
+      try {
+        const sheet = document.getElementById('visit-print-sheet');
+        const canvas = await html2canvas(sheet, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+        const imageURL = canvas.toDataURL('image/png');
+        const petName = String(item.animal_name || item.visitor_name || '방문상담').trim();
+        const datePart = (item.created_at || new Date().toISOString()).slice(0, 10);
+        const filename = `${petName}_${datePart}_방문상담.png`;
+
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = imageURL;
+        link.click();
+        openImagePreview(imageURL, `${petName} 방문·상담 A4 기록`, filename);
+
+        showToast('☁️ 방문·상담 A4 기록을 클라우드에 보관 중입니다...');
+        try {
+          const saveResponse = await apiImageRequest('/api/reception-images', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image_data: imageURL,
+              reception_id: null,
+              pet_name: petName,
+              phone: item.phone || '',
+              visit_type: '방문상담',
+              created_at: item.created_at || new Date().toISOString()
+            })
+          });
+          const saveResult = await saveResponse.json();
+          if (saveResponse.ok && saveResult.success) {
+            showToast(`☁️ ${petName} 방문·상담 기록이 클라우드에 보관되었습니다.`);
+          } else {
+            console.warn('방문·상담 이미지 저장 응답:', saveResult);
+            showToast('이미지는 생성했지만 클라우드 보관은 확인이 필요합니다.');
+          }
+        } catch (saveError) {
+          console.warn('방문·상담 이미지 클라우드 저장 실패:', saveError);
+          showToast('이미지는 생성했지만 클라우드 보관에 실패했습니다.');
+        }
+      } catch (err) {
+        alert('방문·상담 A4 이미지 생성 실패: ' + err.message);
+      }
+    }
+
     async function downloadIntakeSheet(item) {
       const payload = unwrapPayload(item.payload);
       const isFirst = item.type === 'FIRST' || item.type === '초진';
@@ -966,7 +1083,7 @@
         if (!rows.length) { resultBox.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">검색 결과가 없습니다.</p>'; return; }
         resultBox.innerHTML = rows.map(row => `
           <button type="button" onclick="openSavedReceptionImage(${Number(row.id)}, '${escapeHtml(row.pet_name)}', '${escapeHtml(row.visit_date)}', '${escapeHtml(row.visit_type)}')" class="w-full text-left border rounded-lg p-3 hover:bg-indigo-50 hover:border-indigo-300 transition flex items-center justify-between gap-3">
-            <span class="min-w-0"><strong class="text-sm text-slate-800">${escapeHtml(row.pet_name || '이름 없음')}</strong><span class="ml-2 text-xs rounded px-1.5 py-0.5 ${row.visit_type === '초진' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}">${escapeHtml(row.visit_type || '접수')}</span><span class="block text-xs text-slate-500 mt-1">${escapeHtml(row.phone || '연락처 없음')} · ${escapeHtml(row.visit_date || '')}</span></span>
+            <span class="min-w-0"><strong class="text-sm text-slate-800">${escapeHtml(row.pet_name || '이름 없음')}</strong><span class="ml-2 text-xs rounded px-1.5 py-0.5 ${row.visit_type === '초진' ? 'bg-sky-100 text-sky-700' : (row.visit_type === '방문상담' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700')}">${escapeHtml(row.visit_type || '접수')}</span><span class="block text-xs text-slate-500 mt-1">${escapeHtml(row.phone || '연락처 없음')} · ${escapeHtml(row.visit_date || '')}</span></span>
             <span class="text-indigo-600 text-xs font-bold shrink-0">열기 →</span>
           </button>`).join('');
       } catch (err) {
