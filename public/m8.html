@@ -10,7 +10,7 @@
   --bg-app: #f4f6fa;
   --top-bg: #111827;
   --text-main: #0f172a;
-  --text-muted: #475569;
+  --text-muted: #64748b;
   --star-color: #f59e0b;
 }
 
@@ -27,17 +27,17 @@ body {
 
 /* 상단 탑바 */
 .top {
-  height: 54px;
+  height: 52px;
   background: var(--top-bg);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
+  padding: 0 16px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 .top strong {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.3px;
   display: flex;
@@ -53,9 +53,9 @@ body {
 /* 버튼 */
 .btn {
   border: 1px solid #94a3b8;
-  border-radius: 7px;
-  padding: 7px 13px;
-  font-size: 13px;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   background: #ffffff;
@@ -79,51 +79,49 @@ body {
 
 /* 메인 그리드 */
 .main {
-  height: calc(100vh - 54px);
-  padding: 8px;
+  height: calc(100vh - 52px);
+  padding: 6px;
   overflow: auto;
+  position: relative;
 }
 .rooms {
   height: 100%;
   min-width: 1400px;
   display: grid;
   grid-template-columns: repeat(13, minmax(0, 1fr));
-  gap: 7px;
+  gap: 6px;
 }
 
 /* 룸 컬럼 공통 카드 */
 .room {
   background: #ffffff;
   border: 1px solid var(--cat-border, #cbd5e1);
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.room:hover {
-  box-shadow: 0 6px 14px rgba(0,0,0,0.07);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  position: relative;
 }
 
-/* 칸별 테마 컬러 */
-.room[data-cat="코드블루"], .zoom-box[data-cat="코드블루"]   { --cat-head: #dc2626; --cat-bg: #fef2f2; --cat-border: #fca5a5; }
-.room[data-cat="4days"], .zoom-box[data-cat="4days"]        { --cat-head: #ea580c; --cat-bg: #fff7ed; --cat-border: #fdba74; }
-.room[data-cat="호스피스"], .zoom-box[data-cat="호스피스"]  { --cat-head: #854d0e; --cat-bg: #fefce8; --cat-border: #fde047; }
-.room[data-cat="수술관리"], .zoom-box[data-cat="수술관리"]  { --cat-head: #0284c7; --cat-bg: #f0f9ff; --cat-border: #7dd3fc; }
-.room[data-cat="심폐관리"], .zoom-box[data-cat="심폐관리"]  { --cat-head: #e11d48; --cat-bg: #fff1f2; --cat-border: #fda4af; }
-.room[data-cat="신부전"], .zoom-box[data-cat="신부전"]      { --cat-head: #d97706; --cat-bg: #fffbeb; --cat-border: #fcd34d; }
-.room[data-cat="종양관리"], .zoom-box[data-cat="종양관리"]  { --cat-head: #7c3aed; --cat-bg: #f5f3ff; --cat-border: #c4b5fd; }
-.room[data-cat="골관절"], .zoom-box[data-cat="골관절"]      { --cat-head: #0d9488; --cat-bg: #f0fdfa; --cat-border: #5eead4; }
-.room[data-cat="피부알러지"], .zoom-box[data-cat="피부알러지"]{ --cat-head: #16a34a; --cat-bg: #f0fdf4; --cat-border: #86efac; }
-.room[data-cat="발작경련"], .zoom-box[data-cat="발작경련"]  { --cat-head: #9333ea; --cat-bg: #faf5ff; --cat-border: #d8b4fe; }
-.room[data-cat="추적관리"], .zoom-box[data-cat="추적관리"]  { --cat-head: #334155; --cat-bg: #f8fafc; --cat-border: #94a3b8; }
-.room[data-cat="호르몬장애"], .zoom-box[data-cat="호르몬장애"]{ --cat-head: #db2777; --cat-bg: #fdf2f8; --cat-border: #f9a8d4; }
-.room[data-cat="특수관리"], .zoom-box[data-cat="특수관리"]  { --cat-head: #4f46e5; --cat-bg: #eef2ff; --cat-border: #a5b4fc; }
+/* 칸별 고유 테마 컬러 */
+.room[data-cat="코드블루"], .cat-theme-코드블루   { --cat-head: #dc2626; --cat-bg: #fef2f2; --cat-border: #fca5a5; --cat-badge: #b91c1c; }
+.room[data-cat="4days"], .cat-theme-4days        { --cat-head: #ea580c; --cat-bg: #fff7ed; --cat-border: #fdba74; --cat-badge: #c2410c; }
+.room[data-cat="호스피스"], .cat-theme-호스피스  { --cat-head: #854d0e; --cat-bg: #fefce8; --cat-border: #fde047; --cat-badge: #713f12; }
+.room[data-cat="수술관리"], .cat-theme-수술관리  { --cat-head: #0284c7; --cat-bg: #f0f9ff; --cat-border: #7dd3fc; --cat-badge: #0369a1; }
+.room[data-cat="심폐관리"], .cat-theme-심폐관리  { --cat-head: #e11d48; --cat-bg: #fff1f2; --cat-border: #fda4af; --cat-badge: #be123c; }
+.room[data-cat="신부전"], .cat-theme-신부전      { --cat-head: #d97706; --cat-bg: #fffbeb; --cat-border: #fcd34d; --cat-badge: #b45309; }
+.room[data-cat="종양관리"], .cat-theme-종양관리  { --cat-head: #7c3aed; --cat-bg: #f5f3ff; --cat-border: #c4b5fd; --cat-badge: #6d28d9; }
+.room[data-cat="골관절"], .cat-theme-골관절      { --cat-head: #0d9488; --cat-bg: #f0fdfa; --cat-border: #5eead4; --cat-badge: #0f766e; }
+.room[data-cat="피부알러지"], .cat-theme-피부알러지{ --cat-head: #16a34a; --cat-bg: #f0fdf4; --cat-border: #86efac; --cat-badge: #15803d; }
+.room[data-cat="발작경련"], .cat-theme-발작경련  { --cat-head: #9333ea; --cat-bg: #faf5ff; --cat-border: #d8b4fe; --cat-badge: #7e22ce; }
+.room[data-cat="추적관리"], .cat-theme-추적관리  { --cat-head: #334155; --cat-bg: #f8fafc; --cat-border: #94a3b8; --cat-badge: #1e293b; }
+.room[data-cat="호르몬장애"], .cat-theme-호르몬장애{ --cat-head: #db2777; --cat-bg: #fdf2f8; --cat-border: #f9a8d4; --cat-badge: #be185d; }
+.room[data-cat="특수관리"], .cat-theme-특수관리  { --cat-head: #4f46e5; --cat-bg: #eef2ff; --cat-border: #a5b4fc; --cat-badge: #4338ca; }
 
 .roomhead {
-  height: 38px;
+  height: 36px;
   flex: none;
   background: var(--cat-head, #1e293b);
   color: #ffffff;
@@ -132,32 +130,32 @@ body {
   justify-content: center;
   gap: 5px;
   padding: 0 4px;
-  font-size: clamp(11px, 0.73vw, 13px);
+  font-size: clamp(11px, 0.72vw, 13px);
   font-weight: 800;
   white-space: nowrap;
-  letter-spacing: -0.2px;
   cursor: pointer;
   user-select: none;
+  transition: filter 0.15s;
 }
 .roomhead:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.15);
 }
 .count {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.28);
   color: #ffffff;
-  border-radius: 10px;
+  border-radius: 9px;
   padding: 1px 6px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
 }
 
 .add {
-  margin: 5px 5px 3px 5px;
+  margin: 4px 4px 2px 4px;
   border: 1.5px dashed var(--cat-head, #64748b);
   background: var(--cat-bg, #f8fafc);
   color: var(--cat-head, #1e293b);
-  border-radius: 6px;
-  padding: 6px 2px;
+  border-radius: 5px;
+  padding: 5px 2px;
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
@@ -174,7 +172,7 @@ body {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  padding: 4px;
+  padding: 3px;
 }
 .patients::-webkit-scrollbar {
   width: 4px;
@@ -184,16 +182,16 @@ body {
   border-radius: 4px;
 }
 
-/* 현황판 환자 카드 디자인 */
+/* 2줄 압축 환자 카드 */
 .patient {
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  padding: 6px 7px;
-  margin-bottom: 5px;
+  padding: 4px 5px;
+  margin-bottom: 4px;
   cursor: pointer;
   min-width: 0;
   background: #ffffff;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -202,140 +200,136 @@ body {
   background: var(--cat-bg, #eff6ff);
   border-color: var(--cat-head, #3b82f6);
   transform: translateY(-1px);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
-.p-top {
+
+/* 1번째 줄: 이름(색반전) + 전화번호 + 경과일 */
+.p-row-1 {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 4px;
   min-width: 0;
 }
-.pname {
-  font-size: clamp(12px, 0.82vw, 15px);
+/* 이름 색상 반전 뱃지 스타일 */
+.pname-badge {
+  background: var(--cat-badge, #1e293b);
+  color: #ffffff;
+  font-size: 11.5px;
   font-weight: 900;
-  color: #000000;
+  padding: 1px 6px;
+  border-radius: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 55%;
+  line-height: 1.35;
+  letter-spacing: -0.2px;
 }
 .pphone {
-  font-size: 10px;
-  color: #64748b;
-  font-weight: 600;
+  font-size: 9.5px;
+  color: #475569;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
 }
-.p-mid {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-}
-.pdays {
+.pdays-badge {
   font-size: 10px;
   font-weight: 800;
   color: #b91c1c;
   background: #fee2e2;
   border: 1px solid #fca5a5;
   border-radius: 4px;
-  padding: 1px 4px;
+  padding: 0 4px;
   white-space: nowrap;
+  line-height: 1.3;
+  margin-left: auto;
 }
-.pdays.today {
+.pdays-badge.today {
   color: #15803d;
   background: #dcfce7;
   border-color: #86efac;
 }
-.pdate {
+
+/* 2번째 줄: 최종 입력 내용 1줄 */
+.p-row-2 {
   font-size: 10px;
-  color: #475569;
-  font-weight: 700;
-}
-/* 최근 입력 챠트 1줄 요약 */
-.plastnote {
-  font-size: 10.5px;
   color: #1e293b;
   background: #f1f5f9;
-  border-radius: 4px;
+  border-radius: 3px;
   padding: 2px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
+  line-height: 1.3;
 }
-.star {
+.star-mark {
   color: var(--star-color);
-  font-size: 12px;
-  font-weight: 900;
+  margin-right: 1px;
 }
 .empty {
   color: #64748b;
   text-align: center;
   font-size: 11px;
-  padding: 24px 2px;
+  padding: 20px 2px;
   font-weight: 600;
 }
 
-/* 관리실(장르) 2.5배 확대 팝업 */
-.zoom-modal {
+/* 대분류 클릭 시 근처 영역에서 3배 커지며 위아래 전체 차지하는 확장 오버레이 */
+.room-expand-overlay {
   display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 40;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.zoom-box {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 380px; /* 원래 컬럼 너비의 약 3배 */
+  max-width: 95vw;
   background: #ffffff;
-  border-radius: 14px;
-  width: min(580px, 92vw);
-  max-height: 85vh;
-  display: flex;
+  border: 2px solid var(--cat-border, #64748b);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  z-index: 30;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
-  border: 2px solid var(--cat-border, #cbd5e1);
-  animation: zoomPop 0.2s ease-out;
+  animation: expandSlide 0.15s ease-out;
 }
-@keyframes zoomPop {
-  from { transform: scale(0.85); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+@keyframes expandSlide {
+  from { opacity: 0; transform: scaleY(0.96); }
+  to { opacity: 1; transform: scaleY(1); }
 }
-.zoom-head {
-  height: 52px;
+.expand-head {
+  height: 44px;
   background: var(--cat-head, #1e293b);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  font-size: 18px;
+  padding: 0 14px;
+  font-size: 15px;
   font-weight: 800;
+  flex: none;
 }
-.zoom-close {
-  background: transparent;
+.expand-close {
+  background: none;
   border: none;
   color: #ffffff;
-  font-size: 20px;
-  cursor: pointer;
+  font-size: 18px;
   font-weight: 800;
+  cursor: pointer;
+  padding: 2px 6px;
 }
-.zoom-content {
+.expand-body {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  padding: 8px;
+  background: var(--bg-app);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: var(--bg-app);
+  gap: 6px;
 }
 
-/* 환자 정보 및 와이드 차트 모달 */
+/* 환자 정보 및 누적 차트 모달 */
 .modal {
   display: none;
   position: fixed;
@@ -350,13 +344,12 @@ body {
 .dialog {
   background: #ffffff;
   border-radius: 14px;
-  width: min(780px, 96vw); /* 와이드하게 확장 */
+  width: min(780px, 96vw);
   max-height: 92vh;
   overflow: auto;
   padding: 24px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
   border: 2px solid #64748b;
-  animation: zoomPop 0.18s ease-out;
 }
 .dialog h2 {
   margin: 0 0 16px;
@@ -379,7 +372,7 @@ body {
   font-weight: 800;
   color: #0f172a;
 }
-.field input, .field select, .field textarea {
+.field input, .field select {
   border: 1.5px solid #64748b;
   border-radius: 7px;
   padding: 9px 11px;
@@ -400,8 +393,8 @@ body {
   font-weight: 800;
   border-color: #64748b;
 }
+.field.full { grid-column: 1 / -1; }
 
-/* 차트 전체 이력 뷰어 */
 .history-box {
   grid-column: 1 / -1;
   display: flex;
@@ -437,7 +430,6 @@ body {
   background: #ffffff;
   border-radius: 6px;
   margin-bottom: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .history-item:last-child {
   margin-bottom: 0;
@@ -468,7 +460,7 @@ body {
 .note-entry input {
   flex: 1;
   min-width: 0;
-  height: 42px;
+  height: 40px;
   border: 1.5px solid #64748b;
   border-radius: 7px;
   padding: 0 12px;
@@ -514,26 +506,24 @@ body {
   </div>
 </header>
 
-<main class="main">
+<main class="main" id="mainContainer">
   <section class="rooms" id="rooms"></section>
+
+  <!-- 대분류 클릭 시 근처 영역에서 3배 확대되어 위아래 전체를 차지하는 오버레이 -->
+  <div class="room-expand-overlay" id="roomExpand">
+    <div class="expand-head">
+      <span id="expandTitle">관리실</span>
+      <button class="expand-close" onclick="closeExpand()">✕</button>
+    </div>
+    <div style="padding: 6px 12px; background: #ffffff; border-bottom: 1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size:12px; font-weight:800; color:#475569;" id="expandCount">0마리</span>
+      <button class="btn primary" id="expandAddBtn" style="padding:3px 8px; font-size:11.5px;">＋ 환자 등록</button>
+    </div>
+    <div class="expand-body" id="expandBody"></div>
+  </div>
 </main>
 
-<!-- 장르(관리실) 확대 팝업 -->
-<div class="zoom-modal" id="zoomModal">
-  <div class="zoom-box" id="zoomBox">
-    <div class="zoom-head">
-      <span id="zoomTitle">관리실</span>
-      <button class="zoom-close" onclick="closeZoom()">✕</button>
-    </div>
-    <div style="padding: 8px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
-      <span style="font-size:12px; font-weight:700; color:#64748b;" id="zoomCount">총 0마리</span>
-      <button class="btn primary" id="zoomAddBtn" style="padding:4px 10px; font-size:12px;">＋ 이 관리실에 환자 등록</button>
-    </div>
-    <div class="zoom-content" id="zoomContent"></div>
-  </div>
-</div>
-
-<!-- 환자 정보 & 누적 차트 모달 -->
+<!-- 환자 정보 및 누적 차트 모달 -->
 <div class="modal" id="modal">
   <div class="dialog">
     <h2 id="modalTitle">특수환자 관리 차트</h2>
@@ -600,58 +590,44 @@ function sortRows(a,b){
   return String(b.created_at||'').localeCompare(String(a.created_at||''));
 }
 
-/* 안전한 날짜 파싱 및 26/11/05 포맷 및 경과일수 계산 */
-function parseDateInfo(rawStr){
-  const now = new Date();
-  let d = null;
+/* 경과일수 계산 (당일=1일차) */
+function getDayCount(rawStr){
   const str = String(rawStr || '').trim();
-
+  let d = null;
   if(str.length >= 8 && str.includes('-')){
     d = new Date(str.replace(' ', 'T'));
   }
-  // 시간만 저장되어 있던 구버전 데이터(예: 10:18) 자동 오늘 날짜 보정
-  if(!d || isNaN(d.getTime())){
-    d = new Date();
-  }
+  if(!d || isNaN(d.getTime())) d = new Date();
 
-  const yy = String(d.getFullYear()).slice(2);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const formattedDate = `${yy}/${mm}/${dd}`;
-
-  // 경과 일수 (당일=1일차)
   const today = new Date();
   today.setHours(0,0,0,0);
   const target = new Date(d);
   target.setHours(0,0,0,0);
+
   const diffDays = Math.floor((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
   const dayCount = Math.max(1, diffDays + 1);
 
   return {
-    formattedDate,
-    dayCountLabel: `${dayCount}일차`,
+    label: `${dayCount}일차`,
     isToday: diffDays <= 0
   };
 }
 
-/* 환자 카드 HTML 생성 */
-function createPatientCardHtml(p, isZoomed = false){
-  const dateInfo = parseDateInfo(p.registered_at || p.created_at);
+/* 2줄 압축 환자 카드 HTML */
+function createPatientCardHtml(p){
+  const daysInfo = getDayCount(p.registered_at || p.created_at);
   const notes = parseNotes(p);
   const lastNote = notes.length ? (notes[notes.length - 1].text || '') : '';
   const phoneDisplay = p.phone ? esc(p.phone) : '연락처 없음';
 
   return `
     <div class="patient" onclick="editPatient(${p.id})">
-      <div class="p-top">
-        <span class="pname">${p.starred ? '<span class="star">★</span> ' : ''}${esc(p.name)}</span>
+      <div class="p-row-1">
+        <span class="pname-badge" title="${esc(p.name)}">${p.starred ? '<span class="star-mark">★</span>' : ''}${esc(p.name)}</span>
         <span class="pphone">${phoneDisplay}</span>
+        <span class="pdays-badge ${daysInfo.isToday ? 'today' : ''}">${daysInfo.label}</span>
       </div>
-      <div class="p-mid">
-        <span class="pdays ${dateInfo.isToday ? 'today' : ''}">${dateInfo.dayCountLabel}</span>
-        <span class="pdate">${dateInfo.formattedDate}</span>
-      </div>
-      <div class="plastnote" title="${esc(lastNote)}">
+      <div class="p-row-2" title="${esc(lastNote)}">
         ${lastNote ? '📝 ' + esc(lastNote) : '<span style="color:#94a3b8">기록 없음</span>'}
       </div>
     </div>
@@ -660,35 +636,57 @@ function createPatientCardHtml(p, isZoomed = false){
 
 /* 전체 현황판 렌더링 */
 function render(){
-  $('rooms').innerHTML=categories.map(cat=>{
+  $('rooms').innerHTML=categories.map((cat, idx)=>{
     const list=patients.filter(p=>p.category===cat).sort(sortRows);
-    return `<article class="room" data-cat="${cat}">
-      <div class="roomhead" onclick="openZoom('${cat}')" title="클릭 시 크게 확대">${cat}<span class="count">${list.length}</span></div>
+    return `<article class="room" id="col_${idx}" data-cat="${cat}">
+      <div class="roomhead" onclick="openExpand('${cat}', ${idx})" title="클릭 시 이 위치에서 3배 확대">${cat}<span class="count">${list.length}</span></div>
       <button class="add" onclick="openAdd('${cat}')">＋ 등록</button>
       <div class="patients">
-        ${list.length ? list.map(p => createPatientCardHtml(p)).join('') : '<div class="empty">등록된 동물 없음</div>'}
+        ${list.length ? list.map(p => createPatientCardHtml(p)).join('') : '<div class="empty">등록 환자 없음</div>'}
       </div>
     </article>`;
   }).join('');
 }
 
-/* 관리실(장르) 2.5배 확대 창 열기 */
-function openZoom(cat){
+/* 대분류 클릭 시 그 근처 영역에서 3배 커지며 위아래 전체 차지하는 함수 */
+function openExpand(cat, colIdx){
   const list = patients.filter(p => p.category === cat).sort(sortRows);
-  const box = $('zoomBox');
-  box.setAttribute('data-cat', cat);
-  $('zoomTitle').textContent = `🐾 ${cat} 환자 관리 현황`;
-  $('zoomCount').textContent = `총 ${list.length}마리 등록됨`;
-  $('zoomAddBtn').onclick = () => { closeZoom(); openAdd(cat); };
+  const overlay = $('roomExpand');
+  const targetCol = $(`col_${colIdx}`);
+  
+  // 테마 클래스 교체
+  categories.forEach(c => overlay.classList.remove(`cat-theme-${c}`));
+  overlay.classList.add(`cat-theme-${cat}`);
 
-  $('zoomContent').innerHTML = list.length ? list.map(p => createPatientCardHtml(p, true)).join('') : '<div class="empty" style="padding:40px 0;font-size:14px;">등록된 동물이 없습니다.</div>';
-  $('zoomModal').style.display = 'flex';
+  $('expandTitle').textContent = `🐾 ${cat} 전체 현황`;
+  $('expandCount').textContent = `총 ${list.length}마리`;
+  $('expandAddBtn').onclick = () => { closeExpand(); openAdd(cat); };
+  $('expandBody').innerHTML = list.length ? list.map(p => createPatientCardHtml(p)).join('') : '<div class="empty" style="padding:40px 0;">등록된 동물이 없습니다.</div>';
+
+  // 클릭한 컬럼 위치 기준으로 가로 배치 (우측 끝에 가까우면 화면 왼쪽으로 펼침)
+  if(targetCol){
+    const colLeft = targetCol.offsetLeft;
+    const mainWidth = $('mainContainer').scrollWidth;
+    let targetLeft = colLeft - 20;
+    if(targetLeft + 380 > mainWidth) {
+      targetLeft = Math.max(10, colLeft - 260); // 화면 오른쪽 바깥으로 삐져나가지 않게 보정
+    }
+    overlay.style.left = `${Math.max(6, targetLeft)}px`;
+  }
+
+  overlay.style.display = 'flex';
 }
-function closeZoom(){
-  $('zoomModal').style.display = 'none';
+
+function closeExpand(){
+  $('roomExpand').style.display = 'none';
 }
-$('zoomModal').addEventListener('click', e => {
-  if(e.target === $('zoomModal')) closeZoom();
+
+// 오버레이 바깥 영역 클릭 시 닫기
+document.addEventListener('click', e => {
+  const overlay = $('roomExpand');
+  if(overlay.style.display === 'flex' && !overlay.contains(e.target) && !e.target.closest('.roomhead')){
+    closeExpand();
+  }
 });
 
 async function load(){
@@ -710,6 +708,7 @@ function localDateTime(){
 }
 
 function openAdd(cat=categories[0]){
+  closeExpand();
   $('patientForm').reset();
   $('pid').value='';
   $('modalTitle').textContent='특수환자 등록';
@@ -738,7 +737,6 @@ function formatNoteDate(n){
   return n.date||'날짜 미상';
 }
 
-/* 환자 차트 전체 내역 시원하게 표시 */
 function renderHistory(){
   const box=$('historyList');
   if(!noteItems.length){
@@ -776,7 +774,7 @@ $('noteInput').addEventListener('keydown',e=>{
 function editPatient(id){
   const p=patients.find(x=>x.id===id);
   if(!p)return;
-  closeZoom(); // 혹시 줌 창에서 눌렀다면 줌 창 닫기
+  closeExpand();
   $('patientForm').reset();
   $('pid').value=p.id;
   $('modalTitle').textContent=`${p.name} - 환자 정보 및 누적 관리 차트`;
