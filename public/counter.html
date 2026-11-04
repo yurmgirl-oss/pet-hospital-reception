@@ -3,43 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>23시 하단오거리동물병원 - 원내 접수 현황판</title>
+  <title>23시 하단오거리동물병원 - 통합 원내 현황판 (진료 & 방문·상담)</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 고해상도 캡처를 위한 html2canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- 엑셀 다운로드용 SheetJS -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     body { font-family: 'Pretendard', sans-serif; font-size: 14px; }
-    header h1 { font-size: 1.4rem !important; }
-    header p { font-size: 0.82rem !important; }
-    #list-container > div { font-size: 0.85rem; }
-    #list-container h3 { font-size: 1.1rem !important; }
-    #list-container .text-xs { font-size: 0.78rem !important; }
-    #list-container .text-sm { font-size: 0.85rem !important; }
-    #list-container .text-lg { font-size: 1.1rem !important; }
-    #list-container button, #list-container select { font-size: 0.8rem !important; }
-    #list-container .text-\[10px\], #list-container .text-\[11px\] { font-size: 0.75rem !important; }
-    #adminNoticeInput { font-size: 0.85rem !important; }
-    #print-sheet { font-size: initial; }
-
-    /* A4 표준 1장 규격 (794px x 1123px) */
     #print-sheet {
-      position: fixed;
-      left: -9999px;
-      top: -9999px;
-      width: 794px;
-      height: 1123px;
-      background: #ffffff;
-      padding: 38px 44px;
-      box-sizing: border-box;
-      color: #1e293b;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      position: fixed; left: -9999px; top: -9999px;
+      width: 794px; height: 1123px; background: #ffffff;
+      padding: 38px 44px; box-sizing: border-box; color: #1e293b;
+      display: flex; flex-direction: column; justify-content: space-between;
     }
     #print-sheet table { border-collapse: collapse; }
-    #print-sheet table th,
-    #print-sheet table td { vertical-align: middle !important; line-height: 1.4; }
+    #print-sheet table th, #print-sheet table td { vertical-align: middle !important; line-height: 1.4; }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 p-2 sm:p-4">
@@ -51,63 +30,50 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
-          <h1 class="text-xl font-bold text-slate-900 tracking-tight">원내 접수 현황판</h1>
+          <h1 class="text-xl font-bold text-slate-900 tracking-tight">통합 원내 현황판</h1>
+          <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold border border-slate-300">진료 & 방문·상담</span>
         </div>
-        <p class="text-xs text-slate-500 mt-0.5">실시간 접수 현황 및 초진 서식 출력 관리</p>
+        <p class="text-xs text-slate-500 mt-0.5">실시간 진료 대기 및 방문·상담 통합 모니터링</p>
       </div>
       
       <!-- 컨트롤 버튼 -->
-      <div class="flex items-center gap-2">
-        <button id="soundToggleBtn" onclick="toggleSound()" class="px-2.5 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1 bg-slate-100 text-slate-600 border-slate-300">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button id="soundToggleBtn" onclick="toggleSound()" class="px-2.5 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1 bg-emerald-50 text-emerald-700 border-emerald-300">
           <span id="soundIcon">🔔</span>
           <span id="soundText">알림음 켜짐</span>
+        </button>
+        <button onclick="exportVisitExcel()" class="px-3 py-1.5 bg-teal-700 text-white rounded-lg text-xs font-semibold hover:bg-teal-800 transition">
+          📊 상담 엑셀 다운
         </button>
         <button onclick="openImageSearch()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition">
           🗂️ A4 기록 검색
         </button>
-        <button onclick="fetchReceptions(true)" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition">
+        <button onclick="fetchAllData(true)" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition">
           새로고침
         </button>
       </div>
     </header>
 
-    <!-- [원내 공지사항 관리 바] -->
+    <!-- 2. 공지사항 바 -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
       <div class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full border border-emerald-200 shrink-0 w-fit">
-        <span>📢</span>
-        <span>공지 설정</span>
+        <span>📢</span><span>공지 설정</span>
       </div>
-      <textarea 
-        id="adminNoticeInput" 
-        rows="1"
-        placeholder="접수 키오스크에 띄울 소식을 입력하세요" 
-        class="flex-1 w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y min-h-[32px] max-h-[80px]"
-      ></textarea>
+      <textarea id="adminNoticeInput" rows="1" placeholder="접수 키오스크에 띄울 소식을 입력하세요" class="flex-1 w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition resize-y min-h-[32px] max-h-[80px]"></textarea>
       <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-        <button 
-          type="button" 
-          id="btnNoticeSave" 
-          onclick="saveNoticeToDB()" 
-          class="px-3 py-1.5 bg-slate-900 text-white text-[11px] font-bold rounded-lg hover:bg-slate-800 transition shadow-sm cursor-pointer">
-          게시
-        </button>
-        <button 
-          type="button" 
-          onclick="clearNoticeInDB()" 
-          class="px-2.5 py-1.5 bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-medium rounded-lg hover:bg-slate-200 transition cursor-pointer">
-          지우기
-        </button>
+        <button type="button" id="btnNoticeSave" onclick="saveNoticeToDB()" class="px-3 py-1.5 bg-slate-900 text-white text-[11px] font-bold rounded-lg hover:bg-slate-800 transition shadow-sm">게시</button>
+        <button type="button" onclick="clearNoticeInDB()" class="px-2.5 py-1.5 bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-medium rounded-lg hover:bg-slate-200 transition">지우기</button>
       </div>
     </div>
 
-    <!-- 2. 요약 통계 -->
+    <!-- 3. 요약 통계 -->
     <div class="grid grid-cols-4 gap-2.5">
       <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm text-center">
         <p class="text-[11px] font-semibold text-slate-400">접수 대기</p>
         <p id="count-waiting" class="text-xl font-bold text-amber-600 mt-0.5">0</p>
       </div>
       <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm text-center">
-        <p class="text-[11px] font-semibold text-slate-400">진료 중</p>
+        <p class="text-[11px] font-semibold text-slate-400">진료/처리 중</p>
         <p id="count-progress" class="text-xl font-bold text-emerald-600 mt-0.5">0</p>
       </div>
       <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm text-center">
@@ -120,340 +86,402 @@
       </div>
     </div>
 
-    <!-- 3. 오늘 접수/대기 환자 목록 (예약대기는 여기서 자동 제외되어 화면 깔끔!) -->
-    <div id="list-container" class="space-y-2.5">
-      <div class="text-center py-8 text-slate-400 text-xs">접수 내역을 확인하는 중입니다...</div>
+    <!-- 4. 탭 및 검색 필터 -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-2 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+      <div class="flex items-center gap-1.5 w-full sm:w-auto">
+        <button onclick="setTab('ALL')" id="tab-ALL" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white transition">전체보기</button>
+        <button onclick="setTab('RECEPTION')" id="tab-RECEPTION" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">🩺 진료 접수</button>
+        <button onclick="setTab('VISIT')" id="tab-VISIT" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">💬 방문·상담</button>
+      </div>
+      <div class="w-full sm:w-72">
+        <input id="searchInput" oninput="renderCombinedList()" placeholder="환자명, 보호자명, 연락처, 사유 검색..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-teal-600 focus:bg-white transition">
+      </div>
     </div>
 
-    <!-- 4. 📅 카운터 예약대기 보관함 (필요할 때만 펼쳐봄) -->
+    <!-- 5. 활성 목록 (진료 접수 & 방문·상담 통합) -->
+    <div id="list-container" class="space-y-2.5">
+      <div class="text-center py-8 text-slate-400 text-xs">내역을 확인하는 중입니다...</div>
+    </div>
+
+    <!-- 6. 📅 사전예약 및 대기 보관함 -->
     <div class="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden">
       <div onclick="toggleCounterReserveBox()" class="p-3 bg-amber-50/70 border-b border-amber-200 flex justify-between items-center cursor-pointer select-none">
         <div class="flex items-center gap-2">
           <span class="text-base">📅</span>
-          <span class="font-bold text-xs text-amber-900">사전접수 예약대기 보관함 (<span id="box-reserved-count">0</span>명)</span>
+          <span class="font-bold text-xs text-amber-900">사전접수 및 예약대기 보관함 (<span id="box-reserved-count">0</span>건)</span>
           <span class="text-[11px] text-amber-700 font-medium">· 내원 시 [대기 복귀] 클릭</span>
         </div>
         <span id="reserve-toggle-arrow" class="text-xs text-amber-800 font-bold">펼치기 ▼</span>
       </div>
-      <div id="counter-reserve-container" class="p-3 space-y-2 hidden bg-amber-50/20">
-        <!-- 예약대기 카드 동적 삽입 -->
-      </div>
+      <div id="counter-reserve-container" class="p-3 space-y-2 hidden bg-amber-50/20"></div>
     </div>
 
   </div>
 
-  <!-- 원클릭 복사 시 뜨는 플로팅 토스트 알림 -->
+  <!-- 방문·상담 상세 모달 -->
+  <div id="detailModal" class="fixed inset-0 z-50 bg-slate-950/70 hidden items-center justify-center p-3" onclick="if(event.target===this) closeDetailModal()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden p-5 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-base text-slate-900">📋 방문·상담 상세 내용</h3>
+        <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+      </div>
+      <div id="modalMeta" class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200"></div>
+      <div>
+        <h4 class="text-xs font-bold text-slate-700 mb-1">요청 사항 전체</h4>
+        <div id="modalDetails" class="p-3 rounded-xl bg-amber-50/40 border border-amber-200 text-xs text-slate-800 whitespace-pre-wrap leading-relaxed min-h-[90px]"></div>
+      </div>
+      <div class="flex justify-end pt-2">
+        <button onclick="closeDetailModal()" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 알림 -->
   <div id="copyToast" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 opacity-0 translate-y-4 pointer-events-none bg-slate-900 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-xl flex items-center gap-1.5 border border-slate-700">
     <span class="text-emerald-400">✓</span>
     <span id="toastMsg">클립보드에 복사되었습니다!</span>
   </div>
 
-  <!-- A4 맞춤형 초진접수 및 개인정보 동의서 템플릿 (화면 밖 렌더링 유지) -->
-  <div id="print-sheet">
-    <div>
-      <div class="flex justify-between items-end border-b-2 border-slate-900 pb-3">
-        <div>
-          <span class="text-xs font-bold tracking-widest text-[#006257]">23시 하단오거리동물병원 · CLINIC FLOW</span>
-          <h2 class="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">초진접수 및 개인정보 동의서</h2>
-          <p class="text-[11px] text-slate-500 mt-0.5">본 서식은 내원 시 보호자가 직접 작성한 전자 접수 및 법적 동의서 원본입니다.</p>
-        </div>
-        <div class="text-right pb-0.5">
-          <div class="text-xs font-mono font-bold text-slate-500" id="doc-id">접수번호: #0</div>
-          <div class="text-sm font-black text-slate-900 mt-0.5 tracking-tight" id="doc-date">접수일시: 2026-00-00 00:00:00</div>
-        </div>
-      </div>
-
-      <div class="mt-4 mb-3">
-        <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-[#006257] rounded-sm"></span> 1. 보호자 및 반려동물 인적사항
-        </h3>
-        <table class="w-full border-collapse border border-slate-300 text-xs">
-          <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 w-24 text-left align-middle font-bold">보호자 성함</th>
-            <td class="border border-slate-300 py-2 px-3 font-semibold w-56 align-middle" id="doc-guardian">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 w-24 text-left align-middle font-bold">연락처</th>
-            <td class="border border-slate-300 py-2 px-3 font-mono font-semibold align-middle" id="doc-phone">-</td>
-          </tr>
-          <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">주소</th>
-            <td class="border border-slate-300 py-2 px-3 text-slate-800 align-middle" id="doc-address">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">이메일</th>
-            <td class="border border-slate-300 py-2 px-3 font-mono text-slate-800 align-middle" id="doc-email"></td>
-          </tr>
-          <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">동물 이름</th>
-            <td class="border border-slate-300 py-2 px-3 font-bold text-teal-800 text-sm align-middle" id="doc-pet">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">축종 / 품종</th>
-            <td class="border border-slate-300 py-2 px-3 align-middle" id="doc-species">-</td>
-          </tr>
-          <tr>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">성별 / 중성화</th>
-            <td class="border border-slate-300 py-2 px-3 font-medium align-middle" id="doc-gender">-</td>
-            <th class="border border-slate-300 bg-slate-100 text-slate-700 py-2 px-3 text-left align-middle font-bold">생년월일 / 체중</th>
-            <td class="border border-slate-300 py-2 px-3 font-medium align-middle" id="doc-birth-weight">-</td>
-          </tr>
-          <tr>
-            <th class="border border-slate-300 bg-amber-50 text-amber-900 py-2 px-3 text-left align-middle font-bold">성격 및 기질</th>
-            <td colspan="3" class="border border-slate-300 py-2 px-3 font-semibold text-amber-900 align-middle" id="doc-character">특이사항 없음</td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="mb-3">
-        <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-[#006257] rounded-sm"></span> 2. 주요 증상 및 내원 사유
-        </h3>
-        <div class="border border-slate-300 rounded p-3 min-h-[78px] text-xs leading-relaxed text-slate-800 whitespace-pre-wrap bg-slate-50/50 flex items-center" id="doc-reason">
-          -
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <h3 class="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-          <span class="w-1.5 h-3 bg-[#006257] rounded-sm"></span> 3. 추가 처치 희망 항목
-        </h3>
-        <div class="border border-slate-300 rounded p-2.5 px-3 text-xs font-medium text-slate-800 bg-white min-h-[36px] flex items-center" id="doc-treatments">
-          선택 처치 없음
-        </div>
-      </div>
-
-      <div class="border-2 border-slate-300 rounded-xl p-3.5 bg-slate-50/70">
-        <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center justify-between">
-          <span class="flex items-center gap-1">
-            <span class="w-1.5 h-3 bg-emerald-600 rounded-sm"></span> 4. 개인정보 수집·이용 및 병원 내 안전 수칙 동의 확인
-          </span>
-          <span class="text-[11px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded">✓ 보호자 전자 서명 완료</span>
-        </h3>
-
-        <div class="space-y-2 text-[11px] leading-relaxed text-slate-700">
-          <div class="bg-white p-2.5 rounded-lg border border-slate-200 space-y-1">
-            <div class="flex items-center justify-between">
-              <p class="font-bold text-slate-800">① 개인정보 수집 및 이용 동의</p>
-              <span class="text-emerald-600 font-semibold">[동의함]</span>
-            </div>
-            <ul class="list-disc pl-4 space-y-0.5 text-slate-600">
-              <li><strong class="text-slate-700">수집 항목:</strong> 보호자 성명, 연락처, 접수 정보</li>
-              <li><strong class="text-slate-700">이용 목적:</strong> 진료기록 관리, 접수·예약 및 재진 안내, 휴진·공휴일 관련 SMS·알림톡 발송</li>
-              <li><strong class="text-slate-700">보유 기간:</strong> 목적 달성 시까지 또는 관련 법령에 따른 보존 기간</li>
-              <li><strong class="text-slate-700">동의 거부:</strong> 동의를 거부할 수 있으나, 일부 서비스 이용이 제한될 수 있습니다.</li>
-            </ul>
-            <p class="font-medium text-teal-800 pt-0.5 text-[10.5px]">본원은 개인정보를 명시된 목적에 따라 안전하게 관리합니다.</p>
-          </div>
-
-          <div class="bg-white p-2.5 rounded-lg border border-slate-200 space-y-1">
-            <div class="flex items-center justify-between">
-              <p class="font-bold text-slate-800">② 병원 내 안전 및 유의사항 안내 동의</p>
-              <span class="text-emerald-600 font-semibold">[동의함]</span>
-            </div>
-            <p class="text-slate-600">병원 내에서는 사람과 동물 간의 접촉이나 예기치 못한 상황으로 다툼, 상해, 물품 파손 등이 발생할 수 있습니다. 보호자님께서는 반려동물을 안전하게 관리해 주시고, 다른 보호자와 동물을 배려해 주시기 바랍니다.</p>
-            <p class="text-slate-600">개인 간 분쟁이나 피해가 발생한 경우 당사자 간의 원만한 해결을 원칙으로 하며, 병원은 관련 상황과 책임 범위에 따라 필요한 조치를 취합니다.</p>
-            <p class="font-bold text-teal-700 text-[10.5px]">모두의 안전하고 편안한 진료 환경을 위해 보호자님의 협조와 배려를 부탁드립니다.</p>
-          </div>
-        </div>
-
-        <div class="mt-3 pt-3 border-t border-slate-300 flex justify-between items-center px-1">
-          <div class="text-xs space-y-0.5">
-            <p class="text-slate-600">위 안내 및 동의 조항을 충분히 숙지하였으며, 이에 정식 동의합니다.</p>
-            <p class="text-slate-800 font-bold">동의자(보호자 성함): <span id="doc-sign-guardian" class="text-teal-900">-</span></p>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-500">서명 (인):</span>
-            <div class="w-36 h-16 border border-slate-300 bg-white rounded-lg flex items-center justify-center p-1 shadow-inner overflow-hidden">
-              <img id="doc-signature-img" src="" alt="보호자 전자 서명" class="max-h-full max-w-full object-contain">
-              <span id="doc-no-sign" class="text-[11px] text-slate-400 hidden">서명 없음</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="border-t border-slate-300 pt-2 text-[10px] text-slate-400 flex justify-between items-center">
-        <span>• 23시 하단오거리동물병원 전자 의무기록 관리 시스템 (CLINIC FLOW)</span>
-        <span>인쇄일시: <script>document.write(new Date().toLocaleDateString('ko-KR'))</script></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- 재진 A4 접수 기록 템플릿: 초진 동의서와 별도이며 동의/서명란은 포함하지 않음 -->
-  <div id="revisit-print-sheet" style="position:fixed;left:-9999px;top:-9999px;width:794px;height:1123px;background:#fff;padding:48px 52px;box-sizing:border-box;color:#1e293b;font-family:'Pretendard',sans-serif;">
-    <div style="border-bottom:3px solid #0f766e;padding-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;">
-      <div><div style="font-size:13px;font-weight:800;letter-spacing:2px;color:#0f766e;">23시 하단오거리동물병원 · CLINIC FLOW</div><div style="font-size:30px;font-weight:900;margin-top:8px;">재진 접수 기록</div><div style="font-size:12px;color:#64748b;margin-top:5px;">내원 시 접수된 환자 정보 및 상담 내용</div></div>
-      <div style="text-align:right;font-size:13px;line-height:1.8;"><div id="rev-doc-id">접수번호: -</div><div id="rev-doc-date" style="font-weight:800;">접수일시: -</div></div>
-    </div>
-    <div style="margin-top:34px;border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;">
-      <div style="background:#f1f5f9;padding:12px 16px;font-weight:800;font-size:15px;">보호자 및 반려동물 정보</div>
-      <table style="width:100%;border-collapse:collapse;font-size:15px;">
-        <tr><th style="width:145px;text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">동물 이름</th><td id="rev-doc-pet" style="padding:16px;border:1px solid #e2e8f0;font-weight:800;color:#0f766e;"></td><th style="width:125px;text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">초진/재진</th><td id="rev-doc-type" style="padding:16px;border:1px solid #e2e8f0;">재진</td></tr>
-        <tr><th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">보호자</th><td id="rev-doc-guardian" style="padding:16px;border:1px solid #e2e8f0;"></td><th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">연락처</th><td id="rev-doc-phone" style="padding:16px;border:1px solid #e2e8f0;"></td></tr>
-        <tr><th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">축종 / 품종</th><td id="rev-doc-species" style="padding:16px;border:1px solid #e2e8f0;"></td><th style="text-align:left;background:#f8fafc;padding:16px;border:1px solid #e2e8f0;">성별 / 체중</th><td id="rev-doc-details" style="padding:16px;border:1px solid #e2e8f0;"></td></tr>
-      </table>
-    </div>
-    <div style="margin-top:28px;"><div style="font-size:17px;font-weight:900;border-left:5px solid #0f766e;padding-left:10px;margin-bottom:12px;">내원 사유 및 주요 증상</div><div id="rev-doc-reason" style="border:1px solid #cbd5e1;border-radius:10px;padding:20px;min-height:190px;white-space:pre-wrap;line-height:1.8;font-size:15px;"></div></div>
-    <div style="margin-top:26px;"><div style="font-size:17px;font-weight:900;border-left:5px solid #0f766e;padding-left:10px;margin-bottom:12px;">추가 처치 희망 항목</div><div id="rev-doc-treatments" style="border:1px solid #cbd5e1;border-radius:10px;padding:18px;min-height:80px;font-size:15px;line-height:1.8;"></div></div>
-    <div style="position:absolute;bottom:45px;left:52px;right:52px;border-top:1px solid #cbd5e1;padding-top:12px;display:flex;justify-content:space-between;color:#94a3b8;font-size:11px;"><span>23시 하단오거리동물병원 전자 접수 기록</span><span>출력용 보관 문서</span></div>
-  </div>
-
-  <!-- A4 이미지 미리보기 / 검색 창 -->
-  <div id="imagePreviewModal" class="fixed inset-0 z-[100] bg-slate-950/80 hidden items-center justify-center p-3" onclick="if(event.target===this) closeImagePreview()">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
-      <div class="flex items-center justify-between p-3 border-b"><strong id="imagePreviewTitle">A4 접수 기록 미리보기</strong><button onclick="closeImagePreview()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
-      <div class="overflow-auto bg-slate-200 p-3 text-center"><img id="imagePreviewImg" alt="A4 접수 기록" class="inline-block max-w-full h-auto shadow-lg" style="max-height:78vh;"></div>
-      <div class="p-3 flex justify-end gap-2"><a id="imagePreviewDownload" class="px-4 py-2 rounded bg-slate-900 text-white text-sm font-bold" download="접수기록.png">PNG 다운로드</a></div>
-    </div>
-  </div>
-  <div id="imageSearchModal" class="fixed inset-0 z-[100] bg-slate-950/70 hidden items-center justify-center p-3" onclick="if(event.target===this) closeImageSearch()">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
-      <div class="flex justify-between items-center p-4 border-b"><strong class="text-lg">🗂️ A4 접수 기록 검색</strong><button onclick="closeImageSearch()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
-      <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
-        <input id="imageSearchName" class="border rounded-lg p-2 text-sm" placeholder="동물 이름">
-        <input id="imageSearchPhone" class="border rounded-lg p-2 text-sm" placeholder="전화번호">
-        <input id="imageSearchDate" type="date" class="border rounded-lg p-2 text-sm">
-        <button onclick="searchReceptionImages()" class="sm:col-span-3 bg-indigo-600 text-white rounded-lg py-2 font-bold">검색</button>
-      </div>
-      <div id="imageSearchResults" class="overflow-auto p-4 pt-0 space-y-2"><p class="text-sm text-slate-400 text-center py-6">동물 이름, 전화번호 또는 날짜를 입력해 검색하세요.</p></div>
-    </div>
-  </div>
+  <!-- A4 인쇄용 숨김 시트 (기존 유지) -->
+  <div id="print-sheet"></div>
+  <div id="revisit-print-sheet" style="position:fixed;left:-9999px;top:-9999px;width:794px;height:1123px;background:#fff;padding:48px 52px;box-sizing:border-box;"></div>
 
   <script>
     let soundEnabled = true;
-    let knownIds = new Set();
+    let currentTab = 'ALL';
+    let rawReceptions = [];
+    let rawVisits = [];
+    let knownRecepIds = new Set();
+    let knownVisitIds = new Set();
     let isFirstLoad = true;
-    let currentList = [];
-    // PIN은 페이지가 열린 동안 메모리에만 보관하며 브라우저 저장소에는 기록하지 않음
-    let receptionImagePin = '';
-    let activePreviewObjectUrl = '';
 
-    function copyText(text, label = '텍스트') {
-      if (!text || text === '-' || text === '미기재') return;
-
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => {
-          showToast(`📋 ${label} 복사 완료!`);
-        }).catch(() => fallbackCopy(text, label));
-      } else {
-        fallbackCopy(text, label);
-      }
-    }
-
-    function fallbackCopy(text, label) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand('copy');
-        showToast(`📋 ${label} 복사 완료!`);
-      } catch (err) {
-        alert('복사에 실패했습니다. 내용을 직접 드래그해 주세요.');
-      }
-      document.body.removeChild(ta);
-    }
-
-    function copyReason(id) {
-      const item = currentList.find(x => x.id === id);
-      if (!item) return;
-      const payload = unwrapPayload(item.payload);
-      const reason = (payload.reason && payload.reason.trim())
-        || (item.symptom && item.symptom.trim())
-        || (item.symptoms && item.symptoms.trim())
-        || '';
-
-      if (!reason || reason === '작성된 내원 사유가 없습니다.') {
-        showToast('복사할 내원 사유가 없습니다.');
-        return;
-      }
-      copyText(reason, '내원 사유');
-    }
-
-    function showToast(msg) {
-      const toast = document.getElementById('copyToast');
-      const toastMsg = document.getElementById('toastMsg');
-      if (!toast) return;
-
-      toastMsg.innerText = msg;
-      toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
-      toast.classList.add('opacity-100', 'translate-y-0');
-
-      clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
-        toast.classList.remove('opacity-100', 'translate-y-0');
-      }, 2200);
-    }
-
-    // 🛡️ 접수 목록에서만 숨김 처리: D1 접수 원본과 A4 기록은 삭제하지 않음
-    async function deleteReception(id, petName) {
-      const confirmed = confirm(
-        `[${petName}] 환자를 원내 접수 현황판에서 숨길까요?\n\n` +
-        `• 접수 현황판 목록에서만 숨겨집니다.\n` +
-        `• 접수 원본 데이터는 보존됩니다.\n` +
-        `• A4 기록과 클라우드 이미지도 그대로 보존됩니다.\n\n` +
-        `※ 이 작업은 영구 삭제가 아닙니다.`
-      );
-
-      if (!confirmed) return;
-
-      try {
-        const res = await fetch('/api/receptions', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, status: '목록숨김' })
-        });
-
-        if (!res.ok) throw new Error('목록 숨김 처리 오류 (' + res.status + ')');
-
-        showToast(`📁 [${petName}] 접수 목록에서 숨겼습니다. 원본과 A4 기록은 보존됩니다.`);
-        await fetchReceptions();
-      } catch (err) {
-        alert('숨김 처리 실패: ' + err.message);
-      }
-    }
-
+    // 1. 소리 알림
     function playDingDong() {
       if (!soundEnabled) return;
       try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = audioCtx.currentTime;
-
-        const osc1 = audioCtx.createOscillator();
-        const gain1 = audioCtx.createGain();
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        const osc1 = ctx.createOscillator(), gain1 = ctx.createGain();
         osc1.frequency.setValueAtTime(659.25, now);
         gain1.gain.setValueAtTime(0.2, now);
         gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-        osc1.connect(gain1);
-        gain1.connect(audioCtx.destination);
-        osc1.start(now);
-        osc1.stop(now + 0.45);
+        osc1.connect(gain1); gain1.connect(ctx.destination);
+        osc1.start(now); osc1.stop(now + 0.45);
 
-        const osc2 = audioCtx.createOscillator();
-        const gain2 = audioCtx.createGain();
+        const osc2 = ctx.createOscillator(), gain2 = ctx.createGain();
         osc2.frequency.setValueAtTime(523.25, now + 0.22);
         gain2.gain.setValueAtTime(0.25, now + 0.22);
         gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
-        osc2.connect(gain2);
-        gain2.connect(audioCtx.destination);
-        osc2.start(now + 0.22);
-        osc2.stop(now + 0.85);
-      } catch (err) {}
+        osc2.connect(gain2); gain2.connect(ctx.destination);
+        osc2.start(now + 0.22); osc2.stop(now + 0.85);
+      } catch (e) {}
     }
 
     function toggleSound() {
       soundEnabled = !soundEnabled;
       const btn = document.getElementById('soundToggleBtn');
-      const icon = document.getElementById('soundIcon');
-      const text = document.getElementById('soundText');
-      if (soundEnabled) {
-        btn.className = "px-2.5 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1 bg-emerald-50 text-emerald-700 border-emerald-300";
-        icon.innerText = "🔔";
-        text.innerText = "알림음 켜짐";
-        playDingDong();
-      } else {
-        btn.className = "px-2.5 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1 bg-slate-100 text-slate-600 border-slate-300";
-        icon.innerText = "🔇";
-        text.innerText = "알림음 켜기";
+      btn.className = soundEnabled 
+        ? "px-2.5 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1 bg-emerald-50 text-emerald-700 border-emerald-300"
+        : "px-2.5 py-1.5 rounded-lg border text-xs font-medium transition flex items-center gap-1 bg-slate-100 text-slate-600 border-slate-300";
+      document.getElementById('soundIcon').innerText = soundEnabled ? "🔔" : "🔇";
+      document.getElementById('soundText').innerText = soundEnabled ? "알림음 켜짐" : "알림음 켜기";
+      if (soundEnabled) playDingDong();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('copyToast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+      }, 2200);
+    }
+
+    function setTab(tab) {
+      currentTab = tab;
+      ['ALL', 'RECEPTION', 'VISIT'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tab) {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+        }
+      });
+      renderCombinedList();
+    }
+
+    // 2. 통합 데이터 로드
+    async function fetchAllData(manual = false) {
+      try {
+        const [resRecep, resVisits] = await Promise.allSettled([
+          fetch('/api/receptions').then(r => r.ok ? r.json() : []),
+          fetch('/api/visits').then(r => r.ok ? r.json() : { items: [] })
+        ]);
+
+        rawReceptions = (resRecep.status === 'fulfilled' && Array.isArray(resRecep.value)) ? resRecep.value : [];
+        const visitJson = resVisits.status === 'fulfilled' ? resVisits.value : {};
+        rawVisits = Array.isArray(visitJson) ? visitJson : (visitJson.items || []);
+
+        let hasNew = false;
+        if (!isFirstLoad) {
+          const newRecep = rawReceptions.some(x => !knownRecepIds.has(x.id) && (x.status === '접수대기' || x.status === '대기'));
+          const newVisit = rawVisits.some(x => !knownVisitIds.has(x.id) && (x.status === '접수' || x.status === '접수대기'));
+          if (newRecep || newVisit) hasNew = true;
+        }
+
+        if (hasNew) playDingDong();
+
+        knownRecepIds = new Set(rawReceptions.map(x => x.id));
+        knownVisitIds = new Set(rawVisits.map(x => x.id));
+        isFirstLoad = false;
+
+        renderCombinedList();
+      } catch (err) {
+        console.error('데이터 갱신 실패:', err);
       }
+    }
+
+    function unwrapPayload(raw) {
+      if (!raw) return {};
+      let c = raw;
+      try { while (typeof c === 'string') c = JSON.parse(c); } catch(e) {}
+      return (c && typeof c === 'object') ? c : {};
+    }
+
+    // 3. 결합 및 렌더링
+    function renderCombinedList() {
+      const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+
+      // 진료 데이터 규격화
+      const normReceptions = rawReceptions.filter(x => x.status !== '목록숨김').map(x => {
+        const payload = unwrapPayload(x.payload);
+        return {
+          typeKind: 'RECEPTION',
+          id: x.id,
+          raw: x,
+          status: x.status,
+          title: x.pet_name || '이름 없음',
+          subtitle: payload.guardian_name || x.owner_name || '보호자',
+          phone: x.phone || x.owner_phone || '',
+          time: x.created_at || '',
+          scheduled: payload.expected_date ? `${payload.expected_date} ${payload.expected_time || ''}` : '',
+          detail: (payload.reason || x.symptom || x.symptoms || '').trim(),
+          badge: (x.type === 'FIRST' || x.type === '초진') ? '초진' : '재진',
+          extraInfo: `${payload.breed ? ` · ${payload.breed}` : ''}${payload.weight ? ` · ${payload.weight}kg` : ''}`
+        };
+      });
+
+      // 방문·상담 데이터 규격화
+      const normVisits = rawVisits.map(x => ({
+        typeKind: 'VISIT',
+        id: x.id,
+        raw: x,
+        status: x.status,
+        title: x.animal_name || '동물/업체 미기재',
+        subtitle: x.visitor_name || '방문자',
+        phone: x.phone || '',
+        time: x.created_at || '',
+        scheduled: x.scheduled_at ? new Date(x.scheduled_at).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' }) : '',
+        detail: (x.request_details || '').trim(),
+        badge: x.purpose || '일반 상담',
+        extraInfo: ''
+      }));
+
+      // 합치기 및 탭 필터링
+      let merged = [];
+      if (currentTab === 'ALL') merged = [...normReceptions, ...normVisits];
+      else if (currentTab === 'RECEPTION') merged = [...normReceptions];
+      else if (currentTab === 'VISIT') merged = [...normVisits];
+
+      // 검색어 필터
+      if (q) {
+        merged = merged.filter(x => 
+          [x.title, x.subtitle, x.phone, x.detail, x.badge].join(' ').toLowerCase().includes(q)
+        );
+      }
+
+      // 상태별 통계 계산 (전체 기준)
+      const allMerged = [...normReceptions, ...normVisits];
+      let waiting = 0, progress = 0, done = 0, reserved = 0;
+      allMerged.forEach(x => {
+        if (['접수대기', '대기', '접수'].includes(x.status)) waiting++;
+        else if (['진료중', '처리 중'].includes(x.status)) progress++;
+        else if (['완료'].includes(x.status)) done++;
+        else if (['예약대기'].includes(x.status)) reserved++;
+      });
+      document.getElementById('count-waiting').innerText = waiting;
+      document.getElementById('count-progress').innerText = progress;
+      document.getElementById('count-done').innerText = done;
+      document.getElementById('count-reserved').innerText = reserved;
+      document.getElementById('box-reserved-count').innerText = reserved;
+
+      // 예약 보관함과 메인 리스트 분리
+      const activeList = merged.filter(x => x.status !== '예약대기' && x.status !== '완료');
+      const reservedList = merged.filter(x => x.status === '예약대기');
+
+      renderActiveList(activeList);
+      renderReservedBox(reservedList);
+    }
+
+    function renderActiveList(list) {
+      const container = document.getElementById('list-container');
+      if (!list.length) {
+        container.innerHTML = `<div class="bg-white p-8 text-center rounded-xl border border-slate-200 text-slate-400 text-xs">표시할 대기 접수가 없습니다.</div>`;
+        return;
+      }
+
+      // 최신순 정렬
+      list.sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
+
+      container.innerHTML = list.map(item => {
+        const isVisit = item.typeKind === 'VISIT';
+        const typeBadgeClass = isVisit 
+          ? 'bg-amber-100 text-amber-900 border-amber-300' 
+          : (item.badge === '초진' ? 'bg-sky-100 text-sky-800 border-sky-300' : 'bg-emerald-100 text-emerald-800 border-emerald-300');
+
+        const kindLabel = isVisit ? '💬 방문·상담' : '🩺 진료접수';
+        const kindLabelClass = isVisit ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-teal-700 bg-teal-50 border-teal-200';
+
+        const timeStr = item.time ? new Date(item.time.replace(' ', 'T')).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
+        const scheduledBadge = item.scheduled ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">📅 ${item.scheduled}</span>` : '';
+
+        // 상태값 선택지 구성
+        const statusOptions = isVisit
+          ? ['접수', '처리 중', '완료', '취소']
+          : ['접수대기', '예약대기', '진료중', '완료'];
+
+        const actionBtn = isVisit
+          ? `<button onclick='openVisitModal(${JSON.stringify(item.raw)})' class="px-2 py-0.5 text-[11px] font-bold rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 shadow-sm">📋 상세 내용</button>`
+          : `<button onclick='downloadIntakeSheet(${JSON.stringify(item.raw)})' class="px-2 py-0.5 text-[11px] font-bold rounded bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 shadow-sm">📄 A4 서식</button>`;
+
+        return `
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 hover:border-slate-300 transition">
+            <div class="space-y-1 flex-1 min-w-0 w-full">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${kindLabelClass}">${kindLabel}</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${typeBadgeClass}">${item.badge}</span>
+                <h3 class="text-base font-bold text-slate-900">${escapeHtml(item.title)}</h3>
+                <span class="text-[11px] text-slate-400 font-mono">${timeStr}</span>
+                ${scheduledBadge}
+                ${actionBtn}
+              </div>
+
+              <div class="text-xs text-slate-600 flex flex-wrap items-center gap-1">
+                <span>신청/보호자: <strong>${escapeHtml(item.subtitle)}</strong></span>
+                ${item.phone ? `<button type="button" onclick="copyText('${item.phone}','연락처')" class="font-mono font-bold text-slate-800 bg-slate-100 px-1.5 py-0.2 rounded hover:bg-teal-50 text-[11px] border">${item.phone}</button>` : ''}
+                <span class="text-slate-500 font-medium">${escapeHtml(item.extraInfo)}</span>
+              </div>
+
+              ${item.detail ? `
+                <div onclick="copyText('${escapeHtml(item.detail)}','내용')" class="text-xs text-slate-700 bg-slate-50 hover:bg-teal-50/40 p-2 rounded-lg border border-slate-200 mt-1 cursor-pointer select-none">
+                  <div class="line-clamp-2 leading-relaxed">${escapeHtml(item.detail)}</div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 우측 액션: 상태 셀렉트 및 삭제 -->
+            <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center mt-1 sm:mt-0">
+              <select onchange="changeStatus('${item.typeKind}', ${item.id}, this.value)" class="text-xs font-bold px-2 py-1.5 rounded-lg border bg-white border-slate-300 focus:outline-none cursor-pointer">
+                ${statusOptions.map(opt => `<option value="${opt}" ${item.status === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+              </select>
+              <button onclick="deleteUnifiedItem('${item.typeKind}', ${item.id}, '${escapeHtml(item.title)}')" class="px-2 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs">삭제</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderReservedBox(list) {
+      const box = document.getElementById('counter-reserve-container');
+      if (!list.length) {
+        box.innerHTML = `<div class="text-xs text-amber-700/70 py-2 text-center">보관함에 대기 중인 예약 환자가 없습니다.</div>`;
+        return;
+      }
+      box.innerHTML = list.map(item => `
+        <div class="bg-white p-2.5 rounded-lg border border-amber-200 flex items-center justify-between gap-2 shadow-xs">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="bg-amber-100 text-amber-900 font-bold text-[10px] px-1.5 py-0.5 rounded">예약대기</span>
+            <span class="font-bold text-xs text-slate-800 truncate">${escapeHtml(item.title)}</span>
+            <span class="text-[11px] text-slate-500">(${escapeHtml(item.subtitle)})</span>
+            <span class="text-[11px] text-indigo-600 font-medium">${item.scheduled ? `📅 ${item.scheduled}` : ''}</span>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="changeStatus('${item.typeKind}', ${item.id}, '접수대기')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold">🐾 내원함 (대기 복귀)</button>
+            <button onclick="deleteUnifiedItem('${item.typeKind}', ${item.id}, '${escapeHtml(item.title)}')" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded text-[11px] font-bold border border-slate-200">삭제</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 4. 상태 변경 및 삭제 라우팅
+    async function changeStatus(typeKind, id, newStatus) {
+      try {
+        const url = typeKind === 'VISIT' ? `/api/visits/${id}` : '/api/receptions';
+        const body = typeKind === 'VISIT' ? { status: newStatus } : { id, status: newStatus };
+        const res = await fetch(url, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('상태 변경 실패');
+        showToast('상태가 변경되었습니다.');
+        fetchAllData();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function deleteUnifiedItem(typeKind, id, title) {
+      if (!confirm(`[${title}] 내역을 삭제 또는 숨김 처리할까요?`)) return;
+      try {
+        if (typeKind === 'VISIT') {
+          const res = await fetch(`/api/visits/${id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error('방문 내역 삭제 실패');
+        } else {
+          // 진료는 DB 보존을 위해 목록숨김 처리
+          const res = await fetch('/api/receptions', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, status: '목록숨김' })
+          });
+          if (!res.ok) throw new Error('진료 접수 숨김 실패');
+        }
+        showToast(`[${title}] 처리 완료`);
+        fetchAllData();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // 5. 모달 및 유틸
+    function openVisitModal(v) {
+      const meta = document.getElementById('modalMeta');
+      meta.innerHTML = `
+        <div><b class="text-slate-400 block">방문자</b><span>${v.visitor_name || '-'}</span></div>
+        <div><b class="text-slate-400 block">연락처</b><span>${v.phone || '-'}</span></div>
+        <div><b class="text-slate-400 block">동물/업체</b><span>${v.animal_name || '-'}</span></div>
+        <div><b class="text-slate-400 block">방문 목적</b><span>${v.purpose || '-'}</span></div>
+        <div><b class="text-slate-400 block">방문 예정</b><span>${v.scheduled_at ? new Date(v.scheduled_at).toLocaleString('ko-KR') : '즉시/미정'}</span></div>
+        <div><b class="text-slate-400 block">접수 시각</b><span>${v.created_at ? new Date(v.created_at).toLocaleString('ko-KR') : '-'}</span></div>
+      `;
+      document.getElementById('modalDetails').innerText = v.request_details || '작성된 요청 사항이 없습니다.';
+      document.getElementById('detailModal').classList.remove('hidden');
+      document.getElementById('detailModal').classList.add('flex');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      document.getElementById('detailModal').classList.remove('flex');
+    }
+
+    function copyText(text, label = '텍스트') {
+      if (!text || text === '-') return;
+      navigator.clipboard.writeText(text).then(() => showToast(`📋 ${label} 복사 완료!`));
+    }
+
+    function escapeHtml(val) {
+      return String(val ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
     }
 
     function toggleCounterReserveBox() {
@@ -468,686 +496,31 @@
       }
     }
 
-    async function fetchReceptions(manual = false) {
-      try {
-        const res = await fetch('/api/receptions');
-        const data = await res.json();
-        if (!Array.isArray(data)) return;
-
-        currentList = data;
-
-        let waiting = 0, progress = 0, done = 0, reserved = 0;
-        let hasNew = false;
-
-        data.forEach(item => {
-          // 목록숨김 상태는 접수 현황 통계와 신규 알림에서 제외
-          if (item.status === '목록숨김') return;
-
-          const isWait = (item.status === '접수대기' || item.status === '대기');
-          const isProg = (item.status === '진료중');
-          const isComp = (item.status === '완료');
-          const isRes = (item.status === '예약대기');
-
-          if (isWait) waiting++;
-          else if (isProg) progress++;
-          else if (isComp) done++;
-          else if (isRes) reserved++;
-
-          if (!isFirstLoad && !knownIds.has(item.id) && isWait) {
-            hasNew = true;
-          }
-        });
-
-        document.getElementById('count-waiting').innerText = waiting;
-        document.getElementById('count-progress').innerText = progress;
-        document.getElementById('count-done').innerText = done;
-        document.getElementById('count-reserved').innerText = reserved;
-        document.getElementById('box-reserved-count').innerText = reserved;
-
-        if (hasNew) playDingDong();
-
-        knownIds = new Set(data.map(d => d.id));
-        isFirstLoad = false;
-
-        renderList(data);
-      } catch (e) {
-        console.error("조회 실패:", e);
-      }
+    // 6. 방문·상담 엑셀 다운로드
+    function exportVisitExcel() {
+      if (!window.XLSX) { alert('엑셀 모듈이 로드되지 않았습니다.'); return; }
+      if (!rawVisits.length) { alert('다운로드할 방문·상담 내역이 없습니다.'); return; }
+      const headers = ['접수번호', '접수시각', '방문예정', '방문자', '연락처', '동물/업체', '목적', '요청사항', '상태'];
+      const rows = rawVisits.map(x => [
+        x.id ?? '',
+        x.created_at ? new Date(x.created_at).toLocaleString('ko-KR') : '',
+        x.scheduled_at ? new Date(x.scheduled_at).toLocaleString('ko-KR') : '',
+        x.visitor_name || '',
+        x.phone || '',
+        x.animal_name || '',
+        x.purpose || '',
+        x.request_details || '',
+        x.status || ''
+      ]);
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '방문상담');
+      XLSX.writeFile(wb, `방문상담_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
-    function unwrapPayload(raw) {
-      if (!raw) return {};
-      let current = raw;
-      try {
-        while (typeof current === 'string') {
-          current = JSON.parse(current);
-        }
-      } catch (e) {}
-      return (current && typeof current === 'object') ? current : {};
-    }
-
-    function getBirthDate(payload, item) {
-      return payload.birth_date || payload.birthDate || payload.birth || payload.birthday || item.birth_date || item.birthday || '';
-    }
-
-    function calculateAgeText(birthDateValue) {
-      if (!birthDateValue) return '';
-      const match = String(birthDateValue).trim().match(/^(\d{4})[.\-/년 ]\s*(\d{1,2})?(?:[.\-/월 ]\s*(\d{1,2})일?)?$/);
-      if (!match) return '';
-
-      const year = Number(match[1]);
-      const month = match[2] ? Number(match[2]) : 1;
-      const day = match[3] ? Number(match[3]) : 1;
-      if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31) return '';
-
-      const birth = new Date(year, month - 1, day);
-      if (birth.getFullYear() !== year || birth.getMonth() !== month - 1 || birth.getDate() !== day) return '';
-
-      const today = new Date();
-      if (birth > today) return '';
-
-      let years = today.getFullYear() - year;
-      let months = today.getMonth() - (month - 1);
-      if (today.getDate() < day) months--;
-      if (months < 0) {
-        years--;
-        months += 12;
-      }
-      if (years < 0) return '';
-      if (years === 0) return `${months}개월`;
-      return months === 0 ? `${years}년` : `${years}년 ${months}개월`;
-    }
-
-    function getGenderText(payload, item) {
-      const rawGender = (payload.gender || item.gender || '').trim().toLowerCase();
-      const neuteredRaw = payload.neutered ?? payload.is_neutered ?? item.neutered;
-      const neutered = neuteredRaw === true || neuteredRaw === 'true'
-        || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1
-        || neuteredRaw === '1';
-
-      let symbol = '';
-      if (['수컷', '남', 'male', 'm', '♂'].includes(rawGender)) symbol = '♂';
-      else if (['암컷', '여', 'female', 'f', '♀'].includes(rawGender)) symbol = '♀';
-      else if (rawGender) return `${payload.gender || item.gender}${neutered ? ' ✓' : ''}`;
-
-      if (!symbol) return '';
-      return neutered ? `${symbol}✓` : symbol;
-    }
-
-    function getPetCharacter(payload, item) {
-      const val = payload.character 
-        || payload.personality 
-        || payload.temperament 
-        || payload.temper 
-        || payload.traits 
-        || item.character 
-        || item.personality 
-        || '';
-      if (Array.isArray(val)) return val.join(', ');
-      return typeof val === 'string' ? val.trim() : '';
-    }
-
-    // ==========================================================
-    // 🎨 [목록 렌더링: 예약대기는 메인 목록에서 숨기고 보관함으로 분리]
-    // ==========================================================
-    function renderList(list) {
-      const container = document.getElementById('list-container');
-      const reserveContainer = document.getElementById('counter-reserve-container');
-
-      // 1. 예약대기 환자 분리
-      // 목록숨김은 접수 원본은 유지하되 현황판에서만 제외
-      const visibleList = list.filter(item => item.status !== '목록숨김');
-      const activeList = visibleList.filter(item => item.status !== '예약대기' && item.status !== '완료');
-      const reservedList = visibleList.filter(item => item.status === '예약대기');
-
-      // 예약대기 보관함 렌더링
-      if (reservedList.length === 0) {
-        reserveContainer.innerHTML = `<div class="text-xs text-amber-700/70 py-2 text-center">보관함에 대기 중인 예약 환자가 없습니다.</div>`;
-      } else {
-        reserveContainer.innerHTML = reservedList.map(item => {
-          const payload = unwrapPayload(item.payload);
-          const safePetName = (item.pet_name || '환자').replace(/'/g, "\\'");
-          return `
-            <div class="bg-white p-2.5 rounded-lg border border-amber-200 flex items-center justify-between gap-2 shadow-xs">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="bg-amber-100 text-amber-900 font-bold text-[10px] px-1.5 py-0.5 rounded">예약대기</span>
-                <span class="font-bold text-xs text-slate-800 truncate">${item.pet_name || '이름 없음'}</span>
-                <span class="text-[11px] text-slate-500">(${payload.guardian_name || item.owner_name || '보호자'})</span>
-                <span class="text-[11px] text-indigo-600 font-medium">${payload.expected_date ? `📅 ${payload.expected_date}` : ''}</span>
-              </div>
-              <div class="flex items-center gap-1.5 shrink-0">
-                <button onclick="updateStatus(${item.id}, '접수대기')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold transition shadow-xs">
-                  🐾 내원함 (대기 복귀)
-                </button>
-                <button onclick="deleteReception(${item.id}, '${safePetName}')" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded text-[11px] font-bold border border-slate-200 transition">
-                  삭제
-                </button>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-
-      // 2. 오늘 내원 접수 리스트 렌더링
-      if (activeList.length === 0) {
-        container.innerHTML = `<div class="bg-white p-8 text-center rounded-xl border border-slate-200 text-slate-400 text-xs">현재 대기 중인 접수 환자가 없습니다.</div>`;
-        return;
-      }
-
-      container.innerHTML = activeList.map(item => {
-        const payload = unwrapPayload(item.payload);
-
-        const isFirst = item.type === 'FIRST' || item.type === '초진';
-        const typeBadge = isFirst
-          ? `<span class="bg-sky-100 text-sky-800 text-[10px] px-1.5 py-0.5 rounded font-bold">초진</span>`
-          : `<span class="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded font-bold">재진</span>`;
-
-        const isWait = (item.status === '접수대기' || item.status === '대기');
-        const isProg = (item.status === '진료중');
-        const isComp = (item.status === '완료');
-        const isRes = (item.status === '예약대기');
-
-        let statusClass = "bg-amber-50 text-amber-700 border-amber-200";
-        if (isProg) statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-        if (isComp) statusClass = "bg-slate-100 text-slate-400 border-slate-200";
-        if (isRes) statusClass = "bg-amber-100 text-amber-900 border-amber-300";
-
-        const downloadBtn = `
-          <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2 py-0.5 text-[11px] font-semibold rounded ${isFirst ? 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-200' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'} transition flex items-center gap-1 border shadow-sm">
-            📄 A4 ${isFirst ? '초진 동의서' : '재진 기록'}
-          </button>
-        `;
-
-        const dateStrRaw = item.created_at ? item.created_at.replace(' ', 'T') : '';
-        const timeStr = dateStrRaw ? new Date(dateStrRaw).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '';
-        const phone = item.phone || item.owner_phone || '-';
-        const email = (payload.email || item.email || '').trim();
-
-        const birthDateVal = getBirthDate(payload, item);
-        const ageText = calculateAgeText(birthDateVal);
-
-        const speciesText = String(payload.species || item.species || '').trim().toLowerCase();
-        const breedText = String(payload.breed || item.breed || '').trim().toLowerCase();
-        const isHamster = speciesText.includes('햄스터') || speciesText.includes('hamster')
-          || breedText.includes('햄스터') || breedText.includes('hamster');
-
-        const ageYearsMatch = ageText.match(/^(\d+)년/);
-        const ageMonthsMatch = ageText.match(/^(\d+)개월$/);
-        const ageYearPart = ageYearsMatch ? Number(ageYearsMatch[1]) : 0;
-        const ageMonthPart = ageText.match(/년\s*(\d+)개월/);
-        const ageMonthsOnly = ageMonthsMatch ? Number(ageMonthsMatch[1]) : 0;
-        const totalAgeMonths = ageMonthsMatch
-          ? ageMonthsOnly
-          : (ageYearPart * 12) + (ageMonthPart ? Number(ageMonthPart[1]) : 0);
-        const isSeniorPatient = isHamster
-          ? totalAgeMonths >= 18
-          : ageYearPart >= 10;
-
-        const seniorWarningText = isHamster
-          ? '햄스터 1년 6개월 이상 - 고령 환자 주의'
-          : '10년 이상 고령 환자 - 주의 깊은 확인 필요';
-
-        const birthBadge = birthDateVal
-          ? ` · 🎂 ${birthDateVal}${ageText ? ` <span class="inline-flex items-center ml-0.5 px-1.5 py-0.2 rounded-full ${isSeniorPatient ? 'bg-red-100 border border-red-600 text-red-900 font-black' : 'bg-violet-50 border border-violet-200 text-violet-800 font-bold'} text-[10px]" ${isSeniorPatient ? `title="${seniorWarningText}"` : ''}>${ageText}</span>` : ''}`
-          : '';
-        const genderVal = getGenderText(payload, item);
-
-        function getGenderBadgeHtml(value) {
-          if (value === '♂✓') return `<span class="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.2 rounded bg-violet-50 border border-violet-400 text-violet-900 font-bold text-[10px]" title="중성화수컷">♂✓</span>`;
-          if (value === '♀✓') return `<span class="inline-flex items-center gap-0.5 ml-1 px-1.5 py-0.2 rounded bg-violet-50 border border-violet-400 text-violet-900 font-bold text-[10px]" title="중성화암컷">♀✓</span>`;
-          if (value === '♂') return `<span class="inline-flex items-center ml-1 px-1.5 py-0.2 rounded bg-blue-50 border border-blue-400 text-blue-700 font-bold text-xs" title="수컷">♂</span>`;
-          if (value === '♀') return `<span class="inline-flex items-center ml-1 px-1.5 py-0.2 rounded bg-rose-50 border border-rose-400 text-rose-600 font-bold text-xs" title="암컷">♀</span>`;
-          return value ? `<span class="ml-1 font-semibold text-xs">${value}</span>` : '';
-        }
-        const genderBadge = getGenderBadgeHtml(genderVal);
-
-        const characterVal = getPetCharacter(payload, item);
-        const characterBadge = characterVal ? `
-          <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-            🐾 ${characterVal}
-          </span>
-        ` : '';
-
-        const displayReason = (payload.reason && payload.reason.trim())
-          || (item.symptom && item.symptom.trim())
-          || (item.symptoms && item.symptoms.trim())
-          || '기재된 내원 사유가 없습니다.';
-
-        let scheduleBadge = '';
-        if (payload.expected_date || payload.expected_time) {
-          const dStr = payload.expected_date || '';
-          const tSlot = payload.expected_time ? `(${payload.expected_time})` : '';
-          scheduleBadge = `
-            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              📅 ${dStr} ${tSlot}
-            </span>
-          `;
-        }
-
-        let treatmentsArray = [];
-        if (Array.isArray(payload.treatments)) treatmentsArray = payload.treatments;
-        else if (Array.isArray(payload.extras)) treatmentsArray = payload.extras;
-
-        let treatmentsHtml = '';
-        if (treatmentsArray.length > 0) {
-          treatmentsHtml = `
-            <div class="flex flex-wrap items-center gap-1 mt-1">
-              <span class="text-[10px] font-bold text-slate-500 mr-0.5">추가:</span>
-              ${treatmentsArray.map(t => `
-                <span class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-teal-50 text-[#0d9488] border border-teal-200">
-                  + ${t}
-                </span>
-              `).join('')}
-            </div>
-          `;
-        }
-
-        const phoneButtonHtml = (phone && phone !== '-') ? `
-          <button 
-            type="button" 
-            onclick="copyText('${phone}', '전화번호')" 
-            title="클릭 시 전화번호가 복사됩니다"
-            class="inline-flex items-center gap-1 font-mono font-bold text-slate-900 bg-slate-100 hover:bg-teal-50 hover:text-teal-800 px-1.5 py-0.5 rounded border border-slate-200 hover:border-teal-300 transition group cursor-pointer text-xs"
-          >
-            <span>${phone}</span>
-          </button>
-        ` : `<strong>-</strong>`;
-
-        const emailButtonHtml = email ? `
-          <button 
-            type="button" 
-            onclick="copyText('${email}', '이메일')" 
-            title="클릭 시 이메일이 복사됩니다"
-            class="inline-flex items-center gap-1 font-mono text-[10px] font-semibold text-slate-700 bg-slate-100 hover:bg-sky-50 px-1.5 py-0.5 rounded border border-slate-200 transition group cursor-pointer"
-          >
-            <span>✉️ ${email}</span>
-          </button>
-        ` : '';
-
-        const safePetName = (item.pet_name || '환자').replace(/'/g, "\\'");
-
-        return `
-          <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 hover:border-slate-300 transition">
-            <div class="space-y-1 flex-1 min-w-0 w-full">
-              <div class="flex flex-wrap items-center gap-1.5">
-                ${typeBadge}
-                <h3 class="text-base font-bold text-slate-900">${item.pet_name || '이름 없음'}</h3>
-                <span class="text-[11px] text-slate-400 font-mono">${timeStr}</span>
-                ${scheduleBadge}
-                ${characterBadge}
-                ${downloadBtn}
-              </div>
-
-              <div class="text-xs text-slate-600 flex flex-wrap items-center gap-1">
-                <span>보호자:</span>
-                ${phoneButtonHtml}
-                ${emailButtonHtml}
-                <span>${payload.guardian_name || item.owner_name ? `(${payload.guardian_name || item.owner_name})` : ''}</span>
-                <span class="text-slate-500 font-medium">${payload.breed ? ` · ${payload.breed}` : ''}${genderBadge}${birthBadge}${payload.weight ? ` · ${payload.weight}kg` : ''}</span>
-              </div>
-
-              <div 
-                onclick="copyReason(${item.id})" 
-                title="클릭 시 내원 사유가 복사됩니다"
-                class="group relative text-xs text-slate-700 bg-slate-50 hover:bg-teal-50/40 p-2.5 rounded-lg border border-slate-200 hover:border-teal-300 transition mt-1.5 cursor-pointer select-none"
-              >
-                <div class="flex justify-between items-center mb-0.5">
-                  <strong class="text-slate-800 text-[11px]">[내원 사유]</strong>
-                  <span class="text-[10px] font-bold text-slate-400 group-hover:text-teal-700 flex items-center gap-0.5 transition">
-                    <span>클릭하여 복사</span>
-                  </span>
-                </div>
-                <div class="leading-relaxed whitespace-pre-line text-slate-700 text-xs">${displayReason}</div>
-              </div>
-
-              ${treatmentsHtml}
-            </div>
-
-            <!-- 우측 액션: 📅 예약대기 옵션이 추가된 상태 드롭다운 & 삭제 버튼 -->
-            <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center mt-1 sm:mt-0">
-              <select onchange="updateStatus(${item.id}, this.value)" class="text-xs font-bold px-2 py-1.5 rounded-lg border ${statusClass} focus:outline-none cursor-pointer">
-                <option value="접수대기" ${isWait ? 'selected' : ''}>⏳ 대기</option>
-                <option value="예약대기" ${isRes ? 'selected' : ''}>📅 예약대기 (목록서 숨김)</option>
-                <option value="진료중" ${isProg ? 'selected' : ''}>🩺 진료중</option>
-                <option value="완료" ${isComp ? 'selected' : ''}>✅ 완료</option>
-              </select>
-
-              <button 
-                type="button" 
-                onclick="deleteReception(${item.id}, '${safePetName}')" 
-                title="접수 내역 처리"
-                class="px-2 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center gap-0.5 transition shadow-sm"
-              >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <span>삭제</span>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function updateStatus(id, newStatus) {
-      try {
-        await fetch('/api/receptions', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, status: newStatus })
-        });
-        showToast(
-          newStatus === '예약대기'
-            ? '📅 예약대기로 보관되었습니다.'
-            : newStatus === '목록숨김'
-              ? '📁 접수 목록에서 숨겼습니다. 원본과 A4 기록은 보존됩니다.'
-              : '상태가 변경되었습니다.'
-        );
-        fetchReceptions();
-      } catch (err) {
-        alert('상태 변경 실패: ' + err.message);
-      }
-    }
-
-    function getReceptionImagePin() {
-      if (receptionImagePin) return receptionImagePin;
-      const entered = prompt('A4 접수 이미지를 저장하거나 검색하려면 관리자 PIN을 입력하세요:');
-      if (entered === null) return '';
-      receptionImagePin = entered.trim();
-      return receptionImagePin;
-    }
-
-    async function apiImageRequest(url, options = {}) {
-      const pin = getReceptionImagePin();
-      if (!pin) throw new Error('관리자 PIN 입력이 취소되었거나 비어 있습니다.');
-      const headers = { ...(options.headers || {}), 'X-Counter-Pin': pin };
-      const response = await fetch(url, { ...options, headers });
-      if (response.status === 401) {
-        receptionImagePin = '';
-        throw new Error('관리자 PIN이 올바르지 않습니다. 다시 시도해 주세요.');
-      }
-      return response;
-    }
-
-    function fillRevisitSheet(item, payload) {
-      const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value || '-'; };
-      set('rev-doc-id', `접수번호: #${item.id}`);
-      set('rev-doc-date', `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`);
-      set('rev-doc-pet', item.pet_name || '이름 없음');
-      set('rev-doc-type', '재진');
-      set('rev-doc-guardian', payload.guardian_name || item.owner_name || '미기재');
-      set('rev-doc-phone', item.phone || item.owner_phone || '미기재');
-      set('rev-doc-species', `${payload.species || item.species || '반려동물'} / ${payload.breed || item.breed || '미기재'}`);
-      set('rev-doc-details', `${payload.gender || item.gender || '성별 미기재'} / ${payload.weight ? payload.weight + ' kg' : '체중 미기재'}`);
-      set('rev-doc-reason', payload.reason || item.symptom || item.symptoms || '기재된 내원 사유가 없습니다.');
-      const treatments = Array.isArray(payload.treatments) ? payload.treatments : (Array.isArray(payload.extras) ? payload.extras : []);
-      set('rev-doc-treatments', treatments.length ? treatments.join('  |  ') : '선택 처치 없음');
-    }
-
-    async function downloadIntakeSheet(item) {
-      const payload = unwrapPayload(item.payload);
-      const isFirst = item.type === 'FIRST' || item.type === '초진';
-      const sheetElement = document.getElementById(isFirst ? 'print-sheet' : 'revisit-print-sheet');
-
-      if (isFirst) {
-        // 기존 초진 동의서 양식 및 전자서명 구성은 그대로 유지
-        document.getElementById('doc-id').innerText = `접수번호: #${item.id}`;
-        document.getElementById('doc-date').innerText = `접수일시: ${item.created_at || new Date().toLocaleString('ko-KR')}`;
-        const guardian = payload.guardian_name || item.owner_name || '미기재';
-        document.getElementById('doc-guardian').innerText = guardian;
-        document.getElementById('doc-sign-guardian').innerText = guardian;
-        document.getElementById('doc-phone').innerText = item.phone || item.owner_phone || '-';
-        document.getElementById('doc-address').innerText = payload.address || '미기재';
-        document.getElementById('doc-email').innerText = (payload.email || item.email || '').trim();
-        document.getElementById('doc-pet').innerText = item.pet_name || '-';
-        document.getElementById('doc-species').innerText = `${payload.species || '반려동물'} / ${payload.breed || '미기재'}`;
-
-        const genderSymbol = getGenderText(payload, item);
-        const neuteredRaw = payload.neutered ?? payload.is_neutered ?? item.neutered;
-        const isNeutered = neuteredRaw === true || neuteredRaw === 'true' || neuteredRaw === 'Y' || neuteredRaw === 'y' || neuteredRaw === 1 || neuteredRaw === '1';
-        const rawGender = String(payload.gender || item.gender || '').trim().toLowerCase();
-        const isFemale = ['암컷', '여', 'female', 'f', '♀'].includes(rawGender);
-        const isMale = ['수컷', '남', 'male', 'm', '♂'].includes(rawGender);
-        const genderLabel = isFemale ? '암컷' : isMale ? '수컷' : (payload.gender || item.gender || '성별 미선택');
-        const genderColor = isFemale ? 'text-rose-600' : isMale ? 'text-blue-700' : 'text-slate-700';
-        const neuterColor = isNeutered ? 'text-violet-800 font-extrabold' : 'text-slate-600';
-        document.getElementById('doc-gender').innerHTML = `<span class="${genderColor} font-black text-base">${genderSymbol || ''} ${genderLabel}</span> <span class="${neuterColor}">· ${isNeutered ? '중성화' : '미중성화'}</span>`;
-
-        const bDate = getBirthDate(payload, item) || '미기재';
-        const ageText = calculateAgeText(bDate);
-        const wt = payload.weight ? `${payload.weight} kg` : '미기재';
-        document.getElementById('doc-birth-weight').innerHTML = `<span>${bDate}</span>${ageText ? ` <span style="display:inline-block;margin-left:4px;padding:2px 7px;border-radius:999px;background:#fef3c7;border:1px solid #c4b5fd;color:#5b21b6;font-weight:800;">${ageText}</span>` : ''} <span style="color:#64748b;"> / ${wt}</span>`;
-        document.getElementById('doc-character').innerText = getPetCharacter(payload, item) || '특이사항 없음';
-        document.getElementById('doc-reason').innerText = payload.reason || item.symptom || '기재된 증상 없음';
-        const treatments = Array.isArray(payload.treatments) ? payload.treatments : (Array.isArray(payload.extras) ? payload.extras : []);
-        document.getElementById('doc-treatments').innerText = treatments.length ? treatments.join('  |   ') : '선택 처치 없음';
-        const sigImg = document.getElementById('doc-signature-img');
-        const noSigText = document.getElementById('doc-no-sign');
-        if (payload.signature && payload.signature.startsWith('data:image')) {
-          sigImg.src = payload.signature; sigImg.classList.remove('hidden'); noSigText.classList.add('hidden');
-        } else { sigImg.classList.add('hidden'); noSigText.classList.remove('hidden'); }
-      } else {
-        fillRevisitSheet(item, payload);
-      }
-
-      try {
-        const canvas = await html2canvas(sheetElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-        const imageURL = canvas.toDataURL('image/png');
-        const petName = (item.pet_name || '환자').trim();
-        const cleanPhone = (item.phone || item.owner_phone || '0000').replace(/\D/g, '').slice(-4);
-        const visitType = isFirst ? '초진' : '재진';
-        const downloadFilename = makeReceptionPngFilename(petName, (item.created_at || new Date().toISOString()).slice(0, 10), visitType);
-
-        // 기존 PC 다운로드와 미리보기는 클라우드 상태와 관계없이 먼저 제공
-        const link = document.createElement('a');
-        link.download = downloadFilename;
-        link.href = imageURL;
-        link.click();
-        openImagePreview(imageURL, `${petName} ${visitType} A4 기록 미리보기`, downloadFilename);
-
-        // R2 원본 이미지와 D1 검색용 메타데이터 저장
-        showToast('☁️ A4 이미지를 클라우드에 저장하고 있습니다...');
-        try {
-          const saveResponse = await apiImageRequest('/api/reception-images', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              image_data: imageURL,
-              reception_id: Number.isFinite(Number(item.id)) ? Number(item.id) : null,
-              pet_name: petName,
-              phone: item.phone || item.owner_phone || '',
-              visit_type: visitType,
-              created_at: item.created_at || new Date().toISOString()
-            })
-          });
-          const saveResult = await saveResponse.json();
-          if (!saveResponse.ok || !saveResult.success) throw new Error(saveResult.error || '클라우드 저장에 실패했습니다.');
-          document.getElementById('imagePreviewTitle').textContent = `${petName} ${visitType} A4 기록 (클라우드 저장 완료)`;
-          showToast(`☁️ ${petName} ${visitType} A4 기록이 클라우드에 저장되었습니다. (번호 ${saveResult.image_id})`);
-        } catch (saveError) {
-          console.error('클라우드 저장 오류:', saveError);
-          showToast('⚠️ PNG는 생성됐지만 클라우드 저장은 실패했습니다.');
-          alert('PNG 파일은 생성했지만 클라우드 저장에 실패했습니다.\n' + saveError.message);
-        }
-      } catch (err) {
-        console.error('A4 이미지 생성 오류:', err);
-        alert('A4 이미지 생성 실패: ' + err.message);
-      }
-    }
-
-    function makeReceptionPngFilename(petName, visitDate, visitType) {
-      const safeName = String(petName || '환자').replace(/[\\/:*?"<>|\x00-\x1f]/g, '_').trim() || '환자';
-      const safeDate = String(visitDate || new Date().toISOString().slice(0, 10)).slice(0, 10);
-      const typeLabel = visitType === '초진' ? '초진동의서' : '재진기록';
-      return `${safeName}_${safeDate}_${typeLabel}.png`;
-    }
-
-    function openImagePreview(src, title, filename = '접수기록.png') {
-      if (activePreviewObjectUrl && src !== activePreviewObjectUrl) { URL.revokeObjectURL(activePreviewObjectUrl); activePreviewObjectUrl = ''; }
-      document.getElementById('imagePreviewImg').src = src;
-      document.getElementById('imagePreviewTitle').textContent = title || 'A4 접수 기록 미리보기';
-      const downloadLink = document.getElementById('imagePreviewDownload');
-      downloadLink.href = src;
-      downloadLink.download = filename;
-      document.getElementById('imagePreviewModal').classList.remove('hidden');
-      document.getElementById('imagePreviewModal').classList.add('flex');
-    }
-
-    function closeImagePreview() {
-      const modal = document.getElementById('imagePreviewModal');
-      modal.classList.add('hidden'); modal.classList.remove('flex');
-      document.getElementById('imagePreviewImg').src = '';
-      if (activePreviewObjectUrl) { URL.revokeObjectURL(activePreviewObjectUrl); activePreviewObjectUrl = ''; }
-    }
-
-    function openImageSearch() {
-      const modal = document.getElementById('imageSearchModal');
-      modal.classList.remove('hidden'); modal.classList.add('flex');
-      document.getElementById('imageSearchName').focus();
-    }
-    function closeImageSearch() {
-      const modal = document.getElementById('imageSearchModal');
-      modal.classList.add('hidden'); modal.classList.remove('flex');
-    }
-
-    async function searchReceptionImages() {
-      const q = document.getElementById('imageSearchName').value.trim();
-      const phone = document.getElementById('imageSearchPhone').value.trim();
-      const date = document.getElementById('imageSearchDate').value;
-      if (!q && !phone && !date) { alert('동물 이름, 전화번호 또는 날짜 중 하나를 입력해 주세요.'); return; }
-      const params = new URLSearchParams();
-      if (q) params.set('q', q);
-      if (phone) params.set('phone', phone);
-      if (date) params.set('date', date);
-      const resultBox = document.getElementById('imageSearchResults');
-      resultBox.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">검색 중입니다...</p>';
-      try {
-        const response = await apiImageRequest(`/api/reception-images?${params.toString()}`);
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || '검색에 실패했습니다.');
-        const rows = data.results || [];
-        if (!rows.length) { resultBox.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">검색 결과가 없습니다.</p>'; return; }
-        resultBox.innerHTML = rows.map(row => `
-          <button type="button" onclick="openSavedReceptionImage(${Number(row.id)}, decodeURIComponent('${encodeURIComponent(String(row.pet_name || '환자')).replace(/'/g, '%27')}'), decodeURIComponent('${encodeURIComponent(String(row.visit_date || '')).replace(/'/g, '%27')}'), decodeURIComponent('${encodeURIComponent(String(row.visit_type || '접수')).replace(/'/g, '%27')}'))" class="w-full text-left border rounded-lg p-3 hover:bg-indigo-50 hover:border-indigo-300 transition flex items-center justify-between gap-3">
-            <span class="min-w-0"><strong class="text-sm text-slate-800">${escapeHtml(row.pet_name || '이름 없음')}</strong><span class="ml-2 text-xs rounded px-1.5 py-0.5 ${row.visit_type === '초진' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}">${escapeHtml(row.visit_type || '접수')}</span><span class="block text-xs text-slate-500 mt-1">${escapeHtml(row.phone || '전화번호 없음')} · ${escapeHtml(row.visit_date || '')}</span></span>
-            <span class="text-indigo-600 text-xs font-bold shrink-0">이미지 열기 →</span>
-          </button>`).join('');
-      } catch (err) {
-        resultBox.innerHTML = `<p class="text-sm text-rose-600 text-center py-6">${escapeHtml(err.message)}</p>`;
-      }
-    }
-
-    async function openSavedReceptionImage(id, petName = '환자', visitDate = '', visitType = '접수') {
-      try {
-        const response = await apiImageRequest(`/api/reception-images?id=${encodeURIComponent(id)}`);
-        if (!response.ok) {
-          let message = '이미지를 불러오지 못했습니다.';
-          try { const data = await response.json(); message = data.error || message; } catch (_) {}
-          throw new Error(message);
-        }
-        const blob = await response.blob();
-        if (activePreviewObjectUrl) URL.revokeObjectURL(activePreviewObjectUrl);
-        activePreviewObjectUrl = URL.createObjectURL(blob);
-        const filename = makeReceptionPngFilename(petName, visitDate, visitType);
-        openImagePreview(activePreviewObjectUrl, `${petName} ${visitType} 접수 기록 · 이미지 번호 ${id}`, filename);
-      } catch (err) { alert('이미지 열기 실패: ' + err.message); }
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
-    }
-
-    fetchReceptions();
-    setInterval(() => fetchReceptions(), 5000);
-
-    // 공지사항 관리 스크립트
-    async function loadNoticeFromDB() {
-      try {
-        const res = await fetch('/api/notice');
-        if (res.ok) {
-          const data = await res.json();
-          const input = document.getElementById('adminNoticeInput');
-          if (input && data.notice !== undefined) {
-            input.value = data.notice;
-          }
-        }
-      } catch (err) {
-        console.error('공지 로드 오류:', err);
-      }
-    }
-
-    async function saveNoticeToDB() {
-      const input = document.getElementById('adminNoticeInput');
-      const text = input ? input.value.trim() : '';
-      const btn = document.getElementById('btnNoticeSave');
-
-      const enteredPin = prompt('공지사항을 등록/수정하려면 관리자 비밀번호(PIN)를 입력하세요:');
-      if (enteredPin === null) return;
-      if (!enteredPin.trim()) {
-        alert('비밀번호를 입력해야 합니다.');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = '저장 중...';
-
-      try {
-        const res = await fetch('/api/notice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            notice: text, 
-            pin: enteredPin.trim() 
-          })
-        });
-        
-        const result = await res.json();
-
-        if (res.ok && result.success) {
-          showToast('📢 공지가 키오스크에 반영되었습니다.');
-        } else {
-          alert(result.message || '인증에 실패했습니다. 비밀번호를 확인해 주세요.');
-        }
-      } catch (err) {
-        alert('네트워크 오류가 발생했습니다.');
-      } finally {
-        btn.disabled = false;
-        btn.innerText = '게시';
-      }
-    }
-
-    async function clearNoticeInDB() {
-      const enteredPin = prompt('공지사항을 지우시겠습니까? 관리자 비밀번호(PIN)를 입력하세요:');
-      if (enteredPin === null) return;
-      if (!enteredPin.trim()) {
-        alert('비밀번호를 입력해야 합니다.');
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/notice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            notice: '', 
-            pin: enteredPin.trim() 
-          })
-        });
-
-        const result = await res.json();
-
-        if (res.ok && result.success) {
-          document.getElementById('adminNoticeInput').value = '';
-          showToast('🗑️ 공지사항이 삭제되었습니다.');
-        } else {
-          alert(result.message || '비밀번호가 올바르지 않습니다.');
-        }
-      } catch (err) {
-        alert('오류가 발생했습니다.');
-      }
-    }
-
-    loadNoticeFromDB();
+    // 초기 실행 및 5초 주기 폴링
+    fetchAllData();
+    setInterval(fetchAllData, 5000);
   </script>
 </body>
 </html>
