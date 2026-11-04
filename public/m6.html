@@ -277,9 +277,10 @@
   <!-- [3] QR접수 환자 관리 -->
   <div class="card">
     <h2>
-      <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
+      <span>📱 QR·방문상담 접수 관리 <span class="badge-range">통합 대기목록</span></span>
       <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
         <span id="qr-sync-status" class="auto-notice">⚡ 서버 확인 중...</span>
+        <button type="button" onclick="resetVisitAdminToken()" style="padding:5px 9px;border:1px solid #94a3b8;background:#f8fafc;color:#334155;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;">🔑 상담 연결</button>
         <button type="button" id="qr-restore-hidden-btn" onclick="restoreHiddenQrItems()" style="display:none;padding:5px 9px;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;">숨김 접수 복원</button>
       </span>
     </h2>
@@ -303,6 +304,9 @@
 <script>
 const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
+const VISITS_API = "/api/visits";
+let visitAuthPrompted = false;
+let visitStatusCache = {};
 const CATEGORIES = ["단순관리", "코드블루", "4days", "호스피스", "수술관리", "심폐관리", "신부전", "종양관리", "골관절", "피부알러지", "발작경련", "추적관리", "호르몬장애", "특수관리"];
 
 let isUserInputting = false;
@@ -362,7 +366,10 @@ setInterval(() => {
   const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
   const statuses = GlobalState.qrStatuses || {};
   Object.keys(qrTimers).forEach(key => {
-    if(statuses[key] === "진료중" && qrTimers[key]?.start){
+    const currentStatus = key.startsWith("v_")
+      ? visitStatusCache[key]
+      : statuses[key];
+    if(currentStatus === "진료중" && qrTimers[key]?.start){
       const el = document.getElementById(`timer-qr-${key}`);
       if(el) el.textContent = `⏱️ ${getElapsedText(qrTimers[key].start)}`;
     }
@@ -544,32 +551,129 @@ function renderManualTable(){
   });
 }
 
+// 방문상담 관리자 토큰: 기존 visits-admin에서 사용하는 ADMIN_TOKEN과 동일한 값
+function getVisitAdminToken(){
+  let token = sessionStorage.getItem("visit_admin_token") || "";
+  if(!token && !visitAuthPrompted){
+    visitAuthPrompted = true;
+    const entered = prompt("M6에서 방문상담 접수 목록을 불러오려면 방문상담 ADMIN_TOKEN을 입력하세요.");
+    if(entered && entered.trim()){
+      token = entered.trim();
+      sessionStorage.setItem("visit_admin_token", token);
+    }
+  }
+  return token;
+}
+
+function resetVisitAdminToken(){
+  sessionStorage.removeItem("visit_admin_token");
+  visitAuthPrompted = false;
+  const entered = prompt("방문상담 ADMIN_TOKEN을 입력하세요.");
+  if(entered && entered.trim()){
+    sessionStorage.setItem("visit_admin_token", entered.trim());
+    visitAuthPrompted = true;
+    loadQrList();
+  }
+}
+
+function normalizeVisitStatus(status){
+  const s = String(status || "접수대기");
+  return ({
+    "접수": "접수대기",
+    "처리 중": "진료중",
+    "완료": "진료완료"
+  })[s] || s;
+}
+
 // QR 접수 로직
 async function loadQrList(){
   if(isUserInputting) return;
+
+  const syncStatus = document.getElementById("qr-sync-status");
   try {
-    const res = await fetch(RECEPTION_API, { cache: "no-store" });
-    const receptions = res.ok ? await res.json() : [];
-    const items = Array.isArray(receptions) ? receptions : (receptions.items || []);
+    const token = getVisitAdminToken();
+
+    const [receptionResult, visitResult] = await Promise.allSettled([
+      fetch(RECEPTION_API, { cache: "no-store" }).then(async res => {
+        if(!res.ok) throw new Error("QR 접수 조회 실패");
+        return res.json();
+      }),
+      token
+        ? fetch(VISITS_API, {
+            cache: "no-store",
+            headers: { "Authorization": `Bearer ${token}` }
+          }).then(async res => {
+            if(res.status === 401 || res.status === 403) {
+              sessionStorage.removeItem("visit_admin_token");
+              throw new Error("방문상담 관리자 토큰 인증 실패");
+            }
+            if(!res.ok) throw new Error("방문상담 접수 조회 실패");
+            return res.json();
+          })
+        : Promise.resolve({ items: [] })
+    ]);
+
+    let receptionItems = [];
+    if(receptionResult.status === "fulfilled"){
+      const data = receptionResult.value;
+      receptionItems = Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
+    } else {
+      console.error("QR 접수 조회 오류:", receptionResult.reason);
+    }
+
+    let visitItems = [];
+    let visitError = "";
+    if(visitResult.status === "fulfilled"){
+      const data = visitResult.value;
+      visitItems = Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
+    } else {
+      visitError = visitResult.reason?.message || "방문상담 목록을 불러오지 못했습니다.";
+      console.error("방문상담 조회 오류:", visitResult.reason);
+    }
+
+    // 기존 QR접수 ID와 충돌하지 않도록 방문상담 ID에는 v_ 접두어를 붙입니다.
+    const items = [
+      ...receptionItems.map(item => ({
+        ...item,
+        __m6Source: "QR",
+        __m6Key: String(item.id ?? item.reception_id ?? "")
+      })),
+      ...visitItems.map(item => ({
+        ...item,
+        pet_name: item.animal_name || item.visitor_name || "이름 미입력",
+        __m6Source: "VISIT",
+        __m6Key: `v_${item.id}`,
+        __visitId: item.id
+      }))
+    ].filter(item => item.__m6Key && item.__m6Key !== "v_undefined");
 
     const categories = GlobalState.categories || {};
     const statuses = GlobalState.qrStatuses || {};
     const deleted = GlobalState.qrDeleted || [];
     const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
 
-    const tbody = document.querySelector("#table-qr tbody");
-    if(!tbody) return;
+    const keyOf = item => item.__m6Key || String(item.id ?? item.reception_id ?? "");
+    const statusOf = item => item.__m6Source === "VISIT"
+      ? normalizeVisitStatus(item.status)
+      : (statuses[keyOf(item)] || item.status || "접수대기");
 
-    const hiddenByDeleted = items.filter(i => deleted.includes(String(i.id ?? i.reception_id ?? "")));
-    const hiddenByStatus = items.filter(i => {
-      const k = String(i.id ?? i.reception_id ?? "");
-      const st = statuses[k] || i.status || "접수대기";
-      return !deleted.includes(k) && (st === "자료삭제" || ["취소", "종료"].includes(st));
+    visitStatusCache = {};
+    visitItems.forEach(item => {
+      visitStatusCache[`v_${item.id}`] = normalizeVisitStatus(item.status);
     });
-    const syncStatus = document.getElementById("qr-sync-status");
+
+    const hiddenByDeleted = items.filter(item => deleted.includes(keyOf(item)));
+    const hiddenByStatus = items.filter(item => {
+      const key = keyOf(item);
+      const st = statusOf(item);
+      return !deleted.includes(key) && (st === "자료삭제" || ["취소", "종료"].includes(st));
+    });
+
     const restoreBtn = document.getElementById("qr-restore-hidden-btn");
     if(syncStatus) {
-      syncStatus.textContent = `⚡ QR 서버 연결됨 · ${items.length}건 조회 / ${items.length - hiddenByDeleted.length - hiddenByStatus.length}건 표시 · 숨김 ${hiddenByDeleted.length + hiddenByStatus.length}건`;
+      const base = `⚡ QR ${receptionItems.length}건 · 방문상담 ${visitItems.length}건`;
+      syncStatus.textContent = visitError ? `${base} · ${visitError}` : `${base} · 통합 연결됨`;
+      syncStatus.style.color = visitError ? "#b45309" : "#16a34a";
     }
     if(restoreBtn) {
       restoreBtn.style.display = hiddenByDeleted.length ? "inline-block" : "none";
@@ -577,58 +681,78 @@ async function loadQrList(){
       restoreBtn.disabled = false;
     }
 
-    const activeList = items.filter(i => {
-      const k = String(i.id ?? i.reception_id ?? "");
-      if(deleted.includes(k)) return false;
-      const st = statuses[k] || i.status || "접수대기";
+    const activeList = items.filter(item => {
+      const key = keyOf(item);
+      if(deleted.includes(key)) return false;
+      const st = statusOf(item);
       return st !== "자료삭제" && !["취소", "종료"].includes(st);
     });
 
+    const tbody = document.querySelector("#table-qr tbody");
+    if(!tbody) return;
+
     if(!activeList.length){
       const hiddenTotal = hiddenByDeleted.length + hiddenByStatus.length;
-      tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.${hiddenTotal ? ` (숨김 ${hiddenTotal}건 · 서버 조회 ${items.length}건)` : ""}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">현재 대기 중인 QR·방문상담 접수가 없습니다.${hiddenTotal ? ` (숨김 ${hiddenTotal}건)` : ""}</td></tr>`;
       return;
     }
 
     tbody.innerHTML = "";
 
     activeList.forEach((item, idx) => {
-      const key = String(item.id ?? item.reception_id ?? "");
+      const key = keyOf(item);
+      const isVisit = item.__m6Source === "VISIT";
       const currentCat = CATEGORIES.includes(categories[key]) ? categories[key] : "특수관리";
-      const currentStatus = statuses[key] || item.status || "접수대기";
+      const currentStatus = statusOf(item);
       const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
       const timerData = qrTimers[key] || {};
+      const petName = item.pet_name || item.animal_name || "이름 미입력";
+      const guardian = item.visitor_name || item.owner_name || "";
+      const requestDetail = item.request_details || "";
+      const extra = isVisit
+        ? `<div style="font-size:10px;color:#64748b;margin-top:3px;">방문상담 · ${guardian}${requestDetail ? ` · ${requestDetail}` : ""}</div>`
+        : "";
 
       const tr = document.createElement("tr");
-      tr.dataset.phone = item.phone || "";
+      tr.dataset.phone = item.phone || item.owner_phone || "";
       tr.dataset.receptionTime = item.created_at || item.createdAt || item.registered_at || "";
       if(currentStatus === "진료완료") tr.className = "row-done";
       if(currentStatus === "예약대기") tr.className = "row-reserve";
 
-      let catOptions = CATEGORIES.map(c => `<option value="${c}" ${currentCat === c ? "selected" : ""}>${c}</option>`).join("");
+      const catOptions = CATEGORIES.map(c => `<option value="${c}" ${currentCat === c ? "selected" : ""}>${c}</option>`).join("");
 
       tr.innerHTML = `
-        <td style="font-weight:900; color:#0369a1;">${21 + idx}</td>
+        <td style="font-weight:900; color:${isVisit ? "#0f766e" : "#0369a1"};">${isVisit ? "상담" : 21 + idx}</td>
         <td><span class="time-badge">${regTime}</span></td>
-        <td style="font-weight:900; font-size:13px;">${item.pet_name || item.animal_name || "이름 미입력"}</td>
+        <td style="font-weight:900; font-size:13px;">${petName}${extra}</td>
         <td>${buildTimerBadge(`qr-${key}`, timerData.start, currentStatus, timerData.end)}</td>
         <td>
           <select class="status-select ${getStatusClass(currentStatus)}"
                   onchange="saveQrStatus('${key}', this.value)">
-            <option value="접수대기" ${currentStatus === '접수대기' ? 'selected' : ''}>접수대기</option>
-            <option value="예약대기" ${currentStatus === '예약대기' ? 'selected' : ''}>📅 예약대기</option>
-            <option value="진료중" ${currentStatus === '진료중' ? 'selected' : ''}>진료중</option>
-            <option value="진료완료" ${currentStatus === '진료완료' ? 'selected' : ''}>진료완료</option>
+            <option value="접수대기" ${currentStatus === "접수대기" ? "selected" : ""}>접수대기</option>
+            <option value="예약대기" ${currentStatus === "예약대기" ? "selected" : ""}>📅 예약대기</option>
+            <option value="진료중" ${currentStatus === "진료중" ? "selected" : ""}>진료중</option>
+            <option value="진료완료" ${currentStatus === "진료완료" ? "selected" : ""}>진료완료</option>
             <option value="자료삭제" class="status-delete">자료삭제</option>
           </select>
         </td>
-        <td><select id="qcat-${key}" onchange="saveQrCategory('${key}', this.value)">${catOptions}</select></td>
-        <td>${currentCat === "단순관리" ? '<span style="color:#94a3b8;font-size:11px;">전송 불필요</span>' : `<button class="btn-add" onclick="sendQrToM8('${key}')">선택 후 보내기</button>`}</td>
+        <td>${isVisit
+          ? '<span style="display:inline-block;padding:4px 7px;border-radius:6px;background:#ecfeff;color:#0e7490;font-size:11px;font-weight:800;">방문상담</span>'
+          : `<select id="qcat-${key}" onchange="saveQrCategory('${key}', this.value)">${catOptions}</select>`}</td>
+        <td>${isVisit
+          ? '<span style="color:#94a3b8;font-size:11px;">M8 전송 대상 아님</span>'
+          : (currentCat === "단순관리" ? '<span style="color:#94a3b8;font-size:11px;">전송 불필요</span>' : `<button class="btn-add" onclick="sendQrToM8('${key}')">선택 후 보내기</button>`)}</td>
         <td><button class="btn-del" onclick="deleteQrItem('${key}')">삭제</button></td>
       `;
       tbody.appendChild(tr);
     });
-  } catch(e){}
+  } catch(e) {
+    console.error("M6 통합 접수 목록 오류:", e);
+    if(syncStatus) {
+      syncStatus.textContent = "⚠️ 접수 목록 조회 오류";
+      syncStatus.style.color = "#b91c1c";
+    }
+  }
 }
 
 async function postPatientToM8({name,phone,category,receptionTime}){
@@ -667,11 +791,56 @@ function saveQrCategory(key, val){
   pushStateToServer({ categories: cats });
 }
 
-function saveQrStatus(key, val){
+async function saveQrStatus(key, val){
   if(val === "자료삭제"){
     deleteQrItem(key);
     return;
   }
+
+  // 방문상담은 원본 visits DB에 상태를 저장합니다.
+  if(String(key).startsWith("v_")){
+    const visitId = String(key).slice(2);
+    const token = sessionStorage.getItem("visit_admin_token") || "";
+    if(!token){
+      alert("방문상담 관리자 토큰이 없습니다. '상담 연결' 버튼을 눌러 연결해 주세요.");
+      loadQrList();
+      return;
+    }
+
+    const apiStatus = val === "진료완료" ? "완료" : val;
+    try {
+      const res = await fetch(`${VISITS_API}/${encodeURIComponent(visitId)}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: apiStatus })
+      });
+      const result = await res.json().catch(() => ({}));
+      if(!res.ok) throw new Error(result.error || `상태 변경 실패 (${res.status})`);
+
+      const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
+      if(!qrTimers[key]) qrTimers[key] = {};
+      if(val === "진료중"){
+        if(!qrTimers[key].start) qrTimers[key].start = Date.now();
+        qrTimers[key].end = null;
+      } else if(val === "진료완료"){
+        if(qrTimers[key].start && !qrTimers[key].end) qrTimers[key].end = Date.now();
+      } else if(val === "접수대기" || val === "예약대기"){
+        delete qrTimers[key];
+      }
+      localStorage.setItem("m6_qr_timers", JSON.stringify(qrTimers));
+      visitStatusCache[key] = val;
+      await loadQrList();
+    } catch(e) {
+      alert("방문상담 상태 변경 오류: " + (e.message || e));
+      loadQrList();
+    }
+    return;
+  }
+
+  // 기존 QR접수 상태 처리 로직
   const sts = { ...(GlobalState.qrStatuses || {}) };
   sts[key] = val;
 
