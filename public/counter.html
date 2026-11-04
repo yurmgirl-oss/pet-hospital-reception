@@ -409,10 +409,15 @@
       renderCombinedList();
     }
 
-    // 양쪽 API 동시 호출 및 갱신 (토큰 자동 헤더 탑재 및 다양한 응답 포맷 대응)
+    // 양쪽 API 동시 호출 및 갱신 (방문·상담 관리자 토큰 자동 확인)
     async function fetchAllData(manual = false) {
       try {
-        const token = visitToken || sessionStorage.getItem('visit_admin_token');
+        let token = visitToken || sessionStorage.getItem('visit_admin_token') || '';
+
+        // 최초 접속 또는 수동 새로고침 시 토큰이 없으면 입력 안내
+        if (!token && manual) {
+          token = getVisitToken();
+        }
         const visitHeaders = { 'Content-Type': 'application/json' };
         if (token) {
           visitHeaders['Authorization'] = 'Bearer ' + token;
@@ -662,20 +667,24 @@
         box.innerHTML = `<div class="text-xs text-amber-700/70 py-2 text-center">보관함에 대기 중인 예약 환자가 없습니다.</div>`;
         return;
       }
-      box.innerHTML = list.map(item => `
-        <div class="bg-white p-2.5 rounded-lg border border-amber-200 flex items-center justify-between gap-2 shadow-xs">
-          <div class="flex items-center gap-2 min-w-0">
-            <span class="bg-amber-100 text-amber-900 font-bold text-[10px] px-1.5 py-0.5 rounded">예약대기</span>
-            <span class="font-bold text-xs text-slate-800 truncate">${escapeHtml(item.title)}</span>
-            <span class="text-[11px] text-slate-500">(${escapeHtml(item.subtitle)})</span>
-            <span class="text-[11px] text-indigo-600 font-medium">${item.scheduled ? `📅 ${item.scheduled}` : ''}</span>
+      box.innerHTML = list.map(item => {
+        // 진료 접수는 접수대기로, 방문·상담은 접수 상태로 복귀
+        const returnStatus = item.typeKind === 'VISIT' ? '접수' : '접수대기';
+        return `
+          <div class="bg-white p-2.5 rounded-lg border border-amber-200 flex items-center justify-between gap-2 shadow-xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="bg-amber-100 text-amber-900 font-bold text-[10px] px-1.5 py-0.5 rounded">예약대기</span>
+              <span class="font-bold text-xs text-slate-800 truncate">${escapeHtml(item.title)}</span>
+              <span class="text-[11px] text-slate-500">(${escapeHtml(item.subtitle)})</span>
+              <span class="text-[11px] text-indigo-600 font-medium">${item.scheduled ? `📅 ${item.scheduled}` : ''}</span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button onclick="changeStatus('${item.typeKind}', ${item.id}, '${returnStatus}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold">🐾 내원함 (대기 복귀)</button>
+              <button onclick="deleteUnifiedItem('${item.typeKind}', ${item.id}, '${escapeHtml(item.title)}')" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded text-[11px] font-bold border border-slate-200">삭제</button>
+            </div>
           </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="changeStatus('${item.typeKind}', ${item.id}, '접수대기')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold">🐾 내원함 (대기 복귀)</button>
-            <button onclick="deleteUnifiedItem('${item.typeKind}', ${item.id}, '${escapeHtml(item.title)}')" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded text-[11px] font-bold border border-slate-200">삭제</button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // 상태 변경 및 삭제 라우팅
@@ -1017,8 +1026,8 @@
       } catch (err) { alert('오류 발생'); }
     }
 
-    // 초기 실행
-    fetchAllData();
+    // 초기 실행: 관리자 토큰 확인 후 통합 목록 로드
+    fetchAllData(true);
     loadNoticeFromDB();
     setInterval(fetchAllData, 5000);
   </script>
