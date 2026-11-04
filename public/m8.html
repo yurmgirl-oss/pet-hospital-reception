@@ -25,7 +25,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 상단 바 */
+/* 상단 탑바 */
 .top {
   height: 54px;
   background: var(--top-bg);
@@ -50,7 +50,7 @@ body {
   gap: 8px;
 }
 
-/* 버튼 기본 스타일 */
+/* 버튼 */
 .btn {
   border: 1px solid #94a3b8;
   border-radius: 7px;
@@ -146,6 +146,7 @@ body {
   font-weight: 800;
 }
 
+/* 상단 등록 버튼 */
 .add {
   margin: 5px 5px 3px 5px;
   border: 1.5px dashed var(--cat-head, #64748b);
@@ -179,10 +180,11 @@ body {
   border-radius: 4px;
 }
 
+/* 환자 카드 */
 .patient {
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  padding: 7px 6px;
+  padding: 6px 7px;
   margin-bottom: 5px;
   cursor: pointer;
   min-width: 0;
@@ -195,6 +197,14 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
+
+/* 상단 줄: 이름 + 옆에 작은 전화번호 */
+.patient-row-top {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
 .pname {
   font-size: clamp(12px, 0.82vw, 15px);
   font-weight: 900;
@@ -204,15 +214,49 @@ body {
   text-overflow: ellipsis;
   line-height: 1.25;
 }
-.meta {
-  font-size: 10.5px;
-  color: #475569;
+.pphone {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 3px;
+  flex: 1;
+}
+
+/* 하단 줄: 경과일자(D-day 뱃지) + 등록일시 */
+.patient-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  gap: 4px;
+}
+.pdays {
+  font-size: 10px;
+  font-weight: 800;
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  padding: 1px 5px;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.pdays.today {
+  color: #15803d;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+.meta-date {
+  font-size: 9.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 600;
 }
+
 .star {
   color: var(--star-color);
   font-size: 13px;
@@ -226,7 +270,7 @@ body {
   font-weight: 600;
 }
 
-/* 선명해진 모달 폼 스타일 */
+/* 모달 폼 스타일 */
 .modal {
   display: none;
   position: fixed;
@@ -286,13 +330,13 @@ body {
 }
 .field input[readonly] {
   background: #e2e8f0;
-  color: #1e293b;
-  font-weight: 700;
-  border-color: #94a3b8;
+  color: #0f172a;
+  font-weight: 800;
+  border-color: #64748b;
 }
 .field.full { grid-column: 1 / -1; }
 
-/* 기록 관리 박스 - 테두리 진하게 & 1줄 나란히 표시 */
+/* 관리 기록 박스 - 1줄 나란히 표시 */
 .history-box {
   grid-column: 1 / -1;
   display: flex;
@@ -317,7 +361,6 @@ body {
   overflow-y: auto;
   padding: 6px;
 }
-/* 1줄로 나란히 나오는 기록 아이템 */
 .history-item {
   display: flex;
   align-items: center;
@@ -417,7 +460,7 @@ body {
         <label class="field">동물 이름<input id="name" required maxlength="60"></label>
         <label class="field">연락처<input id="phone" maxlength="30" placeholder="010-0000-0000"></label>
         <label class="field">관리실<select id="category"></select></label>
-        <label class="field">등록일시<input id="registered" type="text" readonly></label>
+        <label class="field">등록일시 (연도-월-일 시:분)<input id="registered" type="text" readonly></label>
         <label class="field" style="justify-content:end">
           <span style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:800;color:#0f172a">
             <input id="starred" type="checkbox" style="width:17px;height:17px;cursor:pointer"> ⭐ 최우선 표시
@@ -426,7 +469,7 @@ body {
         <div class="history-box">
           <div class="field-title">
             이전 관리 기록 
-            <span style="font-size:11.5px;font-weight:600;color:#475569">(한 줄로 나란히 표시됩니다)</span>
+            <span style="font-size:11.5px;font-weight:600;color:#475569">(한 줄로 나란히 표시)</span>
           </div>
           <div class="history-list" id="historyList">
             <div class="history-empty">아직 기록이 없습니다.</div>
@@ -473,6 +516,25 @@ function sortRows(a,b){
   return String(b.created_at||'').localeCompare(String(a.created_at||''));
 }
 
+/* 경과 일수 계산 함수 */
+function getElapsedDays(dateStr){
+  if(!dateStr) return { label: '-', isToday: false };
+  const cleaned = String(dateStr).replace(' ', 'T').slice(0, 10);
+  const regDate = new Date(cleaned);
+  if(isNaN(regDate.getTime())) return { label: '-', isToday: false };
+  
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  regDate.setHours(0,0,0,0);
+  
+  const diffTime = today.getTime() - regDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  if(diffDays <= 0) return { label: '오늘(D+0)', isToday: true };
+  return { label: `+${diffDays}일`, isToday: false };
+}
+
+/* 현황판 렌더링: 이름 + 작은 전화번호 / 경과일수 + 등록일시 */
 function render(){
   $('rooms').innerHTML=categories.map(cat=>{
     const list=patients.filter(p=>p.category===cat).sort(sortRows);
@@ -480,12 +542,23 @@ function render(){
       <div class="roomhead">${cat}<span class="count">${list.length}</span></div>
       <button class="add" onclick="openAdd('${cat}')">＋ 등록</button>
       <div class="patients">
-        ${list.length?list.map(p=>`
-          <div class="patient" onclick="editPatient(${p.id})">
-            <div class="pname">${p.starred?'<span class="star">★</span> ':''}${esc(p.name)}</div>
-            <div class="meta">${esc(p.phone||'연락처 없음')} · 등록 ${esc(String(p.registered_at||p.created_at||'').replace('T',' ').slice(0,16)||'-')}</div>
-          </div>
-        `).join(''):'<div class="empty">등록된 동물 없음</div>'}
+        ${list.length?list.map(p=>{
+          const regRaw = p.registered_at || p.created_at || '';
+          const regDisplay = String(regRaw).replace('T',' ').slice(0,16) || '-';
+          const elapsed = getElapsedDays(regRaw);
+          const phoneDisplay = p.phone ? esc(p.phone) : '연락처 없음';
+
+          return `<div class="patient" onclick="editPatient(${p.id})">
+            <div class="patient-row-top">
+              <span class="pname">${p.starred?'<span class="star">★</span> ':''}${esc(p.name)}</span>
+              <span class="pphone">${phoneDisplay}</span>
+            </div>
+            <div class="patient-row-bottom">
+              <span class="pdays ${elapsed.isToday ? 'today' : ''}">${elapsed.label}</span>
+              <span class="meta-date">${esc(regDisplay)}</span>
+            </div>
+          </div>`;
+        }).join(''):'<div class="empty">등록된 동물 없음</div>'}
       </div>
     </article>`;
   }).join('');
@@ -503,6 +576,7 @@ async function load(){
   }
 }
 
+/* 연도-월-일 시:분:초 포맷 */
 function localDateTime(){
   const d=new Date();
   const pad=n=>String(n).padStart(2,'0');
@@ -538,7 +612,6 @@ function formatNoteDate(n){
   return n.date||'날짜 미상';
 }
 
-/* 1줄 나란히 렌더링 */
 function renderHistory(){
   const box=$('historyList');
   if(!noteItems.length){
