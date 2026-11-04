@@ -307,7 +307,7 @@ const RECEPTION_API = "/api/receptions";
 const VISITS_API = "https://23si-visit-api.yurmgirl.workers.dev/api/visits";
 let visitAuthPrompted = false;
 let visitStatusCache = {};
-const CATEGORIES = ["단순관리", "코드블루", "4days", "호스피스", "수술관리", "심폐관리", "신부전", "종양관리", "골관절", "피부알러지", "발작경련", "추적관리", "호르몬장애", "특수관리"];
+const CATEGORIES = ["단순관리", "코드블루", "4days", "호스피스", "수술관리", "심폐관리", "신부전", "종양관리", "골관절", "피부알러지", "발작경련", "추적관리", "호르몬장애"];
 
 let isUserInputting = false;
 
@@ -525,7 +525,7 @@ function renderManualTable(){
     if(item.status === "진료완료") tr.className = "row-done";
     if(item.status === "예약대기") tr.className = "row-reserve";
 
-    const safeCategory = CATEGORIES.includes(item.category) ? item.category : "특수관리";
+    const safeCategory = CATEGORIES.includes(item.category) ? item.category : "단순관리";
     let catOpts = CATEGORIES.map(c => `<option value="${c}" ${safeCategory===c?'selected':''}>${c}</option>`).join("");
     
     tr.innerHTML = `
@@ -702,7 +702,7 @@ async function loadQrList(){
     activeList.forEach((item, idx) => {
       const key = keyOf(item);
       const isVisit = item.__m6Source === "VISIT";
-      const currentCat = CATEGORIES.includes(categories[key]) ? categories[key] : "특수관리";
+      const currentCat = CATEGORIES.includes(categories[key]) ? categories[key] : "단순관리";
       const currentStatus = statusOf(item);
       const regTime = formatTime(item.created_at || item.createdAt || item.registered_at);
       const timerData = qrTimers[key] || {};
