@@ -77,7 +77,7 @@ body {
   border-color: #1e40af;
 }
 
-/* 메인 그리드 (첫 칸 + 나머지 10칸 = 총 11열 구성으로 각 칸 폭이 대폭 넓어짐) */
+/* 메인 그리드 */
 .main {
   height: calc(100vh - 52px);
   padding: 6px;
@@ -280,18 +280,24 @@ body {
   border-color: #86efac;
 }
 
-/* 2번째 줄: 최종 입력 내용 1줄 */
+/* 2번째 줄: 최종 입력 내용 1줄 (중요 기록 시 반전 하이라이트) */
 .p-row-2 {
   font-size: 10.5px;
   color: #1e293b;
   background: #f1f5f9;
   border-radius: 3px;
-  padding: 2px 4px;
+  padding: 2px 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
   line-height: 1.3;
+}
+.p-row-2.important {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  font-weight: 800;
 }
 .star-mark {
   color: var(--star-color);
@@ -305,7 +311,7 @@ body {
   font-weight: 600;
 }
 
-/* 대분류 클릭 시 폭에 맞춰 내용까지 큼직하게 확대되는 오버레이 */
+/* 대분류 클릭 시 760px 너비로 확대되는 오버레이 */
 .room-expand-overlay {
   display: none;
   position: absolute;
@@ -357,8 +363,6 @@ body {
   gap: 12px;
   align-content: start;
 }
-
-/* 확대 오버레이 내부 환자 카드: 폰트와 크기를 내용 폭에 맞추어 큼직하게 확대 적용 */
 .expand-body .patient {
   padding: 10px 12px;
   border-radius: 9px;
@@ -453,6 +457,7 @@ body {
 }
 .field.full { grid-column: 1 / -1; }
 
+/* 차트 전체 이력 뷰어 */
 .history-box {
   grid-column: 1 / -1;
   display: flex;
@@ -477,21 +482,48 @@ body {
   overflow-y: auto;
   padding: 8px;
 }
+
+/* 기록 아이템 기본 스타일 */
 .history-item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 9px 10px;
+  gap: 8px;
+  padding: 8px 10px;
   border-bottom: 1px solid #cbd5e1;
   font-size: 13px;
   color: #000000;
   background: #ffffff;
   border-radius: 6px;
   margin-bottom: 6px;
+  transition: all 0.15s ease;
 }
 .history-item:last-child {
   margin-bottom: 0;
 }
+/* ⭐ 중요 기록 특수 스타일 (색상 반전 & 뱃지) */
+.history-item.important-row {
+  background: #fef2f2;
+  border: 1.5px solid #ef4444;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+}
+.history-item.important-row .history-text {
+  color: #991b1b;
+  font-weight: 800;
+}
+.badge-important {
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
+}
+
 .history-date {
   flex: none;
   font-size: 12px;
@@ -510,10 +542,51 @@ body {
   word-break: break-all;
 }
 
+/* 새 기록 입력창 & 중요 토글 바 */
+.note-entry-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+  background: #f8fafc;
+  padding: 8px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+}
+.note-entry-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.important-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1.5px solid #f87171;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+.important-toggle-label:hover {
+  background: #fca5a5;
+  color: #7f1d1d;
+}
+.important-toggle-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #dc2626;
+}
+
 .note-entry {
   display: flex;
   gap: 7px;
-  margin-top: 6px;
 }
 .note-entry input {
   flex: 1;
@@ -597,17 +670,29 @@ body {
             <input id="starred" type="checkbox" style="width:17px;height:17px;cursor:pointer"> ⭐ 최우선 표시
           </span>
         </label>
+        
         <div class="history-box">
           <div class="field-title">
             <span>📋 누적 관리 차트 내역</span>
-            <span style="font-size:12px;font-weight:600;color:#64748b">최신순 정렬</span>
+            <span style="font-size:12px;font-weight:700;color:#64748b">⭐ 중요 기록 항상 최상단 고정</span>
           </div>
           <div class="history-list" id="historyList">
             <div class="history-empty">아직 기록이 없습니다.</div>
           </div>
-          <div class="note-entry">
-            <input id="noteInput" type="text" placeholder="새 관리 기록을 입력하세요 (엔터키 또는 추가 버튼)">
-            <button type="button" class="btn primary" onclick="addNote()">＋ 기록 추가</button>
+          
+          <!-- 새 기록 입력 및 중요(Pin) 토글 컨트롤 영역 -->
+          <div class="note-entry-container">
+            <div class="note-entry-controls">
+              <label class="important-toggle-label">
+                <input id="noteImportant" type="checkbox">
+                <span>⭐ 중요 / 긴급 기록으로 등록</span>
+              </label>
+              <span style="font-size:11px;color:#64748b;font-weight:600">체크 시 최상단 고정 & 색상 반전</span>
+            </div>
+            <div class="note-entry">
+              <input id="noteInput" type="text" placeholder="새 관리 기록을 입력하세요 (엔터키 또는 추가 버튼)">
+              <button type="button" class="btn primary" onclick="addNote()">＋ 기록 추가</button>
+            </div>
           </div>
         </div>
       </div>
@@ -624,9 +709,7 @@ body {
 </div>
 
 <script>
-// 전체 13개 카테고리 (데이터베이스 호환 유지)
 const categories=['코드블루','4days','호스피스','수술관리','심폐관리','신부전','종양관리','골관절','피부알러지','발작경련','추적관리','호르몬장애','특수관리'];
-// 1번째 칸에 3단으로 묶을 특수 그룹과 단독으로 넓게 쓸 그룹 분리
 const tripleGroup=['코드블루','4days','호스피스'];
 const singleGroup=['수술관리','심폐관리','신부전','종양관리','골관절','피부알러지','발작경련','추적관리','호르몬장애','특수관리'];
 
@@ -676,11 +759,26 @@ function getDayCount(rawStr){
   };
 }
 
+/* 기록 정렬: 중요(important) 우선 정렬 -> 그 후 최신순 */
+function sortNotes(notes){
+  return notes.slice().sort((a,b)=>{
+    const aImp = !!a.important;
+    const bImp = !!b.important;
+    if(aImp !== bImp) return Number(bImp) - Number(aImp);
+    const aTime = a.datetime || `${a.date||''} ${a.time||''}`;
+    const bTime = b.datetime || `${b.date||''} ${b.time||''}`;
+    return bTime.localeCompare(aTime);
+  });
+}
+
 /* 2줄 압축 환자 카드 HTML */
 function createPatientCardHtml(p){
   const daysInfo = getDayCount(p.registered_at || p.created_at);
   const notes = parseNotes(p);
-  const lastNote = notes.length ? (notes[notes.length - 1].text || '') : '';
+  const sorted = sortNotes(notes);
+  const topNote = sorted.length ? sorted[0] : null;
+  const isTopImportant = topNote ? !!topNote.important : false;
+  const noteText = topNote ? (topNote.text || '') : '';
   const phoneDisplay = p.phone ? esc(p.phone) : '연락처 없음';
 
   return `
@@ -690,18 +788,18 @@ function createPatientCardHtml(p){
         <span class="pphone">${phoneDisplay}</span>
         <span class="pdays-badge ${daysInfo.isToday ? 'today' : ''}">${daysInfo.label}</span>
       </div>
-      <div class="p-row-2" title="${esc(lastNote)}">
-        ${lastNote ? '📝 ' + esc(lastNote) : '<span style="color:#94a3b8">기록 없음</span>'}
+      <div class="p-row-2 ${isTopImportant ? 'important' : ''}" title="${esc(noteText)}">
+        ${noteText ? (isTopImportant ? '🚨 [중요] ' : '📝 ') + esc(noteText) : '<span style="color:#94a3b8">기록 없음</span>'}
       </div>
     </div>
   `;
 }
 
-/* 전체 현황판 렌더링: 1번째 칸(3단 콤보) + 나머지 10개 단독 칸 */
+/* 전체 현황판 렌더링 */
 function render(){
   let html = '';
 
-  // 1. 코드블루 / 4days / 호스피스 3개 묶음 컬럼
+  // 1. 코드블루 / 4days / 호스피스 3단 분할
   html += `<article class="room triple-combo" id="col_triple">`;
   tripleGroup.forEach(cat => {
     const list = patients.filter(p => p.category === cat).sort(sortRows);
@@ -734,13 +832,12 @@ function render(){
   $('rooms').innerHTML = html;
 }
 
-/* 대분류 클릭 시 창 폭에 맞춰 내용도 큼직하게 확대 오버레이 */
+/* 대분류 클릭 시 폭에 맞춰 내용도 큼직하게 확대 오버레이 */
 function openExpand(cat, elementId){
   const list = patients.filter(p => p.category === cat).sort(sortRows);
   const overlay = $('roomExpand');
   const targetCol = $(elementId);
   
-  // 테마 클래스 교체
   categories.forEach(c => overlay.classList.remove(`cat-theme-${c}`));
   overlay.classList.add(`cat-theme-${cat}`);
 
@@ -751,7 +848,6 @@ function openExpand(cat, elementId){
     ? list.map(p => createPatientCardHtml(p)).join('') 
     : '<div class="empty" style="padding:50px 0; font-size:14px; grid-column: 1 / -1;">등록된 동물이 없습니다.</div>';
 
-  // 클릭한 컬럼 위치 기준으로 가로 배치 (화면 우측 넘침 자동 방지)
   if(targetCol){
     const colLeft = targetCol.offsetLeft;
     const mainWidth = $('mainContainer').scrollWidth;
@@ -769,7 +865,6 @@ function closeExpand(){
   $('roomExpand').style.display = 'none';
 }
 
-// 오버레이 바깥 영역 클릭 시 닫기
 document.addEventListener('click', e => {
   const overlay = $('roomExpand');
   if(overlay.style.display === 'flex' && !overlay.contains(e.target) && !e.target.closest('.roomhead')){
@@ -805,6 +900,7 @@ function openAdd(cat=categories[0]){
   $('deleteBtn').style.display='none';
   noteItems=[];
   $('noteInput').value='';
+  $('noteImportant').checked=false;
   renderHistory();
   $('modal').style.display='flex';
 }
@@ -825,29 +921,50 @@ function formatNoteDate(n){
   return n.date||'날짜 미상';
 }
 
+/* 환자 차트 내역 렌더링 (중요 기록 최상단 고정 및 색상 반전) */
 function renderHistory(){
   const box=$('historyList');
   if(!noteItems.length){
     box.innerHTML='<div class="history-empty">아직 기록이 없습니다. 아래 입력창에 첫 관리 기록을 남겨보세요.</div>';
     return;
   }
-  box.innerHTML=noteItems.slice().reverse().map(n=>`
-    <div class="history-item">
-      <span class="history-date">${esc(formatNoteDate(n))}</span>
-      <span class="history-text">${esc(n.text||'')}</span>
-    </div>
-  `).join('');
+
+  // 중요 기록 우선 정렬 후 렌더링
+  const sorted = sortNotes(noteItems);
+
+  box.innerHTML = sorted.map(n => {
+    const isImp = !!n.important;
+    return `
+      <div class="history-item ${isImp ? 'important-row' : ''}">
+        ${isImp ? '<span class="badge-important">★ 중요</span>' : ''}
+        <span class="history-date">${esc(formatNoteDate(n))}</span>
+        <span class="history-text">${esc(n.text || '')}</span>
+      </div>
+    `;
+  }).join('');
 }
 
+/* 새 기록 추가 시 중요 체크 여부 함께 저장 */
 function addNote(){
   const input=$('noteInput');
   const text=input.value.trim();
   if(!text)return;
-  const now=new Date();
-  const pad=v=>String(v).padStart(2,'0');
-  const datetime=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  noteItems.push({date:datetime.slice(0,10),time:datetime.slice(11),datetime,text});
+  
+  const isImp = $('noteImportant').checked;
+  const now = new Date();
+  const pad = v => String(v).padStart(2,'0');
+  const datetime = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  
+  noteItems.push({
+    date: datetime.slice(0,10),
+    time: datetime.slice(11),
+    datetime,
+    text,
+    important: isImp
+  });
+
   input.value='';
+  $('noteImportant').checked = false; // 추가 후 체크 해제
   renderHistory();
   input.focus();
 }
@@ -876,18 +993,22 @@ function editPatient(id){
   $('starred').checked=!!p.starred;
   noteItems=parseNotes(p);
   $('noteInput').value='';
+  $('noteImportant').checked=false;
   renderHistory();
   $('deleteBtn').style.display='inline-block';
   $('modal').style.display='flex';
 }
 
-/* 챠트 저장 텍스트: 시간을 먼저 찍고 내용을 적어 한 줄로 출력 */
+/* 차트 저장 텍스트 (중요 기록 표시 반영) */
 function exportPatientText(){
   const name=$('name').value.trim()||'이름없음';
-  const notes=noteItems.slice().sort((a,b)=>String(formatNoteDate(a)).localeCompare(String(formatNoteDate(b))));
+  const sorted = sortNotes(noteItems);
   
-  const historyLines = notes.length 
-    ? notes.map((n, i) => `${i + 1}. [${formatNoteDate(n)}] ${n.text || '(내용 없음)'}`)
+  const historyLines = sorted.length 
+    ? sorted.map((n, i) => {
+        const impMark = n.important ? '[중요★] ' : '';
+        return `${i + 1}. [${formatNoteDate(n)}] ${impMark}${n.text || '(내용 없음)'}`;
+      })
     : ['(기록 없음)'];
 
   const lines=[
@@ -901,7 +1022,7 @@ function exportPatientText(){
     `등록일시: ${$('registered').value||'-'}`,
     `별표 최우선: ${$('starred').checked?'예':'아니오'}`,
     '',
-    '[시간순 관리 기록]',
+    '[시간순 관리 기록 (중요 기록 우선)]',
     ...historyLines,
     '',
     `내보낸 날짜: ${new Date().toLocaleString('ko-KR')}`
