@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>F8 집중 선택 관리 현황판</title>
+<title>F8 특수환자 관리 현황판</title>
 <style>
 :root {
   --font-main: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
@@ -77,7 +77,7 @@ body {
   border-color: #1e40af;
 }
 
-/* 메인 그리드 */
+/* 메인 그리드 (첫 칸 + 나머지 10칸 = 총 11열 구성으로 각 칸 폭이 대폭 넓어짐) */
 .main {
   height: calc(100vh - 52px);
   padding: 6px;
@@ -88,7 +88,7 @@ body {
   height: 100%;
   min-width: 1400px;
   display: grid;
-  grid-template-columns: repeat(13, minmax(0, 1fr));
+  grid-template-columns: minmax(140px, 1.15fr) repeat(10, minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -105,20 +105,40 @@ body {
   position: relative;
 }
 
+/* 1번째 통합 룸 (코드블루 / 4days / 호스피스 3단 분할) */
+.room.triple-combo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #f8fafc;
+  border-color: #94a3b8;
+  padding: 2px;
+}
+.sub-room {
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
+  border: 1px solid var(--cat-border, #cbd5e1);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 /* 칸별 고유 테마 컬러 */
-.room[data-cat="코드블루"], .cat-theme-코드블루   { --cat-head: #dc2626; --cat-bg: #fef2f2; --cat-border: #fca5a5; --cat-badge: #b91c1c; }
-.room[data-cat="4days"], .cat-theme-4days        { --cat-head: #ea580c; --cat-bg: #fff7ed; --cat-border: #fdba74; --cat-badge: #c2410c; }
-.room[data-cat="호스피스"], .cat-theme-호스피스  { --cat-head: #854d0e; --cat-bg: #fefce8; --cat-border: #fde047; --cat-badge: #713f12; }
-.room[data-cat="수술관리"], .cat-theme-수술관리  { --cat-head: #0284c7; --cat-bg: #f0f9ff; --cat-border: #7dd3fc; --cat-badge: #0369a1; }
-.room[data-cat="심폐관리"], .cat-theme-심폐관리  { --cat-head: #e11d48; --cat-bg: #fff1f2; --cat-border: #fda4af; --cat-badge: #be123c; }
-.room[data-cat="신부전"], .cat-theme-신부전      { --cat-head: #d97706; --cat-bg: #fffbeb; --cat-border: #fcd34d; --cat-badge: #b45309; }
-.room[data-cat="종양관리"], .cat-theme-종양관리  { --cat-head: #7c3aed; --cat-bg: #f5f3ff; --cat-border: #c4b5fd; --cat-badge: #6d28d9; }
-.room[data-cat="골관절"], .cat-theme-골관절      { --cat-head: #0d9488; --cat-bg: #f0fdfa; --cat-border: #5eead4; --cat-badge: #0f766e; }
-.room[data-cat="피부알러지"], .cat-theme-피부알러지{ --cat-head: #16a34a; --cat-bg: #f0fdf4; --cat-border: #86efac; --cat-badge: #15803d; }
-.room[data-cat="발작경련"], .cat-theme-발작경련  { --cat-head: #9333ea; --cat-bg: #faf5ff; --cat-border: #d8b4fe; --cat-badge: #7e22ce; }
-.room[data-cat="추적관리"], .cat-theme-추적관리  { --cat-head: #334155; --cat-bg: #f8fafc; --cat-border: #94a3b8; --cat-badge: #1e293b; }
-.room[data-cat="호르몬장애"], .cat-theme-호르몬장애{ --cat-head: #db2777; --cat-bg: #fdf2f8; --cat-border: #f9a8d4; --cat-badge: #be185d; }
-.room[data-cat="특수관리"], .cat-theme-특수관리  { --cat-head: #4f46e5; --cat-bg: #eef2ff; --cat-border: #a5b4fc; --cat-badge: #4338ca; }
+.cat-theme-코드블루, [data-cat="코드블루"]   { --cat-head: #dc2626; --cat-bg: #fef2f2; --cat-border: #fca5a5; --cat-badge: #b91c1c; }
+.cat-theme-4days, [data-cat="4days"]        { --cat-head: #ea580c; --cat-bg: #fff7ed; --cat-border: #fdba74; --cat-badge: #c2410c; }
+.cat-theme-호스피스, [data-cat="호스피스"]  { --cat-head: #854d0e; --cat-bg: #fefce8; --cat-border: #fde047; --cat-badge: #713f12; }
+.cat-theme-수술관리, [data-cat="수술관리"]  { --cat-head: #0284c7; --cat-bg: #f0f9ff; --cat-border: #7dd3fc; --cat-badge: #0369a1; }
+.cat-theme-심폐관리, [data-cat="심폐관리"]  { --cat-head: #e11d48; --cat-bg: #fff1f2; --cat-border: #fda4af; --cat-badge: #be123c; }
+.cat-theme-신부전, [data-cat="신부전"]      { --cat-head: #d97706; --cat-bg: #fffbeb; --cat-border: #fcd34d; --cat-badge: #b45309; }
+.cat-theme-종양관리, [data-cat="종양관리"]  { --cat-head: #7c3aed; --cat-bg: #f5f3ff; --cat-border: #c4b5fd; --cat-badge: #6d28d9; }
+.cat-theme-골관절, [data-cat="골관절"]      { --cat-head: #0d9488; --cat-bg: #f0fdfa; --cat-border: #5eead4; --cat-badge: #0f766e; }
+.cat-theme-피부알러지, [data-cat="피부알러지"]{ --cat-head: #16a34a; --cat-bg: #f0fdf4; --cat-border: #86efac; --cat-badge: #15803d; }
+.cat-theme-발작경련, [data-cat="발작경련"]  { --cat-head: #9333ea; --cat-bg: #faf5ff; --cat-border: #d8b4fe; --cat-badge: #7e22ce; }
+.cat-theme-추적관리, [data-cat="추적관리"]  { --cat-head: #334155; --cat-bg: #f8fafc; --cat-border: #94a3b8; --cat-badge: #1e293b; }
+.cat-theme-호르몬장애, [data-cat="호르몬장애"]{ --cat-head: #db2777; --cat-bg: #fdf2f8; --cat-border: #f9a8d4; --cat-badge: #be185d; }
+.cat-theme-특수관리, [data-cat="특수관리"]  { --cat-head: #4f46e5; --cat-bg: #eef2ff; --cat-border: #a5b4fc; --cat-badge: #4338ca; }
 
 .roomhead {
   height: 36px;
@@ -130,7 +150,7 @@ body {
   justify-content: center;
   gap: 5px;
   padding: 0 4px;
-  font-size: clamp(11px, 0.72vw, 13px);
+  font-size: clamp(11.5px, 0.78vw, 13.5px);
   font-weight: 800;
   white-space: nowrap;
   cursor: pointer;
@@ -139,6 +159,10 @@ body {
 }
 .roomhead:hover {
   filter: brightness(1.15);
+}
+.sub-room .roomhead {
+  height: 28px;
+  font-size: 11px;
 }
 .count {
   background: rgba(0, 0, 0, 0.28);
@@ -155,7 +179,7 @@ body {
   background: var(--cat-bg, #f8fafc);
   color: var(--cat-head, #1e293b);
   border-radius: 5px;
-  padding: 5px 2px;
+  padding: 4px 2px;
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
@@ -166,6 +190,11 @@ body {
   background: var(--cat-head, #2563eb);
   color: #ffffff;
   border-style: solid;
+}
+.sub-room .add {
+  margin: 2px 3px;
+  padding: 2px 0;
+  font-size: 10px;
 }
 
 .patients {
@@ -186,7 +215,7 @@ body {
 .patient {
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  padding: 4px 5px;
+  padding: 4px 6px;
   margin-bottom: 4px;
   cursor: pointer;
   min-width: 0;
@@ -207,7 +236,7 @@ body {
 .p-row-1 {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
 }
 .pname-badge {
@@ -225,7 +254,7 @@ body {
   letter-spacing: -0.2px;
 }
 .pphone {
-  font-size: 9.5px;
+  font-size: 10px;
   color: #475569;
   font-weight: 700;
   white-space: nowrap;
@@ -253,7 +282,7 @@ body {
 
 /* 2번째 줄: 최종 입력 내용 1줄 */
 .p-row-2 {
-  font-size: 10px;
+  font-size: 10.5px;
   color: #1e293b;
   background: #f1f5f9;
   border-radius: 3px;
@@ -272,22 +301,22 @@ body {
   color: #64748b;
   text-align: center;
   font-size: 11px;
-  padding: 20px 2px;
+  padding: 14px 2px;
   font-weight: 600;
 }
 
-/* 대분류 클릭 시 2배(760px)로 확대되어 위아래 전체를 차지하는 오버레이 */
+/* 대분류 클릭 시 폭에 맞춰 내용까지 큼직하게 확대되는 오버레이 */
 .room-expand-overlay {
   display: none;
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 760px; /* 기존 380px의 2배 */
+  width: 760px;
   max-width: 96vw;
   background: #ffffff;
   border: 2.5px solid var(--cat-border, #64748b);
   border-radius: 10px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.45);
   z-index: 30;
   flex-direction: column;
   overflow: hidden;
@@ -298,36 +327,64 @@ body {
   to { opacity: 1; transform: scaleY(1); }
 }
 .expand-head {
-  height: 48px;
+  height: 52px;
   background: var(--cat-head, #1e293b);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  font-size: 16px;
-  font-weight: 800;
+  padding: 0 18px;
+  font-size: 18px;
+  font-weight: 900;
   flex: none;
 }
 .expand-close {
   background: none;
   border: none;
   color: #ffffff;
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 22px;
+  font-weight: 900;
   cursor: pointer;
   padding: 2px 6px;
 }
-/* 넓어진 너비에 맞춰 2열(그리드)로 쾌적하게 환자 목록 표시 */
 .expand-body {
   flex: 1;
   overflow-y: auto;
-  padding: 10px;
+  padding: 14px;
   background: var(--bg-app);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 12px;
   align-content: start;
+}
+
+/* 확대 오버레이 내부 환자 카드: 폰트와 크기를 내용 폭에 맞추어 큼직하게 확대 적용 */
+.expand-body .patient {
+  padding: 10px 12px;
+  border-radius: 9px;
+  border-width: 1.5px;
+  gap: 6px;
+}
+.expand-body .pname-badge {
+  font-size: 15px;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+.expand-body .pphone {
+  font-size: 13px;
+  font-weight: 800;
+  color: #334155;
+}
+.expand-body .pdays-badge {
+  font-size: 12.5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.expand-body .p-row-2 {
+  font-size: 13px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-weight: 700;
 }
 
 /* 환자 정보 및 누적 차트 모달 */
@@ -510,15 +567,15 @@ body {
 <main class="main" id="mainContainer">
   <section class="rooms" id="rooms"></section>
 
-  <!-- 대분류 클릭 시 760px로 크게 확대되어 위아래 전체를 차지하는 오버레이 -->
+  <!-- 대분류 클릭 시 760px 너비로 시원하게 확대되는 오버레이 -->
   <div class="room-expand-overlay" id="roomExpand">
     <div class="expand-head">
       <span id="expandTitle">관리실</span>
       <button class="expand-close" onclick="closeExpand()">✕</button>
     </div>
-    <div style="padding: 8px 14px; background: #ffffff; border-bottom: 1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
-      <span style="font-size:13px; font-weight:800; color:#475569;" id="expandCount">0마리</span>
-      <button class="btn primary" id="expandAddBtn" style="padding:4px 10px; font-size:12px;">＋ 환자 등록</button>
+    <div style="padding: 10px 16px; background: #ffffff; border-bottom: 1.5px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size:14px; font-weight:800; color:#334155;" id="expandCount">총 0마리</span>
+      <button class="btn primary" id="expandAddBtn" style="padding:5px 12px; font-size:13px;">＋ 환자 등록</button>
     </div>
     <div class="expand-body" id="expandBody"></div>
   </div>
@@ -567,7 +624,12 @@ body {
 </div>
 
 <script>
+// 전체 13개 카테고리 (데이터베이스 호환 유지)
 const categories=['코드블루','4days','호스피스','수술관리','심폐관리','신부전','종양관리','골관절','피부알러지','발작경련','추적관리','호르몬장애','특수관리'];
+// 1번째 칸에 3단으로 묶을 특수 그룹과 단독으로 넓게 쓸 그룹 분리
+const tripleGroup=['코드블루','4days','호스피스'];
+const singleGroup=['수술관리','심폐관리','신부전','종양관리','골관절','피부알러지','발작경련','추적관리','호르몬장애','특수관리'];
+
 let patients=[];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -635,40 +697,65 @@ function createPatientCardHtml(p){
   `;
 }
 
-/* 전체 현황판 렌더링 */
+/* 전체 현황판 렌더링: 1번째 칸(3단 콤보) + 나머지 10개 단독 칸 */
 function render(){
-  $('rooms').innerHTML=categories.map((cat, idx)=>{
-    const list=patients.filter(p=>p.category===cat).sort(sortRows);
-    return `<article class="room" id="col_${idx}" data-cat="${cat}">
-      <div class="roomhead" onclick="openExpand('${cat}', ${idx})" title="클릭 시 2배 크기로 확대">${cat}<span class="count">${list.length}</span></div>
-      <button class="add" onclick="openAdd('${cat}')">＋ 등록</button>
-      <div class="patients">
-        ${list.length ? list.map(p => createPatientCardHtml(p)).join('') : '<div class="empty">등록 환자 없음</div>'}
+  let html = '';
+
+  // 1. 코드블루 / 4days / 호스피스 3개 묶음 컬럼
+  html += `<article class="room triple-combo" id="col_triple">`;
+  tripleGroup.forEach(cat => {
+    const list = patients.filter(p => p.category === cat).sort(sortRows);
+    html += `
+      <div class="sub-room" data-cat="${cat}">
+        <div class="roomhead" onclick="openExpand('${cat}', 'col_triple')" title="클릭 시 크게 확대">${cat}<span class="count">${list.length}</span></div>
+        <button class="add" onclick="openAdd('${cat}')">＋ 등록</button>
+        <div class="patients">
+          ${list.length ? list.map(p => createPatientCardHtml(p)).join('') : '<div class="empty">환자 없음</div>'}
+        </div>
       </div>
-    </article>`;
-  }).join('');
+    `;
+  });
+  html += `</article>`;
+
+  // 2. 나머지 10개 단독 컬럼
+  singleGroup.forEach((cat, idx) => {
+    const list = patients.filter(p => p.category === cat).sort(sortRows);
+    html += `
+      <article class="room" id="col_single_${idx}" data-cat="${cat}">
+        <div class="roomhead" onclick="openExpand('${cat}', 'col_single_${idx}')" title="클릭 시 크게 확대">${cat}<span class="count">${list.length}</span></div>
+        <button class="add" onclick="openAdd('${cat}')">＋ 등록</button>
+        <div class="patients">
+          ${list.length ? list.map(p => createPatientCardHtml(p)).join('') : '<div class="empty">등록 환자 없음</div>'}
+        </div>
+      </article>
+    `;
+  });
+
+  $('rooms').innerHTML = html;
 }
 
-/* 대분류 클릭 시 2배(760px) 너비로 시원하게 확대 오버레이 */
-function openExpand(cat, colIdx){
+/* 대분류 클릭 시 창 폭에 맞춰 내용도 큼직하게 확대 오버레이 */
+function openExpand(cat, elementId){
   const list = patients.filter(p => p.category === cat).sort(sortRows);
   const overlay = $('roomExpand');
-  const targetCol = $(`col_${colIdx}`);
+  const targetCol = $(elementId);
   
   // 테마 클래스 교체
   categories.forEach(c => overlay.classList.remove(`cat-theme-${c}`));
   overlay.classList.add(`cat-theme-${cat}`);
 
-  $('expandTitle').textContent = `🐾 ${cat} 전체 현황`;
-  $('expandCount').textContent = `총 ${list.length}마리`;
+  $('expandTitle').textContent = `🐾 ${cat} 전체 관리 현황`;
+  $('expandCount').textContent = `총 ${list.length}마리 등록됨`;
   $('expandAddBtn').onclick = () => { closeExpand(); openAdd(cat); };
-  $('expandBody').innerHTML = list.length ? list.map(p => createPatientCardHtml(p)).join('') : '<div class="empty" style="padding:40px 0; grid-column: 1 / -1;">등록된 동물이 없습니다.</div>';
+  $('expandBody').innerHTML = list.length 
+    ? list.map(p => createPatientCardHtml(p)).join('') 
+    : '<div class="empty" style="padding:50px 0; font-size:14px; grid-column: 1 / -1;">등록된 동물이 없습니다.</div>';
 
-  // 760px에 맞추어 화면 오른쪽으로 삐져나가지 않도록 자동 보정
+  // 클릭한 컬럼 위치 기준으로 가로 배치 (화면 우측 넘침 자동 방지)
   if(targetCol){
     const colLeft = targetCol.offsetLeft;
     const mainWidth = $('mainContainer').scrollWidth;
-    let targetLeft = colLeft - 40;
+    let targetLeft = colLeft - 20;
     if(targetLeft + 760 > mainWidth) {
       targetLeft = Math.max(10, colLeft - (760 - targetCol.offsetWidth));
     }
@@ -799,7 +886,6 @@ function exportPatientText(){
   const name=$('name').value.trim()||'이름없음';
   const notes=noteItems.slice().sort((a,b)=>String(formatNoteDate(a)).localeCompare(String(formatNoteDate(b))));
   
-  // [시간] 내용 형식으로 1줄씩 처리
   const historyLines = notes.length 
     ? notes.map((n, i) => `${i + 1}. [${formatNoteDate(n)}] ${n.text || '(내용 없음)'}`)
     : ['(기록 없음)'];
