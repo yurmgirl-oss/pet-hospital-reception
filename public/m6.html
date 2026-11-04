@@ -250,7 +250,7 @@
   <div class="card">
     <h2>
       <span>🏥 일반예약 직접 등록 <span class="badge-range">31번대</span></span>
-      <span class="auto-notice">🌐 전 컴퓨터 실시간 동기화 모드</span>
+      <span class="auto-notice" id="manual-sync-status">🌐 일반예약 서버 확인 중...</span>
     </h2>
     <div class="manual-form">
       <input type="text" id="m-name" placeholder="동물 이름 입력" onkeydown="if(event.key==='Enter') addManualBooking()">
@@ -278,7 +278,7 @@
   <div class="card">
     <h2>
       <span>📱 QR접수 관리 <span class="badge-range">21번대</span></span>
-      <span class="auto-notice">⚡ 변경 시 키오스크 및 현황판 실시간 반영</span>
+      <span class="auto-notice" id="qr-sync-status">⚡ QR 접수 서버 확인 중...</span>
     </h2>
     <table id="table-qr">
       <thead>
@@ -382,18 +382,24 @@ async function pushStateToServer(partialState){
 }
 
 async function fetchStateFromServer(){
+  const statusEl = document.getElementById("manual-sync-status");
   try {
     const res = await fetch(SYNC_API, { cache: "no-store" });
-    if(res.ok){
-      const data = await res.json();
-      GlobalState = { ...GlobalState, ...data };
-      updateUrgentUI();
-      if(!isUserInputting) {
-        renderManualTable();
-        loadQrList();
-      }
+    if(!res.ok) throw new Error(`일반예약 서버 응답 오류 (${res.status})`);
+    const data = await res.json();
+    if(!data || typeof data !== "object") throw new Error("일반예약 데이터 형식이 올바르지 않습니다.");
+    GlobalState = { ...GlobalState, ...data };
+    if(!Array.isArray(GlobalState.manualBookings)) GlobalState.manualBookings = [];
+    if(statusEl) statusEl.textContent = `🌐 일반예약 연결됨 · ${GlobalState.manualBookings.length}건`;
+    updateUrgentUI();
+    if(!isUserInputting) {
+      renderManualTable();
+      loadQrList();
     }
-  } catch(e) {}
+  } catch(e) {
+    console.error("일반예약 동기화 실패:", e);
+    if(statusEl) statusEl.textContent = `⚠️ 일반예약 연결 실패: ${e.message}`;
+  }
 }
 
 function notifyLocalFrames(){
@@ -546,17 +552,20 @@ async function loadQrList(){
   if(isUserInputting) return;
   try {
     const res = await fetch(RECEPTION_API, { cache: "no-store" });
-    const receptions = res.ok ? await res.json() : [];
-    const items = Array.isArray(receptions) ? receptions : (receptions.items || []);
+    if(!res.ok) throw new Error(`QR 접수 서버 응답 오류 (${res.status})`);
+    const receptions = await res.json();
+    const items = Array.isArray(receptions) ? receptions : (Array.isArray(receptions?.items) ? receptions.items : null);
+    if(!items) throw new Error("QR 접수 데이터 형식이 배열이 아닙니다.");
 
     const categories = GlobalState.categories || {};
     const statuses = GlobalState.qrStatuses || {};
-    const deleted = GlobalState.qrDeleted || [];
+    const deleted = Array.isArray(GlobalState.qrDeleted) ? GlobalState.qrDeleted.map(String) : [];
     const qrTimers = JSON.parse(localStorage.getItem("m6_qr_timers") || "{}");
 
     const tbody = document.querySelector("#table-qr tbody");
-    if(!tbody) return;
+    if(!tbody) throw new Error("QR 접수 표를 찾을 수 없습니다.");
 
+    const statusEl = document.getElementById("qr-sync-status");
     const activeList = items.filter(i => {
       const k = String(i.id ?? i.reception_id ?? "");
       if(deleted.includes(k)) return false;
@@ -564,8 +573,9 @@ async function loadQrList(){
       return st !== "자료삭제" && !["취소", "종료"].includes(st);
     });
 
+    if(statusEl) statusEl.textContent = `⚡ QR 서버 연결됨 · ${items.length}건 조회 / ${activeList.length}건 표시`;
     if(!activeList.length){
-      tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="color:#94a3b8; padding:14px;">대기 중인 QR접수가 없습니다. (서버 조회 ${items.length}건)</td></tr>`;
       return;
     }
 
@@ -607,7 +617,13 @@ async function loadQrList(){
       `;
       tbody.appendChild(tr);
     });
-  } catch(e){}
+  } catch(e){
+    console.error("QR 접수 목록 조회 실패:", e);
+    const tbody = document.querySelector("#table-qr tbody");
+    if(tbody) tbody.innerHTML = `<tr><td colspan="8" style="color:#dc2626; padding:14px;">QR 접수 조회 오류: ${String(e.message || e).replace(/[<>]/g, "")}</td></tr>`;
+    const statusEl = document.getElementById("qr-sync-status");
+    if(statusEl) statusEl.textContent = `⚠️ QR 접수 연결 실패: ${e.message || e}`;
+  }
 }
 
 async function postPatientToM8({name,phone,category,receptionTime}){
