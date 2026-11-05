@@ -474,7 +474,7 @@ footer {
     <!-- [상단] 📱 QR 사전접수 -->
     <section class="row-panel panel-qr">
       <div class="panel-header">
-        <div class="panel-title">📱 QR·방문상담 접수</div>
+        <div class="panel-title">📱 QR 접수</div>
         <div class="panel-count" id="count-qr">0명 대기</div>
       </div>
       <div class="table-header">
@@ -525,7 +525,6 @@ document.getElementById("qr-img").src = "https://api.qrserver.com/v1/create-qr-c
 
 const SYNC_API = "https://m5-api.yurmgirl.workers.dev/sync";
 const RECEPTION_API = "/api/receptions";
-const VISITS_API = "https://23si-visit-api.yurmgirl.workers.dev/api/visits";
 
 const listQrEl = document.getElementById("list-qr");
 const listNormalEl = document.getElementById("list-normal");
@@ -748,7 +747,7 @@ function checkNewReceptionAnnouncements(qrItems, manualBookings, qrStatuses) {
     const rawKey = item.id ?? item.reception_id;
     if (rawKey == null) return;
     const key = String(rawKey);
-    const status = String((qrStatuses && qrStatuses[key]) || item.status || "접수대기").replace(/\s+/g, "").trim();
+    const status = String(item.status || (qrStatuses && qrStatuses[key]) || "접수대기").replace(/\s+/g, "").trim();
     if (["자료삭제", "취소", "종료", "완료", "진료완료", "예약대기"].includes(status)) return;
     current.set(`qr_${key}`, {
       name: safeText(item.pet_name || item.animal_name || "이름 미입력"),
@@ -934,33 +933,18 @@ function createRow(displayNum, regTime, petName, category, status){
   return row;
 }
 
-function render(qrItems, serverState, visitItems = []){
+function render(qrItems, serverState){
   const categories = serverState.categories || {};
   const qrStatuses = serverState.qrStatuses || {};
   const deletedKeys = serverState.qrDeleted || [];
   const manualBookings = serverState.manualBookings || [];
-
   handleUrgentNotice(serverState.urgentNotice);
 
-  // QR 접수 + 방문상담을 하나의 대기목록으로 표시
-  const normalizedVisits = (Array.isArray(visitItems) ? visitItems : []).map(item => ({
-    ...item,
-    id: `visit_${item.id}`,
-    pet_name: item.animal_name || item.pet_name || item.visitor_name || "이름 미입력",
-    category: "단순관리",
-    status: ({ "접수": "접수대기", "처리 중": "진료중", "완료": "진료완료" })[String(item.status || "접수")] || item.status || "접수대기",
-    __source: "VISIT"
-  }));
-  const combinedQrItems = [
-    ...(Array.isArray(qrItems) ? qrItems : []),
-    ...normalizedVisits
-  ];
-
-  // 1. QR 및 방문상담 목록 (예약대기/완료/삭제/취소/종료 모두 대기목록에서 제외)
-  const activeQr = combinedQrItems.filter(item => {
+  const receptionItems = Array.isArray(qrItems) ? qrItems : [];
+  const activeQr = receptionItems.filter(item => {
     const k = String(item.id ?? item.reception_id ?? "");
     if (deletedKeys.includes(k)) return false;
-    const st = qrStatuses[k] || item.status || "접수대기";
+    const st = item.status || qrStatuses[k] || "접수대기";
     return !["완료", "진료완료", "예약대기", "자료삭제", "취소", "종료"].includes(st);
   }).sort((a,b)=>{
     const ta = Date.parse(a.created_at || a.createdAt || 0) || 0;
@@ -970,32 +954,25 @@ function render(qrItems, serverState, visitItems = []){
 
   listQrEl.replaceChildren();
   countQrEl.textContent = `${activeQr.length}명 대기`;
-
   if(!activeQr.length){
     listQrEl.append(make("div", "empty-col", "대기 중인 QR접수가 없습니다."));
   } else {
     activeQr.forEach((item, idx) => {
       const key = String(item.id ?? item.reception_id ?? "");
       const petName = safeText(item.pet_name || item.animal_name || "이름 미입력");
-      const category = item.__source === "VISIT" ? "단순관리" : (categories[key] || item.category || "일반진료");
-      const status = qrStatuses[key] || item.status || "접수대기";
+      const category = categories[key] || item.category || "일반진료";
+      const status = item.status || qrStatuses[key] || "접수대기";
       const regTime = formatTimeOnly(item.created_at || item.createdAt || item.registered_at);
-
       listQrEl.append(createRow(21 + idx, regTime, petName, category, status));
     });
   }
 
-  // 2. 일반예약 목록 (예약대기/진료완료/자료삭제 모두 현황판에서 제외)
-  const activeManual = manualBookings.filter(item => {
-    return item.status !== "진료완료" && item.status !== "자료삭제" && item.status !== "예약대기";
-  });
-
-  // QR 접수 또는 일반예약이 새로 '접수대기'가 되면 동물명과 접수 완료 멘트 방송
-  checkNewReceptionAnnouncements(combinedQrItems, manualBookings, qrStatuses);
-
+  const activeManual = manualBookings.filter(item =>
+    item.status !== "진료완료" && item.status !== "자료삭제" && item.status !== "예약대기"
+  );
+  checkNewReceptionAnnouncements(receptionItems, manualBookings, qrStatuses);
   listNormalEl.replaceChildren();
   countNormalEl.textContent = `${activeManual.length}명 대기`;
-
   if(!activeManual.length){
     listNormalEl.append(make("div", "empty-col", "등록된 일반예약이 없습니다."));
   } else {
@@ -1004,11 +981,10 @@ function render(qrItems, serverState, visitItems = []){
     });
   }
 
-  // 진료실 호출 음성 감지
   const allTreating = [];
   activeQr.forEach(item => {
     const key = String(item.id ?? item.reception_id ?? "");
-    const status = qrStatuses[key] || item.status || "접수대기";
+    const status = item.status || qrStatuses[key] || "접수대기";
     const name = safeText(item.pet_name || item.animal_name || "");
     allTreating.push({ type: "qr", key, name, status });
   });
@@ -1020,39 +996,13 @@ function render(qrItems, serverState, visitItems = []){
 
 async function refresh(){
   try {
-    const token = localStorage.getItem("visit_admin_token")
-      || sessionStorage.getItem("visit_admin_token")
-      || "";
-    const requests = [
+    const [r, s] = await Promise.all([
       fetch(RECEPTION_API, { cache: "no-store" }),
-      fetch(SYNC_API, { cache: "no-store" }),
-      token
-        ? fetch(VISITS_API, {
-            cache: "no-store",
-            headers: { "Authorization": `Bearer ${token}` }
-          })
-        : Promise.resolve(null)
-    ];
-
-    const [r, s, v] = await Promise.all(requests);
+      fetch(SYNC_API, { cache: "no-store" })
+    ]);
     const qrData = r && r.ok ? await r.json() : [];
     const serverState = s && s.ok ? await s.json() : {};
-    let visitItems = [];
-
-    if (v && v.ok) {
-      const visitData = await v.json();
-      visitItems = Array.isArray(visitData)
-        ? visitData
-        : (Array.isArray(visitData.items) ? visitData.items : []);
-    } else if (v && (v.status === 401 || v.status === 403)) {
-      console.warn("M5 방문상담 API 인증 실패: M6 상담 연결 토큰을 확인해 주세요.");
-    }
-
-    render(
-      Array.isArray(qrData) ? qrData : (qrData.items || []),
-      serverState,
-      visitItems
-    );
+    render(Array.isArray(qrData) ? qrData : (qrData.items || []), serverState);
     updatedEl.textContent = "실시간 서버 동기화 중 " + new Date().toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
   } catch(err) {
     console.error("M5 현황판 동기화 오류:", err);
