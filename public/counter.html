@@ -37,7 +37,7 @@
           <h1 class="text-xl font-black text-slate-900 tracking-tight">원내 통합 현황판</h1>
           <span class="text-[11px] bg-teal-50 text-teal-800 px-2 py-0.5 rounded font-bold border border-teal-200">23시 하단오거리동물병원</span>
         </div>
-        <p class="text-xs text-slate-500 mt-0.5">실시간 초진·재진 진료 접수 현황</p>
+        <p class="text-xs text-slate-500 mt-0.5">실시간 초진·재진/상담 진료 접수 현황</p>
       </div>
       
       <!-- 컨트롤 버튼 그룹 -->
@@ -444,7 +444,7 @@
           phone: x.phone || x.owner_phone || '', time: x.created_at || '',
           scheduled: payload.expected_date ? `${payload.expected_date} ${payload.expected_time || ''}` : '',
           detail: (payload.reason || x.symptom || x.symptoms || '').trim(),
-          badge: (x.type === 'FIRST' || x.type === '초진') ? '초진' : '재진',
+          badge: (x.type === 'FIRST' || x.type === '초진') ? '초진' : '재진/상담',
           extraInfo: `${payload.breed ? ` · ${payload.breed}` : ''}${payload.weight ? ` · ${payload.weight}kg` : ''}${ageText ? ` (${ageText})` : ''}`,
           treatments: Array.isArray(payload.treatments) ? payload.treatments : (Array.isArray(payload.extras) ? payload.extras : [])
         };
