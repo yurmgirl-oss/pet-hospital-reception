@@ -1070,35 +1070,100 @@
       const phone = document.getElementById('imageSearchPhone').value.trim();
       const date = document.getElementById('imageSearchDate').value;
       if (!q && !phone && !date) { alert('동물 이름, 연락처 또는 날짜를 입력하세요.'); return; }
+
       const params = new URLSearchParams();
       if (q) params.set('q', q);
       if (phone) params.set('phone', phone);
       if (date) params.set('date', date);
+
       const resultBox = document.getElementById('imageSearchResults');
       resultBox.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">검색 중입니다...</p>';
+
       try {
         const response = await apiImageRequest(`/api/reception-images?${params.toString()}`);
+        if (!response.ok) {
+          let message = 'A4 기록 검색에 실패했습니다.';
+          try {
+            const errorData = await response.json();
+            if (errorData.error) message = errorData.error;
+          } catch (e) {}
+          throw new Error(message);
+        }
+
         const data = await response.json();
-        const rows = data.results || [];
-        if (!rows.length) { resultBox.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">검색 결과가 없습니다.</p>'; return; }
-        resultBox.innerHTML = rows.map(row => `
-          <button type="button" onclick="openSavedReceptionImage(${Number(row.id)}, '${escapeHtml(row.pet_name)}', '${escapeHtml(row.visit_date)}', '${escapeHtml(row.visit_type)}')" class="w-full text-left border rounded-lg p-3 hover:bg-indigo-50 hover:border-indigo-300 transition flex items-center justify-between gap-3">
-            <span class="min-w-0"><strong class="text-sm text-slate-800">${escapeHtml(row.pet_name || '이름 없음')}</strong><span class="ml-2 text-xs rounded px-1.5 py-0.5 ${row.visit_type === '초진' ? 'bg-sky-100 text-sky-700' : (row.visit_type === '방문상담' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700')}">${escapeHtml(row.visit_type || '접수')}</span><span class="block text-xs text-slate-500 mt-1">${escapeHtml(row.phone || '연락처 없음')} · ${escapeHtml(row.visit_date || '')}</span></span>
-            <span class="text-indigo-600 text-xs font-bold shrink-0">열기 →</span>
-          </button>`).join('');
+        const rows = Array.isArray(data.results) ? data.results : [];
+
+        if (!rows.length) {
+          resultBox.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">검색 결과가 없습니다.</p>';
+          return;
+        }
+
+        resultBox.innerHTML = `
+          <div class="text-xs text-slate-500 pb-1">총 ${rows.length}건 · 최신 기록과 이전 버전을 구분해 표시합니다.</div>
+          ${rows.map(row => {
+            const hasReceptionVersion = row.reception_id !== null && row.reception_id !== undefined;
+            const versionNo = Math.max(1, Number(row.version_no) || 1);
+            const isLatest = Number(row.is_latest) === 1;
+            const versionBadge = hasReceptionVersion
+              ? `<span class="ml-1 inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-bold ${isLatest ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}"> ${versionNo}차 기록 </span>`
+              : '<span class="ml-1 inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600">개별 기록</span>';
+            const latestBadge = hasReceptionVersion
+              ? (isLatest
+                  ? '<span class="ml-1 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold bg-emerald-600 text-white">최신</span>'
+                  : '<span class="ml-1 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-slate-100 text-slate-500">이전 버전</span>')
+              : '';
+            const safePet = escapeHtml(row.pet_name || '이름 없음');
+            const safeDate = escapeHtml(row.visit_date || '');
+            const safeType = escapeHtml(row.visit_type || '접수');
+            const safePhone = escapeHtml(row.phone || '연락처 없음');
+            return `
+              <button type="button"
+                onclick="openSavedReceptionImage(${Number(row.id)}, '${safePet}', '${safeDate}', '${safeType}', ${hasReceptionVersion ? versionNo : 0}, ${hasReceptionVersion && isLatest})"
+                class="w-full text-left border rounded-lg p-3 hover:bg-indigo-50 hover:border-indigo-300 transition flex items-center justify-between gap-3">
+                <span class="min-w-0">
+                  <span class="flex flex-wrap items-center gap-1">
+                    <strong class="text-sm text-slate-800">${safePet}</strong>
+                    <span class="text-xs rounded px-1.5 py-0.5 ${row.visit_type === '초진' ? 'bg-sky-100 text-sky-700' : (row.visit_type === '방문상담' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700')}">${safeType}</span>
+                    ${versionBadge}
+                    ${latestBadge}
+                  </span>
+                  <span class="block text-xs text-slate-500 mt-1">${safePhone} · ${safeDate}</span>
+                </span>
+                <span class="text-indigo-600 text-xs font-bold shrink-0">열기 →</span>
+              </button>`;
+          }).join('')}
+        `;
       } catch (err) {
         resultBox.innerHTML = `<p class="text-sm text-rose-600 text-center py-6">${escapeHtml(err.message)}</p>`;
       }
     }
 
-    async function openSavedReceptionImage(id, petName = '환자', visitDate = '', visitType = '접수') {
+    async function openSavedReceptionImage(id, petName = '환자', visitDate = '', visitType = '접수', versionNo = 0, isLatest = false) {
       try {
         const response = await apiImageRequest(`/api/reception-images?id=${encodeURIComponent(id)}`);
+        if (!response.ok) {
+          let message = '저장된 이미지를 열 수 없습니다.';
+          try {
+            const errorData = await response.json();
+            if (errorData.error) message = errorData.error;
+          } catch (e) {}
+          throw new Error(message);
+        }
+
         const blob = await response.blob();
         if (activePreviewObjectUrl) URL.revokeObjectURL(activePreviewObjectUrl);
         activePreviewObjectUrl = URL.createObjectURL(blob);
-        openImagePreview(activePreviewObjectUrl, `${petName} ${visitType} 접수 기록`, `${petName}_${visitDate}_${visitType}.png`);
-      } catch (err) { alert('이미지 열기 실패: ' + err.message); }
+
+        const versionText = Number(versionNo) > 0 ? ` · ${versionNo}차${isLatest ? ' 최신' : ' 이전 버전'}` : '';
+        const filenameVersion = Number(versionNo) > 0 ? `_v${versionNo}` : '';
+        openImagePreview(
+          activePreviewObjectUrl,
+          `${petName} ${visitType} 접수 기록${versionText}`,
+          `${petName}_${visitDate}_${visitType}${filenameVersion}.png`
+        );
+      } catch (err) {
+        alert('이미지 열기 실패: ' + err.message);
+      }
     }
 
     // 공지사항 연동
