@@ -377,6 +377,12 @@
     let knownRecepIds = new Set();
     let knownVisitIds = new Set();
     let isFirstLoad = true;
+    let recepBaselineReady = false;
+    let visitBaselineReady = false;
+    let autoSaveQueue = Promise.resolve();
+    const autoSaveAttemptedRecepIds = new Set();
+    const autoSaveAttemptedVisitIds = new Set();
+    const autoSavePendingJobs = new Map();
     
     // 방문·상담 토큰 및 이미지 PIN 관리 (세션 유지)
     let visitToken = sessionStorage.getItem('visit_admin_token') || '';
@@ -488,7 +494,9 @@
         ]);
 
         // 1. 진료 데이터
-        rawReceptions = (resRecep.status === 'fulfilled' && Array.isArray(resRecep.value))
+        const recepFetchOk = resRecep.status === 'fulfilled' && Array.isArray(resRecep.value);
+        const visitFetchOk = resVisits.status === 'fulfilled';
+        rawReceptions = (recepFetchOk)
           ? resRecep.value
           : [];
 
@@ -510,18 +518,57 @@
           rawVisits = [];
         }
 
-        // 신규 접수 체크
-        let hasNew = false;
-        if (!isFirstLoad) {
-          const newRecep = rawReceptions.some(x => !knownRecepIds.has(x.id) && ['접수대기', '대기'].includes(x.status));
-          const newVisit = rawVisits.some(x => !knownVisitIds.has(x.id) && ['접수', '처리 중'].includes(x.status));
-          if (newRecep || newVisit) hasNew = true;
+        // 신규 접수 감지: 알림음과 A4 자동 보관 대상을 함께 추출
+        let newRecepItems = [];
+        let newVisitItems = [];
+        if (recepFetchOk && recepBaselineReady) {
+          newRecepItems = rawReceptions.filter(x =>
+            !knownRecepIds.has(x.id) && ['접수대기', '대기'].includes(x.status)
+          );
+        }
+        if (visitFetchOk && visitBaselineReady) {
+          newVisitItems = rawVisits.filter(x =>
+            !knownVisitIds.has(x.id) && ['접수', '처리 중'].includes(x.status)
+          );
         }
 
-        if (hasNew) playDingDong();
+        if (newRecepItems.length || newVisitItems.length) playDingDong();
 
-        knownRecepIds = new Set(rawReceptions.map(x => x.id));
-        knownVisitIds = new Set(rawVisits.map(x => x.id));
+        // 새 접수는 대기열에 넣고, 실패한 건은 다음 갱신 때 재시도합니다.
+        [...newRecepItems.map(item => ({ kind: 'RECEPTION', item })),
+         ...newVisitItems.map(item => ({ kind: 'VISIT', item }))].forEach(job => {
+          const key = `${job.kind}:${job.item.id}`;
+          if (!autoSavePendingJobs.has(key)) autoSavePendingJobs.set(key, job);
+        });
+
+        // A4 템플릿은 공유되므로 한 건씩 순서대로 생성·저장합니다.
+        for (const [key, job] of autoSavePendingJobs) {
+          const idSet = job.kind === 'VISIT' ? autoSaveAttemptedVisitIds : autoSaveAttemptedRecepIds;
+          if (idSet.has(job.item.id)) continue;
+          idSet.add(job.item.id);
+          autoSaveQueue = autoSaveQueue.then(async () => {
+            let saved = false;
+            try {
+              saved = job.kind === 'VISIT'
+                ? await downloadVisitSheet(job.item, { silent: true })
+                : await downloadIntakeSheet(job.item, { silent: true });
+            } catch (e) {
+              console.error('A4 자동 보관 실패:', e);
+            }
+            if (saved) autoSavePendingJobs.delete(key);
+            else idSet.delete(job.item.id); // 다음 5초 갱신 때 재시도
+          });
+        }
+
+        // 조회 실패 시 기준 ID를 비우지 않아 기존 접수를 신규로 오인하지 않음
+        if (recepFetchOk) {
+          knownRecepIds = new Set(rawReceptions.map(x => x.id));
+          recepBaselineReady = true;
+        }
+        if (visitFetchOk) {
+          knownVisitIds = new Set(rawVisits.map(x => x.id));
+          visitBaselineReady = true;
+        }
         isFirstLoad = false;
 
         renderCombinedList();
@@ -888,7 +935,8 @@
     }
 
     // 방문·상담 A4 기록 이미지 생성 및 기존 이미지 보관함에 저장
-    async function downloadVisitSheet(item) {
+    async function downloadVisitSheet(item, options = {}) {
+      const silent = options.silent === true;
       const set = (id, value) => {
         const el = document.getElementById(id);
         if (el) el.textContent = value || '-';
@@ -922,13 +970,15 @@
         const datePart = (item.created_at || new Date().toISOString()).slice(0, 10);
         const filename = `${petName}_${datePart}_방문상담.png`;
 
-        const link = document.createElement('a');
-        link.download = filename;
-        link.href = imageURL;
-        link.click();
-        openImagePreview(imageURL, `${petName} 방문·상담 A4 기록`, filename);
+        if (!silent) {
+          const link = document.createElement('a');
+          link.download = filename;
+          link.href = imageURL;
+          link.click();
+          openImagePreview(imageURL, `${petName} 방문·상담 A4 기록`, filename);
+        }
 
-        showToast('☁️ 방문·상담 A4 기록을 클라우드에 보관 중입니다...');
+        showToast(silent ? `☁️ ${petName} 방문·상담 A4 자동 보관 중...` : '☁️ 방문·상담 A4 기록을 클라우드에 보관 중입니다...');
         try {
           const saveResponse = await apiImageRequest('/api/reception-images', {
             method: 'POST',
@@ -945,20 +995,31 @@
           const saveResult = await saveResponse.json();
           if (saveResponse.ok && saveResult.success) {
             showToast(`☁️ ${petName} 방문·상담 기록이 클라우드에 보관되었습니다.`);
+            return true;
           } else {
             console.warn('방문·상담 이미지 저장 응답:', saveResult);
-            showToast('이미지는 생성했지만 클라우드 보관은 확인이 필요합니다.');
+            showToast('방문·상담 A4 자동 보관에 실패했습니다. 잠시 후 다시 시도합니다.');
+            return false;
           }
         } catch (saveError) {
           console.warn('방문·상담 이미지 클라우드 저장 실패:', saveError);
-          showToast('이미지는 생성했지만 클라우드 보관에 실패했습니다.');
+          showToast('방문·상담 A4 자동 보관에 실패했습니다. 잠시 후 다시 시도합니다.');
+          return false;
         }
       } catch (err) {
-        alert('방문·상담 A4 이미지 생성 실패: ' + err.message);
+        if (silent) {
+          console.error('방문·상담 A4 자동 생성 실패:', err);
+          showToast('방문·상담 A4 생성에 실패했습니다. 잠시 후 다시 시도합니다.');
+          return false;
+        } else {
+          alert('방문·상담 A4 이미지 생성 실패: ' + err.message);
+          return false;
+        }
       }
     }
 
-    async function downloadIntakeSheet(item) {
+    async function downloadIntakeSheet(item, options = {}) {
+      const silent = options.silent === true;
       const payload = unwrapPayload(item.payload);
       const isFirst = item.type === 'FIRST' || item.type === '초진';
       const sheetElement = document.getElementById(isFirst ? 'print-sheet' : 'revisit-print-sheet');
@@ -1004,13 +1065,15 @@
         const visitType = isFirst ? '초진' : '재진';
         const downloadFilename = `${petName}_${(item.created_at || new Date().toISOString()).slice(0, 10)}_${visitType}.png`;
 
-        const link = document.createElement('a');
-        link.download = downloadFilename;
-        link.href = imageURL;
-        link.click();
-        openImagePreview(imageURL, `${petName} ${visitType} A4 기록`, downloadFilename);
+        if (!silent) {
+          const link = document.createElement('a');
+          link.download = downloadFilename;
+          link.href = imageURL;
+          link.click();
+          openImagePreview(imageURL, `${petName} ${visitType} A4 기록`, downloadFilename);
+        }
 
-        showToast('☁️ A4 이미지를 클라우드에 보관 중입니다...');
+        showToast(silent ? `☁️ ${petName} ${visitType} A4 자동 보관 중...` : '☁️ A4 이미지를 클라우드에 보관 중입니다...');
         try {
           const saveResponse = await apiImageRequest('/api/reception-images', {
             method: 'POST',
@@ -1027,12 +1090,23 @@
           const saveResult = await saveResponse.json();
           if (saveResponse.ok && saveResult.success) {
             showToast(`☁️ ${petName} A4 기록이 클라우드에 안전하게 보관되었습니다.`);
+          } else {
+            console.warn('A4 이미지 저장 응답:', saveResult);
+            if (silent) showToast('A4 이미지는 생성했지만 클라우드 보관을 확인해야 합니다.');
           }
         } catch (saveError) {
           console.warn('클라우드 저장 실패:', saveError);
+          if (silent) showToast('A4 이미지 클라우드 보관에 실패했습니다. A4 버튼으로 다시 저장해 주세요.');
         }
       } catch (err) {
-        alert('A4 서식 이미지 생성 실패: ' + err.message);
+        if (silent) {
+          console.error('A4 자동 생성 실패:', err);
+          showToast('A4 자동 생성에 실패했습니다. 잠시 후 다시 시도합니다.');
+          return false;
+        } else {
+          alert('A4 서식 이미지 생성 실패: ' + err.message);
+          return false;
+        }
       }
     }
 
