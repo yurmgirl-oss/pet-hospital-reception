@@ -523,12 +523,12 @@
         let newVisitItems = [];
         if (recepFetchOk && recepBaselineReady) {
           newRecepItems = rawReceptions.filter(x =>
-            !knownRecepIds.has(x.id) && ['접수대기', '대기'].includes(x.status)
+            !knownRecepIds.has(x.id) && !['삭제', '취소'].includes(String(x.status || ''))
           );
         }
         if (visitFetchOk && visitBaselineReady) {
           newVisitItems = rawVisits.filter(x =>
-            !knownVisitIds.has(x.id) && ['접수', '처리 중'].includes(x.status)
+            !knownVisitIds.has(x.id) && !['삭제', '취소'].includes(String(x.status || ''))
           );
         }
 
@@ -1090,13 +1090,16 @@
           const saveResult = await saveResponse.json();
           if (saveResponse.ok && saveResult.success) {
             showToast(`☁️ ${petName} A4 기록이 클라우드에 안전하게 보관되었습니다.`);
+            return true;
           } else {
             console.warn('A4 이미지 저장 응답:', saveResult);
             if (silent) showToast('A4 이미지는 생성했지만 클라우드 보관을 확인해야 합니다.');
+            return false;
           }
         } catch (saveError) {
           console.warn('클라우드 저장 실패:', saveError);
-          if (silent) showToast('A4 이미지 클라우드 보관에 실패했습니다. A4 버튼으로 다시 저장해 주세요.');
+          if (silent) showToast('A4 이미지 클라우드 보관에 실패했습니다. 잠시 후 다시 시도합니다.');
+          return false;
         }
       } catch (err) {
         if (silent) {
