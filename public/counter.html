@@ -478,7 +478,7 @@
       list.sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
 
       container.innerHTML = list.map(item => {
-        const typeBadgeClass = item.badge === '초진' ? 'bg-sky-100 text-sky-800 border-sky-300' : 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        const typeBadgeClass = item.badge === '초진' ? 'bg-sky-100 text-sky-800 border-sky-300' : 'bg-amber-100 text-amber-800 border-amber-300';
         const kindLabel = '🩺 진료접수';
         const kindLabelClass = 'text-teal-800 bg-teal-50 border-teal-200';
 
