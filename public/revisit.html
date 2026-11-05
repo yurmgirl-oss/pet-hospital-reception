@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>23시 동물병원 - 재진 접수서</title>
+  <title>23시 하단오거리동물병원 - 재진 / 상담 접수서</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap">
@@ -90,8 +90,8 @@
     <header class="space-y-1">
       <p class="text-[10px] font-bold tracking-widest text-[#0d9488] uppercase">Return Visit Intake</p>
       <div class="flex items-baseline justify-between">
-        <h1 class="text-2xl md:text-3xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">재진 접수서</h1>
-        <p class="text-xs text-slate-500 font-medium">이전 방문 이력이 있으시면 간편히 입력해 주세요.</p>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-[#0f172a] font-serif-title tracking-tight">재진 / 상담 접수서</h1>
+        <p class="text-xs text-slate-500 font-medium">재진 및 상담 요청 내용을 입력해 주세요.</p>
       </div>
       <div class="h-1 w-full bg-[#0d9488] rounded-full mt-1.5"></div>
     </header>
@@ -109,7 +109,7 @@
           </div>
           <div>
             <h2 class="text-sm font-bold text-slate-900 leading-tight">보호자 정보</h2>
-            <p class="text-[11px] text-slate-400">이전에 등록하신 정보로 빠르게 접수해 드려요.</p>
+            <p class="text-[11px] text-slate-400">기존 내원 및 상담 요청을 간편하게 접수해 주세요.</p>
           </div>
         </div>
 
@@ -375,6 +375,47 @@
             </div>
             <span class="font-extrabold text-[#0d9488]">50,000원</span>
           </label>
+
+          <!-- 재진 / 상담 추가 의뢰 항목 -->
+          <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-teal-50/50 hover:border-teal-500 transition cursor-pointer select-none">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="treatment" value="일반상담(10분 기준)" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
+              <span class="font-bold text-slate-800">일반상담 <span class="text-[10px] text-slate-500 font-semibold">(10분 기준)</span></span>
+            </div>
+            <span class="font-extrabold text-[#0d9488] whitespace-nowrap">10,000원</span>
+          </label>
+
+          <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-teal-50/50 hover:border-teal-500 transition cursor-pointer select-none">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="treatment" value="서류발급 및 수령" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
+              <span class="font-bold text-slate-800">서류발급 및 수령</span>
+            </div>
+            <span class="font-extrabold text-amber-700 whitespace-nowrap">(문의)</span>
+          </label>
+
+          <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-teal-50/50 hover:border-teal-500 transition cursor-pointer select-none">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="treatment" value="약처방 및 수령" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
+              <span class="font-bold text-slate-800">약처방 및 수령</span>
+            </div>
+            <span class="font-extrabold text-amber-700 whitespace-nowrap">(문의)</span>
+          </label>
+
+          <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-teal-50/50 hover:border-teal-500 transition cursor-pointer select-none">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="treatment" value="검사결과" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
+              <span class="font-bold text-slate-800">검사결과</span>
+            </div>
+            <span class="font-extrabold text-amber-700 whitespace-nowrap">(문의)</span>
+          </label>
+
+          <label class="treatment-card flex items-center justify-between py-2 px-3 rounded-xl bg-teal-50/50 hover:border-teal-500 transition cursor-pointer select-none">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="treatment" value="기타방문" class="w-3.5 h-3.5 rounded text-[#0d9488] focus:ring-0">
+              <span class="font-bold text-slate-800">기타방문</span>
+            </div>
+            <span class="font-extrabold text-amber-700 whitespace-nowrap">(문의)</span>
+          </label>
         </div>
       </div>
 
@@ -571,7 +612,7 @@
           throw new Error('서버 응답 오류 (' + res.status + ')');
         }
 
-        alert('✅ 재진 접수가 완료되었습니다!\n카운터 화면에서 확인해 보세요.');
+        alert('✅ 재진 / 상담 접수가 완료되었습니다!\n카운터 화면에서 확인해 보세요.');
         window.location.href = 'index.html';
 
       } catch (err) {
