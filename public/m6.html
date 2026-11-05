@@ -307,6 +307,85 @@ const RECEPTION_API = "/api/receptions";
 const VISITS_API = "https://23si-visit-api.yurmgirl.workers.dev/api/visits";
 let visitAuthPrompted = false;
 let visitStatusCache = {};
+
+// 신규 QR·방문상담 접수 알림음
+// 첫 조회 때는 기존 접수 목록을 기준값으로만 저장하고, 이후 새로 들어온 건만 알립니다.
+let knownReceptionIds = null;
+let knownVisitIds = null;
+let m6AudioContext = null;
+let m6AudioUnlocked = false;
+
+function unlockM6Audio(){
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+    if(!m6AudioContext) m6AudioContext = new AudioCtx();
+    if(m6AudioContext.state === "suspended") m6AudioContext.resume();
+    m6AudioUnlocked = true;
+  } catch(e) {
+    console.warn("알림음 초기화 실패:", e);
+  }
+}
+
+function playM6ReceptionChime(count = 1){
+  if(!m6AudioUnlocked || !m6AudioContext) return;
+  try {
+    if(m6AudioContext.state === "suspended") m6AudioContext.resume();
+    const now = m6AudioContext.currentTime;
+    const tones = [880, 1174.66];
+    const repeat = Math.min(Math.max(1, count), 3);
+
+    for(let i = 0; i < repeat; i++){
+      const start = now + i * 0.62;
+      tones.forEach((frequency, index) => {
+        const oscillator = m6AudioContext.createOscillator();
+        const gain = m6AudioContext.createGain();
+        const at = start + index * 0.13;
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, at);
+        gain.gain.setValueAtTime(0.0001, at);
+        gain.gain.exponentialRampToValueAtTime(0.16, at + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.22);
+        oscillator.connect(gain);
+        gain.connect(m6AudioContext.destination);
+        oscillator.start(at);
+        oscillator.stop(at + 0.24);
+      });
+    }
+  } catch(e) {
+    console.warn("접수 알림음 재생 실패:", e);
+  }
+}
+
+// 브라우저 자동재생 제한 해제: M6 화면에서 첫 클릭/키 입력 시 오디오를 활성화합니다.
+window.addEventListener("pointerdown", unlockM6Audio, { once: true });
+window.addEventListener("keydown", unlockM6Audio, { once: true });
+
+function detectNewReceptionAndNotify(receptionItems, visitItems, receptionOk, visitOk){
+  let newCount = 0;
+
+  if(receptionOk){
+    const ids = new Set(receptionItems.map(item => String(item.id ?? item.reception_id ?? "")).filter(Boolean));
+    if(knownReceptionIds === null){
+      knownReceptionIds = ids;
+    } else {
+      for(const id of ids) if(!knownReceptionIds.has(id)) newCount++;
+      knownReceptionIds = ids;
+    }
+  }
+
+  if(visitOk){
+    const ids = new Set(visitItems.map(item => String(item.id ?? "")).filter(Boolean));
+    if(knownVisitIds === null){
+      knownVisitIds = ids;
+    } else {
+      for(const id of ids) if(!knownVisitIds.has(id)) newCount++;
+      knownVisitIds = ids;
+    }
+  }
+
+  if(newCount > 0) playM6ReceptionChime(newCount);
+}
 const CATEGORIES = ["단순관리", "코드블루", "4days", "호스피스", "수술관리", "심폐관리", "신부전", "종양관리", "골관절", "피부알러지", "발작경련", "추적관리", "호르몬장애", "특수관리"];
 
 let isUserInputting = false;
@@ -634,6 +713,14 @@ async function loadQrList(){
       visitError = visitResult.reason?.message || "방문상담 목록을 불러오지 못했습니다.";
       console.error("방문상담 조회 오류:", visitResult.reason);
     }
+
+    // QR 접수와 방문상담을 각각 감시해 새로 등록된 건에만 알림음을 냅니다.
+    detectNewReceptionAndNotify(
+      receptionItems,
+      visitItems,
+      receptionResult.status === "fulfilled",
+      visitResult.status === "fulfilled"
+    );
 
     // 기존 QR접수 ID와 충돌하지 않도록 방문상담 ID에는 v_ 접두어를 붙입니다.
     const items = [
