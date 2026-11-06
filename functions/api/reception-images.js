@@ -74,103 +74,90 @@ function safeFileName(value) {
 }
 
 // ============================================
-// PNG 저장 + 버전 관리
+// PNG 저장 + 접수별 자동 저장 중복 방지 + 버전 관리
 // ============================================
 
 export async function onRequestPost({ request, env }) {
-  if (!authorized(request, env)) {
-    return authError();
-  }
+  if (!authorized(request, env)) return authError();
 
   let objectKey = null;
   let uploaded = false;
 
   try {
     if (!env.DB || !env.RECEPTION_FILES) {
-      return json({
-        error: "D1 또는 R2 바인딩이 없습니다."
-      }, 500);
+      return json({ error: "D1 또는 R2 바인딩이 없습니다." }, 500);
     }
 
     const data = await request.json();
-
     const imageData = String(data.image_data || "");
     const prefix = "data:image/png;base64,";
 
     if (!imageData.startsWith(prefix)) {
-      return json({
-        error: "PNG 이미지 데이터가 필요합니다."
-      }, 400);
+      return json({ error: "PNG 이미지 데이터가 필요합니다." }, 400);
     }
 
     const base64 = imageData.slice(prefix.length);
-
     if (base64.length > 11184812) {
-      return json({
-        error: "이미지는 8MB 이하만 저장할 수 있습니다."
-      }, 413);
+      return json({ error: "이미지는 8MB 이하만 저장할 수 있습니다." }, 413);
     }
 
     let binary;
-
     try {
       binary = atob(base64);
     } catch {
-      return json({
-        error: "이미지 데이터 형식이 올바르지 않습니다."
-      }, 400);
+      return json({ error: "이미지 데이터 형식이 올바르지 않습니다." }, 400);
     }
 
     if (binary.length > 8 * 1024 * 1024) {
-      return json({
-        error: "이미지는 8MB 이하만 저장할 수 있습니다."
-      }, 413);
+      return json({ error: "이미지는 8MB 이하만 저장할 수 있습니다." }, 413);
     }
 
     const bytes = new Uint8Array(binary.length);
-
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-
-    // ----------------------------------------
-    // 기본 정보 정리
-    // ----------------------------------------
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
     const now = new Date();
     const dateInput = String(data.created_at || "");
-
     const visitDate =
       /^\d{4}-\d{2}-\d{2}$/.test(dateInput.slice(0, 10))
         ? dateInput.slice(0, 10)
         : now.toISOString().slice(0, 10);
 
-    const petName = String(data.pet_name || "환자")
-      .trim()
-      .slice(0, 100) || "환자";
-
-    const phone = String(data.phone || "")
-      .replace(/\D/g, "")
-      .slice(0, 20);
-
-    const visitType = String(data.visit_type || "")
-      .trim()
-      .slice(0, 30);
-
+    const petName = String(data.pet_name || "환자").trim().slice(0, 100) || "환자";
+    const phone = String(data.phone || "").replace(/\D/g, "").slice(0, 20);
+    const visitType = String(data.visit_type || "").trim().slice(0, 30);
     const receptionId =
-      data.reception_id == null ||
-      String(data.reception_id).trim() === ""
+      data.reception_id == null || String(data.reception_id).trim() === ""
         ? null
         : String(data.reception_id).trim().slice(0, 80);
 
+    // 자동 저장 요청은 접수번호 기반의 고정 키를 사용한다.
+    // 여러 PC/브라우저가 같은 신규 접수를 감지해도 D1에서 한 건만 허용한다.
+    const saveKey = String(data.save_key || "").trim().slice(0, 150) || null;
+
+    if (saveKey) {
+      const existing = await env.DB.prepare(`
+        SELECT id, version_no, is_latest
+        FROM reception_images
+        WHERE save_key = ?
+        LIMIT 1
+      `).bind(saveKey).first();
+
+      if (existing) {
+        return json({
+          success: true,
+          duplicate: true,
+          image_id: existing.id,
+          version_no: existing.version_no,
+          is_latest: existing.is_latest,
+          reception_id: receptionId,
+          pet_name: petName,
+          message: "이 접수의 자동 저장은 이미 완료되어 추가 저장하지 않았습니다."
+        });
+      }
+    }
+
     const safePetName = safeFileName(petName);
-
-    objectKey =
-      `${visitDate}/${crypto.randomUUID()}_${safePetName}.png`;
-
-    // ----------------------------------------
-    // 1. R2 이미지 저장
-    // ----------------------------------------
+    objectKey = `${visitDate}/${crypto.randomUUID()}_${safePetName}.png`;
 
     await env.RECEPTION_FILES.put(objectKey, bytes, {
       httpMetadata: {
@@ -178,102 +165,79 @@ export async function onRequestPost({ request, env }) {
         cacheControl: "private, no-store"
       }
     });
-
     uploaded = true;
 
-    // ----------------------------------------
-    // 2. D1 버전 관리
-    //
-    // batch() 안의 UPDATE와 INSERT는
-    // 하나의 트랜잭션으로 처리된다.
-    //
-    // 기존 버전:
-    // is_latest = 0
-    //
-    // 새 버전:
-    // version_no = 기존 최대 번호 + 1
-    // is_latest = 1
-    //
-    // reception_id가 NULL이면
-    // 독립적인 version_no = 1
-    // ----------------------------------------
-
-    const updatePrevious = env.DB.prepare(`
-      UPDATE reception_images
-      SET is_latest = 0
-      WHERE reception_id = ?
-    `).bind(receptionId);
-
     const insertNew = env.DB.prepare(`
-      INSERT INTO reception_images
-      (
-        reception_id,
-        pet_name,
-        phone,
-        visit_type,
-        visit_date,
-        object_key,
-        created_at,
-        version_no,
-        is_latest
-      )
+      INSERT OR IGNORE INTO reception_images
+        (reception_id, pet_name, phone, visit_type, visit_date,
+         object_key, created_at, version_no, is_latest, save_key)
       VALUES (
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        datetime('now','+9 hours'),
-        CASE
-          WHEN ? IS NULL THEN 1
-          ELSE COALESCE(
-            (
-              SELECT MAX(version_no) + 1
-              FROM reception_images
-              WHERE reception_id = ?
-            ),
-            1
-          )
-        END,
-        1
+        ?, ?, ?, ?, ?, ?, datetime('now','+9 hours'),
+        COALESCE(
+          (SELECT MAX(version_no) + 1
+           FROM reception_images WHERE reception_id = ?), 1
+        ),
+        1, ?
       )
     `).bind(
-      receptionId,
-      petName,
-      phone,
-      visitType,
-      visitDate,
-      objectKey,
-      receptionId,
-      receptionId
+      receptionId, petName, phone, visitType, visitDate,
+      objectKey, receptionId, saveKey
     );
 
-    const results = await env.DB.batch([
-      updatePrevious,
-      insertNew
-    ]);
+    await env.DB.batch([insertNew]);
 
-    const insertResult = results[1];
-
-    const imageId = insertResult?.meta?.last_row_id;
-
-    if (!imageId) {
-      throw new Error("D1 이미지 저장 결과를 확인할 수 없습니다.");
+    let savedRow;
+    if (saveKey) {
+      savedRow = await env.DB.prepare(`
+        SELECT id, version_no, is_latest, object_key
+        FROM reception_images
+        WHERE save_key = ?
+        LIMIT 1
+      `).bind(saveKey).first();
+    } else {
+      savedRow = await env.DB.prepare(`
+        SELECT id, version_no, is_latest, object_key
+        FROM reception_images
+        WHERE object_key = ?
+        LIMIT 1
+      `).bind(objectKey).first();
     }
 
-    // 저장된 버전 확인
-    const savedRow = await env.DB.prepare(`
-      SELECT version_no, is_latest
-      FROM reception_images
-      WHERE id = ?
-    `).bind(imageId).first();
+    if (!savedRow) throw new Error("D1 이미지 저장 결과를 확인할 수 없습니다.");
+
+    // 다른 PC가 같은 자동 저장 키를 먼저 저장했다면 이번 R2 파일만 제거한다.
+    if (savedRow.object_key !== objectKey) {
+      await env.RECEPTION_FILES.delete(objectKey);
+      uploaded = false;
+      objectKey = null;
+
+      return json({
+        success: true,
+        duplicate: true,
+        image_id: savedRow.id,
+        version_no: savedRow.version_no,
+        is_latest: savedRow.is_latest,
+        reception_id: receptionId,
+        pet_name: petName,
+        message: "다른 화면에서 이미 저장한 접수입니다. 중복 이미지는 폐기했습니다."
+      });
+    }
+
+    // 실제로 새 기록이 저장된 경우에만 최신 버전을 갱신한다.
+    if (receptionId !== null) {
+      await env.DB.prepare(`
+        UPDATE reception_images
+        SET is_latest = CASE WHEN id = ? THEN 1 ELSE 0 END
+        WHERE reception_id = ?
+      `).bind(savedRow.id, receptionId).run();
+    }
 
     return json({
       success: true,
-      image_id: imageId,
-      version_no: savedRow?.version_no ?? 1,
-      is_latest: savedRow?.is_latest ?? 1,
+      duplicate: false,
+      image_id: savedRow.id,
+      version_no: savedRow.version_no,
+      is_latest: 1,
       reception_id: receptionId,
       pet_name: petName
     });
@@ -281,8 +245,6 @@ export async function onRequestPost({ request, env }) {
   } catch (error) {
     console.error("reception image save error", error);
 
-    // D1 저장 실패 시 새로 올린 R2 파일만 정리
-    // 기존 기록과 기존 이미지에는 손대지 않는다.
     if (uploaded && objectKey) {
       try {
         await env.RECEPTION_FILES.delete(objectKey);
@@ -296,6 +258,7 @@ export async function onRequestPost({ request, env }) {
     }, 500);
   }
 }
+
 
 // ============================================
 // 이미지 검색 및 원본 열람
