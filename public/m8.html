@@ -733,7 +733,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 
 /* 휴대폰 번호 저장 및 표시 형식: 000-0000-0000 */
 function formatPhoneNumber(value){
-  const digits = String(value || '').replace(/\\D/g, '').slice(0, 11);
+  const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
   if(digits.length <= 3) return digits;
   if(digits.length <= 7) return `${digits.slice(0,3)}-${digits.slice(3)}`;
   return `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7)}`;
@@ -741,10 +741,18 @@ function formatPhoneNumber(value){
 $('phone').addEventListener('input', e => {
   const input = e.target;
   const before = input.value;
-  const start = input.selectionStart ?? before.length;
+  const caret = input.selectionStart ?? before.length;
+  // 커서 앞에 있던 숫자의 개수를 기준으로 커서 위치를 복원
+  const digitsBeforeCaret = before.slice(0, caret).replace(/\D/g, '').length;
   input.value = formatPhoneNumber(before);
-  const pos = Math.max(0, start + input.value.length - before.length);
-  input.setSelectionRange(pos, pos);
+  let newCaret = 0;
+  let digitCount = 0;
+  while(newCaret < input.value.length && digitCount < digitsBeforeCaret){
+    if(/\d/.test(input.value[newCaret])) digitCount++;
+    newCaret++;
+  }
+  if(digitsBeforeCaret >= 3 && digitsBeforeCaret < 11 && input.value[newCaret] === '-') newCaret++;
+  input.setSelectionRange(newCaret, newCaret);
 });
 
 $('category').innerHTML=categories.map(c=>`<option>${c}</option>`).join('');
