@@ -130,17 +130,47 @@ export async function onRequestPost({ request, env }) {
         ? null
         : String(data.reception_id).trim().slice(0, 80);
 
-    // 자동 저장 요청은 접수번호 기반의 고정 키를 사용한다.
-    // 여러 PC/브라우저가 같은 신규 접수를 감지해도 D1에서 한 건만 허용한다.
-    const saveKey = String(data.save_key || "").trim().slice(0, 150) || null;
+    // 자동 저장 키는 브라우저가 보내지 않아도 서버가 접수번호로 생성한다.
+    // 현재 프런트엔드의 A4 POST는 신규 접수 자동 보관 전용이다.
+    const suppliedSaveKey = String(data.save_key || "").trim().slice(0, 150);
+    const saveKey = suppliedSaveKey ||
+      (receptionId !== null ? `auto-reception-${receptionId}` : null);
 
     if (saveKey) {
-      const existing = await env.DB.prepare(`
+      // 새 키로 저장된 기록이 이미 있으면 즉시 중복 처리한다.
+      let existing = await env.DB.prepare(`
         SELECT id, version_no, is_latest
         FROM reception_images
         WHERE save_key = ?
         LIMIT 1
       `).bind(saveKey).first();
+
+      // 이전 버전에서 저장되어 save_key만 NULL인 동일 접수 기록도 재사용한다.
+      // 기존 이미지/버전은 삭제하지 않고 최신 기록에 키만 연결한다.
+      if (!existing && receptionId !== null) {
+        const legacy = await env.DB.prepare(`
+          SELECT id, version_no, is_latest
+          FROM reception_images
+          WHERE reception_id = ?
+          ORDER BY COALESCE(version_no, 0) DESC, id DESC
+          LIMIT 1
+        `).bind(receptionId).first();
+
+        if (legacy) {
+          await env.DB.prepare(`
+            UPDATE reception_images
+            SET save_key = ?
+            WHERE id = ? AND save_key IS NULL
+          `).bind(saveKey, legacy.id).run();
+
+          existing = await env.DB.prepare(`
+            SELECT id, version_no, is_latest
+            FROM reception_images
+            WHERE save_key = ?
+            LIMIT 1
+          `).bind(saveKey).first();
+        }
+      }
 
       if (existing) {
         return json({
@@ -151,7 +181,7 @@ export async function onRequestPost({ request, env }) {
           is_latest: existing.is_latest,
           reception_id: receptionId,
           pet_name: petName,
-          message: "이 접수의 자동 저장은 이미 완료되어 추가 저장하지 않았습니다."
+          message: "이 접수의 A4 기록이 이미 존재하여 추가 저장하지 않았습니다."
         });
       }
     }
