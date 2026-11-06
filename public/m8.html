@@ -280,7 +280,21 @@ body {
   border-color: #86efac;
 }
 
-/* 2번째 줄: 최종 입력 내용 1줄 (중요 기록 시 반전 하이라이트) */
+/* 2번째 줄: 보호자 전화번호 */
+.p-row-phone {
+  font-size: 10px;
+  color: #475569;
+  font-weight: 700;
+  background: #f8fafc;
+  border-radius: 3px;
+  padding: 1px 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* 3번째 줄: 최종 입력 내용 1줄 (중요 기록 시 반전 하이라이트) */
 .p-row-2 {
   font-size: 10.5px;
   color: #1e293b;
@@ -716,6 +730,23 @@ const singleGroup=['수술관리','심폐관리','신부전','종양관리','골
 let patients=[];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* 휴대폰 번호 저장 및 표시 형식: 000-0000-0000 */
+function formatPhoneNumber(value){
+  const digits = String(value || '').replace(/\\D/g, '').slice(0, 11);
+  if(digits.length <= 3) return digits;
+  if(digits.length <= 7) return `${digits.slice(0,3)}-${digits.slice(3)}`;
+  return `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7)}`;
+}
+$('phone').addEventListener('input', e => {
+  const input = e.target;
+  const before = input.value;
+  const start = input.selectionStart ?? before.length;
+  input.value = formatPhoneNumber(before);
+  const pos = Math.max(0, start + input.value.length - before.length);
+  input.setSelectionRange(pos, pos);
+});
+
 $('category').innerHTML=categories.map(c=>`<option>${c}</option>`).join('');
 
 async function api(method,body){
@@ -779,15 +810,15 @@ function createPatientCardHtml(p){
   const topNote = sorted.length ? sorted[0] : null;
   const isTopImportant = topNote ? !!topNote.important : false;
   const noteText = topNote ? (topNote.text || '') : '';
-  const phoneDisplay = p.phone ? esc(p.phone) : '연락처 없음';
+  const phoneDisplay = p.phone ? esc(formatPhoneNumber(p.phone)) : '연락처 없음';
 
   return `
     <div class="patient" onclick="editPatient(${p.id})">
       <div class="p-row-1">
         <span class="pname-badge" title="${esc(p.name)}">${p.starred ? '<span class="star-mark">★</span>' : ''}${esc(p.name)}</span>
-        <span class="pphone">${phoneDisplay}</span>
         <span class="pdays-badge ${daysInfo.isToday ? 'today' : ''}">${daysInfo.label}</span>
       </div>
+      ${p.phone ? `<div class="p-row-phone">${phoneDisplay}</div>` : ''}
       <div class="p-row-2 ${isTopImportant ? 'important' : ''}" title="${esc(noteText)}">
         ${noteText ? (isTopImportant ? '🚨 [중요] ' : '📝 ') + esc(noteText) : '<span style="color:#94a3b8">기록 없음</span>'}
       </div>
@@ -984,7 +1015,7 @@ function editPatient(id){
   $('pid').value=p.id;
   $('modalTitle').textContent=`${p.name} - 환자 정보 및 누적 관리 차트`;
   $('name').value=p.name||'';
-  $('phone').value=p.phone||'';
+  $('phone').value=formatPhoneNumber(p.phone||'');
   $('category').value=p.category;
 
   const rawReg = String(p.registered_at||p.created_at||'').trim();
@@ -1017,7 +1048,7 @@ function exportPatientText(){
     '',
     '[환자 기본정보]',
     `동물 이름: ${name}`,
-    `보호자 연락처: ${$('phone').value.trim()||'-'}`,
+    `보호자 연락처: ${formatPhoneNumber($('phone').value.trim())||'-'}`,
     `관리실: ${$('category').value}`,
     `등록일시: ${$('registered').value||'-'}`,
     `별표 최우선: ${$('starred').checked?'예':'아니오'}`,
@@ -1044,7 +1075,7 @@ $('patientForm').addEventListener('submit',async e=>{
   const id=$('pid').value;
   const data={
     name:$('name').value.trim(),
-    phone:$('phone').value.trim(),
+    phone:formatPhoneNumber($('phone').value.trim()),
     category:$('category').value,
     registered_at:$('registered').value,
     starred:$('starred').checked,
