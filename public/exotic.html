@@ -120,13 +120,12 @@
         </div>
       </section>
 
-      <!-- 3. 주사량 계산 테이블 (가로 폭 넉넉히 확대, 1줄 배치로 시인성 대폭 개선) -->
+      <!-- 3. 주사량 계산 테이블 -->
       <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse" id="drugTable">
             <thead>
               <tr class="bg-slate-100 text-slate-700 text-xs font-bold border-b border-slate-200 uppercase tracking-wide">
-                <!-- 약물명 컬럼 폭을 넓혀 줄바꿈 방지 -->
                 <th class="py-3 px-4 min-w-[280px] w-80">약물 제형 (원내 고정 규격)</th>
                 <th class="py-3 px-3 w-40 bg-amber-50/60 text-amber-900 border-x border-slate-200">100g당 기준량</th>
                 <th class="py-3 px-3 w-32">총 처방량</th>
@@ -160,6 +159,28 @@
       <div id="copyAlertToast" class="hidden px-3.5 py-2 bg-emerald-600 text-white font-bold rounded-lg text-xs shrink-0 whitespace-nowrap shadow-md">
         <i class="fa-solid fa-check mr-1"></i> EMR 복사 완료!
       </div>
+    </section>
+
+    <!-- 5. [신규 추가] 동물별 임상 참조 정보 & 필수 메모 (LocalStorage 영구 자동저장) -->
+    <section class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-notes-medical text-teal-600 text-sm"></i>
+            <span id="memoSpeciesTitle" class="text-teal-700 font-extrabold">[게코]</span> 임상 참조 메모 & 상시 보관 노트
+          </span>
+          <span class="hidden sm:inline-block text-[11px] text-slate-400 font-medium">
+            (작성 내용이 해당 동물별로 브라우저에 항상 자동 저장됩니다)
+          </span>
+        </div>
+        <div id="memoSaveStatus" class="opacity-0 transition-opacity duration-300 text-[11px] font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+          <i class="fa-solid fa-check"></i> 자동 저장됨
+        </div>
+      </div>
+      <textarea id="speciesMemoText" rows="3"
+        placeholder="이 동물에 대해 항상 참조할 임상 노하우, 주의 약물, 금기사항, 보정법, 적정 온습도 등을 자유롭게 적어두세요. (동물 탭을 바꾸면 해당 동물의 메모로 자동 전환됩니다)"
+        class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition resize-y leading-relaxed"
+        oninput="handleSpeciesMemoSave()"></textarea>
     </section>
 
   </main>
@@ -281,11 +302,13 @@
     let currentSpeciesId = 'gecko';
     let currentUnit = 'g';
     let customDoses = {};
+    let memoTimeout = null;
 
     window.addEventListener('DOMContentLoaded', () => {
       renderSpeciesTabs();
       initDefaultValues();
       calculateAllDoses();
+      loadSpeciesMemo();
     });
 
     function renderSpeciesTabs() {
@@ -333,6 +356,7 @@
       renderSpeciesTabs();
       updateSpeciesCard();
       calculateAllDoses();
+      loadSpeciesMemo(); // 동물 탭 변경 시 해당 동물의 메모 로드
     }
 
     function getCurrentSpecies() {
@@ -435,7 +459,7 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition-colors";
         tr.innerHTML = `
-          <!-- 약물 & 농도: 넉넉한 너비로 1줄에 자연스럽게 배치 -->
+          <!-- 약물 & 농도 -->
           <td class="py-3 px-4">
             <div class="flex items-center gap-2 flex-wrap">
               <span class="font-bold text-slate-900 text-sm tracking-tight">${drug.name}</span>
@@ -445,7 +469,7 @@
             </div>
           </td>
 
-          <!-- 100g당 기준량 (인라인 수정) -->
+          <!-- 100g당 기준량 -->
           <td class="py-3 px-3 bg-amber-50/40 border-x border-slate-200">
             <div class="flex items-center gap-1.5">
               <input type="number" step="any" min="0" value="${targetDose100g}" 
@@ -463,7 +487,7 @@
             </span>
           </td>
 
-          <!-- 주사량 & U-100 눈금 (강조) -->
+          <!-- 주사량 & U-100 눈금 -->
           <td class="py-3 px-4 bg-teal-50/50 border-x border-teal-100">
             <div class="flex items-center gap-2 flex-wrap">
               <span class="text-sm sm:text-base font-extrabold text-teal-900 font-mono tracking-tight">${formattedVolume}</span>
@@ -545,6 +569,33 @@
       }
     }
 
+    /* ==========================================================================
+       동물별 임상 참고 메모 LocalStorage 영구 저장/불러오기
+       ========================================================================== */
+    function loadSpeciesMemo() {
+      const sp = getCurrentSpecies();
+      const titleEl = document.getElementById('memoSpeciesTitle');
+      if (titleEl) titleEl.textContent = `[${sp.name}]`;
+      
+      const savedMemo = localStorage.getItem(`exotic_notes_${currentSpeciesId}`) || '';
+      const memoEl = document.getElementById('speciesMemoText');
+      if (memoEl) memoEl.value = savedMemo;
+    }
+
+    function handleSpeciesMemoSave() {
+      const text = document.getElementById('speciesMemoText').value;
+      localStorage.setItem(`exotic_notes_${currentSpeciesId}`, text);
+
+      const statusEl = document.getElementById('memoSaveStatus');
+      if (statusEl) {
+        statusEl.classList.remove('opacity-0');
+        clearTimeout(memoTimeout);
+        memoTimeout = setTimeout(() => {
+          statusEl.classList.add('opacity-0');
+        }, 1000);
+      }
+    }
+
     /* 이미지 저장 기능 (html2canvas) */
     function saveAsImage() {
       const btn = document.getElementById('saveImgBtn');
@@ -558,8 +609,8 @@
       const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
       html2canvas(captureTarget, {
-        scale: 2, // 선명한 고화질 캡처
-        backgroundColor: '#f1f5f9', // slate-100
+        scale: 2,
+        backgroundColor: '#f1f5f9',
         useCORS: true,
         logging: false
       }).then(canvas => {
@@ -582,6 +633,7 @@
       customDoses = {};
       initDefaultValues();
       calculateAllDoses();
+      // 환자 폼 초기화 시에도 영구 보관된 동물별 임상 메모는 지워지지 않고 유지됩니다.
     }
   </script>
 </body>
