@@ -211,7 +211,7 @@ body {
   border-radius: 4px;
 }
 
-/* 2줄 압축 환자 카드 */
+/* 환자 카드 */
 .patient {
   border: 1px solid #cbd5e1;
   border-radius: 6px;
@@ -402,7 +402,9 @@ body {
   font-weight: 700;
 }
 
-/* 환자 정보 및 누적 차트 모달 */
+/* ========================================================
+   환자 정보 및 누적 차트 모달 (좌: 동물정보 / 우: 챠트내역 2분할)
+   ======================================================== */
 .modal {
   display: none;
   position: fixed;
@@ -417,27 +419,41 @@ body {
 .dialog {
   background: #ffffff;
   border-radius: 14px;
-  width: min(880px, 98vw);
+  width: min(980px, 98vw);
   max-height: 94vh;
   overflow: auto;
-  padding: 20px 22px;
+  padding: 20px 24px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
   border: 2px solid #64748b;
 }
 .dialog h2 {
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   font-size: 20px;
   font-weight: 900;
   color: #0f172a;
   border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 6px;
+  padding-bottom: 8px;
 }
-.formgrid {
+
+/* 좌우 2분할 레이아웃 컨테이너 */
+.modal-split-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 310px 1fr; /* 좌측 동물정보 310px, 우측 챠트영역 채움 */
+  gap: 16px;
+  align-items: start;
 }
-.field {
+
+/* 좌측: 동물에 관한 정보 (세로 나열) */
+.left-patient-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 14px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+}
+.left-patient-info .field {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -445,7 +461,7 @@ body {
   font-weight: 800;
   color: #0f172a;
 }
-.field input, .field select {
+.left-patient-info input, .left-patient-info select {
   border: 1.5px solid #64748b;
   border-radius: 6px;
   padding: 7px 10px;
@@ -456,27 +472,25 @@ body {
   outline: none;
   background: #ffffff;
 }
-.field input:focus, .field select:focus {
+.left-patient-info input:focus, .left-patient-info select:focus {
   border-color: #1d4ed8;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
-.field input[readonly] {
+.left-patient-info input[readonly] {
   background: #e2e8f0;
   color: #0f172a;
   font-weight: 800;
   border-color: #64748b;
 }
-.field.full { grid-column: 1 / -1; }
 
-/* 차트 전체 이력 뷰어 (좌측 열이 먼저 차고, 우측 열로 넘어가는 다단 레이아웃) */
-.history-box {
-  grid-column: 1 / -1;
+/* 우측: 챠트내역 상하로 길게 나열 */
+.right-history-panel {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin-top: 4px;
+  gap: 8px;
+  min-width: 0;
 }
-.history-box .field-title {
+.right-history-panel .field-title {
   font-size: 13.5px;
   font-weight: 900;
   color: #0f172a;
@@ -485,16 +499,17 @@ body {
   justify-content: space-between;
 }
 
-/* 2열 세로 다단 설정 (좌측 1~N번 채워지고 우측으로 이어짐) */
+/* 세로로 시원하게 나열되는 리스트 (높이 420px로 확장) */
 .history-list {
   border: 2px solid #64748b;
   border-radius: 8px;
-  background: #f8fafc;
-  height: 330px;
+  background: #ffffff;
+  height: 420px;
   overflow-y: auto;
   padding: 6px;
-  column-count: 2;
-  column-gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .history-list::-webkit-scrollbar {
   width: 6px;
@@ -504,21 +519,19 @@ body {
   border-radius: 4px;
 }
 
-/* 번호 + 날짜 + 내용 1줄 슬림 아이템 */
+/* 각 기록 아이템: 번호 + 중요뱃지 + 일시 + 내용 슬림 1줄 */
 .history-item {
-  break-inside: avoid;
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 6px;
+  gap: 6px;
+  padding: 4px 8px;
   border: 1px solid #cbd5e1;
-  font-size: 11.5px;
+  font-size: 12px;
   color: #000000;
   background: #ffffff;
-  border-radius: 4px;
-  height: 28px;
-  margin-bottom: 4px;
-  box-sizing: border-box;
+  border-radius: 5px;
+  height: 30px;
+  flex: none;
   transition: all 0.12s ease;
 }
 .history-item:hover {
@@ -526,19 +539,19 @@ body {
   border-color: #94a3b8;
 }
 
-/* 순번 넘버링 뱃지 */
+/* 순번 뱃지 (1, 2, 3...) */
 .history-no {
   flex: none;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 900;
   color: #2563eb;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
-  padding: 0 5px;
-  border-radius: 3px;
-  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  min-width: 24px;
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 /* ⭐ 중요 기록 특수 스타일 */
@@ -558,9 +571,9 @@ body {
 .badge-important {
   background: #dc2626;
   color: #ffffff;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 900;
-  padding: 1px 4px;
+  padding: 1px 5px;
   border-radius: 3px;
   flex: none;
   line-height: 1.2;
@@ -568,14 +581,14 @@ body {
 
 .history-date {
   flex: none;
-  font-size: 10.5px;
+  font-size: 11px;
   color: #334155;
   font-weight: 700;
   background: #e2e8f0;
-  padding: 1px 5px;
-  border-radius: 3px;
+  padding: 1px 6px;
+  border-radius: 4px;
   white-space: nowrap;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.2px;
 }
 .history-text {
   flex: 1;
@@ -591,9 +604,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin-top: 4px;
   background: #f8fafc;
-  padding: 7px 10px;
+  padding: 8px 10px;
   border: 1.5px solid #cbd5e1;
   border-radius: 8px;
 }
@@ -657,11 +669,11 @@ body {
 .history-empty {
   font-size: 12px;
   color: #64748b;
-  padding: 30px 8px;
+  padding: 40px 8px;
   text-align: center;
   font-weight: 600;
-  column-span: all;
 }
+
 .dialogfoot {
   display: flex;
   justify-content: space-between;
@@ -705,23 +717,43 @@ body {
     <h2 id="modalTitle">특수환자 관리 차트</h2>
     <form id="patientForm">
       <input type="hidden" id="pid">
-      <div class="formgrid">
-        <label class="field">동물 이름<input id="name" required maxlength="60"></label>
-        <label class="field">보호자 연락처<input id="phone" maxlength="30" placeholder="010-0000-0000"></label>
-        <label class="field">관리실<select id="category"></select></label>
-        <label class="field">등록일시 (연도-월-일 시:분)<input id="registered" type="text" readonly></label>
-        <label class="field" style="justify-content:end">
-          <span style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:800;color:#0f172a">
-            <input id="starred" type="checkbox" style="width:17px;height:17px;cursor:pointer"> ⭐ 최우선 표시
-          </span>
-        </label>
+
+      <!-- 좌우 2분할 구조 시작 -->
+      <div class="modal-split-layout">
         
-        <div class="history-box">
+        <!-- 좌측: 동물 기본 정보 세로 나열 -->
+        <div class="left-patient-info">
+          <label class="field">
+            동물 이름
+            <input id="name" required maxlength="60" placeholder="예: 구름이(푸들)">
+          </label>
+          <label class="field">
+            보호자 연락처
+            <input id="phone" maxlength="30" placeholder="010-0000-0000">
+          </label>
+          <label class="field">
+            관리실
+            <select id="category"></select>
+          </label>
+          <label class="field">
+            등록일시 (연도-월-일 시:분)
+            <input id="registered" type="text" readonly>
+          </label>
+          <label class="field" style="margin-top:4px">
+            <span style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:800;color:#0f172a">
+              <input id="starred" type="checkbox" style="width:17px;height:17px;cursor:pointer"> ⭐ 최우선 표시
+            </span>
+          </label>
+        </div>
+
+        <!-- 우측: 챠트 내역 아래위로 길게 나열 -->
+        <div class="right-history-panel">
           <div class="field-title">
             <span id="historyHeaderTitle">📋 누적 관리 차트 내역</span>
-            <span style="font-size:12px;font-weight:700;color:#64748b">⭐ 번호순(좌측 우선 채움)</span>
+            <span style="font-size:12px;font-weight:700;color:#64748b">⭐ 중요 기록 최상단 우선 정렬</span>
           </div>
-          <!-- 좌측 열(1~10번 등)이 다 차면 우측 열로 넘어가는 다단 리스트 -->
+
+          <!-- 높이 420px로 확장된 세로 단독 리스트 -->
           <div class="history-list" id="historyList">
             <div class="history-empty">아직 기록이 없습니다.</div>
           </div>
@@ -741,7 +773,10 @@ body {
             </div>
           </div>
         </div>
+
       </div>
+      <!-- 좌우 2분할 구조 끝 -->
+
       <div class="dialogfoot">
         <button type="button" class="btn" id="deleteBtn" style="display:none;background:#fee2e2;color:#b91c1c;border-color:#ef4444" onclick="removePatient()">F8에서 삭제</button>
         <div style="margin-left:auto;display:flex;gap:7px">
@@ -827,7 +862,6 @@ function getDayCount(rawStr){
   };
 }
 
-/* 중요 우선 -> 최신순 정렬 */
 function sortNotes(notes){
   return notes.slice().sort((a,b)=>{
     const aImp = !!a.important;
@@ -984,11 +1018,7 @@ function formatNoteDate(n){
   return n.date||'날짜 미상';
 }
 
-/* 
-  차트 내역 렌더링:
-  1. 각 기록 앞에 1, 2, 3... 순번 뱃지 부여
-  2. 좌측 열이 1번부터 차곡차곡 채워지고 다 차면 우측 열로 이어짐 (column-count)
-*/
+/* 우측 챠트 내역 렌더링 (번호 부여 + 위에서 아래로 세로 정렬) */
 function renderHistory(){
   const box=$('historyList');
   $('historyHeaderTitle').textContent = `📋 누적 관리 차트 내역 (${noteItems.length}건)`;
