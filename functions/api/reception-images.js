@@ -162,9 +162,37 @@ export async function onRequestPost({ request, env }) {
         ? null
         : String(data.reception_id).trim().slice(0, 80);
 
-    // 중요: save_key를 이용한 중복 차단을 완전히 사용하지 않는다.
-    // 매 요청마다 고유한 R2 objectKey와 새로운 D1 행을 만든다.
-    // save_key 컬럼은 기존 스키마 호환을 위해 NULL로 기록한다.
+    // 자동 A4 백업 요청만 접수번호별로 한 번 저장한다.
+    // 수동 A4 버튼 요청은 save_key가 없으므로 누를 때마다 새 기록을 추가한다.
+    const saveKey = String(data.save_key || "").trim().slice(0, 150) || null;
+
+    if (saveKey) {
+      const existing = await env.DB.prepare(`
+        SELECT id, version_no, is_latest, object_key
+        FROM reception_images
+        WHERE save_key = ?
+        ORDER BY id DESC
+        LIMIT 1
+      `).bind(saveKey).first();
+
+      if (existing) {
+        const existingObject = await env.RECEPTION_FILES.head(existing.object_key);
+        if (existingObject) {
+          return json({
+            success: true,
+            duplicate: true,
+            saved_new_record: false,
+            image_id: existing.id,
+            version_no: existing.version_no,
+            is_latest: existing.is_latest,
+            reception_id: receptionId,
+            pet_name: petName,
+            message: "자동 A4 기록이 이미 보관되어 있어 기존 기록을 유지했습니다."
+          });
+        }
+      }
+    }
+
     const safePetName = safeFileName(petName);
     objectKey = `${visitDate}/${crypto.randomUUID()}_${safePetName}.png`;
 
@@ -188,11 +216,11 @@ export async function onRequestPost({ request, env }) {
           (SELECT MAX(version_no) + 1
            FROM reception_images WHERE reception_id = ?), 1
         ),
-        1, NULL
+        1, ?
       )
     `).bind(
       receptionId, petName, phone, visitType, visitDate,
-      objectKey, receptionId
+      objectKey, receptionId, saveKey
     ).run();
 
     const savedRow = await env.DB.prepare(`
