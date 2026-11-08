@@ -323,35 +323,11 @@
     let receptionImagePin = '';
     let activePreviewObjectUrl = '';
 
-    // 접수 현황판이 새 접수를 감지하면 A4 이미지를 자동 보관한다.
-    // 성공한 접수번호만 브라우저에 기록하고, 실패한 건은 일정 시간 후 재시도한다.
-    const AUTO_A4_SAVED_KEY = '23si_auto_a4_saved_reception_ids_v1';
-    let autoSavedReceptionIds = new Set();
+    // 서버의 D1 원본 접수목록을 기준으로 미저장 A4를 찾아 자동 보관한다.
+    // 현황판이 꺼져 있던 기간의 과거 접수도 포함하며, 완료/숨김/예약 상태도 누락하지 않는다.
+    // 저장 여부는 브라우저 localStorage가 아니라 서버의 reception_images.save_key로 관리한다.
     let autoSaveRetryAt = new Map();
     let autoSaveQueueRunning = false;
-    try {
-      const savedIds = JSON.parse(localStorage.getItem(AUTO_A4_SAVED_KEY) || '[]');
-      if (Array.isArray(savedIds)) autoSavedReceptionIds = new Set(savedIds.map(String));
-    } catch (err) {
-      console.warn('자동 A4 저장 이력 로드 실패:', err);
-    }
-
-    function getKoreaTodayString() {
-      return new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
-      }).format(new Date());
-    }
-
-    function persistAutoSavedReceptionIds() {
-      try {
-        // 무한히 커지지 않도록 최근 5000건만 보관
-        const ids = Array.from(autoSavedReceptionIds).slice(-5000);
-        autoSavedReceptionIds = new Set(ids);
-        localStorage.setItem(AUTO_A4_SAVED_KEY, JSON.stringify(ids));
-      } catch (err) {
-        console.warn('자동 A4 저장 이력 기록 실패:', err);
-      }
-    }
 
     function copyText(text, label = '텍스트') {
       if (!text || text === '-' || text === '미기재') return;
@@ -885,16 +861,18 @@
 
     async function queueAutomaticA4Save(items) {
       if (autoSaveQueueRunning || !Array.isArray(items)) return;
-      const today = getKoreaTodayString();
+
       const pending = items.filter(item => {
-        if (!item || item.id == null || item.status === '예약대기') return false;
+        if (!item || item.id == null) return false;
+
+        // 서버가 D1에서 계산한 자동 A4 저장 여부를 사용한다.
+        if (Number(item.a4_auto_saved) === 1 || item.a4_auto_saved === true) return false;
+
         const id = String(item.id);
-        if (autoSavedReceptionIds.has(id)) return false;
-        const createdDate = String(item.created_at || '').replace('T', ' ').slice(0, 10);
-        if (createdDate && createdDate !== today) return false;
         const retryAt = autoSaveRetryAt.get(id) || 0;
         return Date.now() >= retryAt;
-      });
+      }).slice(0, 5); // 과거 미저장 자료가 많아도 한 번에 5건씩 안전하게 처리
+
       if (!pending.length) return;
 
       autoSaveQueueRunning = true;
@@ -904,9 +882,7 @@
           try {
             const saved = await downloadIntakeSheet(item, true);
             if (saved) {
-              autoSavedReceptionIds.add(id);
               autoSaveRetryAt.delete(id);
-              persistAutoSavedReceptionIds();
             } else {
               autoSaveRetryAt.set(id, Date.now() + 60000);
             }
@@ -1031,7 +1007,8 @@
               pet_name: petName,
               phone: item.phone || item.owner_phone || '',
               visit_type: visitType,
-              created_at: item.created_at || new Date().toISOString()
+              created_at: item.created_at || new Date().toISOString(),
+              ...(autoOnly ? { save_key: `auto-a4-reception-${item.id}` } : {})
             })
           });
           const saveResult = await saveResponse.json();
