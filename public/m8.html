@@ -232,7 +232,7 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }
 
-/* 1번째 줄: 이름(색반전) + 전화번호 + 경과일 */
+/* 1번째 줄: 이름 + 경과일 */
 .p-row-1 {
   display: flex;
   align-items: center;
@@ -249,7 +249,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 55%;
+  max-width: 65%;
   line-height: 1.35;
   letter-spacing: -0.2px;
 }
@@ -294,7 +294,7 @@ body {
   line-height: 1.3;
 }
 
-/* 3번째 줄: 최종 입력 내용 1줄 (중요 기록 시 반전 하이라이트) */
+/* 3번째 줄: 최종 입력 내용 1줄 */
 .p-row-2 {
   font-size: 10.5px;
   color: #1e293b;
@@ -325,7 +325,7 @@ body {
   font-weight: 600;
 }
 
-/* 대분류 클릭 시 760px 너비로 확대되는 오버레이 */
+/* 대분류 클릭 시 760px 너비 확대 오버레이 */
 .room-expand-overlay {
   display: none;
   position: absolute;
@@ -405,7 +405,7 @@ body {
   font-weight: 700;
 }
 
-/* 환자 정보 및 누적 차트 모달 */
+/* 환자 정보 및 누적 차트 모달 (모달 너비를 860px로 소폭 확대하여 2열 그리드 최적화) */
 .modal {
   display: none;
   position: fixed;
@@ -415,45 +415,45 @@ body {
   z-index: 50;
   align-items: center;
   justify-content: center;
-  padding: 15px;
+  padding: 12px;
 }
 .dialog {
   background: #ffffff;
   border-radius: 14px;
-  width: min(780px, 96vw);
-  max-height: 92vh;
+  width: min(860px, 98vw);
+  max-height: 94vh;
   overflow: auto;
-  padding: 24px;
+  padding: 20px 22px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
   border: 2px solid #64748b;
 }
 .dialog h2 {
-  margin: 0 0 16px;
-  font-size: 21px;
+  margin: 0 0 12px;
+  font-size: 20px;
   font-weight: 900;
   color: #0f172a;
   border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
 }
 .formgrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 .field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  font-size: 13px;
+  gap: 4px;
+  font-size: 12.5px;
   font-weight: 800;
   color: #0f172a;
 }
 .field input, .field select {
   border: 1.5px solid #64748b;
-  border-radius: 7px;
-  padding: 9px 11px;
+  border-radius: 6px;
+  padding: 7px 10px;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   color: #000000;
   outline: none;
@@ -471,16 +471,16 @@ body {
 }
 .field.full { grid-column: 1 / -1; }
 
-/* 차트 전체 이력 뷰어 */
+/* 차트 전체 이력 뷰어 (2열 그리드 + 고밀도 콤팩트 1줄 바 형태) */
 .history-box {
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 5px;
+  margin-top: 4px;
 }
 .history-box .field-title {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 900;
   color: #0f172a;
   display: flex;
@@ -491,34 +491,46 @@ body {
   border: 2px solid #64748b;
   border-radius: 8px;
   background: #f8fafc;
-  max-height: 250px;
-  min-height: 90px;
+  height: 340px; /* 높이를 넉넉하게 확장하여 스크롤 없이도 수십 개 표시 */
   overflow-y: auto;
-  padding: 8px;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 좌우 2줄(2열) 배치 */
+  gap: 4px;
+  align-content: start;
+}
+.history-list::-webkit-scrollbar {
+  width: 6px;
+}
+.history-list::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
 }
 
-/* 기록 아이템 기본 스타일 */
+/* 기록 아이템: 높이를 확 줄인 슬림 한 줄 레이아웃 */
 .history-item {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 8px 10px;
-  border-bottom: 1px solid #cbd5e1;
-  font-size: 13px;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 11.5px;
   color: #000000;
   background: #ffffff;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  transition: all 0.15s ease;
+  border-radius: 4px;
+  height: 28px;
+  min-width: 0;
+  transition: all 0.12s ease;
 }
-.history-item:last-child {
-  margin-bottom: 0;
+.history-item:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
+
 /* ⭐ 중요 기록 특수 스타일 (색상 반전 & 뱃지) */
 .history-item.important-row {
   background: #fef2f2;
-  border: 1.5px solid #ef4444;
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+  border: 1.2px solid #ef4444;
 }
 .history-item.important-row .history-text {
   color: #991b1b;
@@ -527,43 +539,42 @@ body {
 .badge-important {
   background: #dc2626;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
-  padding: 2px 7px;
-  border-radius: 4px;
+  padding: 1px 4px;
+  border-radius: 3px;
   flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
+  line-height: 1.2;
 }
 
 .history-date {
   flex: none;
-  font-size: 12px;
-  color: #0f172a;
-  font-weight: 800;
+  font-size: 10.5px;
+  color: #334155;
+  font-weight: 700;
   background: #e2e8f0;
-  padding: 3px 8px;
-  border-radius: 5px;
-  border: 1px solid #cbd5e1;
+  padding: 1px 5px;
+  border-radius: 3px;
   white-space: nowrap;
+  letter-spacing: -0.3px;
 }
 .history-text {
   flex: 1;
+  min-width: 0;
   font-weight: 600;
-  line-height: 1.45;
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 긴 내용은 깔끔하게 말줄임 처리, 호버 시 툴팁 확인 가능 */
 }
 
 /* 새 기록 입력창 & 중요 토글 바 */
 .note-entry-container {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 5px;
+  margin-top: 4px;
   background: #f8fafc;
-  padding: 8px;
+  padding: 7px 10px;
   border: 1.5px solid #cbd5e1;
   border-radius: 8px;
 }
@@ -575,14 +586,14 @@ body {
 .important-toggle-label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: #fee2e2;
   color: #b91c1c;
   border: 1.5px solid #f87171;
-  padding: 3px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 800;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
@@ -592,25 +603,25 @@ body {
   color: #7f1d1d;
 }
 .important-toggle-label input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
   accent-color: #dc2626;
 }
 
 .note-entry {
   display: flex;
-  gap: 7px;
+  gap: 6px;
 }
 .note-entry input {
   flex: 1;
   min-width: 0;
-  height: 40px;
+  height: 36px;
   border: 1.5px solid #64748b;
-  border-radius: 7px;
-  padding: 0 12px;
+  border-radius: 6px;
+  padding: 0 10px;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   color: #000000;
 }
@@ -622,21 +633,22 @@ body {
 .note-entry button {
   white-space: nowrap;
   font-weight: 800;
-  padding: 0 16px;
+  padding: 0 14px;
 }
 .history-empty {
   font-size: 12px;
   color: #64748b;
-  padding: 24px 8px;
+  padding: 30px 8px;
   text-align: center;
   font-weight: 600;
+  grid-column: 1 / -1;
 }
 .dialogfoot {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 18px;
-  padding-top: 14px;
+  margin-top: 14px;
+  padding-top: 10px;
   border-top: 2px solid #e2e8f0;
 }
 </style>
@@ -654,7 +666,7 @@ body {
 <main class="main" id="mainContainer">
   <section class="rooms" id="rooms"></section>
 
-  <!-- 대분류 클릭 시 760px 너비로 시원하게 확대되는 오버레이 -->
+  <!-- 대분류 클릭 시 760px 너비로 확대 오버레이 -->
   <div class="room-expand-overlay" id="roomExpand">
     <div class="expand-head">
       <span id="expandTitle">관리실</span>
@@ -687,14 +699,15 @@ body {
         
         <div class="history-box">
           <div class="field-title">
-            <span>📋 누적 관리 차트 내역</span>
-            <span style="font-size:12px;font-weight:700;color:#64748b">⭐ 중요 기록 항상 최상단 고정</span>
+            <span id="historyHeaderTitle">📋 누적 관리 차트 내역</span>
+            <span style="font-size:12px;font-weight:700;color:#64748b">⭐ 중요 기록 최상단 우선 정렬</span>
           </div>
+          <!-- 좌우 2열 배치 그리드로 한 화면에 수십 개 표시 -->
           <div class="history-list" id="historyList">
             <div class="history-empty">아직 기록이 없습니다.</div>
           </div>
           
-          <!-- 새 기록 입력 및 중요(Pin) 토글 컨트롤 영역 -->
+          <!-- 새 기록 입력 및 중요 토글 -->
           <div class="note-entry-container">
             <div class="note-entry-controls">
               <label class="important-toggle-label">
@@ -742,7 +755,6 @@ $('phone').addEventListener('input', e => {
   const input = e.target;
   const before = input.value;
   const caret = input.selectionStart ?? before.length;
-  // 커서 앞에 있던 숫자의 개수를 기준으로 커서 위치를 복원
   const digitsBeforeCaret = before.slice(0, caret).replace(/\D/g, '').length;
   input.value = formatPhoneNumber(before);
   let newCaret = 0;
@@ -798,7 +810,7 @@ function getDayCount(rawStr){
   };
 }
 
-/* 기록 정렬: 중요(important) 우선 정렬 -> 그 후 최신순 */
+/* 기록 정렬: 중요 우선 -> 최신순 */
 function sortNotes(notes){
   return notes.slice().sort((a,b)=>{
     const aImp = !!a.important;
@@ -871,7 +883,7 @@ function render(){
   $('rooms').innerHTML = html;
 }
 
-/* 대분류 클릭 시 폭에 맞춰 내용도 큼직하게 확대 오버레이 */
+/* 대분류 클릭 시 확대 오버레이 */
 function openExpand(cat, elementId){
   const list = patients.filter(p => p.category === cat).sort(sortRows);
   const overlay = $('roomExpand');
@@ -960,30 +972,31 @@ function formatNoteDate(n){
   return n.date||'날짜 미상';
 }
 
-/* 환자 차트 내역 렌더링 (중요 기록 최상단 고정 및 색상 반전) */
+/* 차트 내역 렌더링: 2열 슬림 그리드로 대량 표시 */
 function renderHistory(){
   const box=$('historyList');
+  $('historyHeaderTitle').textContent = `📋 누적 관리 차트 내역 (${noteItems.length}건)`;
   if(!noteItems.length){
     box.innerHTML='<div class="history-empty">아직 기록이 없습니다. 아래 입력창에 첫 관리 기록을 남겨보세요.</div>';
     return;
   }
 
-  // 중요 기록 우선 정렬 후 렌더링
   const sorted = sortNotes(noteItems);
 
   box.innerHTML = sorted.map(n => {
     const isImp = !!n.important;
+    const textVal = esc(n.text || '');
     return `
-      <div class="history-item ${isImp ? 'important-row' : ''}">
-        ${isImp ? '<span class="badge-important">★ 중요</span>' : ''}
+      <div class="history-item ${isImp ? 'important-row' : ''}" title="${textVal}">
+        ${isImp ? '<span class="badge-important">★중요</span>' : ''}
         <span class="history-date">${esc(formatNoteDate(n))}</span>
-        <span class="history-text">${esc(n.text || '')}</span>
+        <span class="history-text">${textVal}</span>
       </div>
     `;
   }).join('');
 }
 
-/* 새 기록 추가 시 중요 체크 여부 함께 저장 */
+/* 새 기록 추가 */
 function addNote(){
   const input=$('noteInput');
   const text=input.value.trim();
@@ -1003,7 +1016,7 @@ function addNote(){
   });
 
   input.value='';
-  $('noteImportant').checked = false; // 추가 후 체크 해제
+  $('noteImportant').checked = false;
   renderHistory();
   input.focus();
 }
@@ -1038,7 +1051,7 @@ function editPatient(id){
   $('modal').style.display='flex';
 }
 
-/* 차트 저장 텍스트 (중요 기록 표시 반영) */
+/* 차트 텍스트 저장 */
 function exportPatientText(){
   const name=$('name').value.trim()||'이름없음';
   const sorted = sortNotes(noteItems);
