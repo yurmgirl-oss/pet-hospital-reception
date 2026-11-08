@@ -74,8 +74,44 @@ function safeFileName(value) {
 }
 
 // ============================================
-// PNG 저장 + 접수별 자동 저장 중복 방지 + 버전 관리
+// PNG 저장 - 중복 허용 / 누락 방지 우선 / 버전 관리
+// 저장 버튼을 누를 때마다 새로운 이미지와 D1 기록을 생성한다.
+// 같은 접수번호, 같은 동물, 같은 날짜라도 저장을 차단하지 않는다.
 // ============================================
+
+function getKoreaDate(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date);
+
+  const values = {};
+  for (const part of parts) {
+    if (part.type !== "literal") values[part.type] = part.value;
+  }
+
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function resolveVisitDate(value) {
+  const input = String(value || "").trim();
+
+  // 날짜만 전달된 경우에는 전달된 날짜를 그대로 사용한다.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(input)) return input;
+
+  // 시간대가 명시된 ISO 날짜는 한국 시간 기준으로 변환한다.
+  if (/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:?\d{2})$/i.test(input)) {
+    const parsed = new Date(input);
+    if (!Number.isNaN(parsed.getTime())) return getKoreaDate(parsed);
+  }
+
+  // 시간대가 없는 기존 DB 날짜/시간 문자열은 앞의 날짜를 보존한다.
+  if (/^\d{4}-\d{2}-\d{2}/.test(input)) return input.slice(0, 10);
+
+  return getKoreaDate();
+}
 
 export async function onRequestPost({ request, env }) {
   if (!authorized(request, env)) return authError();
@@ -113,15 +149,11 @@ export async function onRequestPost({ request, env }) {
     }
 
     const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
 
-    const now = new Date();
-    const dateInput = String(data.created_at || "");
-    const visitDate =
-      /^\d{4}-\d{2}-\d{2}$/.test(dateInput.slice(0, 10))
-        ? dateInput.slice(0, 10)
-        : now.toISOString().slice(0, 10);
-
+    const visitDate = resolveVisitDate(data.created_at);
     const petName = String(data.pet_name || "환자").trim().slice(0, 100) || "환자";
     const phone = String(data.phone || "").replace(/\D/g, "").slice(0, 20);
     const visitType = String(data.visit_type || "").trim().slice(0, 30);
@@ -130,62 +162,9 @@ export async function onRequestPost({ request, env }) {
         ? null
         : String(data.reception_id).trim().slice(0, 80);
 
-    // 자동 저장 키는 브라우저가 보내지 않아도 서버가 접수번호로 생성한다.
-    // 현재 프런트엔드의 A4 POST는 신규 접수 자동 보관 전용이다.
-    const suppliedSaveKey = String(data.save_key || "").trim().slice(0, 150);
-    const saveKey = suppliedSaveKey ||
-      (receptionId !== null ? `auto-reception-${receptionId}` : null);
-
-    if (saveKey) {
-      // 새 키로 저장된 기록이 이미 있으면 즉시 중복 처리한다.
-      let existing = await env.DB.prepare(`
-        SELECT id, version_no, is_latest
-        FROM reception_images
-        WHERE save_key = ?
-        LIMIT 1
-      `).bind(saveKey).first();
-
-      // 이전 버전에서 저장되어 save_key만 NULL인 동일 접수 기록도 재사용한다.
-      // 기존 이미지/버전은 삭제하지 않고 최신 기록에 키만 연결한다.
-      if (!existing && receptionId !== null) {
-        const legacy = await env.DB.prepare(`
-          SELECT id, version_no, is_latest
-          FROM reception_images
-          WHERE reception_id = ?
-          ORDER BY COALESCE(version_no, 0) DESC, id DESC
-          LIMIT 1
-        `).bind(receptionId).first();
-
-        if (legacy) {
-          await env.DB.prepare(`
-            UPDATE reception_images
-            SET save_key = ?
-            WHERE id = ? AND save_key IS NULL
-          `).bind(saveKey, legacy.id).run();
-
-          existing = await env.DB.prepare(`
-            SELECT id, version_no, is_latest
-            FROM reception_images
-            WHERE save_key = ?
-            LIMIT 1
-          `).bind(saveKey).first();
-        }
-      }
-
-      if (existing) {
-        return json({
-          success: true,
-          duplicate: true,
-          image_id: existing.id,
-          version_no: existing.version_no,
-          is_latest: existing.is_latest,
-          reception_id: receptionId,
-          pet_name: petName,
-          message: "이 접수의 A4 기록이 이미 존재하여 추가 저장하지 않았습니다."
-        });
-      }
-    }
-
+    // 중요: save_key를 이용한 중복 차단을 완전히 사용하지 않는다.
+    // 매 요청마다 고유한 R2 objectKey와 새로운 D1 행을 만든다.
+    // save_key 컬럼은 기존 스키마 호환을 위해 NULL로 기록한다.
     const safePetName = safeFileName(petName);
     objectKey = `${visitDate}/${crypto.randomUUID()}_${safePetName}.png`;
 
@@ -197,8 +176,10 @@ export async function onRequestPost({ request, env }) {
     });
     uploaded = true;
 
-    const insertNew = env.DB.prepare(`
-      INSERT OR IGNORE INTO reception_images
+    // INSERT OR IGNORE를 사용하지 않는다.
+    // D1 제약조건/오류로 저장이 무시되면 성공으로 오인하지 않고 오류를 반환한다.
+    await env.DB.prepare(`
+      INSERT INTO reception_images
         (reception_id, pet_name, phone, visit_type, visit_date,
          object_key, created_at, version_no, is_latest, save_key)
       VALUES (
@@ -207,53 +188,33 @@ export async function onRequestPost({ request, env }) {
           (SELECT MAX(version_no) + 1
            FROM reception_images WHERE reception_id = ?), 1
         ),
-        1, ?
+        1, NULL
       )
     `).bind(
       receptionId, petName, phone, visitType, visitDate,
-      objectKey, receptionId, saveKey
-    );
+      objectKey, receptionId
+    ).run();
 
-    await env.DB.batch([insertNew]);
+    const savedRow = await env.DB.prepare(`
+      SELECT id, version_no, is_latest, object_key
+      FROM reception_images
+      WHERE object_key = ?
+      LIMIT 1
+    `).bind(objectKey).first();
 
-    let savedRow;
-    if (saveKey) {
-      savedRow = await env.DB.prepare(`
-        SELECT id, version_no, is_latest, object_key
-        FROM reception_images
-        WHERE save_key = ?
-        LIMIT 1
-      `).bind(saveKey).first();
-    } else {
-      savedRow = await env.DB.prepare(`
-        SELECT id, version_no, is_latest, object_key
-        FROM reception_images
-        WHERE object_key = ?
-        LIMIT 1
-      `).bind(objectKey).first();
-    }
-
-    if (!savedRow) throw new Error("D1 이미지 저장 결과를 확인할 수 없습니다.");
-
-    // 다른 PC가 같은 자동 저장 키를 먼저 저장했다면 이번 R2 파일만 제거한다.
-    if (savedRow.object_key !== objectKey) {
-      await env.RECEPTION_FILES.delete(objectKey);
-      uploaded = false;
-      objectKey = null;
-
+    if (!savedRow) {
+      // R2 원본은 보존한다. D1 확인 실패 시에도 이미지 자체를 삭제하지 않는다.
       return json({
-        success: true,
-        duplicate: true,
-        image_id: savedRow.id,
-        version_no: savedRow.version_no,
-        is_latest: savedRow.is_latest,
-        reception_id: receptionId,
+        success: false,
+        error: "R2 이미지 업로드는 완료됐지만 D1 기록 확인에 실패했습니다. 원본 이미지는 R2에 보존되어 있습니다.",
+        image_saved_to_r2: true,
+        recovery_object_key: objectKey,
         pet_name: petName,
-        message: "다른 화면에서 이미 저장한 접수입니다. 중복 이미지는 폐기했습니다."
-      });
+        visit_date: visitDate
+      }, 500);
     }
 
-    // 실제로 새 기록이 저장된 경우에만 최신 버전을 갱신한다.
+    // 같은 접수번호의 이전 기록은 보존하고, 이번 기록만 최신으로 표시한다.
     if (receptionId !== null) {
       await env.DB.prepare(`
         UPDATE reception_images
@@ -265,26 +226,29 @@ export async function onRequestPost({ request, env }) {
     return json({
       success: true,
       duplicate: false,
+      saved_new_record: true,
       image_id: savedRow.id,
       version_no: savedRow.version_no,
       is_latest: 1,
       reception_id: receptionId,
-      pet_name: petName
+      pet_name: petName,
+      visit_date: visitDate,
+      object_key: objectKey,
+      message: "A4 이미지가 새 기록으로 저장되었습니다. 기존 기록은 유지됩니다."
     });
 
   } catch (error) {
     console.error("reception image save error", error);
 
-    if (uploaded && objectKey) {
-      try {
-        await env.RECEPTION_FILES.delete(objectKey);
-      } catch (deleteError) {
-        console.error("R2 cleanup error", deleteError);
-      }
-    }
-
+    // 누락 방지 우선: R2 업로드가 성공했다면 D1 처리 중 오류가 나도
+    // 원본 PNG를 자동 삭제하지 않는다. 복구할 수 있도록 object_key를 반환한다.
     return json({
-      error: error.message || "이미지 저장에 실패했습니다."
+      error: error.message || "이미지 저장에 실패했습니다.",
+      image_saved_to_r2: uploaded,
+      recovery_object_key: uploaded ? objectKey : null,
+      message: uploaded
+        ? "R2 원본 이미지는 보존했습니다. D1 등록 상태를 확인해야 합니다."
+        : "R2 이미지 업로드 단계에서 실패했습니다. 다시 저장해 주세요."
     }, 500);
   }
 }
