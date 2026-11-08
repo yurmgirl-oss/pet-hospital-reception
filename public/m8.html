@@ -489,7 +489,7 @@ body {
   border-color: #64748b;
 }
 
-/* 좌측: 새 기록 입력 상자 */
+/* 좌측: 기록 입력/수정 상자 */
 .note-entry-container {
   display: flex;
   flex-direction: column;
@@ -498,7 +498,13 @@ body {
   padding: 12px;
   border: 1.5px solid #94a3b8;
   border-radius: 8px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
+.note-entry-container.editing-mode {
+  background: #fffbeb;
+  border-color: #f59e0b;
+}
+
 .note-entry-title {
   font-size: 13.5px;
   font-weight: 900;
@@ -551,6 +557,11 @@ body {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
+.note-action-btns {
+  display: flex;
+  gap: 6px;
+}
+
 /* 우측: 출력 전용 패널 */
 .right-output-panel {
   display: flex;
@@ -567,7 +578,7 @@ body {
   justify-content: space-between;
 }
 
-/* 상하로 길게 꽉 차는 풀뷰 리스트 */
+/* 상하 풀뷰 리스트 */
 .history-list {
   border: 2px solid #64748b;
   border-radius: 8px;
@@ -592,13 +603,13 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
+  padding: 3px 6px;
   border: 1px solid #cbd5e1;
   font-size: 12px;
   color: #000000;
   background: #ffffff;
   border-radius: 5px;
-  height: 30px;
+  height: 32px;
   flex: none;
   transition: all 0.12s ease;
 }
@@ -667,6 +678,49 @@ body {
   text-overflow: ellipsis;
 }
 
+/* 기록 단위 액션 버튼들 (수정, 삭제) */
+.item-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+.btn-item {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #ffffff;
+  color: #334155;
+  transition: all 0.12s ease;
+  line-height: 1.35;
+}
+.btn-item:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+.btn-item.edit {
+  color: #2563eb;
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+.btn-item.edit:hover {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+.btn-item.delete {
+  color: #dc2626;
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+.btn-item.delete:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
 .history-empty {
   font-size: 12px;
   color: #64748b;
@@ -675,7 +729,7 @@ body {
   font-weight: 600;
 }
 
-/* 하단 버튼 바: 주요 버튼을 좌측에 배치하고, 삭제 버튼만 우측으로 분리 */
+/* 하단 버튼 바 */
 .dialogfoot {
   display: flex;
   align-items: center;
@@ -729,7 +783,7 @@ body {
       <!-- 좌:입력(40%) / 우:출력(60%) 2분할 레이아웃 -->
       <div class="modal-split-layout">
         
-        <!-- [좌측 40%] 입력 전용: 환자 정보 + 새 기록 입력 -->
+        <!-- [좌측 40%] 입력 전용: 환자 정보 + 새 기록 입력/수정 -->
         <div class="left-input-panel">
           <div class="left-patient-info">
             <label class="field">
@@ -755,17 +809,21 @@ body {
             </label>
           </div>
 
-          <!-- 새 관리 기록 작성 영역 -->
-          <div class="note-entry-container">
+          <!-- 기록 작성 및 수정 영역 -->
+          <div class="note-entry-container" id="noteBox">
             <div class="note-entry-title">
-              <span>✍ 새 관리 기록 작성</span>
+              <span id="noteBoxTitle">✍ 새 관리 기록 작성</span>
               <label class="important-toggle-label">
                 <input id="noteImportant" type="checkbox">
                 <span>⭐ 중요/긴급</span>
               </label>
             </div>
             <textarea id="noteInput" placeholder="기록할 내용을 입력하세요 (Ctrl+Enter 또는 추가 버튼)"></textarea>
-            <button type="button" class="btn primary" style="width:100%;height:35px;font-size:13px" onclick="addNote()">＋ 기록 추가</button>
+            
+            <div class="note-action-btns">
+              <button type="button" class="btn primary" id="noteSubmitBtn" style="flex:1;height:35px;font-size:13px" onclick="saveNote()">＋ 기록 추가</button>
+              <button type="button" class="btn" id="cancelEditBtn" style="display:none;height:35px;font-size:12.5px" onclick="cancelEditNote()">취소</button>
+            </div>
           </div>
         </div>
 
@@ -783,7 +841,7 @@ body {
 
       </div>
 
-      <!-- 하단 버튼: 주요 저장/취소 버튼을 좌측에 모아 배치 -->
+      <!-- 하단 버튼 바 -->
       <div class="dialogfoot">
         <div class="foot-left-actions">
           <button class="btn primary" type="submit" style="padding:7px 18px;font-size:13.5px">저장</button>
@@ -1003,8 +1061,7 @@ function openAdd(cat=categories[0]){
   $('registered').value=localDateTime();
   $('deleteBtn').style.display='none';
   noteItems=[];
-  $('noteInput').value='';
-  $('noteImportant').checked=false;
+  cancelEditNote();
   renderHistory();
   $('modal').style.display='flex';
 }
@@ -1019,13 +1076,15 @@ function parseNotes(p){
 }
 
 let noteItems=[];
+let editingNoteId=null;
+
 function formatNoteDate(n){
   if(n.datetime) return n.datetime;
   if(n.date && n.time) return `${n.date} ${n.time}`;
   return n.date||'날짜 미상';
 }
 
-/* 우측 누적 차트 내역 렌더링 (출력 전용) */
+/* 우측 누적 차트 내역 렌더링 (각 항목에 수정/삭제 버튼 포함) */
 function renderHistory(){
   const box=$('historyList');
   $('historyHeaderTitle').textContent = `📋 누적 관리 차트 내역 (${noteItems.length}건)`;
@@ -1039,47 +1098,112 @@ function renderHistory(){
   box.innerHTML = sorted.map((n, idx) => {
     const isImp = !!n.important;
     const textVal = esc(n.text || '');
+    const noteId = n._id;
     return `
       <div class="history-item ${isImp ? 'important-row' : ''}" title="${textVal}">
         <span class="history-no">${idx + 1}</span>
         ${isImp ? '<span class="badge-important">★중요</span>' : ''}
         <span class="history-date">${esc(formatNoteDate(n))}</span>
         <span class="history-text">${textVal}</span>
+        <div class="item-actions">
+          <button type="button" class="btn-item edit" onclick="startEditNote('${noteId}')" title="오타 수정 및 중요 해제">수정</button>
+          <button type="button" class="btn-item delete" onclick="deleteSingleNote('${noteId}')" title="기록 삭제">✕</button>
+        </div>
       </div>
     `;
   }).join('');
 }
 
-/* 새 기록 추가 */
-function addNote(){
-  const input=$('noteInput');
-  const text=input.value.trim();
-  if(!text)return;
+/* 수정 모드 진입: 선택한 기록의 내용을 좌측 입력창에 로드 */
+function startEditNote(noteId){
+  const target = noteItems.find(n => n._id === noteId);
+  if(!target) return;
+
+  editingNoteId = noteId;
+  $('noteBox').classList.add('editing-mode');
+  $('noteBoxTitle').textContent = '✏️ 기존 기록 수정 중';
+  $('noteInput').value = target.text || '';
+  $('noteImportant').checked = !!target.important;
+  $('noteSubmitBtn').textContent = '✔️ 수정 완료';
+  $('noteSubmitBtn').classList.remove('primary');
+  $('noteSubmitBtn').style.background = '#f59e0b';
+  $('noteSubmitBtn').style.color = '#ffffff';
+  $('noteSubmitBtn').style.borderColor = '#d97706';
+  $('cancelEditBtn').style.display = 'inline-block';
+  $('noteInput').focus();
+}
+
+/* 수정 모드 취소 -> 새 기록 입력 모드로 복귀 */
+function cancelEditNote(){
+  editingNoteId = null;
+  $('noteBox').classList.remove('editing-mode');
+  $('noteBoxTitle').textContent = '✍ 새 관리 기록 작성';
+  $('noteInput').value = '';
+  $('noteImportant').checked = false;
+  $('noteSubmitBtn').textContent = '＋ 기록 추가';
+  $('noteSubmitBtn').classList.add('primary');
+  $('noteSubmitBtn').style.background = '';
+  $('noteSubmitBtn').style.color = '';
+  $('noteSubmitBtn').style.borderColor = '';
+  $('cancelEditBtn').style.display = 'none';
+}
+
+/* 개별 기록 단독 삭제 */
+function deleteSingleNote(noteId){
+  if(!confirm('이 관리 기록을 삭제할까요?')) return;
+  noteItems = noteItems.filter(n => n._id !== noteId);
+  if(editingNoteId === noteId) cancelEditNote();
+  renderHistory();
+}
+
+/* 기록 저장 (새 기록 추가 또는 기존 기록 수정 갱신) */
+function saveNote(){
+  const input = $('noteInput');
+  const text = input.value.trim();
+  if(!text){
+    alert('기록할 내용을 입력해주세요.');
+    input.focus();
+    return;
+  }
   
   const isImp = $('noteImportant').checked;
-  const now = new Date();
-  const pad = v => String(v).padStart(2,'0');
-  const datetime = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  
-  noteItems.push({
-    date: datetime.slice(0,10),
-    time: datetime.slice(11),
-    datetime,
-    text,
-    important: isImp
-  });
 
-  input.value='';
-  $('noteImportant').checked = false;
+  if(editingNoteId){
+    // 기존 기록 수정 업데이트 (중요 뱃지 토글 및 텍스트 수정)
+    const target = noteItems.find(n => n._id === editingNoteId);
+    if(target){
+      target.text = text;
+      target.important = isImp;
+    }
+    cancelEditNote();
+  } else {
+    // 신규 기록 등록
+    const now = new Date();
+    const pad = v => String(v).padStart(2,'0');
+    const datetime = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    
+    noteItems.push({
+      _id: 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+      date: datetime.slice(0,10),
+      time: datetime.slice(11),
+      datetime,
+      text,
+      important: isImp
+    });
+
+    input.value = '';
+    $('noteImportant').checked = false;
+  }
+
   renderHistory();
   input.focus();
 }
 
-/* 엔터/Ctrl+Enter 키로 빠른 기록 추가 */
+/* 단축키: Ctrl+Enter 또는 일반 Enter(수정/추가 실행) */
 $('noteInput').addEventListener('keydown', e => {
-  if((e.key==='Enter' && !e.shiftKey) || (e.key==='Enter' && e.ctrlKey)){
+  if((e.key === 'Enter' && !e.shiftKey) || (e.key === 'Enter' && e.ctrlKey)){
     e.preventDefault();
-    addNote();
+    saveNote();
   }
 });
 
@@ -1098,9 +1222,15 @@ function editPatient(id){
   $('registered').value = rawReg.includes('-') ? rawReg.replace('T',' ').slice(0,19) : localDateTime();
 
   $('starred').checked=!!p.starred;
-  noteItems=parseNotes(p);
-  $('noteInput').value='';
-  $('noteImportant').checked=false;
+  
+  // 불러온 기록들에 고유 식별자(_id)가 없으면 부여
+  const loadedNotes = parseNotes(p);
+  noteItems = loadedNotes.map((n, i) => ({
+    ...n,
+    _id: n._id || `nid_${Date.now()}_${i}_${Math.random().toString(36).slice(2,6)}`
+  }));
+
+  cancelEditNote();
   renderHistory();
   $('deleteBtn').style.display='inline-block';
   $('modal').style.display='flex';
