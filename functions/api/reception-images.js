@@ -300,31 +300,51 @@ export async function onRequestGet({ request, env }) {
 
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
+    const receptionId = url.searchParams.get("reception_id");
 
     // ----------------------------------------
     // 이미지 원본 열기
+    // id: 이미지 기록 번호로 열기
+    // reception_id: 접수번호에 연결된 최신 PNG 열기
     // ----------------------------------------
 
-    if (id) {
-      if (!/^\d+$/.test(id)) {
+    if (id || receptionId) {
+      const lookupValue = id || receptionId;
+      if (!/^\\d+$/.test(lookupValue)) {
         return json({
           error: "잘못된 이미지 번호입니다."
         }, 400);
       }
 
-      const row = await env.DB.prepare(`
-        SELECT
-          id,
-          object_key,
-          pet_name,
-          visit_date,
-          visit_type,
-          reception_id,
-          version_no,
-          is_latest
-        FROM reception_images
-        WHERE id = ?
-      `).bind(id).first();
+      const row = id
+        ? await env.DB.prepare(`
+            SELECT
+              id,
+              object_key,
+              pet_name,
+              visit_date,
+              visit_type,
+              reception_id,
+              version_no,
+              is_latest
+            FROM reception_images
+            WHERE id = ?
+          `).bind(id).first()
+        : await env.DB.prepare(`
+            SELECT
+              id,
+              object_key,
+              pet_name,
+              visit_date,
+              visit_type,
+              reception_id,
+              version_no,
+              is_latest
+            FROM reception_images
+            WHERE reception_id = ?
+            ORDER BY is_latest DESC, id DESC
+            LIMIT 1
+          `).bind(receptionId).first();
 
       if (!row) {
         return json({
