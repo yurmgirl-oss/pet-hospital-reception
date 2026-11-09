@@ -324,6 +324,8 @@
     let activePreviewObjectUrl = '';
     // 접수 후 자동 생성된 A4 PNG를 현황판 카드에 표시
     const generatedA4Images = new Map();
+    // 서버에 이미 보관된 PNG를 현황판 새로고침 후 다시 불러온 기록
+    const savedA4ImageLoadAt = new Map();
 
     // 서버의 D1 원본 접수목록을 기준으로 미저장 A4를 찾아 자동 보관한다.
     // 현황판이 꺼져 있던 기간의 과거 접수도 포함하며, 완료/숨김/예약 상태도 누락하지 않는다.
@@ -522,6 +524,8 @@
         isFirstLoad = false;
 
         renderList(data);
+        // 이미 R2에 저장된 A4 PNG는 재생성하지 않고 원본을 다시 불러온다.
+        loadSavedA4Images(data);
       } catch (e) {
         console.error("조회 실패:", e);
       }
@@ -941,6 +945,66 @@
         throw new Error('관리자 PIN이 올바르지 않습니다. 다시 시도해 주세요.');
       }
       return response;
+    }
+
+    // D1에 이미 저장된 접수별 PNG를 R2에서 읽어 현황판 카드에 표시한다.
+    // 새 PNG를 만드는 기능과 분리되어 있어 기존 기록을 중복 저장하지 않는다.
+    async function loadSavedA4Images(items) {
+      if (!Array.isArray(items)) return;
+
+      const targets = items.filter(item => {
+        if (!item || item.id == null) return false;
+        if (item.status === '예약대기' || item.status === '완료' || item.status === '목록숨김') return false;
+        const alreadySaved = Number(item.a4_auto_saved) === 1 || item.a4_auto_saved === true;
+        if (!alreadySaved || generatedA4Images.has(String(item.id))) return false;
+
+        const lastAttempt = savedA4ImageLoadAt.get(String(item.id)) || 0;
+        return Date.now() - lastAttempt > 60000;
+      });
+
+      for (const item of targets) {
+        const id = String(item.id);
+        savedA4ImageLoadAt.set(id, Date.now());
+
+        try {
+          const response = await apiImageRequest(
+            `/api/reception-images?reception_id=${encodeURIComponent(id)}`
+          );
+
+          if (!response.ok) {
+            // 기존 접수기록에 이미지가 없는 경우에는 자동 생성 대기 로직에 맡긴다.
+            if (response.status !== 404) {
+              console.warn('저장된 A4 PNG 조회 실패:', id, response.status);
+            }
+            continue;
+          }
+
+          const blob = await response.blob();
+          if (!blob || !blob.size) continue;
+
+          const src = URL.createObjectURL(blob);
+          const payload = unwrapPayload(item.payload);
+          const isFirst = item.type === 'FIRST' || item.type === '초진';
+          const visitType = isFirst ? '초진' : '재진';
+          const filename = makeReceptionPngFilename(
+            item.pet_name || '환자',
+            (item.created_at || new Date().toISOString()).slice(0, 10),
+            visitType
+          );
+
+          generatedA4Images.set(id, {
+            src,
+            filename,
+            title: `${item.pet_name || '환자'} ${visitType} A4 기록`
+          });
+
+          if (Array.isArray(currentList) && currentList.length) {
+            renderList(currentList);
+          }
+        } catch (err) {
+          console.error('저장된 A4 PNG 불러오기 오류:', id, err);
+        }
+      }
     }
 
     function fillRevisitSheet(item, payload) {
