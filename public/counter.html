@@ -1041,8 +1041,8 @@
     function makeReceptionPngFilename(petName, visitDate, visitType) {
       const safeName = String(petName || '환자').replace(/[\\/:*?"<>|\x00-\x1f]/g, '_').trim() || '환자';
       const safeDate = String(visitDate || new Date().toISOString().slice(0, 10)).slice(0, 10);
-      const typeLabel = visitType === '초진' ? '초진동의서' : '재진기록';
-      return `${safeName}_${safeDate}_${typeLabel}.png`;
+      const typeLabel = visitType === '초진' ? 'A4초진이미지' : 'A4재진이미지';
+      return `${safeName}_${typeLabel}.png`;
     }
 
     function openImagePreview(src, title, filename = '접수기록.png') {
