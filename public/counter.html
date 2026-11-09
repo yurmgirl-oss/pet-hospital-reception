@@ -322,6 +322,8 @@
     // PIN은 페이지가 열린 동안 메모리에만 보관하며 브라우저 저장소에는 기록하지 않음
     let receptionImagePin = '';
     let activePreviewObjectUrl = '';
+    // 접수 후 자동 생성된 A4 PNG를 현황판 카드에 표시
+    const generatedA4Images = new Map();
 
     // 서버의 D1 원본 접수목록을 기준으로 미저장 A4를 찾아 자동 보관한다.
     // 현황판이 꺼져 있던 기간의 과거 접수도 포함하며, 완료/숨김/예약 상태도 누락하지 않는다.
@@ -663,9 +665,11 @@
         if (isRes) statusClass = "bg-amber-100 text-amber-900 border-amber-300";
 
         const downloadBtn = `
-          <button onclick='downloadIntakeSheet(${JSON.stringify(item)})' class="px-2 py-0.5 text-[11px] font-semibold rounded ${isFirst ? 'bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-200' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'} transition flex items-center gap-1 border shadow-sm">
-            📄 A4 ${isFirst ? '초진 동의서' : '재진 기록'}
-          </button>
+          <span class="inline-flex items-center" data-a4-slot="${item.id}">
+            <span class="px-2 py-1 text-[10px] font-semibold rounded border border-slate-200 bg-slate-50 text-slate-500">
+              ${generatedA4Images.has(String(item.id)) ? 'A4 PNG 준비 중' : 'A4 PNG 자동 생성 대기'}
+            </span>
+          </span>
         `;
 
         const dateStrRaw = item.created_at ? item.created_at.replace(' ', 'T') : '';
@@ -837,6 +841,29 @@
           </div>
         `;
       }).join('');
+
+      // 접수 카드의 A4 표시 위치에 실제 PNG 이미지를 삽입한다.
+      activeList.forEach(item => {
+        const saved = generatedA4Images.get(String(item.id));
+        if (!saved) return;
+
+        const slot = container.querySelector(`[data-a4-slot="${item.id}"]`);
+        if (!slot) return;
+
+        const img = document.createElement('img');
+        img.src = saved.src;
+        img.alt = saved.filename;
+        img.title = `${saved.filename} · 마우스로 끌어다 놓을 수 있습니다`;
+        img.draggable = true;
+        img.style.cssText = 'display:block;width:42px;height:58px;object-fit:contain;background:#fff;border:1px solid #cbd5e1;border-radius:4px;padding:2px;cursor:grab;box-shadow:0 1px 2px rgba(0,0,0,.08);';
+        img.addEventListener('click', () => openImagePreview(saved.src, saved.title, saved.filename));
+        img.addEventListener('dragstart', event => {
+          event.dataTransfer.setData('DownloadURL', `image/png:${saved.filename}:${saved.src}`);
+          event.dataTransfer.setData('text/uri-list', saved.src);
+          event.dataTransfer.setData('text/plain', saved.filename);
+        });
+        slot.replaceWith(img);
+      });
     }
 
     async function updateStatus(id, newStatus) {
@@ -985,7 +1012,15 @@
         const visitType = isFirst ? '초진' : '재진';
         const downloadFilename = makeReceptionPngFilename(petName, (item.created_at || new Date().toISOString()).slice(0, 10), visitType);
 
-        // 수동 A4 버튼을 누른 경우에만 PC 다운로드와 미리보기를 제공한다.
+        // 접수 자동 처리(autoOnly)에서도 PNG를 만들어 현황판 카드에 즉시 표시한다.
+        generatedA4Images.set(String(item.id), {
+          src: imageURL,
+          filename: downloadFilename,
+          title: `${petName} ${visitType} A4 기록`
+        });
+        if (Array.isArray(currentList) && currentList.length) renderList(currentList);
+
+        // 수동 실행 시에만 PC 다운로드와 미리보기를 제공한다.
         // 자동 저장은 보호자 접수 후 백그라운드에서 클라우드 보관만 수행한다.
         if (!autoOnly) {
           const link = document.createElement('a');
