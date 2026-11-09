@@ -310,7 +310,7 @@ export async function onRequestGet({ request, env }) {
 
     if (id || receptionId) {
       const lookupValue = id || receptionId;
-      if (!/^\\d+$/.test(lookupValue)) {
+      if (!/^\d+$/.test(lookupValue)) {
         return json({
           error: "잘못된 이미지 번호입니다."
         }, 400);
