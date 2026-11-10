@@ -62,6 +62,7 @@
           <span id="soundIcon">🔔</span>
           <span id="soundText">알림음 켜짐</span>
         </button>
+        <button id="a4ChooseFolderBtn" onclick="chooseA4SaveFolder()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition">📁 A4 저장폴더 지정</button>
         <button id="a4FolderBtn" onclick="openA4Folder()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition">📂 A4 저장폴더 열기</button>
         <button onclick="openImageSearch()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition">
           🗂️ A4 기록 검색
@@ -302,6 +303,12 @@
       <div class="p-3 flex justify-end gap-2"><a id="imagePreviewDownload" class="px-4 py-2 rounded bg-slate-900 text-white text-sm font-bold" download="접수기록.png">PNG 다운로드</a></div>
     </div>
   </div>
+  <div id="a4FolderModal" class="fixed inset-0 z-[110] bg-slate-950/70 hidden items-center justify-center p-3" onclick="if(event.target===this) closeA4Folder()">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="flex justify-between items-center p-4 border-b"><strong class="text-lg">📂 A4 저장폴더</strong><button onclick="closeA4Folder()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
+      <div id="a4FolderFiles" class="overflow-auto p-4 space-y-2"><p class="text-sm text-slate-400 text-center py-6">폴더를 확인하는 중입니다...</p></div>
+    </div>
+  </div>
   <div id="imageSearchModal" class="fixed inset-0 z-[100] bg-slate-950/70 hidden items-center justify-center p-3" onclick="if(event.target===this) closeImageSearch()">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
       <div class="flex justify-between items-center p-4 border-b"><strong class="text-lg">🗂️ A4 접수 기록 검색</strong><button onclick="closeImageSearch()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
@@ -327,6 +334,7 @@
     const generatedA4Images = new Map();
     let a4DirectoryHandle = null;
     const pendingLocalA4Files = new Map();
+    let a4FolderObjectUrls = []; // 폴더 PNG 썸네일의 임시 주소
 
     // 폴더 권한은 IndexedDB에 저장해 다음 접속에서도 재사용한다.
     function openA4HandleDB() {
@@ -363,14 +371,84 @@
       if (permission !== 'granted' && request) permission = await handle.requestPermission({ mode: 'readwrite' });
       return permission === 'granted';
     }
+    function closeA4Folder() {
+      const modal = document.getElementById('a4FolderModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      a4FolderObjectUrls.forEach(url => URL.revokeObjectURL(url));
+      a4FolderObjectUrls = [];
+      document.getElementById('a4FolderFiles').innerHTML = '';
+    }
 
-    // Windows 보조 프로토콜을 통해 바탕화면의 실제 차트접수파일 폴더를 연다.
-    // 최초 1회 open-a4-folder.reg 설치가 필요하다.
-    function openA4Folder() {
+    async function openA4Folder() {
+      if (!window.showDirectoryPicker) {
+        alert('최신 Chrome 또는 Edge에서 병원 접수현황판을 열어주세요.');
+        return;
+      }
       try {
-        window.location.href = 'clinic-a4-folder://open';
+        if (!a4DirectoryHandle) a4DirectoryHandle = await loadA4DirectoryHandle();
+        // 저장된 폴더 권한이 없으면 폴더를 다시 선택하도록 한다.
+        if (!a4DirectoryHandle || !(await ensureA4FolderPermission(a4DirectoryHandle, true))) {
+          const handle = await window.showDirectoryPicker({ id: 'clinic-a4-images', mode: 'readwrite' });
+          a4DirectoryHandle = handle;
+          await storeA4DirectoryHandle(handle);
+        }
+
+        const box = document.getElementById('a4FolderFiles');
+        const modal = document.getElementById('a4FolderModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        box.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">PNG 파일을 불러오는 중입니다...</p>';
+
+        // 이전에 열어 둔 썸네일 주소 정리
+        a4FolderObjectUrls.forEach(url => URL.revokeObjectURL(url));
+        a4FolderObjectUrls = [];
+
+        const files = [];
+        for await (const entry of a4DirectoryHandle.values()) {
+          if (entry.kind === 'file' && /\.png$/i.test(entry.name)) files.push(entry);
+        }
+        files.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        if (!files.length) {
+          box.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">저장폴더에 PNG 파일이 없습니다.</p>';
+          return;
+        }
+
+        box.innerHTML = '<p class="text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg p-2 mb-3">PNG 이미지를 마우스로 잡아 차트 프로그램에 바로 끌어다 놓으세요. 미리보기나 다운로드가 필요 없습니다.</p><div id="a4FolderGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>';
+        const grid = document.getElementById('a4FolderGrid');
+
+        for (const entry of files) {
+          const file = await entry.getFile();
+          const url = URL.createObjectURL(file);
+          a4FolderObjectUrls.push(url);
+
+          const tile = document.createElement('div');
+          tile.className = 'border border-slate-200 rounded-lg p-2 bg-white hover:border-emerald-400 hover:bg-emerald-50 transition flex flex-col items-center gap-2';
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = entry.name;
+          img.draggable = true;
+          img.title = '마우스로 끌어 차트 프로그램에 놓으세요';
+          img.style.cssText = 'width:100px;height:140px;object-fit:contain;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;cursor:grab;';
+          img.addEventListener('dragstart', event => {
+            event.dataTransfer.effectAllowed = 'copy';
+            // Chrome/Edge의 외부 프로그램 드롭용 파일 전달 형식
+            event.dataTransfer.setData('DownloadURL', `image/png:${entry.name}:${url}`);
+            event.dataTransfer.setData('text/uri-list', url);
+            event.dataTransfer.setData('text/plain', entry.name);
+          });
+          const name = document.createElement('div');
+          name.className = 'w-full text-center text-xs text-slate-700 font-semibold';
+          name.textContent = entry.name;
+          name.style.cssText = 'overflow-wrap:anywhere;';
+          const hint = document.createElement('div');
+          hint.className = 'text-[10px] text-emerald-700 font-bold';
+          hint.textContent = '↗ 드래그하여 첨부';
+          tile.append(img, name, hint);
+          grid.appendChild(tile);
+        }
       } catch (err) {
-        alert('A4 저장폴더 열기에 실패했습니다. open-a4-folder.reg 설치 여부를 확인해 주세요.');
+        if (err.name !== 'AbortError') alert('A4 저장폴더를 열지 못했습니다: ' + err.message);
       }
     }
 
@@ -386,6 +464,14 @@
         await storeA4DirectoryHandle(handle);
         showToast('A4 PNG 저장 폴더가 연결되었습니다.');
         await flushPendingLocalA4Files();
+        // 선택한 폴더에 실제 쓰기가 가능한지 즉시 점검한다.
+        const testName = `.a4-folder-write-test-${Date.now()}.tmp`;
+        const testHandle = await a4DirectoryHandle.getFileHandle(testName, { create: true });
+        const testWritable = await testHandle.createWritable();
+        await testWritable.write('ok');
+        await testWritable.close();
+        await a4DirectoryHandle.removeEntry(testName);
+        showToast('✅ A4 저장 폴더 연결 및 쓰기 확인 완료');
       } catch (err) {
         if (err.name !== 'AbortError') alert('A4 저장 폴더 지정 실패: ' + err.message);
       }
@@ -407,7 +493,7 @@
         return true;
       } catch (err) {
         console.error('A4 PC 저장 실패:', err);
-        showToast('⚠️ A4 PC 저장 실패: 저장폴더 권한을 다시 확인해 주세요.');
+        showToast(`⚠️ A4 PC 저장 실패 (${err.name || '오류'}): ${err.message || '저장폴더를 확인해 주세요.'}`);
         return false;
       }
     }
