@@ -406,9 +406,13 @@
 
         const files = [];
         for await (const entry of a4DirectoryHandle.values()) {
-          if (entry.kind === 'file' && /\.png$/i.test(entry.name)) files.push(entry);
+          if (entry.kind === 'file' && /\.png$/i.test(entry.name)) {
+            const file = await entry.getFile();
+            files.push({ entry, file, lastModified: file.lastModified || 0 });
+          }
         }
-        files.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        // 파일명 가나다순이 아니라 실제 저장/수정 시각 기준 최신 파일부터 표시
+        files.sort((a, b) => b.lastModified - a.lastModified || a.entry.name.localeCompare(b.entry.name, 'ko'));
         if (!files.length) {
           box.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">저장폴더에 PNG 파일이 없습니다.</p>';
           return;
@@ -417,8 +421,9 @@
         box.innerHTML = '<p class="text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg p-2 mb-3">PNG 이미지를 마우스로 잡아 차트 프로그램에 바로 끌어다 놓으세요. 미리보기나 다운로드가 필요 없습니다.</p><div id="a4FolderGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>';
         const grid = document.getElementById('a4FolderGrid');
 
-        for (const entry of files) {
-          const file = await entry.getFile();
+        for (const item of files) {
+          const entry = item.entry;
+          const file = item.file;
           const url = URL.createObjectURL(file);
           a4FolderObjectUrls.push(url);
 
@@ -441,10 +446,13 @@
           name.className = 'w-full text-center text-xs text-slate-700 font-semibold';
           name.textContent = entry.name;
           name.style.cssText = 'overflow-wrap:anywhere;';
+          const modified = document.createElement('div');
+          modified.className = 'text-[10px] text-slate-500';
+          modified.textContent = item.lastModified ? new Date(item.lastModified).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }) : '';
           const hint = document.createElement('div');
           hint.className = 'text-[10px] text-emerald-700 font-bold';
           hint.textContent = '↗ 드래그하여 첨부';
-          tile.append(img, name, hint);
+          tile.append(img, name, modified, hint);
           grid.appendChild(tile);
         }
       } catch (err) {
