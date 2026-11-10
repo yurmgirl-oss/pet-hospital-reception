@@ -62,6 +62,7 @@
           <span id="soundIcon">🔔</span>
           <span id="soundText">알림음 켜짐</span>
         </button>
+        <button id="a4FolderBtn" onclick="chooseA4SaveFolder()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition">📁 A4 저장폴더 지정</button>
         <button onclick="openImageSearch()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition">
           🗂️ A4 기록 검색
         </button>
@@ -324,8 +325,88 @@
     let activePreviewObjectUrl = '';
     // 접수 후 자동 생성된 A4 PNG를 현황판 카드에 표시
     const generatedA4Images = new Map();
-    // 서버에 이미 보관된 PNG를 현황판 새로고침 후 다시 불러온 기록
-    const savedA4ImageLoadAt = new Map();
+    let a4DirectoryHandle = null;
+    const pendingLocalA4Files = new Map();
+
+    // 폴더 권한은 IndexedDB에 저장해 다음 접속에서도 재사용한다.
+    function openA4HandleDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('clinic-a4-folder-db', 1);
+        request.onupgradeneeded = () => request.result.createObjectStore('handles');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+    async function storeA4DirectoryHandle(handle) {
+      const db = await openA4HandleDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction('handles', 'readwrite');
+        tx.objectStore('handles').put(handle, 'directory');
+        tx.oncomplete = () => { db.close(); resolve(); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+      });
+    }
+    async function loadA4DirectoryHandle() {
+      try {
+        const db = await openA4HandleDB();
+        return await new Promise((resolve, reject) => {
+          const tx = db.transaction('handles', 'readonly');
+          const req = tx.objectStore('handles').get('directory');
+          req.onsuccess = () => { const value = req.result || null; db.close(); resolve(value); };
+          req.onerror = () => { db.close(); reject(req.error); };
+        });
+      } catch (e) { console.warn('A4 저장 폴더 정보를 불러오지 못했습니다.', e); return null; }
+    }
+    async function ensureA4FolderPermission(handle, request = false) {
+      if (!handle) return false;
+      let permission = await handle.queryPermission({ mode: 'readwrite' });
+      if (permission !== 'granted' && request) permission = await handle.requestPermission({ mode: 'readwrite' });
+      return permission === 'granted';
+    }
+    async function chooseA4SaveFolder() {
+      if (!window.showDirectoryPicker) {
+        alert('현재 브라우저에서는 폴더 직접 저장을 지원하지 않습니다. 최신 Chrome 또는 Edge에서 병원 접수현황판 주소(HTTPS)를 열어주세요.');
+        return;
+      }
+      try {
+        const handle = await window.showDirectoryPicker({ id: 'clinic-a4-images', mode: 'readwrite' });
+        if (!(await ensureA4FolderPermission(handle, true))) throw new Error('폴더 쓰기 권한을 허용해 주세요.');
+        a4DirectoryHandle = handle;
+        await storeA4DirectoryHandle(handle);
+        const btn = document.getElementById('a4FolderBtn');
+        if (btn) btn.textContent = '📁 A4 저장폴더 연결됨';
+        showToast('A4 PNG 저장 폴더가 연결되었습니다.');
+        await flushPendingLocalA4Files();
+      } catch (err) {
+        if (err.name !== 'AbortError') alert('A4 저장 폴더 지정 실패: ' + err.message);
+      }
+    }
+    async function saveA4PngToComputer(filename, dataUrl) {
+      pendingLocalA4Files.set(filename, dataUrl);
+      if (!a4DirectoryHandle) a4DirectoryHandle = await loadA4DirectoryHandle();
+      if (!a4DirectoryHandle || !(await ensureA4FolderPermission(a4DirectoryHandle, false))) {
+        showToast('📁 A4 자동 PC 저장을 위해 상단의 [A4 저장폴더 지정]을 한 번 눌러주세요.');
+        return false;
+      }
+      try {
+        const fileHandle = await a4DirectoryHandle.getFileHandle(filename, { create: true });
+        const writable = await fileHandle.createWritable();
+        const blob = await (await fetch(dataUrl)).blob();
+        await writable.write(blob);
+        await writable.close();
+        pendingLocalA4Files.delete(filename);
+        return true;
+      } catch (err) {
+        console.error('A4 PC 저장 실패:', err);
+        showToast('⚠️ A4 PC 저장 실패: 저장폴더 권한을 다시 확인해 주세요.');
+        return false;
+      }
+    }
+    async function flushPendingLocalA4Files() {
+      for (const [filename, dataUrl] of Array.from(pendingLocalA4Files.entries())) {
+        await saveA4PngToComputer(filename, dataUrl);
+      }
+    }
 
     // 서버의 D1 원본 접수목록을 기준으로 미저장 A4를 찾아 자동 보관한다.
     // 현황판이 꺼져 있던 기간의 과거 접수도 포함하며, 완료/숨김/예약 상태도 누락하지 않는다.
@@ -524,8 +605,6 @@
         isFirstLoad = false;
 
         renderList(data);
-        // 이미 R2에 저장된 A4 PNG는 재생성하지 않고 원본을 다시 불러온다.
-        loadSavedA4Images(data);
       } catch (e) {
         console.error("조회 실패:", e);
       }
@@ -947,66 +1026,6 @@
       return response;
     }
 
-    // D1에 이미 저장된 접수별 PNG를 R2에서 읽어 현황판 카드에 표시한다.
-    // 새 PNG를 만드는 기능과 분리되어 있어 기존 기록을 중복 저장하지 않는다.
-    async function loadSavedA4Images(items) {
-      if (!Array.isArray(items)) return;
-
-      const targets = items.filter(item => {
-        if (!item || item.id == null) return false;
-        if (item.status === '예약대기' || item.status === '완료' || item.status === '목록숨김') return false;
-        const alreadySaved = Number(item.a4_auto_saved) === 1 || item.a4_auto_saved === true;
-        if (!alreadySaved || generatedA4Images.has(String(item.id))) return false;
-
-        const lastAttempt = savedA4ImageLoadAt.get(String(item.id)) || 0;
-        return Date.now() - lastAttempt > 60000;
-      });
-
-      for (const item of targets) {
-        const id = String(item.id);
-        savedA4ImageLoadAt.set(id, Date.now());
-
-        try {
-          const response = await apiImageRequest(
-            `/api/reception-images?reception_id=${encodeURIComponent(id)}`
-          );
-
-          if (!response.ok) {
-            // 기존 접수기록에 이미지가 없는 경우에는 자동 생성 대기 로직에 맡긴다.
-            if (response.status !== 404) {
-              console.warn('저장된 A4 PNG 조회 실패:', id, response.status);
-            }
-            continue;
-          }
-
-          const blob = await response.blob();
-          if (!blob || !blob.size) continue;
-
-          const src = URL.createObjectURL(blob);
-          const payload = unwrapPayload(item.payload);
-          const isFirst = item.type === 'FIRST' || item.type === '초진';
-          const visitType = isFirst ? '초진' : '재진';
-          const filename = makeReceptionPngFilename(
-            item.pet_name || '환자',
-            (item.created_at || new Date().toISOString()).slice(0, 10),
-            visitType
-          );
-
-          generatedA4Images.set(id, {
-            src,
-            filename,
-            title: `${item.pet_name || '환자'} ${visitType} A4 기록`
-          });
-
-          if (Array.isArray(currentList) && currentList.length) {
-            renderList(currentList);
-          }
-        } catch (err) {
-          console.error('저장된 A4 PNG 불러오기 오류:', id, err);
-        }
-      }
-    }
-
     function fillRevisitSheet(item, payload) {
       const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value || '-'; };
       set('rev-doc-id', `접수번호: #${item.id}`);
@@ -1075,6 +1094,9 @@
         const cleanPhone = (item.phone || item.owner_phone || '0000').replace(/\D/g, '').slice(-4);
         const visitType = isFirst ? '초진' : '재진';
         const downloadFilename = makeReceptionPngFilename(petName, (item.created_at || new Date().toISOString()).slice(0, 10), visitType);
+
+        // PNG 원본 파일을 지정된 PC 폴더에 자동 저장한다. 폴더 미지정이면 선택 후 일괄 저장한다.
+        await saveA4PngToComputer(downloadFilename, imageURL);
 
         // 접수 자동 처리(autoOnly)에서도 PNG를 만들어 현황판 카드에 즉시 표시한다.
         generatedA4Images.set(String(item.id), {
@@ -1218,6 +1240,14 @@
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
     }
+
+    (async () => {
+      a4DirectoryHandle = await loadA4DirectoryHandle();
+      if (a4DirectoryHandle && await ensureA4FolderPermission(a4DirectoryHandle, false)) {
+        const btn = document.getElementById('a4FolderBtn');
+        if (btn) btn.textContent = '📁 A4 저장폴더 연결됨';
+      }
+    })();
 
     fetchReceptions();
     setInterval(() => fetchReceptions(), 5000);
