@@ -161,7 +161,7 @@
       </div>
     </section>
 
-    <!-- 5. [신규 추가] 동물별 임상 참조 정보 & 필수 메모 (LocalStorage 영구 자동저장) -->
+    <!-- 5. 동물별 공통 임상 참조 메모 (GitHub 코드 관리) -->
     <section class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm">
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-2">
@@ -170,7 +170,7 @@
             <span id="memoSpeciesTitle" class="text-teal-700 font-extrabold">[게코]</span> 임상 참조 메모 & 상시 보관 노트
           </span>
           <span class="hidden sm:inline-block text-[11px] text-slate-400 font-medium">
-            (작성 내용이 해당 동물별로 브라우저에 항상 자동 저장됩니다)
+            (GitHub의 메모 전용 구역에서 수정 · 모든 컴퓨터 공통)
           </span>
         </div>
         <div id="memoSaveStatus" class="opacity-0 transition-opacity duration-300 text-[11px] font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
@@ -178,9 +178,9 @@
         </div>
       </div>
       <textarea id="speciesMemoText" rows="3"
-        placeholder="이 동물에 대해 항상 참조할 임상 노하우, 주의 약물, 금기사항, 보정법, 적정 온습도 등을 자유롭게 적어두세요. (동물 탭을 바꾸면 해당 동물의 메모로 자동 전환됩니다)"
+        placeholder="GitHub의 SHARED_SPECIES_MEMOS 구역에 동물별 메모를 입력하세요."
         class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition resize-y leading-relaxed"
-        oninput="handleSpeciesMemoSave()"></textarea>
+        readonly></textarea>
     </section>
 
   </main>
@@ -299,10 +299,27 @@
       }
     ];
 
+    /* ================================================================
+       ★★★ GitHub 메모 수정 전용 구역 (여기만 수정하세요) ★★★
+       각 동물의 백틱(`) 사이에 메모를 적으세요.
+       여러 줄 작성 가능. 백틱(`)과 ${ 는 사용하지 마세요.
+       GitHub Commit 후 배포가 완료되면 모든 컴퓨터에 반영됩니다.
+       ================================================================ */
+    const SHARED_SPECIES_MEMOS = {
+      gecko: ``,
+      parrot: ``,
+      tortoise: ``,
+      hamster: ``,
+      snake: ``,
+      chameleon: ``,
+      chinchilla: ``,
+      hedgehog: ``
+    };
+    /* =================== 메모 수정 구역 끝 =================== */
+
     let currentSpeciesId = 'gecko';
     let currentUnit = 'g';
     let customDoses = {};
-    let memoTimeout = null;
 
     window.addEventListener('DOMContentLoaded', () => {
       renderSpeciesTabs();
@@ -569,31 +586,13 @@
       }
     }
 
-    /* ==========================================================================
-       동물별 임상 참고 메모 LocalStorage 영구 저장/불러오기
-       ========================================================================== */
+    /* GitHub 코드에 저장된 공통 메모 표시 */
     function loadSpeciesMemo() {
       const sp = getCurrentSpecies();
       const titleEl = document.getElementById('memoSpeciesTitle');
       if (titleEl) titleEl.textContent = `[${sp.name}]`;
-      
-      const savedMemo = localStorage.getItem(`exotic_notes_${currentSpeciesId}`) || '';
       const memoEl = document.getElementById('speciesMemoText');
-      if (memoEl) memoEl.value = savedMemo;
-    }
-
-    function handleSpeciesMemoSave() {
-      const text = document.getElementById('speciesMemoText').value;
-      localStorage.setItem(`exotic_notes_${currentSpeciesId}`, text);
-
-      const statusEl = document.getElementById('memoSaveStatus');
-      if (statusEl) {
-        statusEl.classList.remove('opacity-0');
-        clearTimeout(memoTimeout);
-        memoTimeout = setTimeout(() => {
-          statusEl.classList.add('opacity-0');
-        }, 1000);
-      }
+      if (memoEl) memoEl.value = SHARED_SPECIES_MEMOS[currentSpeciesId] || '';
     }
 
     /* 이미지 저장 기능 (html2canvas) */
@@ -633,7 +632,7 @@
       customDoses = {};
       initDefaultValues();
       calculateAllDoses();
-      // 환자 폼 초기화 시에도 영구 보관된 동물별 임상 메모는 지워지지 않고 유지됩니다.
+      // 공통 메모는 초기화 대상이 아닙니다.
     }
   </script>
 </body>
