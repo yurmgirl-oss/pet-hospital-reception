@@ -302,12 +302,6 @@
       <div class="p-3 flex justify-end gap-2"><a id="imagePreviewDownload" class="px-4 py-2 rounded bg-slate-900 text-white text-sm font-bold" download="접수기록.png">PNG 다운로드</a></div>
     </div>
   </div>
-  <div id="a4FolderModal" class="fixed inset-0 z-[110] bg-slate-950/70 hidden items-center justify-center p-3" onclick="if(event.target===this) closeA4Folder()">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-      <div class="flex justify-between items-center p-4 border-b"><strong class="text-lg">📂 A4 저장폴더</strong><button onclick="closeA4Folder()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
-      <div id="a4FolderFiles" class="overflow-auto p-4 space-y-2"><p class="text-sm text-slate-400 text-center py-6">폴더를 확인하는 중입니다...</p></div>
-    </div>
-  </div>
   <div id="imageSearchModal" class="fixed inset-0 z-[100] bg-slate-950/70 hidden items-center justify-center p-3" onclick="if(event.target===this) closeImageSearch()">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
       <div class="flex justify-between items-center p-4 border-b"><strong class="text-lg">🗂️ A4 접수 기록 검색</strong><button onclick="closeImageSearch()" class="px-3 py-1.5 rounded bg-slate-100">닫기 ✕</button></div>
@@ -369,58 +363,14 @@
       if (permission !== 'granted' && request) permission = await handle.requestPermission({ mode: 'readwrite' });
       return permission === 'granted';
     }
-    function closeA4Folder() {
-      const modal = document.getElementById('a4FolderModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
 
-    async function openA4Folder() {
-      if (!window.showDirectoryPicker) {
-        alert('최신 Chrome 또는 Edge에서 병원 접수현황판을 열어주세요.');
-        return;
-      }
+    // Windows 보조 프로토콜을 통해 바탕화면의 실제 차트접수파일 폴더를 연다.
+    // 최초 1회 open-a4-folder.reg 설치가 필요하다.
+    function openA4Folder() {
       try {
-        if (!a4DirectoryHandle) a4DirectoryHandle = await loadA4DirectoryHandle();
-        // 저장된 폴더 권한이 없으면 폴더를 다시 선택하도록 한다.
-        if (!a4DirectoryHandle || !(await ensureA4FolderPermission(a4DirectoryHandle, true))) {
-          const handle = await window.showDirectoryPicker({ id: 'clinic-a4-images', mode: 'readwrite' });
-          a4DirectoryHandle = handle;
-          await storeA4DirectoryHandle(handle);
-        }
-        const box = document.getElementById('a4FolderFiles');
-        const modal = document.getElementById('a4FolderModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        box.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">파일을 불러오는 중입니다...</p>';
-        const files = [];
-        for await (const entry of a4DirectoryHandle.values()) {
-          if (entry.kind === 'file' && /\.png$/i.test(entry.name)) files.push(entry);
-        }
-        files.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-        if (!files.length) {
-          box.innerHTML = '<p class="text-sm text-slate-400 text-center py-8">저장폴더에 PNG 파일이 없습니다.</p>';
-          return;
-        }
-        box.innerHTML = files.map((file, index) => `
-          <button type="button" data-a4-index="${index}" class="w-full text-left border rounded-lg p-3 hover:bg-emerald-50 hover:border-emerald-300 flex items-center justify-between gap-3">
-            <span class="min-w-0"><strong class="block text-sm text-slate-800 truncate">${escapeHtml(file.name)}</strong><span class="text-xs text-slate-500">PNG 이미지</span></span>
-            <span class="text-emerald-700 text-xs font-bold shrink-0">미리보기 →</span>
-          </button>`).join('');
-        box.querySelectorAll('[data-a4-index]').forEach(button => {
-          button.addEventListener('click', async () => {
-            try {
-              const file = files[Number(button.dataset.a4Index)];
-              const blob = await (await file.getFile()).slice().arrayBuffer();
-              const url = URL.createObjectURL(new Blob([blob], { type: 'image/png' }));
-              closeA4Folder();
-              openImagePreview(url, file.name, file.name);
-              activePreviewObjectUrl = url;
-            } catch (err) { alert('이미지를 열지 못했습니다: ' + err.message); }
-          });
-        });
+        window.location.href = 'clinic-a4-folder://open';
       } catch (err) {
-        if (err.name !== 'AbortError') alert('A4 저장폴더를 열지 못했습니다: ' + err.message);
+        alert('A4 저장폴더 열기에 실패했습니다. open-a4-folder.reg 설치 여부를 확인해 주세요.');
       }
     }
 
