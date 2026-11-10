@@ -186,20 +186,10 @@ footer a{color:inherit;text-decoration:none}
   <div class="notice-copy">원활한 진료를 위해 접수 후<br>대기실에서 잠시만 기다려주세요.</div>
 </div>
 <footer>
- <div><button type="button" onclick="openPasswordModal()">🔒 데스크 / 카운터 현황판 바로가기</button></div>
  <div>부산시 사하구 하신중앙로 340 1층　·　<a href="tel:051-264-8275">TEL: 051)264-8275</a></div>
 </footer>
 </main>
-<div id="passwordModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
- <div class="modal-card"><div style="font-size:30px">🔐</div><h4 id="modalTitle">직원 전용 인증</h4><p>카운터 관리 비밀번호를 입력해주세요.</p>
- <input type="password" id="deskPwInput" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="비밀번호" onkeydown="if(event.key==='Enter') verifyPassword()">
- <div id="pwError" hidden>❌ 비밀번호가 올바르지 않습니다.</div>
- <div class="modal-actions"><button class="cancel" type="button" onclick="closePasswordModal()">취소</button><button class="confirm" type="button" onclick="verifyPassword()">확인</button></div></div>
-</div>
 <script>
-function openPasswordModal(){const m=document.getElementById('passwordModal'),i=document.getElementById('deskPwInput'),e=document.getElementById('pwError');e.hidden=true;i.value='';m.classList.add('show');setTimeout(()=>i.focus(),60)}
-function closePasswordModal(){document.getElementById('passwordModal').classList.remove('show')}
-function verifyPassword(){const i=document.getElementById('deskPwInput'),e=document.getElementById('pwError');if(i.value==='52'){window.location.href='counter.html'}else{e.hidden=false;i.value='';i.focus()}}
 let switchTimer=null,currentIdx=0,noticeItems=[];
 async function fetchKioskNotice(){try{const res=await fetch('/api/notice');if(!res.ok)return;const data=await res.json(),w=document.getElementById('kioskNoticeWrapper');const raw=(data.notice||'').trim();if(!raw){w.style.display='none';if(switchTimer)clearInterval(switchTimer);return}noticeItems=raw.split('\n').map(s=>s.trim()).filter(Boolean);if(!noticeItems.length){w.style.display='none';return}w.style.display='flex';showCurrentNotice();if(switchTimer)clearInterval(switchTimer);if(noticeItems.length>1)switchTimer=setInterval(()=>{currentIdx=(currentIdx+1)%noticeItems.length;showCurrentNotice()},4500)}catch(err){console.error('공지 로드 오류:',err)}}
 function showCurrentNotice(){const el=document.getElementById('kioskNoticeText');if(!el||!noticeItems.length)return;el.textContent=noticeItems[currentIdx];el.classList.remove('notice-fade');void el.offsetWidth;el.classList.add('notice-fade')}
