@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>23시 동물병원 · 원내통합 5분할 관제 포털</title>
+<title>23시 동물병원 · 원내통합 관제 포털 (5분할 뷰)</title>
 <style>
   :root {
     --header-bg: #12382e;
@@ -23,7 +23,7 @@
 
   /* 상단 마스터 컨트롤 바 */
   .top-control {
-    height: 44px;
+    height: 42px;
     background: var(--header-bg);
     border-bottom: 2px solid var(--bar-border);
     display: flex;
@@ -33,7 +33,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
   }
   .top-control .brand-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 900;
     color: #bbf7d0;
     display: flex;
@@ -45,7 +45,7 @@
     color: #fff;
     border: 1px solid #059669;
     border-radius: 6px;
-    padding: 5px 12px;
+    padding: 4px 12px;
     font-size: 12px;
     font-weight: 800;
     cursor: pointer;
@@ -53,72 +53,61 @@
   }
   .btn-all-refresh:hover { background: #065f46; }
 
-  /* 메인 5프레임 레이아웃 
-     좌측(3.2fr): 현황판+m5 대기판 (상/하 분할)
-     우측(6.8fr): m6 접수관리 + 복약관리 + 실시간출력 (1fr 1fr 1fr 3분할)
+  /* 메인 레이아웃:
+     좌측(2.6fr): [상] 원내접수현황판 + [하] m5 대기판
+     중앙(2.4fr): m6 접수관리
+     우측(5.0fr): 복약관리 시스템 + 실시간 출력 (1:1 연동 세트)
   */
   .main-layout {
     display: grid;
-    grid-template-columns: 3.2fr 6.8fr;
-    height: calc(100% - 44px);
+    grid-template-columns: 2.6fr 2.4fr 5.0fr;
+    height: calc(100% - 42px);
     width: 100%;
-    gap: 8px;
-    padding: 8px;
+    gap: 6px;
+    padding: 6px;
   }
 
-  /* 좌측 열: 위아래 반반 분할 */
+  /* 좌측 상하 2분할 열 */
   .left-column {
     display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 8px;
+    grid-template-rows: 1.1fr 0.9fr;
+    gap: 6px;
     height: 100%;
     min-width: 0;
   }
 
-  /* 우측 열: 나란히 3열 분할 */
-  .right-column {
-    display: grid;
-    grid-template-columns: 1fr 1.05fr 1fr;
-    gap: 8px;
-    height: 100%;
-    min-width: 0;
-  }
-
-  /* 공통 패널 스타일 */
+  /* 패널 공통 */
   .panel {
     display: flex;
     flex-direction: column;
     background: #fff;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
     border: 1px solid #1e5244;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
     min-width: 0;
     min-height: 0;
   }
   .panel-header {
-    height: 34px;
+    height: 32px;
     background: var(--panel-header);
     color: var(--text-light);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px;
+    padding: 0 8px;
     flex-shrink: 0;
   }
   .panel-title {
     font-size: 12px;
     font-weight: 900;
     white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 5px;
   }
   .p-btn {
     background: rgba(255, 255, 255, 0.18);
     border: 1px solid rgba(255, 255, 255, 0.25);
     color: #fff;
-    padding: 2px 7px;
+    padding: 2px 6px;
     border-radius: 4px;
     font-size: 11px;
     font-weight: 700;
@@ -144,26 +133,23 @@
 </head>
 <body>
 
-  <!-- 상단 바 -->
   <header class="top-control">
     <div class="brand-title">
-      🐾 23시 동물병원 · 원내현황 + m5대기 + m6관리 + 복약관리 + 실시간출력 (5-Panel)
+      🐾 23시 하단오거리 동물병원 · 통합 관제 (현황판 + m5 + m6 + 복약관리 & 실시간출력)
     </div>
     <div>
       <button class="btn-all-refresh" onclick="refreshAllFrames()">🔄 전체 새로고침 (F5)</button>
     </div>
   </header>
 
-  <!-- 본문 5프레임 영역 -->
   <main class="main-layout">
 
-    <!-- [좌측 영역] 현황판 + m5 대기판 (상/하 분할) -->
+    <!-- 1열 (좌측 상하 분할): 원내접수현황판 + m5 접수대기판 -->
     <section class="left-column">
-      
-      <!-- 1. 원내 접수 현황판 -->
+      <!-- 창 1: 원내 접수 현황판 -->
       <article class="panel">
         <div class="panel-header">
-          <div class="panel-title">📋 [1] 원내 접수 현황판</div>
+          <div class="panel-title">📋 원내 접수 현황판</div>
           <div>
             <button class="p-btn" onclick="document.getElementById('frame-counter').contentWindow.location.reload()">새로고침</button>
             <button class="p-btn" onclick="window.open('/counter.html', '_blank')">새창</button>
@@ -174,10 +160,10 @@
         </div>
       </article>
 
-      <!-- 2. m5 접수 대기판 -->
+      <!-- 창 2: m5 접수 대기판 -->
       <article class="panel">
         <div class="panel-header">
-          <div class="panel-title">🐾 [2] m5 접수 대기판</div>
+          <div class="panel-title">🐾 m5 접수 대기판</div>
           <div>
             <button class="p-btn" onclick="document.getElementById('frame-m5').contentWindow.location.reload()">새로고침</button>
             <button class="p-btn" onclick="window.open('/m5.html', '_blank')">새창</button>
@@ -187,135 +173,57 @@
           <iframe id="frame-m5" src="/m5.html"></iframe>
         </div>
       </article>
-
     </section>
 
-    <!-- [우측 영역] m6접수관리 + 복약관리 + 실시간출력 (가로 3열 나란히) -->
-    <section class="right-column">
-      
-      <!-- 3. m6 접수 관리 -->
-      <article class="panel">
-        <div class="panel-header">
-          <div class="panel-title">🩺 [3] m6 접수 관리</div>
-          <div>
-            <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
-            <button class="p-btn" onclick="window.open('/m6', '_blank')">새창</button>
-          </div>
+    <!-- 2열 (중간): m6 접수 관리 -->
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🩺 m6 접수 관리</div>
+        <div>
+          <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
+          <button class="p-btn" onclick="window.open('/m6', '_blank')">새창</button>
         </div>
-        <div class="panel-body">
-          <iframe id="frame-m6" src="/m6"></iframe>
-        </div>
-      </article>
+      </div>
+      <div class="panel-body">
+        <iframe id="frame-m6" src="/m6"></iframe>
+      </div>
+    </article>
 
-      <!-- 4. 복약관리 입력 시스템 -->
-      <article class="panel">
-        <div class="panel-header">
-          <div class="panel-title">💊 [4] 복약관리 입력</div>
-          <div>
-            <button class="p-btn" onclick="document.getElementById('frame-med-input').contentWindow.location.reload()">새로고침</button>
-          </div>
+    <!-- 3열 (우측 넓은 영역): 복약관리 입력 + 실시간 출력 (연동 분할) -->
+    <article class="panel">
+      <div class="panel-header">
+        <div class="panel-title">💊 복약관리 시스템 & 📄 실시간 출력</div>
+        <div>
+          <button class="p-btn" onclick="document.getElementById('frame-med').contentWindow.location.reload()">새로고침</button>
         </div>
-        <div class="panel-body">
-          <iframe id="frame-med-input" src="/m9.html" onload="isolateMedicationPanels()"></iframe>
-        </div>
-      </article>
-
-      <!-- 5. 실시간 A4 출력판 -->
-      <article class="panel">
-        <div class="panel-header">
-          <div class="panel-title">📄 [5] 실시간 A4 출력지</div>
-          <div>
-            <button class="p-btn" onclick="document.getElementById('frame-med-print').contentWindow.location.reload()">새로고침</button>
-          </div>
-        </div>
-        <div class="panel-body">
-          <iframe id="frame-med-print" src="/m9.html" onload="isolateMedicationPanels()"></iframe>
-        </div>
-      </article>
-
-    </section>
+      </div>
+      <div class="panel-body">
+        <!-- m9.html에 내장되어 있던 복약관리 본체(iframe srcdoc)를 외부 컨테이너 없이 다이렉트로 로드하여 깔끔하게 1:1 분할 표시 -->
+        <iframe id="frame-med" src="/m9.html" onload="fitMedicationOnly(this)"></iframe>
+      </div>
+    </article>
 
   </main>
 
   <script>
-    // 복약관리 입력창과 실시간 출력창을 4번과 5번 패널에 맞게 각각 최적화 표시
-    function isolateMedicationPanels() {
-      // 4번: 복약관리 입력폼만 표시
+    // 우측 복약관리 패널에서 불필요한 상단바/현황판 껍데기를 날리고 [복약관리 입력 + A4 출력]만 가득 차게 최적화
+    function fitMedicationOnly(f) {
       try {
-        const fInput = document.getElementById('frame-med-input');
-        const docIn = fInput.contentDocument || fInput.contentWindow.document;
-        if (docIn) {
-          let s = docIn.getElementById('custom-split-input');
-          if (!s) {
-            s = docIn.createElement('style');
-            s.id = 'custom-split-input';
-            docIn.head.appendChild(s);
-          }
-          s.textContent = `
-            header.top-control, #left-dashboard-panel, #view-m3-duo, #view-clinical, #view-m8 { display: none !important; }
-            .main-container { padding: 0 !important; grid-template-columns: 1fr !important; height: 100vh !important; }
-            #view-medication { display: block !important; border: none !important; box-shadow: none !important; }
-            #view-medication .panel-header { display: none !important; }
-            #frame-med { border: none !important; width: 100% !important; height: 100vh !important; }
-          `;
-          // 내부 iframe(srcdoc)의 오른쪽(출력) 패널 숨김 처리
-          const subFrame = docIn.getElementById('frame-med');
-          if (subFrame) {
-            subFrame.onload = () => {
-              const subDoc = subFrame.contentDocument || subFrame.contentWindow.document;
-              if (subDoc) {
-                let subS = subDoc.createElement('style');
-                subS.textContent = `
-                  #counterPanel { display: none !important; }
-                  #integratedShell { display: block !important; padding: 4px !important; }
-                  .wrap { display: block !important; padding: 0 !important; }
-                  .wrap > .panel:nth-child(2) { display: none !important; }
-                  .wrap > .panel:first-child { height: 100vh !important; border-radius: 0 !important; }
-                `;
-                subDoc.head.appendChild(subS);
-              }
-            };
-          }
+        const doc = f.contentDocument || f.contentWindow.document;
+        if (!doc) return;
+        let s = doc.getElementById('med-standalone-style');
+        if (!s) {
+          s = doc.createElement('style');
+          s.id = 'med-standalone-style';
+          doc.head.appendChild(s);
         }
-      } catch (e) {}
-
-      // 5번: 실시간 출력(A4 미리보기)만 표시
-      try {
-        const fPrint = document.getElementById('frame-med-print');
-        const docPr = fPrint.contentDocument || fPrint.contentWindow.document;
-        if (docPr) {
-          let s = docPr.getElementById('custom-split-print');
-          if (!s) {
-            s = docPr.createElement('style');
-            s.id = 'custom-split-print';
-            docPr.head.appendChild(s);
-          }
-          s.textContent = `
-            header.top-control, #left-dashboard-panel, #view-m3-duo, #view-clinical, #view-m8 { display: none !important; }
-            .main-container { padding: 0 !important; grid-template-columns: 1fr !important; height: 100vh !important; }
-            #view-medication { display: block !important; border: none !important; box-shadow: none !important; }
-            #view-medication .panel-header { display: none !important; }
-            #frame-med { border: none !important; width: 100% !important; height: 100vh !important; }
-          `;
-          const subFrame = docPr.getElementById('frame-med');
-          if (subFrame) {
-            subFrame.onload = () => {
-              const subDoc = subFrame.contentDocument || subFrame.contentWindow.document;
-              if (subDoc) {
-                let subS = subDoc.createElement('style');
-                subS.textContent = `
-                  #counterPanel { display: none !important; }
-                  #integratedShell { display: block !important; padding: 4px !important; }
-                  .wrap { display: block !important; padding: 0 !important; }
-                  .wrap > .panel:first-child { display: none !important; }
-                  .wrap > .panel:nth-child(2) { height: 100vh !important; border-radius: 0 !important; }
-                  .preview { transform-origin: top center; }
-                `;
-                subDoc.head.appendChild(subS);
-              }
-            };
-          }
-        }
+        s.textContent = `
+          header.top-control, #left-dashboard-panel, #view-m3-duo, #view-clinical, #view-m8 { display: none !important; }
+          .main-container { padding: 0 !important; grid-template-columns: 1fr !important; height: 100vh !important; }
+          #view-medication { display: flex !important; border: none !important; box-shadow: none !important; }
+          #view-medication .panel-header { display: none !important; }
+          #frame-med { border: none !important; width: 100% !important; height: 100vh !important; }
+        `;
       } catch (e) {}
     }
 
