@@ -154,7 +154,10 @@ html,body{width:100%;height:100%;overflow:hidden}
   color:#24352c!important;
   border:1px solid #d7e2da!important;
   border-radius:10px!important;
-  padding:8mm!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  padding:7mm!important;
   box-shadow:0 5px 18px rgba(24,55,38,.08)!important;
   font-family:"Pretendard","Malgun Gothic",sans-serif!important;
 }
@@ -223,13 +226,13 @@ html,body{width:100%;height:100%;overflow:hidden}
   font-weight:900!important;
 }
 .preview .dayGrid{
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
   gap:2.5mm!important;
   margin-top:0!important;
 }
 .preview .card{
-  min-height:18mm!important;
-  padding:3mm!important;
+  min-height:19mm!important;
+  padding:3.2mm!important;
   border:1px solid #dce5df!important;
   border-radius:6px!important;
   background:#fbfcfb!important;
@@ -244,7 +247,7 @@ html,body{width:100%;height:100%;overflow:hidden}
   font-size:10pt!important;
   margin-bottom:1.5mm!important;
 }
-.preview .card .small{font-size:8.5pt!important;line-height:1.5!important}
+.preview .card .small{font-size:9pt!important;line-height:1.55!important}
 .preview .notice{
   border:1px solid #dce5df!important;
   border-radius:7px!important;
@@ -710,28 +713,28 @@ function issueOutputId(){
   return id;
 }
 
+function captureA4Preview(){
+  const source=document.querySelector('.preview');
+  const clone=source.cloneNode(true);
+  const holder=document.createElement('div');
+  holder.style.cssText='position:fixed;left:-12000px;top:0;width:194mm;height:281mm;overflow:hidden;background:#fff;z-index:-1;';
+  clone.style.cssText += ';width:194mm!important;max-width:none!important;min-width:194mm!important;height:281mm!important;min-height:281mm!important;max-height:281mm!important;aspect-ratio:auto!important;box-sizing:border-box!important;margin:0!important;padding:7mm!important;border:1px solid #d7e2da!important;border-radius:2mm!important;box-shadow:none!important;overflow:hidden!important;';
+  holder.appendChild(clone);
+  document.body.appendChild(holder);
+  return html2canvas(clone,{
+    backgroundColor:'#ffffff',scale:3,useCORS:true,logging:false,
+    width:clone.scrollWidth,height:clone.scrollHeight,
+    windowWidth:clone.scrollWidth,windowHeight:clone.scrollHeight,
+    scrollX:0,scrollY:0
+  }).finally(()=>holder.remove());
+}
+
 function printPreview(){
   issueOutputId();
-  const node=document.querySelector('.preview');
-  html2canvas(node,{
-    backgroundColor:'#ffffff',
-    scale:3,
-    useCORS:true,
-    logging:false,
-    width:node.scrollWidth,
-    height:node.scrollHeight,
-    windowWidth:node.scrollWidth,
-    windowHeight:node.scrollHeight,
-    scrollX:0,
-    scrollY:0
-  }).then(canvas=>{
+  captureA4Preview().then(canvas=>{
     const w=window.open('','_blank');
     w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>인쇄</title>
-      <style>
-        @page{size:A4 portrait;margin:8mm;}
-        html,body{margin:0;padding:0;background:#fff;width:100%;}
-        img{width:100%;max-width:194mm;height:auto;display:block;margin:0 auto;}
-      </style></head><body></body></html>`);
+      <style>@page{size:A4 portrait;margin:8mm;}html,body{margin:0;padding:0;background:#fff;width:100%;height:100%;}img{width:194mm;height:281mm;display:block;margin:0 auto;object-fit:fill;}</style></head><body></body></html>`);
     const img=w.document.createElement('img');
     img.src=canvas.toDataURL('image/png');
     w.document.body.appendChild(img);
@@ -745,8 +748,7 @@ function savePreviewImage(){
   const pet=(document.getElementById('pet')?.value||'동물').trim()||'동물';
   const start=(document.getElementById('start')?.value||new Date().toISOString().slice(0,10));
   const fileName=`${pet}_${start}.png`;
-  const preview=document.querySelector('.preview');
-  html2canvas(preview,{scale:2,backgroundColor:'#ffffff'}).then(canvas=>{
+  captureA4Preview().then(canvas=>{
     const a=document.createElement('a');
     a.download=fileName;
     a.href=canvas.toDataURL('image/png');
