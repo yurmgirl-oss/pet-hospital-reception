@@ -99,7 +99,7 @@
     padding: 8px;
   }
 
-  /* F4 특수환자 화면은 좌측 현황판 없이 전체 폭 사용 */
+  /* F3 약량계산기·특수동물 및 F4 특수환자 화면은 좌측 현황판 없이 전체 폭 사용 */
   .main-container.m8-fullscreen {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1120,7 +1120,7 @@ setTimeout(()=&gt;{const f=document.getElementById(&#x27;counterFrame&#x27;);con
     // 화면 전환 함수
     function switchRightView(viewMode) {
       const main = document.querySelector('.main-container');
-      const isM8Full = viewMode === 'm8';
+      const isM8Full = viewMode === 'm8' || viewMode === 'clinical';
       main.classList.toggle('m8-fullscreen', isM8Full);
 
       document.getElementById('view-m3-duo').style.display = 'none';
