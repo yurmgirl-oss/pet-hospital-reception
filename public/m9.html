@@ -99,6 +99,27 @@
     padding: 8px;
   }
 
+  /* F4 특수환자 화면은 좌측 현황판 없이 전체 폭 사용 */
+  .main-container.m8-fullscreen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .main-container.m8-fullscreen #left-dashboard-panel {
+    display: none !important;
+  }
+  .main-container.m8-fullscreen #right-work-area {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* F3: 약량 계산기 + 특수동물 반반 배치 */
+  .clinical-subgrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
+    height: 100%;
+    gap: 8px;
+  }
+
   /* 패널 공통 */
   .panel {
     display: flex;
@@ -172,14 +193,12 @@
       🐾 23시 하단오거리 동물병원 · 통합 멀티 관제 포털 (m9)
     </div>
 
-    <!-- 중앙/우측 전환 탭: F7 특수동물 탭 추가 -->
+    <!-- M9 화면 전환: F1~F4 -->
     <div class="view-tabs">
-      <button class="tab-btn active" id="tab-m3" onclick="switchRightView('m3_duo')">1️⃣ M5 대기판 + M6 관리 (F1)</button>
-      <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 전용 (F2)</button>
-      <button class="tab-btn" id="tab-focus" onclick="switchRightView('focus')">3️⃣ 📋 집중관리 챠트 (F3)</button>
-      <button class="tab-btn" id="tab-calc" onclick="switchRightView('calc')" style="color: #fde047;">4️⃣ 🧮 약량계산기 (F6)</button>
-      <button class="tab-btn" id="tab-exotic" onclick="switchRightView('exotic')" style="color: #67e8f9;">5️⃣ 🦎 특수동물 (F7)</button>
-      <button class="tab-btn" id="tab-m8" onclick="switchRightView('m8')" style="color:#f9a8d4;">6️⃣ ⭐ 특수환자 관리 (F8)</button>
+      <button class="tab-btn active" id="tab-m3" onclick="switchRightView('m3_duo')">1️⃣ 접수 대기판 + 접수 관리 (F1)</button>
+      <button class="tab-btn" id="tab-med" onclick="switchRightView('medication')">2️⃣ 💊 복약관리 (F2)</button>
+      <button class="tab-btn" id="tab-clinical" onclick="switchRightView('clinical')" style="color:#fde047;">3️⃣ 🧮 약량계산기 + 🦎 특수동물 (F3)</button>
+      <button class="tab-btn" id="tab-m8" onclick="switchRightView('m8')" style="color:#f9a8d4;">4️⃣ ⭐ 특수환자 관리 (F4)</button>
     </div>
 
     <div>
@@ -191,9 +210,9 @@
   <main class="main-container">
 
     <!-- [창 1: 좌측 30% 항상 고정] 카운터 접수현황판 -->
-    <section class="panel">
+    <section class="panel" id="left-dashboard-panel">
       <div class="panel-header">
-        <div class="panel-title">📋 원내 접수 현황판 (M3 고정)</div>
+        <div class="panel-title">📋 원내 접수 현황판 (고정)</div>
         <div>
           <button class="p-btn" onclick="document.getElementById('frame-desk').contentWindow.location.reload()">새로고침</button>
           <button class="p-btn" onclick="window.open('/counter.html', '_blank')">새창</button>
@@ -1034,55 +1053,40 @@ setTimeout(()=&gt;{const f=document.getElementById(&#x27;counterFrame&#x27;);con
         </div>
       </div>
 
-      <!-- 3번 뷰: 집중관리 & 만성챠트 (F3) -->
-      <div id="view-focus" class="panel" style="width: 100%; height: 100%; display: none;">
-        <div class="panel-header">
-          <div class="panel-title">📋 중환자 집중관리 및 만성처방 챠트</div>
-          <button class="p-btn" onclick="document.getElementById('frame-focus').contentWindow.location.reload()">새로고침</button>
-        </div>
-        <div class="panel-body">
-          <iframe id="frame-focus" src="/m1.html" onload="cleanFocusFrame()"></iframe>
-        </div>
-      </div>
-
-      <!-- 6번 뷰: 약량 계산기 전용 패널 (F6) -->
-      <div id="view-calc" class="panel" style="width: 100%; height: 100%; display: none;">
-        <div class="panel-header">
-          <div class="panel-title">🧮 [창 6] 처방 약량 계산기 및 패턴 관리</div>
-          <div>
-            <button class="p-btn" onclick="document.getElementById('frame-calc').contentWindow.location.reload()">새로고침</button>
-            <button class="p-btn" onclick="window.open('/calc.html', '_blank')">새창</button>
+      <!-- F3: 약량 계산기 + 특수동물 반반 분할 -->
+      <div id="view-clinical" class="clinical-subgrid" style="display:none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🧮 약량 계산기</div>
+            <div>
+              <button class="p-btn" onclick="document.getElementById('frame-calc').contentWindow.location.reload()">새로고침</button>
+              <button class="p-btn" onclick="window.open('/calc.html', '_blank')">새창</button>
+            </div>
           </div>
+          <div class="panel-body"><iframe id="frame-calc" src="/calc.html"></iframe></div>
         </div>
-        <div class="panel-body">
-          <iframe id="frame-calc" src="/calc.html"></iframe>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🦎 특수동물 관리</div>
+            <div>
+              <button class="p-btn" onclick="document.getElementById('frame-exotic').contentWindow.location.reload()">새로고침</button>
+              <button class="p-btn" onclick="window.open('/exotic.html', '_blank')">새창</button>
+            </div>
+          </div>
+          <div class="panel-body"><iframe id="frame-exotic" src="/exotic.html"></iframe></div>
         </div>
       </div>
 
-      <!-- 8번 뷰: 특수환자 13개 관리실 현황판 (F8 독립) -->
+      <!-- F4: 특수환자 관리 전체화면 (좌측 현황판 숨김) -->
       <div id="view-m8" class="panel" style="width:100%;height:100%;display:none;">
         <div class="panel-header">
-          <div class="panel-title">⭐ [창 8] 특수환자 13개 관리실 통합 현황판</div>
+          <div class="panel-title">⭐ 특수환자 통합 관리 현황판</div>
           <div>
             <button class="p-btn" onclick="document.getElementById('frame-m8').contentWindow.location.reload()">새로고침</button>
             <button class="p-btn" onclick="window.open('/m8.html','_blank')">새창</button>
           </div>
         </div>
         <div class="panel-body"><iframe id="frame-m8" src="/m8.html"></iframe></div>
-      </div>
-
-      <!-- 7번 뷰: 특수동물 전용 패널 (F7 신규 추가) -->
-      <div id="view-exotic" class="panel" style="width: 100%; height: 100%; display: none;">
-        <div class="panel-header">
-          <div class="panel-title">🦎 [창 7] 특수동물(Exotic) 관리</div>
-          <div>
-            <button class="p-btn" onclick="document.getElementById('frame-exotic').contentWindow.location.reload()">새로고침</button>
-            <button class="p-btn" onclick="window.open('/exotic.html', '_blank')">새창</button>
-          </div>
-        </div>
-        <div class="panel-body">
-          <iframe id="frame-exotic" src="/exotic.html"></iframe>
-        </div>
       </div>
 
     </section>
@@ -1113,35 +1117,15 @@ setTimeout(()=&gt;{const f=document.getElementById(&#x27;counterFrame&#x27;);con
       }
     }
 
-    function cleanFocusFrame() {
-      const f = document.getElementById('frame-focus');
-      try {
-        const doc = f.contentDocument || f.contentWindow.document;
-        if (!doc) return;
-        if (f.contentWindow.setLayout) f.contentWindow.setLayout('focus-expanded');
-        let style = doc.getElementById('focus-clean-style');
-        if (!style) {
-          style = doc.createElement('style');
-          style.id = 'focus-clean-style';
-          doc.head.appendChild(style);
-        }
-        style.textContent = `
-          #counterPanel, #medicationPanel, #expandedGlobalControls { display: none !important; }
-          #integratedShell { display: block !important; width: 100% !important; height: 100% !important; padding: 0 !important; margin: 0 !important; }
-          #chronicPanel { display: block !important; width: 100% !important; height: 100% !important; border: none !important; border-radius: 0 !important; }
-        `;
-      } catch (e) {
-        console.warn('iframe 접근 제약:', e);
-      }
-    }
-
     // 화면 전환 함수
     function switchRightView(viewMode) {
+      const main = document.querySelector('.main-container');
+      const isM8Full = viewMode === 'm8';
+      main.classList.toggle('m8-fullscreen', isM8Full);
+
       document.getElementById('view-m3-duo').style.display = 'none';
       document.getElementById('view-medication').style.display = 'none';
-      document.getElementById('view-focus').style.display = 'none';
-      document.getElementById('view-calc').style.display = 'none';
-      document.getElementById('view-exotic').style.display = 'none';
+      document.getElementById('view-clinical').style.display = 'none';
       document.getElementById('view-m8').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1153,16 +1137,9 @@ setTimeout(()=&gt;{const f=document.getElementById(&#x27;counterFrame&#x27;);con
         document.getElementById('view-medication').style.display = 'flex';
         document.getElementById('tab-med').classList.add('active');
         cleanMedicationFrame();
-      } else if (viewMode === 'focus') {
-        document.getElementById('view-focus').style.display = 'flex';
-        document.getElementById('tab-focus').classList.add('active');
-        cleanFocusFrame();
-      } else if (viewMode === 'calc') {
-        document.getElementById('view-calc').style.display = 'flex';
-        document.getElementById('tab-calc').classList.add('active');
-      } else if (viewMode === 'exotic') {
-        document.getElementById('view-exotic').style.display = 'flex';
-        document.getElementById('tab-exotic').classList.add('active');
+      } else if (viewMode === 'clinical') {
+        document.getElementById('view-clinical').style.display = 'grid';
+        document.getElementById('tab-clinical').classList.add('active');
       } else if (viewMode === 'm8') {
         document.getElementById('view-m8').style.display = 'flex';
         document.getElementById('tab-m8').classList.add('active');
@@ -1176,14 +1153,12 @@ setTimeout(()=&gt;{const f=document.getElementById(&#x27;counterFrame&#x27;);con
       });
     }
 
-    // 진료실용 원터치 단축키: F7 핸들러 추가
+    // 진료실용 원터치 단축키: F1~F4
     window.addEventListener('keydown', (e) => {
       if (e.key === 'F1') { e.preventDefault(); switchRightView('m3_duo'); }
       if (e.key === 'F2') { e.preventDefault(); switchRightView('medication'); }
-      if (e.key === 'F3') { e.preventDefault(); switchRightView('focus'); }
-      if (e.key === 'F6') { e.preventDefault(); switchRightView('calc'); }
-      if (e.key === 'F7') { e.preventDefault(); switchRightView('exotic'); }
-      if (e.key === 'F8') { e.preventDefault(); switchRightView('m8'); }
+      if (e.key === 'F3') { e.preventDefault(); switchRightView('clinical'); }
+      if (e.key === 'F4') { e.preventDefault(); switchRightView('m8'); }
     });
   </script>
 </body>
