@@ -98,10 +98,10 @@
     gap: 6px;
   }
 
-  /* F2 화면: 약량계산기 + 특수동물 1:1 반반 분할 */
+  /* F2 화면: 동물 처방용량 계산표 2개 + 특수동물 관리 3분할 */
   .f2-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     height: 100%;
     width: 100%;
     gap: 6px;
@@ -182,7 +182,7 @@
     <!-- 탭 그룹 -->
     <div class="view-tabs">
       <button class="tab-btn active" id="tab-f1" onclick="switchView('f1')">1️⃣ 원내통합관제 (F1)</button>
-      <button class="tab-btn" id="tab-f2" onclick="switchView('f2')" style="color:#fde047;">2️⃣ 🧮 약량계산기 + 🦎 특수동물 (F2)</button>
+      <button class="tab-btn" id="tab-f2" onclick="switchView('f2')" style="color:#fde047;">2️⃣ 🧮 처방용량 계산표 2개 + 🦎 특수동물 (F2)</button>
       <button class="tab-btn" id="tab-f3" onclick="switchView('f3')" style="color:#f9a8d4;">3️⃣ ⭐ 특수환자 관리 (F3)</button>
     </div>
 
@@ -241,20 +241,34 @@
 
     </div>
 
-    <!-- [F2 뷰] 약량계산기 + 특수동물 반반 배치 -->
+    <!-- [F2 뷰] 동물 처방용량 계산표 2개 + 특수동물 관리 3분할 -->
     <div id="view-f2" class="f2-layout" style="display: none;">
       <section class="panel">
         <div class="panel-header">
-          <div class="panel-title">🧮 약량 계산기</div>
+          <div class="panel-title">🧮 동물 처방용량 계산표 ①</div>
           <div>
-            <button class="p-btn" onclick="document.getElementById('frame-calc').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="document.getElementById('frame-calc-1').contentWindow.location.reload()">새로고침</button>
             <button class="p-btn" onclick="window.open('/calc.html', '_blank')">새창</button>
           </div>
         </div>
         <div class="panel-body">
-          <iframe id="frame-calc" src="/calc.html"></iframe>
+          <iframe id="frame-calc-1" src="/calc.html" title="동물 처방용량 계산표 1"></iframe>
         </div>
       </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🧮 동물 처방용량 계산표 ②</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-calc-2').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/calc.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-calc-2" src="/calc.html" title="동물 처방용량 계산표 2"></iframe>
+        </div>
+      </section>
+
       <section class="panel">
         <div class="panel-header">
           <div class="panel-title">🦎 특수동물 관리</div>
@@ -264,7 +278,7 @@
           </div>
         </div>
         <div class="panel-body">
-          <iframe id="frame-exotic" src="/exotic.html"></iframe>
+          <iframe id="frame-exotic" src="/exotic.html" title="특수동물 관리"></iframe>
         </div>
       </section>
     </div>
