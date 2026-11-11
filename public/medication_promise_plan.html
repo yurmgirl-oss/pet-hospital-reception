@@ -141,6 +141,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 #medicationPanel .dayGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
 #medicationPanel .card{min-width:0;padding:4px}
 @media(max-width:1100px){#integratedShell{grid-template-columns:minmax(320px,4fr) minmax(0,6fr);gap:6px;padding:6px}#medicationPanel .panel{padding:8px}#medicationPanel h2{font-size:17px}#medicationPanel .quickItem{font-size:9px!important;padding:4px!important}}
+@media(max-width:680px){.localPlanScheduleColumns{grid-template-columns:1fr!important}}
 @media print{html,body{height:auto;overflow:visible}#integratedShell{display:block;width:auto;height:auto;padding:0;background:#fff}#counterPanel{display:none!important}#medicationPanel{overflow:visible}#medicationPanel .wrap{display:flex!important;padding:0!important}#medicationPanel .panel:first-child{display:none!important}#medicationPanel .panel:nth-child(2){display:flex!important;width:100%!important;height:auto!important;overflow:visible!important;padding:0!important}#medicationPanel .preview{width:196mm!important;height:283mm!important;max-width:196mm!important;padding:6mm!important;border:2px solid #b9cdbd!important;border-radius:16px!important;box-sizing:border-box!important;aspect-ratio:auto!important}}
 
 </style>
@@ -183,17 +184,24 @@ html,body{width:100%;height:100%;overflow:hidden}
     <input type="hidden" id="localPlanEditId">
     <label for="localPlanName">처방 이름</label><input id="localPlanName" placeholder="예: 크레스티드게코 안구관리" style="width:100%;box-sizing:border-box;margin-bottom:8px">
     <label for="localPlanDuration">관리 기간(일)</label><input id="localPlanDuration" type="number" min="1" max="365" value="7" style="width:100%;box-sizing:border-box;margin-bottom:8px">
-    <label for="localPlanRepeat">매일 반복할 일정 (한 줄에 하나씩)</label><textarea id="localPlanRepeat" rows="3" placeholder="물약(저녁) 1방울&#10;안약(1일 2회)" style="width:100%;box-sizing:border-box;margin-bottom:8px"></textarea>
-    <label>특정 날짜 일정 (날짜 · 내용 · 색상)</label>
-    <div style="display:grid;grid-template-columns:68px:minmax(0,1fr):100px;gap:6px;align-items:center;margin-bottom:8px">
+    <div class="localPlanScheduleColumns" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start;margin-bottom:8px">
+      <div style="min-width:0;background:#f8faf8;border:1px solid #e2e9e2;border-radius:8px;padding:9px">
+        <label for="localPlanRepeat">매일 반복할 일정 (한 줄에 하나씩)</label>
+        <textarea id="localPlanRepeat" rows="5" placeholder="물약(저녁) 1방울&#10;안약(1일 2회)" style="width:100%;box-sizing:border-box;margin-bottom:0"></textarea>
+      </div>
+      <div style="min-width:0;background:#f8faf8;border:1px solid #e2e9e2;border-radius:8px;padding:9px">
+        <label>특정 날짜 일정 (날짜 · 내용 · 색상)</label>
+        <div style="display:grid;grid-template-columns:68px:minmax(0,1fr):100px;gap:6px;align-items:center;margin-bottom:8px">
       <div style="display:grid;grid-template-columns:68px minmax(0,1fr) 100px;gap:6px;align-items:center">
         <span class="small" style="font-weight:700">날짜</span><span class="small" style="font-weight:700">내용</span><span class="small" style="font-weight:700">색상</span>
         <input id="specificDay1" type="number" min="1" max="365" placeholder="일" aria-label="첫 번째 일정 날짜" style="width:100%;box-sizing:border-box"/><input id="specificText1" placeholder="예: 눈 사진 촬영" aria-label="첫 번째 일정 내용" style="width:100%;box-sizing:border-box"/><select id="specificColor1" aria-label="첫 번째 일정 색상" style="width:100%;box-sizing:border-box"><option value="none">기본</option><option value="yellow">노랑</option><option value="green">초록</option><option value="red">빨강</option></select>
         <input id="specificDay2" type="number" min="1" max="365" placeholder="일" aria-label="두 번째 일정 날짜" style="width:100%;box-sizing:border-box"/><input id="specificText2" placeholder="예: 병원 내원" aria-label="두 번째 일정 내용" style="width:100%;box-sizing:border-box"/><select id="specificColor2" aria-label="두 번째 일정 색상" style="width:100%;box-sizing:border-box"><option value="none">기본</option><option value="yellow">노랑</option><option value="green">초록</option><option value="red">빨강</option></select>
         <input id="specificDay3" type="number" min="1" max="365" placeholder="일" aria-label="세 번째 일정 날짜" style="width:100%;box-sizing:border-box"/><input id="specificText3" placeholder="예: 추가 검사" aria-label="세 번째 일정 내용" style="width:100%;box-sizing:border-box"/><select id="specificColor3" aria-label="세 번째 일정 색상" style="width:100%;box-sizing:border-box"><option value="none">기본</option><option value="yellow">노랑</option><option value="green">초록</option><option value="red">빨강</option></select>
       </div>
+        </div>
+        <div class="small" style="margin:-3px 0 0">최대 3개까지 입력할 수 있습니다. 시작일을 1일째로 계산합니다.</div>
+      </div>
     </div>
-    <div class="small" style="margin:-3px 0 8px">최대 3개의 특정 날짜 일정을 입력할 수 있습니다. 날짜는 시작일을 1일째로 계산합니다.</div>
     <label>주의사항 선택 · 출력에 반영</label>
     <div id="localPlanCautions" class="cautionOptions" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;border:1px solid #eee;border-radius:7px;padding:9px;margin:5px 0 10px">
       <label><input type="checkbox" class="localPlanCaution" value="물약·안약은 흔들어 사용"/> 물약·안약은 흔들어 사용</label>
@@ -203,7 +211,7 @@ html,body{width:100%;height:100%;overflow:hidden}
       <label><input type="checkbox" class="localPlanCaution" value="소염제 복용 시 물·소변 증가 가능"/> 소염제 복용 시 물·소변 증가 가능</label>
       <label><input type="checkbox" class="localPlanCaution" value="카라 목보호대 착용 (상처부위, 눈, 귀, 붕대보호)"/> 카라 목보호대 착용</label>
       <label><input type="checkbox" class="localPlanCaution" value="사진촬영 후 admin@23si.net 으로 전송"/> 사진촬영 후 이메일 전송</label>
-      <label><input type="checkbox" class="localPlanCaution" value="재내원 시 위 QR코드로 빠른 접수"/> 재내원 시 QR코드로 빠른 접수</label>
+      <label><input type="checkbox" class="localPlanCaution" value="전화문의 051)264-8275"/> 전화문의 051)264-8275</label>
     </div>
     <label for="localPlanMemo">안내 메모 (선택)</label><textarea id="localPlanMemo" rows="3" placeholder="보호자에게 전달할 안내문" style="width:100%;min-height:76px;box-sizing:border-box;margin-bottom:8px"></textarea>
     <div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" onclick="saveLocalPlan()" style="background:#2f8f68;color:white">저장</button><button type="button" onclick="resetLocalPlanForm()">새 처방</button></div>
@@ -278,7 +286,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 <label><input type="checkbox" class="cautionCheck" value="소염제 복용 시 물·소변 증가 가능"/> 소염제 복용 시 물·소변 증가 가능</label>
 <label><input type="checkbox" class="cautionCheck" value="카라 목보호대 착용 (상처부위, 눈, 귀, 붕대보호)"/> 카라 목보호대 착용 (상처부위, 눈, 귀, 붕대보호)</label>
 <label><input type="checkbox" class="cautionCheck" value="사진촬영 후 admin@23si.net 으로 전송"/> 사진촬영 후 admin@23si.net 으로 전송</label>
-<label><input type="checkbox" class="cautionCheck" value="재내원 시 위 QR코드로 빠른 접수"/> 재내원 시 QR코드로 빠른 접수</label>
+<label><input type="checkbox" class="cautionCheck" value="전화문의 051)264-8275"/> 전화문의 051)264-8275</label>
 </div>
 <div style="margin-top:10px"><label for="customCaution">추가 주의사항 직접 입력 (선택)</label><textarea id="customCaution" rows="2" placeholder="예: 환부가 젖지 않도록 주의해 주세요."></textarea></div>
 </div>
