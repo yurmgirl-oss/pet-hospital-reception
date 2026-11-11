@@ -62,9 +62,8 @@
           <span id="soundIcon">🔔</span>
           <span id="soundText">알림음 켜짐</span>
         </button>
-        <button id="a4FolderBtn" onclick="chooseA4SaveFolder()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition">
-          📁 A4 저장폴더 지정
-        </button>
+        <button id="a4ChooseFolderBtn" onclick="chooseA4SaveFolder()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition">📁 A4 저장폴더 지정</button>
+        <button id="a4FolderBtn" onclick="openA4Folder()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition">📂 A4 저장폴더 열기</button>
         <button onclick="openImageSearch()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition">
           🗂️ A4 기록 검색
         </button>
@@ -489,8 +488,7 @@
       pendingLocalA4Files.set(filename, dataUrl);
       if (!a4DirectoryHandle) a4DirectoryHandle = await loadA4DirectoryHandle();
       if (!a4DirectoryHandle || !(await ensureA4FolderPermission(a4DirectoryHandle, false))) {
-        // 저장 폴더가 지정되지 않은 경우 안내 토스트를 반복 표시하지 않는다.
-        // 상단의 [A4 저장폴더 지정] 버튼으로 사용자가 직접 연결할 수 있다.
+        showToast('📁 A4 자동 PC 저장을 위해 상단의 [A4 저장폴더 지정]을 한 번 눌러주세요.');
         return false;
       }
       try {
