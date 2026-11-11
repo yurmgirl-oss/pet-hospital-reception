@@ -168,6 +168,22 @@ html,body{width:100%;height:100%;overflow:hidden}
 <div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option><option value="sevenDay">7일 집중관리 · 매일 아침/저녁 복약 · 3일째 사진 · 7일 후 재내원</option><option value="specialAnimal">특수동물 기본처방</option><option value="dermatitis">피부염</option><option value="conjunctivitis">결막염</option><option value="smallAnimalConjunctivitis">소동물 결막염</option><option value="otitis">외이염</option><option value="arthritisPain">관절염/진통</option><option value="specialAnimalDisinfection">특수동물(소독)</option><option value="renalFailure">신부전</option><option value="liverLipid">간/고지혈증</option><option value="gastroenteritis">장염처치</option><option value="postOpCare">수술후처치</option></select></div>
 <div><button type="button" onclick="applyPromisePlan()" style="background:#f4b400;color:#111">일정 적용</button></div>
 </div>
+<div style="margin-top:10px;border-top:1px dashed #d5bd62;padding-top:9px">
+  <button type="button" onclick="toggleLocalPlanManager()" style="background:#526b59;color:white">⚙️ 내 약속처방 만들기 / 관리</button>
+  <div id="localPlanManager" style="display:none;margin-top:10px;background:#fff;border:1px solid #d8c98e;border-radius:9px;padding:12px">
+    <b>이 컴퓨터에 약속처방 저장</b>
+    <div class="small" style="margin:5px 0 10px">저장한 처방은 현재 브라우저에서만 사용할 수 있습니다. 각 줄에 일정 하나씩 입력하세요.</div>
+    <input type="hidden" id="localPlanEditId">
+    <label for="localPlanName">처방 이름</label><input id="localPlanName" placeholder="예: 크레스티드게코 안구관리" style="width:100%;box-sizing:border-box;margin-bottom:8px">
+    <label for="localPlanDuration">관리 기간(일)</label><input id="localPlanDuration" type="number" min="1" max="365" value="7" style="width:100%;box-sizing:border-box;margin-bottom:8px">
+    <label for="localPlanRepeat">매일 반복할 일정 (한 줄에 하나씩)</label><textarea id="localPlanRepeat" rows="3" placeholder="물약(저녁) 1방울&#10;안약(1일 2회)" style="width:100%;box-sizing:border-box;margin-bottom:8px"></textarea>
+    <label for="localPlanSpecific">특정 날짜 일정 (날짜|내용|색상)</label><textarea id="localPlanSpecific" rows="3" placeholder="3|눈 사진 촬영|none&#10;7|병원 내원|yellow" style="width:100%;box-sizing:border-box;margin-bottom:8px"></textarea>
+    <div class="small" style="margin:-3px 0 8px">색상은 none(기본), yellow(노랑), green(초록), red(빨강) 중 선택. 예: 3|사진 촬영|none</div>
+    <label for="localPlanMemo">안내 메모 (선택)</label><textarea id="localPlanMemo" rows="2" placeholder="보호자에게 전달할 안내문" style="width:100%;box-sizing:border-box;margin-bottom:8px"></textarea>
+    <div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" onclick="saveLocalPlan()" style="background:#2f8f68;color:white">저장</button><button type="button" onclick="resetLocalPlanForm()">새 처방</button></div>
+    <div style="margin-top:12px"><b>저장된 약속처방</b><div id="localPlanSavedList" class="small" style="margin-top:6px">저장된 처방이 없습니다.</div></div>
+  </div>
+</div>
 
 </div>
 <div class="section">
@@ -313,6 +329,30 @@ function refreshCautions(){
 document.querySelectorAll('.cautionCheck').forEach(el=>el.addEventListener('change',refreshCautions));
 document.getElementById('customCaution').addEventListener('input',refreshCautions);
 refreshCautions();
+
+// 사용자 정의 약속처방: 현재 브라우저의 localStorage에만 저장합니다.
+const LOCAL_PLAN_KEY='clinic_custom_promise_plans_v1';
+function readLocalPlans(){try{return JSON.parse(localStorage.getItem(LOCAL_PLAN_KEY)||'[]')}catch(e){return []}}
+function writeLocalPlans(plans){try{localStorage.setItem(LOCAL_PLAN_KEY,JSON.stringify(plans));return true}catch(e){alert('브라우저 저장공간에 저장하지 못했습니다. 브라우저 설정을 확인해 주세요.');return false}}
+function toggleLocalPlanManager(){const box=document.getElementById('localPlanManager');box.style.display=box.style.display==='none'?'block':'none';renderLocalPlanOptions();}
+function renderLocalPlanOptions(){
+ const select=document.getElementById('promisePlan');let group=select.querySelector('optgroup[data-local-plans="1"]');if(group)group.remove();
+ const plans=readLocalPlans();if(plans.length){group=document.createElement('optgroup');group.label='내가 저장한 약속처방';group.dataset.localPlans='1';plans.forEach(p=>{const o=document.createElement('option');o.value='custom:'+p.id;o.textContent=p.name;group.appendChild(o)});select.appendChild(group)}
+ const list=document.getElementById('localPlanSavedList');if(!list)return;list.innerHTML='';
+ if(!plans.length){list.textContent='저장된 처방이 없습니다.';return;}
+ plans.forEach(p=>{const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;align-items:center;justify-content:space-between;border-top:1px solid #eee;padding:7px 0';const name=document.createElement('span');name.textContent=p.name+' ('+p.duration_days+'일)';const actions=document.createElement('span');const edit=document.createElement('button');edit.type='button';edit.textContent='수정';edit.onclick=()=>editLocalPlan(p.id);const del=document.createElement('button');del.type='button';del.textContent='삭제';del.style.marginLeft='4px';del.onclick=()=>deleteLocalPlan(p.id);actions.append(edit,del);row.append(name,actions);list.appendChild(row)});
+}
+function resetLocalPlanForm(){['localPlanEditId','localPlanName','localPlanRepeat','localPlanSpecific','localPlanMemo'].forEach(id=>document.getElementById(id).value='');document.getElementById('localPlanDuration').value=7;}
+function editLocalPlan(id){const p=readLocalPlans().find(x=>x.id===id);if(!p)return;document.getElementById('localPlanEditId').value=p.id;document.getElementById('localPlanName').value=p.name;document.getElementById('localPlanDuration').value=p.duration_days;document.getElementById('localPlanRepeat').value=(p.repeat_tasks||[]).join('\n');document.getElementById('localPlanSpecific').value=(p.specific_tasks||[]).map(x=>[x.day,x.text,x.color||'none'].join('|')).join('\n');document.getElementById('localPlanMemo').value=p.memo||'';document.getElementById('localPlanName').focus();}
+function deleteLocalPlan(id){const p=readLocalPlans().find(x=>x.id===id);if(!p||!confirm('「'+p.name+'」 약속처방을 삭제할까요?'))return;writeLocalPlans(readLocalPlans().filter(x=>x.id!==id));renderLocalPlanOptions();}
+function saveLocalPlan(){
+ const name=document.getElementById('localPlanName').value.trim(),duration=Number(document.getElementById('localPlanDuration').value);
+ if(!name)return alert('처방 이름을 입력해 주세요.');if(!Number.isInteger(duration)||duration<1||duration>365)return alert('관리 기간은 1~365일로 입력해 주세요.');
+ const repeat_tasks=document.getElementById('localPlanRepeat').value.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+ const specific_tasks=[];const lines=document.getElementById('localPlanSpecific').value.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+ for(let i=0;i<lines.length;i++){const parts=lines[i].split('|');const day=Number(parts[0]),text=(parts[1]||'').trim(),color=(parts[2]||'none').trim().toLowerCase();if(!Number.isInteger(day)||day<1||day>365||!text)return alert((i+1)+'번째 특정 날짜 일정 형식이 잘못되었습니다. 예: 3|눈 사진 촬영|none');if(!['none','yellow','green','red'].includes(color))return alert((i+1)+'번째 색상은 none, yellow, green, red 중 하나로 입력해 주세요.');specific_tasks.push({day,text,color});}
+ const plans=readLocalPlans(),id=document.getElementById('localPlanEditId').value||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));const item={id,name,duration_days:duration,repeat_tasks,specific_tasks,memo:document.getElementById('localPlanMemo').value.trim()};const idx=plans.findIndex(x=>x.id===id);if(idx>=0)plans[idx]=item;else plans.push(item);if(!writeLocalPlans(plans))return;resetLocalPlanForm();renderLocalPlanOptions();alert('이 컴퓨터에 약속처방을 저장했습니다.');
+}
 
 function renderMonths(){
  cals.innerHTML='';
@@ -544,6 +584,18 @@ function applyPromisePlan(){
  const choice=document.getElementById('promisePlan')?.value;
  if(!choice)return alert('약속처방을 선택해 주세요.');
  if(!start.value)return alert('시작일을 먼저 선택해 주세요.');
+ if(choice.startsWith('custom:')){
+   const id=choice.slice(7); const plans=readLocalPlans(); const plan=plans.find(x=>x.id===id);
+   if(!plan)return alert('저장된 약속처방을 찾을 수 없습니다.');
+   const baseDate=new Date(start.value+'T12:00:00');
+   const dateFor=(offset)=>{const d=new Date(baseDate);d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+   const template='local:'+id;
+   for(let i=events.length-1;i>=0;i--)if(events[i].template===template)events.splice(i,1);
+   for(let day=0;day<plan.duration_days;day++)(plan.repeat_tasks||[]).forEach(task=>events.push({date:dateFor(day),text:task,color:'none',template}));
+   (plan.specific_tasks||[]).forEach(task=>events.push({date:dateFor(task.day-1),text:task.text,color:task.color||'none',template}));
+   if(plan.memo){memoInput.value=memoInput.value.trim()?memoInput.value.trim()+'\n'+plan.memo:plan.memo;pmemo.textContent=memoInput.value;}
+   renderMonths();refresh();alert('저장한 약속처방 일정이 적용되었습니다.');return;
+ }
  const base=new Date(start.value+'T12:00:00');
  const dateAt=(offset)=>{const d=new Date(base);d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
  if(choice==='sevenDay' || choice==='specialAnimal' || choice==='dermatitis' || choice==='conjunctivitis' || choice==='smallAnimalConjunctivitis' || choice==='otitis' || choice==='arthritisPain' || choice==='specialAnimalDisinfection' || choice==='renalFailure' || choice==='liverLipid' || choice==='gastroenteritis' || choice==='postOpCare'){
@@ -719,7 +771,7 @@ function applyPromisePlan(){
  }
 }
 
-renderMonths();refresh();
+renderLocalPlanOptions();renderMonths();refresh();
 // iframe이 차단되는 환경에서는 새 창 링크를 이용할 수 있도록 안내 표시
 setTimeout(()=>{const f=document.getElementById('counterFrame');const note=document.getElementById('counterFallback');if(f&&!f.contentWindow){note.hidden=false;}},4000);
 </script>
