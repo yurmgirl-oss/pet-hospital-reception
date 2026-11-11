@@ -575,31 +575,56 @@ function issueOutputId(){
 
 function printPreview(){
   issueOutputId();
-  const node=document.querySelector('.preview');
-  html2canvas(node,{
-    backgroundColor:'#ffffff',
-    scale:3,
-    useCORS:true,
-    logging:false,
-    width:node.scrollWidth,
-    height:node.scrollHeight,
-    windowWidth:node.scrollWidth,
-    windowHeight:node.scrollHeight,
-    scrollX:0,
-    scrollY:0
-  }).then(canvas=>{
-    const w=window.open('','_blank');
-    w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>인쇄</title>
-      <style>
-        @page{size:A4 portrait;margin:8mm;}
-        html,body{margin:0;padding:0;background:#fff;width:100%;}
-        img{width:100%;max-width:194mm;height:auto;display:block;margin:0 auto;}
-      </style></head><body></body></html>`);
-    const img=w.document.createElement('img');
-    img.src=canvas.toDataURL('image/png');
+  const node = document.querySelector('.preview');
+  
+  html2canvas(node, {
+    backgroundColor: '#ffffff',
+    scale: 2,
+    useCORS: true,
+    logging: false
+  }).then(canvas => {
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>23시 동물병원 케어플랜 출력</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 6mm; /* A4 상하좌우 안전 여백 */
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    img {
+      /* A4 한 장(세로 280mm 안쪽)에 무조건 다 들어가도록 높이와 폭 제한 */
+      max-width: 195mm;
+      max-height: 280mm;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body></body>
+</html>`);
+    const img = w.document.createElement('img');
+    img.src = canvas.toDataURL('image/png');
     w.document.body.appendChild(img);
     w.document.close();
-    img.onload=()=>{w.focus();w.print();};
+    img.onload = () => {
+      w.focus();
+      w.print();
+    };
   });
 }
 
