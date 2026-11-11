@@ -573,8 +573,7 @@ memoInput.oninput=()=&gt;{pmemo.textContent=memoInput.value;};
 const cautionStyles=[&#x27;#fff3cd|#f4b400&#x27;,&#x27;#fff3cd|#f4b400&#x27;,&#x27;#ffebee|#e53935&#x27;,&#x27;#f5f5f5|#757575&#x27;,&#x27;#e8f5e9|#43a047&#x27;,&#x27;#fff3e0|#fb8c00&#x27;,&#x27;#e3f2fd|#1e88e5&#x27;,&#x27;#f3e5f5|#8e24aa&#x27;,&#x27;#ffebee|#e53935&#x27;];
 function refreshCautions(){
  const selectedCautions=[...document.querySelectorAll(&#x27;.cautionCheck:checked&#x27;)].map((el,i)=&gt;({text:el.value,style:cautionStyles[[...document.querySelectorAll(&#x27;.cautionCheck&#x27;)].indexOf(el)]||cautionStyles[0]}));
- const custom=(document.getElementById(&#x27;customCaution&#x27;).value||&#x27;&#x27;).split(/
-+/).map(x=&gt;x.trim()).filter(Boolean).map(text=&gt;({text,style:&#x27;#fffdf2|#e0a800&#x27;}));
+ const custom=(document.getElementById(&#x27;customCaution&#x27;).value||&#x27;&#x27;).split(/&#92;n+/).map(x=&gt;x.trim()).filter(Boolean).map(text=&gt;({text,style:&#x27;#fffdf2|#e0a800&#x27;}));
  const all=[...selectedCautions,...custom];
  const box=document.getElementById(&#x27;printedCautionBox&#x27;),list=document.getElementById(&#x27;printedCautionList&#x27;);
  list.innerHTML=&#x27;&#x27;;
@@ -600,14 +599,12 @@ function renderLocalPlanOptions(){
  plans.forEach(p=&gt;{const row=document.createElement(&#x27;div&#x27;);row.style.cssText=&#x27;display:flex;gap:6px;align-items:center;justify-content:space-between;border-top:1px solid #eee;padding:7px 0&#x27;;const name=document.createElement(&#x27;span&#x27;);name.textContent=p.name+&#x27; (&#x27;+p.duration_days+&#x27;일)&#x27;;const actions=document.createElement(&#x27;span&#x27;);const edit=document.createElement(&#x27;button&#x27;);edit.type=&#x27;button&#x27;;edit.textContent=&#x27;수정&#x27;;edit.onclick=()=&gt;editLocalPlan(p.id);const del=document.createElement(&#x27;button&#x27;);del.type=&#x27;button&#x27;;del.textContent=&#x27;삭제&#x27;;del.style.marginLeft=&#x27;4px&#x27;;del.onclick=()=&gt;deleteLocalPlan(p.id);actions.append(edit,del);row.append(name,actions);list.appendChild(row)});
 }
 function resetLocalPlanForm(){[&#x27;localPlanEditId&#x27;,&#x27;localPlanName&#x27;,&#x27;localPlanRepeat&#x27;,&#x27;localPlanMemo&#x27;].forEach(id=&gt;document.getElementById(id).value=&#x27;&#x27;);for(let i=1;i&lt;=3;i++){document.getElementById(&#x27;specificDay&#x27;+i).value=&#x27;&#x27;;document.getElementById(&#x27;specificText&#x27;+i).value=&#x27;&#x27;;document.getElementById(&#x27;specificColor&#x27;+i).value=&#x27;none&#x27;;}document.getElementById(&#x27;localPlanDuration&#x27;).value=7;document.querySelectorAll(&#x27;.localPlanCaution&#x27;).forEach(el=&gt;el.checked=false);}
-function editLocalPlan(id){const p=readLocalPlans().find(x=&gt;x.id===id);if(!p)return;document.getElementById(&#x27;localPlanEditId&#x27;).value=p.id;document.getElementById(&#x27;localPlanName&#x27;).value=p.name;document.getElementById(&#x27;localPlanDuration&#x27;).value=p.duration_days;document.getElementById(&#x27;localPlanRepeat&#x27;).value=(p.repeat_tasks||[]).join(&#x27;
-&#x27;);for(let i=1;i&lt;=3;i++){const task=(p.specific_tasks||[])[i-1];document.getElementById(&#x27;specificDay&#x27;+i).value=task?task.day:&#x27;&#x27;;document.getElementById(&#x27;specificText&#x27;+i).value=task?task.text:&#x27;&#x27;;document.getElementById(&#x27;specificColor&#x27;+i).value=task?(task.color||&#x27;none&#x27;):&#x27;none&#x27;;}document.getElementById(&#x27;localPlanMemo&#x27;).value=p.memo||&#x27;&#x27;;document.querySelectorAll(&#x27;.localPlanCaution&#x27;).forEach(el=&gt;el.checked=(p.cautions||[]).includes(el.value));document.getElementById(&#x27;localPlanName&#x27;).focus();}
+function editLocalPlan(id){const p=readLocalPlans().find(x=&gt;x.id===id);if(!p)return;document.getElementById(&#x27;localPlanEditId&#x27;).value=p.id;document.getElementById(&#x27;localPlanName&#x27;).value=p.name;document.getElementById(&#x27;localPlanDuration&#x27;).value=p.duration_days;document.getElementById(&#x27;localPlanRepeat&#x27;).value=(p.repeat_tasks||[]).join(&#x27;&#92;n&#x27;);for(let i=1;i&lt;=3;i++){const task=(p.specific_tasks||[])[i-1];document.getElementById(&#x27;specificDay&#x27;+i).value=task?task.day:&#x27;&#x27;;document.getElementById(&#x27;specificText&#x27;+i).value=task?task.text:&#x27;&#x27;;document.getElementById(&#x27;specificColor&#x27;+i).value=task?(task.color||&#x27;none&#x27;):&#x27;none&#x27;;}document.getElementById(&#x27;localPlanMemo&#x27;).value=p.memo||&#x27;&#x27;;document.querySelectorAll(&#x27;.localPlanCaution&#x27;).forEach(el=&gt;el.checked=(p.cautions||[]).includes(el.value));document.getElementById(&#x27;localPlanName&#x27;).focus();}
 function deleteLocalPlan(id){const p=readLocalPlans().find(x=&gt;x.id===id);if(!p||!confirm(&#x27;「&#x27;+p.name+&#x27;」 약속처방을 삭제할까요?&#x27;))return;writeLocalPlans(readLocalPlans().filter(x=&gt;x.id!==id));renderLocalPlanOptions();}
 function saveLocalPlan(){
  const name=document.getElementById(&#x27;localPlanName&#x27;).value.trim(),duration=Number(document.getElementById(&#x27;localPlanDuration&#x27;).value);
  if(!name)return alert(&#x27;처방 이름을 입력해 주세요.&#x27;);if(!Number.isInteger(duration)||duration&lt;1||duration&gt;365)return alert(&#x27;관리 기간은 1~365일로 입력해 주세요.&#x27;);
- const repeat_tasks=document.getElementById(&#x27;localPlanRepeat&#x27;).value.split(/
-+/).map(x=&gt;x.trim()).filter(Boolean);
+ const repeat_tasks=document.getElementById(&#x27;localPlanRepeat&#x27;).value.split(/&#92;n+/).map(x=&gt;x.trim()).filter(Boolean);
  const specific_tasks=[];for(let i=1;i&lt;=3;i++){const dayRaw=document.getElementById(&#x27;specificDay&#x27;+i).value.trim(),text=document.getElementById(&#x27;specificText&#x27;+i).value.trim(),color=document.getElementById(&#x27;specificColor&#x27;+i).value;if(!dayRaw&amp;&amp;!text)continue;const day=Number(dayRaw);if(!Number.isInteger(day)||day&lt;1||day&gt;duration)return alert((i)+&#x27;번째 일정의 날짜는 관리 기간 내 1~&#x27;+duration+&#x27;일로 입력해 주세요.&#x27;);if(!text)return alert((i)+&#x27;번째 일정의 내용을 입력해 주세요.&#x27;);specific_tasks.push({day,text,color});}
  const plans=readLocalPlans(),id=document.getElementById(&#x27;localPlanEditId&#x27;).value||(&#x27;p&#x27;+Date.now().toString(36)+Math.random().toString(36).slice(2,6));const item={id,name,duration_days:duration,repeat_tasks,specific_tasks,cautions:[...document.querySelectorAll(&#x27;.localPlanCaution:checked&#x27;)].map(el=&gt;el.value),memo:document.getElementById(&#x27;localPlanMemo&#x27;).value.trim()};const idx=plans.findIndex(x=&gt;x.id===id);if(idx&gt;=0)plans[idx]=item;else plans.push(item);if(!writeLocalPlans(plans))return;resetLocalPlanForm();renderLocalPlanOptions();alert(&#x27;이 컴퓨터에 약속처방을 저장했습니다.&#x27;);
 }
@@ -626,9 +623,9 @@ function renderMonths(){
     if(selected.has(key))cls+=&quot; sel&quot;;
     const list=events.filter(e=&gt;e.date===key).slice(0,3);
     const labels=list.map(ev=&gt;{
-      let t=(ev.text||&#x27;&#x27;).replace(/\(.+?\)/g,&#x27;&#x27;).trim().slice(0,6);
-      const clean=(ev.text||&#x27;&#x27;).replace(/\(.+?\)/g,&#x27;&#x27;).trim();
-      const uniqueTexts=[...new Set(events.map(e=&gt;(e.text||&#x27;&#x27;).replace(/\(.+?\)/g,&#x27;&#x27;).trim()).filter(Boolean))];
+      let t=(ev.text||&#x27;&#x27;).replace(/&#92;(.+?&#92;)/g,&#x27;&#x27;).trim().slice(0,6);
+      const clean=(ev.text||&#x27;&#x27;).replace(/&#92;(.+?&#92;)/g,&#x27;&#x27;).trim();
+      const uniqueTexts=[...new Set(events.map(e=&gt;(e.text||&#x27;&#x27;).replace(/&#92;(.+?&#92;)/g,&#x27;&#x27;).trim()).filter(Boolean))];
       const idx=((uniqueTexts.indexOf(clean)%15)+15)%15;
       return `&lt;span class=&quot;ev txt${idx}&quot;&gt;${t}&lt;/span&gt;`;
     }).join(&#x27;&#x27;);
@@ -851,8 +848,7 @@ function applyPromisePlan(){
    for(let i=events.length-1;i&gt;=0;i--)if(events[i].template===template)events.splice(i,1);
    for(let day=0;day&lt;plan.duration_days;day++)(plan.repeat_tasks||[]).forEach(task=&gt;events.push({date:dateFor(day),text:task,color:&#x27;none&#x27;,template}));
    (plan.specific_tasks||[]).forEach(task=&gt;events.push({date:dateFor(task.day-1),text:task.text,color:task.color||&#x27;none&#x27;,template}));
-   if(plan.memo){memoInput.value=memoInput.value.trim()?memoInput.value.trim()+&#x27;
-&#x27;+plan.memo:plan.memo;pmemo.textContent=memoInput.value;}
+   if(plan.memo){memoInput.value=memoInput.value.trim()?memoInput.value.trim()+&#x27;&#92;n&#x27;+plan.memo:plan.memo;pmemo.textContent=memoInput.value;}
    if(Array.isArray(plan.cautions)){document.querySelectorAll(&#x27;.cautionCheck&#x27;).forEach(el=&gt;el.checked=plan.cautions.includes(el.value));refreshCautions();}
    renderMonths();refresh();alert(&#x27;저장한 약속처방 일정이 적용되었습니다.&#x27;);return;
  }
@@ -870,8 +866,7 @@ function applyPromisePlan(){
      events.push({date:dateAt(2),text:&#x27;사진 촬영 후 병원에 전송&#x27;,color:&#x27;none&#x27;,template});
      events.push({date:dateAt(7),text:&#x27;병원 재내원&#x27;,color:&#x27;none&#x27;,template});
      const note=&#x27;약속처방 안내: 7일간 매일 아침·저녁 내복약을 투여해 주세요. 3일째 환부 사진을 촬영해 병원에 보내주시고, 시작일로부터 7일 후 병원에 내원해 주세요.&#x27;;
-     memoInput.value=memoInput.value.trim()?memoInput.value.trim()+&#x27;
-&#x27;+note:note;
+     memoInput.value=memoInput.value.trim()?memoInput.value.trim()+&#x27;&#92;n&#x27;+note:note;
    } else if(choice===&#x27;specialAnimal&#x27;){
      for(let day=0;day&lt;7;day++) events.push({date:dateAt(day),text:&#x27;물약(저녁)&#x27;,color:&#x27;none&#x27;,template});
      events.push({date:dateAt(2),text:&#x27;사진촬영&#x27;,color:&#x27;none&#x27;,template});
@@ -990,7 +985,7 @@ function applyPromisePlan(){
      events.push({date:dateAt(2),text:&#x27;눈 사진 촬영&#x27;,color:&#x27;none&#x27;,template});
      events.push({date:dateAt(6),text:&#x27;병원 내원(7일째)&#x27;,color:&#x27;yellow&#x27;,template});
      const note=&#x27;소동물 결막염 약속처방 안내: 7일간 매일 저녁 물약 1방울과 안약 하루 2회를 시행해 주세요. 3일째 눈 사진을 촬영해 병원으로 보내주시고, 7일째 병원에 내원해 주세요.&#x27;;
-     memoInput.value=memoInput.value.trim()?memoInput.value.trim()+&#x27;\n&#x27;+note:note;
+     memoInput.value=memoInput.value.trim()?memoInput.value.trim()+&#x27;&#92;&#92;n&#x27;+note:note;
      pmemo.textContent=memoInput.value;
    } else if(choice===&#x27;arthritisPain&#x27;){
      // 관절염/진통: 당일 저녁, 첫 7일 아침·저녁, 이후 15일째까지 저녁 복약
