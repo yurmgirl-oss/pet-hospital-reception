@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23시 하단오거리 동물병원 · 통합 관제 포털 (m9)</title>
+<style>
+  :root {
+    --header-bg: #12382e;
+    --bar-border: #1e5244;
+    --panel-header: #1c4d3f;
+    --text-light: #e6f7ee;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    background: #091c17;
+    color: #fff;
+  }
+
+  /* 최상단 제어 바 */
+  .top-control {
+    height: 42px;
+    background: var(--header-bg);
+    border-bottom: 2px solid var(--bar-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  }
+  .top-control .brand-title {
+    font-size: 14px;
+    font-weight: 900;
+    color: #bbf7d0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 화면 전환 탭 버튼 */
+  .view-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 3px;
+    border-radius: 8px;
+  }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #cbd5e1;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+  .tab-btn.active {
+    background: #10b84f;
+    color: #fff;
+    border-color: #34d399;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .btn-all-refresh {
+    background: #047857;
+    color: #fff;
+    border: 1px solid #059669;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-all-refresh:hover { background: #065f46; }
+
+  /* 메인 컨테이너 */
+  .main-container {
+    height: calc(100% - 42px);
+    width: 100%;
+    padding: 6px;
+  }
+
+  /* F1 화면: 현황판(2.5fr) + m6접수(2.7fr) + 케어플랜V17.1(4.8fr) 가로 3분할 */
+  .f1-layout {
+    display: grid;
+    grid-template-columns: 2.5fr 2.7fr 4.8fr;
+    height: 100%;
+    width: 100%;
+    gap: 6px;
+  }
+
+  /* F2 화면: 동물 처방용량 계산표 2개 + 특수동물 관리 3분할 */
+  .f2-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1.2fr);
+    height: 100%;
+    width: 100%;
+    gap: 6px;
+  }
+
+  /* F3 화면: 특수환자 통합 관리 전체화면 */
+  .f3-layout {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* 패널 공통 */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #1e5244;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    min-width: 0;
+    min-height: 0;
+  }
+  .panel-header {
+    height: 32px;
+    background: var(--panel-header);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    flex-shrink: 0;
+  }
+  .panel-title {
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .p-btn {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .p-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+  .panel-body {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: #f8fafc;
+    min-height: 0;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 상단 제어 바 -->
+  <header class="top-control">
+    <div class="brand-title">
+      🐾 23시 하단오거리 동물병원 · 통합 관제 포털 (m9)
+    </div>
+
+    <!-- 탭 그룹 -->
+    <div class="view-tabs">
+      <button class="tab-btn active" id="tab-f1" onclick="switchView('f1')">1️⃣ 원내통합관제 (F1)</button>
+      <button class="tab-btn" id="tab-f2" onclick="switchView('f2')" style="color:#fde047;">2️⃣ 🧮 처방용량 계산표 2개 + 🦎 특수동물 (F2)</button>
+      <button class="tab-btn" id="tab-f3" onclick="switchView('f3')" style="color:#f9a8d4;">3️⃣ ⭐ 특수환자 관리 (F3)</button>
+    </div>
+
+    <div>
+      <button class="btn-all-refresh" onclick="refreshAllFrames()">🔄 전체 새로고침</button>
+    </div>
+  </header>
+
+  <!-- 메인 영역 -->
+  <main class="main-container">
+
+    <!-- [F1 뷰] 현황판 + m6접수관리 + 케어플랜 V17.1 & 실시간 A4 출력 -->
+    <div id="view-f1" class="f1-layout">
+      
+      <!-- 1열: 원내 접수 현황판 -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📋 원내 접수 현황판</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-desk').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/counter.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-desk" src="/counter.html"></iframe>
+        </div>
+      </section>
+
+      <!-- 2열: m6 접수 관리 (단독 1열로 여유 있게 확장) -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🩺 m6 접수 관리</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/m6', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-m6" src="/m6"></iframe>
+        </div>
+      </section>
+
+      <!-- 3열: 케어플랜 V17.1 & A4 정규 규격 실시간 출력 -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">💊 케어플랜 V17.1 & 📄 실시간 출력 (A4 세로 규격)</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-med').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/medication_promise_plan.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-med" src="/medication_promise_plan.html" onload="fitA4CareplanLayout(this)"></iframe>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- [F2 뷰] 동물 처방용량 계산표 2개 + 특수동물 관리 3분할 -->
+    <div id="view-f2" class="f2-layout" style="display: none;">
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🧮 동물 처방용량 계산표 ①</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-calc-1').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/calc.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-calc-1" src="/calc.html" title="동물 처방용량 계산표 1"></iframe>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🧮 동물 처방용량 계산표 ②</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-calc-2').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/calc.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-calc-2" src="/calc.html" title="동물 처방용량 계산표 2"></iframe>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🦎 특수동물 관리</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-exotic').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/exotic.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-exotic" src="/exotic.html" title="특수동물 관리"></iframe>
+        </div>
+      </section>
+    </div>
+
+    <!-- [F3 뷰] 특수환자 통합 관리 (단독 전체 화면) -->
+    <div id="view-f3" class="f3-layout" style="display: none;">
+      <section class="panel" style="width: 100%; height: 100%;">
+        <div class="panel-header">
+          <div class="panel-title">⭐ 특수환자 통합 관리 현황판</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-m8').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/m8.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-m8" src="/m8.html"></iframe>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <script>
+    // 복약관리 내부 프레임의 A4 세로 정밀 핏 보정
+    function fitA4CareplanLayout(f) {
+      try {
+        const doc = f.contentDocument || f.contentWindow.document;
+        if (!doc) return;
+        let s = doc.getElementById('careplan-a4-fit');
+        if (!s) {
+          s = doc.createElement('style');
+          s.id = 'careplan-a4-fit';
+          doc.head.appendChild(s);
+        }
+        s.textContent = `
+          /* 중복 좌측 현황판 제거 및 전체 영역 활용 */
+          #counterPanel { display: none !important; }
+          #integratedShell { display: block !important; padding: 4px !important; width: 100% !important; height: 100% !important; }
+          #medicationPanel { width: 100% !important; height: 100% !important; overflow-y: auto !important; }
+          #medicationPanel .wrap { 
+            display: grid !important; 
+            grid-template-columns: minmax(350px, 1.15fr) minmax(360px, 1fr) !important; 
+            gap: 10px !important; 
+            padding: 2px !important; 
+            max-width: none !important; 
+          }
+          #medicationPanel .panel { 
+            height: calc(100vh - 46px) !important; 
+            padding: 10px !important; 
+            overflow-y: auto !important; 
+          }
+
+          /* 화면 내 A4 실시간 출력지: 210mm x 297mm 정규 세로 비율 유지 */
+          .preview { 
+            width: 100% !important;
+            max-width: 480px !important;
+            aspect-ratio: 210 / 297 !important;
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
+            padding: 6mm 5mm !important;
+            background: #ffffff !important;
+            border: 2px solid #b9cdbd !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
+          }
+
+          /* 인쇄 시: 표준 A4 세로(Portrait) 규격으로 1장에 반듯하게 정렬 */
+          @media print {
+            @page { 
+              size: A4 portrait !important; 
+              margin: 7mm !important; 
+            }
+            html, body { 
+              background: #fff !important; 
+              width: 100% !important; 
+              height: auto !important; 
+              margin: 0 !important;
+              padding: 0 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            #integratedShell, #medicationPanel { 
+              display: block !important; 
+              width: 100% !important; 
+              height: auto !important; 
+              overflow: visible !important;
+            }
+            .wrap { 
+              display: flex !important; 
+              justify-content: center !important; 
+              align-items: flex-start !important; 
+              padding: 0 !important; 
+              margin: 0 !important;
+            }
+            .panel:first-child { display: none !important; }
+            .panel:nth-child(2) { 
+              display: flex !important; 
+              justify-content: center !important; 
+              width: 100% !important; 
+              height: auto !important; 
+              border: none !important; 
+              box-shadow: none !important; 
+              padding: 0 !important; 
+              margin: 0 !important;
+              overflow: visible !important;
+            }
+            .panel:nth-child(2) > div:first-child { display: none !important; }
+            .preview { 
+              width: 196mm !important; 
+              height: 283mm !important; 
+              max-width: 196mm !important; 
+              padding: 6mm !important; 
+              margin: 0 auto !important;
+              border: 2px solid #b9cdbd !important; 
+              border-radius: 16px !important; 
+              box-sizing: border-box !important; 
+              aspect-ratio: auto !important;
+            }
+          }
+        `;
+      } catch (e) {
+        console.warn('Iframe 제약:', e);
+      }
+    }
+
+    // 뷰 전환 (F1, F2, F3)
+    function switchView(mode) {
+      document.getElementById('view-f1').style.display = 'none';
+      document.getElementById('view-f2').style.display = 'none';
+      document.getElementById('view-f3').style.display = 'none';
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      if (mode === 'f1') {
+        document.getElementById('view-f1').style.display = 'grid';
+        document.getElementById('tab-f1').classList.add('active');
+      } else if (mode === 'f2') {
+        document.getElementById('view-f2').style.display = 'grid';
+        document.getElementById('tab-f2').classList.add('active');
+      } else if (mode === 'f3') {
+        document.getElementById('view-f3').style.display = 'flex';
+        document.getElementById('tab-f3').classList.add('active');
+      }
+    }
+
+    // 전체 프레임 새로고침
+    function refreshAllFrames() {
+      document.querySelectorAll('iframe').forEach(f => {
+        try { f.contentWindow.location.reload(); } catch(e){}
+      });
+    }
+
+    // 단축키 매핑 (F1, F2, F3, F5)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F1') { e.preventDefault(); switchView('f1'); }
+      if (e.key === 'F2') { e.preventDefault(); switchView('f2'); }
+      if (e.key === 'F3') { e.preventDefault(); switchView('f3'); }
+      if (e.key === 'F5') { e.preventDefault(); refreshAllFrames(); }
+    });
+  </script>
+</body>
+</html>
