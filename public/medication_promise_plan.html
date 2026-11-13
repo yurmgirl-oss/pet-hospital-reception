@@ -547,7 +547,7 @@ function editLocalPlan(id){
  document.getElementById('localPlanEditId').value=p.id;
  document.getElementById('localPlanName').value=p.name;
  document.getElementById('localPlanDuration').value=p.duration_days;
- document.getElementById('localPlanRepeat').value=(p.repeat_tasks||[]).join('\\n');
+ document.getElementById('localPlanRepeat').value=(p.repeat_tasks||[]).join('\n');
  const tasks=p.specific_tasks||[];
  const grouped=[];
  tasks.forEach(task=>{
@@ -575,7 +575,7 @@ function saveLocalPlan(){
  const name=document.getElementById('localPlanName').value.trim(),duration=Number(document.getElementById('localPlanDuration').value);
  if(!name)return alert('처방 이름을 입력해 주세요.');
  if(!Number.isInteger(duration)||duration<1||duration>365)return alert('관리 기간은 1~365일로 입력해 주세요.');
- const repeat_tasks=document.getElementById('localPlanRepeat').value.split(/\\n+/).map(x=>x.trim()).filter(Boolean);
+ const repeat_tasks=document.getElementById('localPlanRepeat').value.split(/\n+/).map(x=>x.trim()).filter(Boolean);
  const specific_tasks=[];
  for(let row=1;row<=3;row++){
    const text=document.getElementById('specificText'+row).value.trim();
@@ -597,17 +597,6 @@ function saveLocalPlan(){
  resetLocalPlanForm();renderLocalPlanOptions();alert('이 컴퓨터에 약속처방을 저장했습니다.');
 }
 function deleteLocalPlan(id){const p=readLocalPlans().find(x=>x.id===id);if(!p||!confirm('「'+p.name+'」 약속처방을 삭제할까요?'))return;writeLocalPlans(readLocalPlans().filter(x=>x.id!==id));renderLocalPlanOptions();}
-function saveLocalPlan(){
- const name=document.getElementById('localPlanName').value.trim(),duration=Number(document.getElementById('localPlanDuration').value);
- if(!name)return alert('처방 이름을 입력해 주세요.');if(!Number.isInteger(duration)||duration<1||duration>365)return alert('관리 기간은 1~365일로 입력해 주세요.');
- const repeat_tasks=document.getElementById('localPlanRepeat').value.split(/\n+/).map(x=>x.trim()).filter(Boolean);
- const specific_tasks=[];const specificText=document.getElementById('specificText').value.trim();const specificDays=[];
- for(let i=1;i<=3;i++){const raw=document.getElementById('specificDay'+i).value.trim();if(!raw)continue;const day=Number(raw);if(!Number.isInteger(day)||day<1||day>3650)return alert((i)+'회차 반복 일차를 1~3650 사이 숫자로 입력해 주세요.');specificDays.push(day);}
- if(specificDays.length&&!specificText)return alert('반복할 일정 내용을 먼저 입력해 주세요.');
- specificDays.forEach(day=>specific_tasks.push({day,text:specificText}));
- const plans=readLocalPlans(),id=document.getElementById('localPlanEditId').value||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));const item={id,name,duration_days:duration,repeat_tasks,specific_tasks,cautions:[...document.querySelectorAll('.localPlanCaution:checked')].map(el=>el.value),memo:document.getElementById('localPlanMemo').value.trim()};const idx=plans.findIndex(x=>x.id===id);if(idx>=0)plans[idx]=item;else plans.push(item);if(!writeLocalPlans(plans))return;resetLocalPlanForm();renderLocalPlanOptions();alert('이 컴퓨터에 약속처방을 저장했습니다.');
-}
-
 function renderMonths(){
  cals.innerHTML='';
  months.forEach(m=>{
