@@ -333,19 +333,25 @@ html,body{width:100%;height:100%;overflow:hidden}
         <label for="localPlanRepeat">매일 반복할 일정 (한 줄에 하나씩)</label>
         <textarea id="localPlanRepeat" rows="5" placeholder="물약(저녁) 1방울&#10;안약(1일 2회)" style="width:100%;box-sizing:border-box;margin-bottom:0"></textarea>
       </div>
-      <div class="specificScheduleCard" style="min-width:0;background:#f8faf8;border:1px solid #d7e2da;border-radius:10px;padding:12px;box-sizing:border-box;display:flex;flex-direction:column;gap:9px">
+      <div class="specificScheduleCard" style="min-width:0;background:#f8faf8;border:1px solid #d7e2da;border-radius:10px;padding:12px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px">
         <div style="font-size:14px;font-weight:750;color:#30483b">특정 일차 일정</div>
-        <div>
-          <label for="specificText" style="display:block;margin:0 0 5px;font-size:12px;color:#52665a;font-weight:700">반복할 일정 내용</label>
-          <input id="specificText" placeholder="예: 눈 사진 촬영 / 병원 내원" aria-label="특정 일차 일정 내용" style="width:100%;height:38px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:7px 10px;background:#fff"/>
-        </div>
-        <div>
-          <div style="font-size:12px;color:#52665a;font-weight:700;margin-bottom:5px">반복 일차</div>
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px">
-            <label style="margin:0;font-size:11px;color:#718076">1회차<input id="specificDay1" class="no-spinner specificDayInput" type="number" min="1" max="3650" step="1" placeholder="예: 2" aria-label="첫 번째 반복 일차" style="display:block;width:100%;height:38px;box-sizing:border-box;margin-top:4px;border:1px solid #cbd8ce;border-radius:7px;padding:6px 8px;background:#fff"/></label>
-            <label style="margin:0;font-size:11px;color:#718076">2회차<input id="specificDay2" class="no-spinner specificDayInput" type="number" min="1" max="3650" step="1" placeholder="예: 3" aria-label="두 번째 반복 일차" style="display:block;width:100%;height:38px;box-sizing:border-box;margin-top:4px;border:1px solid #cbd8ce;border-radius:7px;padding:6px 8px;background:#fff"/></label>
-            <label style="margin:0;font-size:11px;color:#718076">3회차<input id="specificDay3" class="no-spinner specificDayInput" type="number" min="1" max="3650" step="1" placeholder="예: 8" aria-label="세 번째 반복 일차" style="display:block;width:100%;height:38px;box-sizing:border-box;margin-top:4px;border:1px solid #cbd8ce;border-radius:7px;padding:6px 8px;background:#fff"/></label>
-          </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1.45fr) repeat(3,minmax(0,.72fr));gap:6px;align-items:center">
+          <div style="font-size:11px;font-weight:700;color:#52665a">일정 내용</div>
+          <div style="font-size:11px;font-weight:700;color:#52665a;text-align:center">1일차</div>
+          <div style="font-size:11px;font-weight:700;color:#52665a;text-align:center">2일차</div>
+          <div style="font-size:11px;font-weight:700;color:#52665a;text-align:center">3일차</div>
+          <input id="specificText1" placeholder="예: 눈 사진 촬영" aria-label="첫 번째 일정 내용" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 8px;background:#fff"/>
+          <input id="specificDay1_1" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="첫 번째 일정 첫 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
+          <input id="specificDay1_2" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="첫 번째 일정 두 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
+          <input id="specificDay1_3" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="첫 번째 일정 세 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
+          <input id="specificText2" placeholder="예: 병원 내원" aria-label="두 번째 일정 내용" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 8px;background:#fff"/>
+          <input id="specificDay2_1" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="두 번째 일정 첫 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
+          <input id="specificDay2_2" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="두 번째 일정 두 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
+          <input id="specificDay2_3" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="두 번째 일정 세 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
+          <input id="specificText3" placeholder="예: 추가 검사" aria-label="세 번째 일정 내용" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 8px;background:#fff"/>
+          <input id="specificDay3_1" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="세 번째 일정 첫 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
+          <input id="specificDay3_2" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="세 번째 일정 두 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
+          <input id="specificDay3_3" class="no-spinner" type="number" min="1" max="3650" step="1" placeholder="일" aria-label="세 번째 일정 세 번째 일차" style="width:100%;min-width:0;height:36px;box-sizing:border-box;border:1px solid #cbd8ce;border-radius:7px;padding:6px 5px;background:#fff"/>
         </div>
       </div>
     </div>
@@ -527,7 +533,15 @@ function renderLocalPlanOptions(){
  if(!plans.length){list.textContent='저장된 처방이 없습니다.';return;}
  plans.forEach(p=>{const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;align-items:center;justify-content:space-between;border-top:1px solid #eee;padding:7px 0';const name=document.createElement('span');name.textContent=p.name+' ('+p.duration_days+'일)';const actions=document.createElement('span');const edit=document.createElement('button');edit.type='button';edit.textContent='수정';edit.onclick=()=>editLocalPlan(p.id);const del=document.createElement('button');del.type='button';del.textContent='삭제';del.style.marginLeft='4px';del.onclick=()=>deleteLocalPlan(p.id);actions.append(edit,del);row.append(name,actions);list.appendChild(row)});
 }
-function resetLocalPlanForm(){['localPlanEditId','localPlanName','localPlanRepeat','localPlanMemo','specificText'].forEach(id=>document.getElementById(id).value='');for(let i=1;i<=3;i++)document.getElementById('specificDay'+i).value='';document.getElementById('localPlanDuration').value=7;document.querySelectorAll('.localPlanCaution').forEach(el=>el.checked=false);}
+function resetLocalPlanForm(){
+ ['localPlanEditId','localPlanName','localPlanRepeat','localPlanMemo'].forEach(id=>document.getElementById(id).value='');
+ for(let row=1;row<=3;row++){
+   document.getElementById('specificText'+row).value='';
+   for(let col=1;col<=3;col++)document.getElementById('specificDay'+row+'_'+col).value='';
+ }
+ document.getElementById('localPlanDuration').value=7;
+ document.querySelectorAll('.localPlanCaution').forEach(el=>el.checked=false);
+}
 function editLocalPlan(id){
  const p=readLocalPlans().find(x=>x.id===id);if(!p)return;
  document.getElementById('localPlanEditId').value=p.id;
@@ -535,16 +549,52 @@ function editLocalPlan(id){
  document.getElementById('localPlanDuration').value=p.duration_days;
  document.getElementById('localPlanRepeat').value=(p.repeat_tasks||[]).join('\\n');
  const tasks=p.specific_tasks||[];
- document.getElementById('specificText').value=tasks[0]?.text||'';
- const base=start.value?new Date(start.value+'T12:00:00'):null;
- for(let i=1;i<=3;i++){
-   const task=tasks[i-1];let day=task?(task.day||''):'';
-   if(task&&!day&&task.date&&base){const d=new Date(task.date+'T12:00:00');day=Math.round((d-base)/86400000)+1;}
-   document.getElementById('specificDay'+i).value=day;
+ const grouped=[];
+ tasks.forEach(task=>{
+   if(Array.isArray(task.days))grouped.push({text:task.text,days:task.days});
+   else {
+     let day=Number(task.day)||0;
+     if(!day&&task.date&&start.value){const base=new Date(start.value+'T12:00:00'),d=new Date(task.date+'T12:00:00');day=Math.round((d-base)/86400000)+1;}
+     if(day>0){
+       let group=grouped.find(x=>x.text===task.text);
+       if(!group){group={text:task.text,days:[]};grouped.push(group);}
+       group.days.push(day);
+     }
+   }
+ });
+ for(let row=1;row<=3;row++){
+   const task=grouped[row-1];
+   document.getElementById('specificText'+row).value=task?task.text:'';
+   for(let col=1;col<=3;col++)document.getElementById('specificDay'+row+'_'+col).value=task&&task.days[col-1]?task.days[col-1]:'';
  }
  document.getElementById('localPlanMemo').value=p.memo||'';
  document.querySelectorAll('.localPlanCaution').forEach(el=>el.checked=(p.cautions||[]).includes(el.value));
  document.getElementById('localPlanName').focus();
+}
+function saveLocalPlan(){
+ const name=document.getElementById('localPlanName').value.trim(),duration=Number(document.getElementById('localPlanDuration').value);
+ if(!name)return alert('처방 이름을 입력해 주세요.');
+ if(!Number.isInteger(duration)||duration<1||duration>365)return alert('관리 기간은 1~365일로 입력해 주세요.');
+ const repeat_tasks=document.getElementById('localPlanRepeat').value.split(/\\n+/).map(x=>x.trim()).filter(Boolean);
+ const specific_tasks=[];
+ for(let row=1;row<=3;row++){
+   const text=document.getElementById('specificText'+row).value.trim();
+   const days=[];
+   for(let col=1;col<=3;col++){
+     const raw=document.getElementById('specificDay'+row+'_'+col).value.trim();
+     if(!raw)continue;
+     const day=Number(raw);
+     if(!Number.isInteger(day)||day<1||day>3650)return alert((row)+'번째 일정의 반복 일차는 1~3650 사이 숫자로 입력해 주세요.');
+     days.push(day);
+   }
+   if(days.length&&!text)return alert((row)+'번째 일정의 내용을 입력해 주세요.');
+   if(text&&days.length)specific_tasks.push({text,days});
+ }
+ const plans=readLocalPlans(),id=document.getElementById('localPlanEditId').value||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+ const item={id,name,duration_days:duration,repeat_tasks,specific_tasks,cautions:[...document.querySelectorAll('.localPlanCaution:checked')].map(el=>el.value),memo:document.getElementById('localPlanMemo').value.trim()};
+ const idx=plans.findIndex(x=>x.id===id);if(idx>=0)plans[idx]=item;else plans.push(item);
+ if(!writeLocalPlans(plans))return;
+ resetLocalPlanForm();renderLocalPlanOptions();alert('이 컴퓨터에 약속처방을 저장했습니다.');
 }
 function deleteLocalPlan(id){const p=readLocalPlans().find(x=>x.id===id);if(!p||!confirm('「'+p.name+'」 약속처방을 삭제할까요?'))return;writeLocalPlans(readLocalPlans().filter(x=>x.id!==id));renderLocalPlanOptions();}
 function saveLocalPlan(){
@@ -796,13 +846,16 @@ function applyPromisePlan(){
    for(let i=events.length-1;i>=0;i--)if(events[i].template===template)events.splice(i,1);
    for(let day=0;day<plan.duration_days;day++)(plan.repeat_tasks||[]).forEach(task=>events.push({date:dateFor(day),text:task,color:'none',template}));
    (plan.specific_tasks||[]).forEach(task=>{
-     // 입력한 일차는 관리기간과 무관하게 시작일 기준으로 계산합니다.
-     let day=Number(task.day);
-     if(!task.day && task.date){
-       const oldDate=new Date(task.date+'T12:00:00');
-       day=Math.round((oldDate-baseDate)/86400000)+1;
-     }
-     if(Number.isInteger(day)&&day>=1)events.push({date:dateFor(day-1),text:task.text,color:'none',template});
+     // 새 형식은 한 가지 내용에 최대 3개의 일차를 연결합니다.
+     const days=Array.isArray(task.days)?task.days:[task.day];
+     days.forEach(value=>{
+       let day=Number(value);
+       if(!value&&task.date){
+         const oldDate=new Date(task.date+'T12:00:00');
+         day=Math.round((oldDate-baseDate)/86400000)+1;
+       }
+       if(Number.isInteger(day)&&day>=1)events.push({date:dateFor(day-1),text:task.text,color:'none',template});
+     });
    });
    if(plan.memo){memoInput.value=memoInput.value.trim()?memoInput.value.trim()+'\n'+plan.memo:plan.memo;pmemo.textContent=memoInput.value;}
    if(Array.isArray(plan.cautions)){document.querySelectorAll('.cautionCheck').forEach(el=>el.checked=plan.cautions.includes(el.value));refreshCautions();}
