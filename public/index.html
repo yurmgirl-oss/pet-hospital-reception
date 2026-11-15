@@ -241,7 +241,7 @@ body{
  </header>
 
 <div id="kioskNoticeWrapper" class="notice" role="status" aria-live="polite">
-  <span class="notice-label">📢 알림/예약확인</span><div class="notice-copy"><span id="kioskNoticeText"></span></div>
+  <span class="notice-label">📢 알림/예약확인</span><div class="notice-copy"><span id="kioskNoticeText">병원 알림 및 예약확인 내용을 확인해 주세요.</span></div>
 </div>
 
 <section class="cards" aria-label="진료 접수 구분 선택">
@@ -275,6 +275,7 @@ async function fetchKioskNotice(){
   const w=document.getElementById('kioskNoticeWrapper');
   const el=document.getElementById('kioskNoticeText');
   if(w)w.style.display='flex';
+  if(el&&!el.textContent.trim())el.textContent='병원 알림 및 예약확인 내용을 확인해 주세요.';
   try{
     const res=await fetch('/api/notice');
     if(!res.ok)throw new Error('공지 API 응답 오류: '+res.status);
