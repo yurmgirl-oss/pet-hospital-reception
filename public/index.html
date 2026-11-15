@@ -134,6 +134,87 @@ footer a{color:inherit;text-decoration:none}
  .welcome p{font-size:24px;margin-top:6px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 눈에 띄는 병원 소식 띠 */
+body{
+  background:radial-gradient(ellipse at 0 0,#fff0d9 0,transparent 22%),radial-gradient(ellipse at 100% 100%,#ffe7d8 0,transparent 22%),#fffdfa;
+}
+.brand{
+  border:4px solid #ffcf27;
+  background:linear-gradient(135deg,#ffffff 0%,#fff2b7 100%);
+  box-shadow:0 7px 0 #082b55,0 0 0 3px #ffffff,0 14px 28px #001b3d55;
+}
+#kioskNoticeWrapper{
+  display:flex;
+  width:100%;
+  min-height:104px;
+  padding:12px 18px;
+  gap:18px;
+  justify-content:flex-start;
+  align-items:center;
+  overflow:hidden;
+  border:4px solid #153b70;
+  border-radius:16px;
+  background:linear-gradient(105deg,#fff1a8 0%,#ffd45c 48%,#ffb347 100%);
+  box-shadow:0 6px 0 #9a5a16,0 10px 22px #51320b35,inset 0 2px 0 #fff9d9;
+}
+#kioskNoticeWrapper .notice-label{
+  flex:0 0 auto;
+  padding:12px 17px;
+  border:2px solid #fff4c2;
+  border-radius:10px;
+  background:linear-gradient(180deg,#c62828 0%,#941b2b 100%);
+  color:#fff;
+  font-size:clamp(21px,2.2vw,28px);
+  font-weight:950;
+  box-shadow:0 3px 0 #64111d,0 4px 8px #54201835;
+}
+#kioskNoticeWrapper .notice-copy{
+  min-width:0;
+  flex:1 1 auto;
+  overflow:hidden;
+  white-space:nowrap;
+  text-align:left;
+  color:#38230a;
+  font-size:clamp(25px,3vw,38px);
+  line-height:1.2;
+  font-weight:950;
+  letter-spacing:-.035em;
+}
+#kioskNoticeText{
+  display:inline-block;
+  width:max-content;
+  min-width:100%;
+  font-weight:950;
+  animation:newsTicker 16s linear infinite;
+}
+@keyframes newsTicker{
+  0%{transform:translateX(100%)}
+  100%{transform:translateX(-100%)}
+}
+#kioskNoticeWrapper:hover #kioskNoticeText{animation-play-state:paused}
+@media(max-width:700px){
+  #kioskNoticeWrapper{
+    min-height:72px;
+    padding:8px 9px;
+    gap:8px;
+    border-width:3px;
+    border-radius:12px;
+    box-shadow:0 4px 0 #071b36,0 7px 13px #00152f55,inset 0 0 0 1px #fff8a6;
+  }
+  #kioskNoticeWrapper .notice-label{
+    padding:8px 9px;
+    border-width:2px;
+    border-radius:8px;
+    font-size:clamp(14px,3.7vw,19px);
+  }
+  #kioskNoticeWrapper .notice-copy{
+    font-size:clamp(19px,5vw,26px);
+    line-height:1.15;
+  }
+  #kioskNoticeText{animation-duration:13s}
+}
+
 </style>
 </head>
 <body>
@@ -157,11 +238,10 @@ footer a{color:inherit;text-decoration:none}
       <span>휴대폰 카메라로 QR코드를 찍으면<br>휴대폰에서 바로 접수하실 수 있습니다.</span>
     </div>
   </div>
-  <div class="welcome"><h2>안녕하세요!</h2><p>진료 접수를 시작해주세요</p></div>
-</header>
+ </header>
 
 <div id="kioskNoticeWrapper" class="notice" role="status" aria-live="polite">
-  <span class="notice-label">📢 소식</span><div class="notice-copy" id="kioskNoticeText"></div>
+  <span class="notice-label">📢 알림/예약확인</span><div class="notice-copy"><span id="kioskNoticeText"></span></div>
 </div>
 
 <section class="cards" aria-label="진료 접수 구분 선택">
@@ -191,7 +271,33 @@ footer a{color:inherit;text-decoration:none}
 </main>
 <script>
 let switchTimer=null,currentIdx=0,noticeItems=[];
-async function fetchKioskNotice(){try{const res=await fetch('/api/notice');if(!res.ok)return;const data=await res.json(),w=document.getElementById('kioskNoticeWrapper');const raw=(data.notice||'').trim();if(!raw){w.style.display='none';if(switchTimer)clearInterval(switchTimer);return}noticeItems=raw.split('\n').map(s=>s.trim()).filter(Boolean);if(!noticeItems.length){w.style.display='none';return}w.style.display='flex';showCurrentNotice();if(switchTimer)clearInterval(switchTimer);if(noticeItems.length>1)switchTimer=setInterval(()=>{currentIdx=(currentIdx+1)%noticeItems.length;showCurrentNotice()},4500)}catch(err){console.error('공지 로드 오류:',err)}}
+async function fetchKioskNotice(){
+  const w=document.getElementById('kioskNoticeWrapper');
+  const el=document.getElementById('kioskNoticeText');
+  if(w)w.style.display='flex';
+  try{
+    const res=await fetch('/api/notice');
+    if(!res.ok)throw new Error('공지 API 응답 오류: '+res.status);
+    const data=await res.json();
+    const raw=(data.notice||'').trim();
+    noticeItems=raw.split('\n').map(s=>s.trim()).filter(Boolean);
+    currentIdx=0;
+    if(!noticeItems.length){
+      if(el)el.textContent='등록된 병원 소식이 없습니다.';
+      if(switchTimer)clearInterval(switchTimer);
+      return;
+    }
+    showCurrentNotice();
+    if(switchTimer)clearInterval(switchTimer);
+    if(noticeItems.length>1)switchTimer=setInterval(()=>{
+      currentIdx=(currentIdx+1)%noticeItems.length;
+      showCurrentNotice();
+    },4500);
+  }catch(err){
+    console.error('공지 로드 오류:',err);
+    if(el&&!el.textContent.trim())el.textContent='병원 소식을 준비하고 있습니다.';
+  }
+}
 function showCurrentNotice(){const el=document.getElementById('kioskNoticeText');if(!el||!noticeItems.length)return;el.textContent=noticeItems[currentIdx];el.classList.remove('notice-fade');void el.offsetWidth;el.classList.add('notice-fade')}
 fetchKioskNotice();setInterval(fetchKioskNotice,20000);
 </script>
