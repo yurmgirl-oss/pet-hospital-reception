@@ -290,6 +290,34 @@ html,body{width:100%;height:100%;overflow:hidden}
 .no-spinner::-webkit-inner-spin-button,
 .no-spinner::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .no-spinner { -moz-appearance: textfield; appearance: textfield; }
+
+/* 실시간 출력 데이터 가독성 강화: 입력되어 표시되는 값만 진하고 두껍게 */
+.preview #ppet,
+.preview #pdisease,
+.preview #pstart{
+  color:#111111!important;
+  font-weight:900!important;
+}
+.preview .card{
+  color:#111111!important;
+  font-weight:800!important;
+}
+.preview .card b{
+  color:#111111!important;
+  font-weight:900!important;
+}
+.preview .card .small{
+  color:#111111!important;
+  font-weight:800!important;
+}
+.preview #printedCautionList > div{
+  color:#111111!important;
+  font-weight:800!important;
+}
+.preview #pmemo{
+  color:#111111!important;
+  font-weight:800!important;
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
