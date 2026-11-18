@@ -347,7 +347,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 </div></div>
 <div id="promisePlanContent">
 <div class="row" style="grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end">
-<div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option><option value="sevenDay">7일 집중관리 · 매일 아침/저녁 복약 · 3일째 사진 · 7일 후 재내원</option><option value="specialAnimal">특수동물 기본처방</option><option value="dermatitis">피부염</option><option value="conjunctivitis">결막염</option><option value="smallAnimalConjunctivitis">소동물 결막염</option><option value="otitis">외이염</option><option value="arthritisPain">관절염/진통</option><option value="specialAnimalDisinfection">특수동물(소독)</option><option value="renalFailure">신부전</option><option value="liverLipid">간/고지혈증</option><option value="gastroenteritis">장염처치</option><option value="postOpCare">수술후처치</option></select></div>
+<div><label for="promisePlan">약속처방 선택</label><select id="promisePlan"><option value="">선택해 주세요</option></select></div>
 <div><button type="button" onclick="applyPromisePlan()" style="background:#f4b400;color:#111">일정 적용</button></div>
 </div>
 <div style="margin-top:10px;border-top:1px dashed #d5bd62;padding-top:9px">
@@ -398,6 +398,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     </div>
     <label for="localPlanMemo">안내 메모 (선택)</label><textarea id="localPlanMemo" rows="3" placeholder="보호자에게 전달할 안내문" style="width:100%;min-height:76px;box-sizing:border-box;margin-bottom:8px"></textarea>
     <div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" onclick="saveLocalPlan()" style="background:#2f8f68;color:white">저장</button><button type="button" onclick="resetLocalPlanForm()">새 처방</button></div>
+    <div style="margin-top:12px;padding:8px;border:1px dashed #b9cdbd;border-radius:8px;background:#f7faf8"><b>백업 / 복원</b><div class="small" style="margin:4px 0 6px">다른 PC·다른 브라우저로 옮기거나 파일 위치를 바꿀 때 사용하세요.</div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" onclick="exportLocalPlans()">💾 백업 파일 저장</button><button type="button" onclick="document.getElementById('localPlanImportFile').click()">📂 백업 파일 불러오기</button><input type="file" id="localPlanImportFile" accept=".json,application/json" style="display:none" onchange="importLocalPlans(this)"></div></div>
     <div style="margin-top:12px"><b>저장된 약속처방</b><div id="localPlanSavedList" class="small" style="margin-top:6px">저장된 처방이 없습니다.</div></div>
   </div>
 </div>
@@ -563,6 +564,29 @@ function renderLocalPlanOptions(){
  const list=document.getElementById('localPlanSavedList');if(!list)return;list.innerHTML='';
  if(!plans.length){list.textContent='저장된 처방이 없습니다.';return;}
  plans.forEach(p=>{const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;align-items:center;justify-content:space-between;border-top:1px solid #eee;padding:7px 0';const name=document.createElement('span');name.textContent=p.name+' ('+p.duration_days+'일)';const actions=document.createElement('span');const edit=document.createElement('button');edit.type='button';edit.textContent='수정';edit.onclick=()=>editLocalPlan(p.id);const del=document.createElement('button');del.type='button';del.textContent='삭제';del.style.marginLeft='4px';del.onclick=()=>deleteLocalPlan(p.id);actions.append(edit,del);row.append(name,actions);list.appendChild(row)});
+}
+function exportLocalPlans(){
+  const plans=readLocalPlans();
+  if(!plans.length)return alert('백업할 저장 처방이 없습니다.');
+  const blob=new Blob([JSON.stringify(plans,null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='약속처방_백업_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+function importLocalPlans(input){
+  const f=input.files&&input.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const inc=JSON.parse(r.result);
+      if(!Array.isArray(inc)||inc.some(p=>!p||!p.id||!p.name))throw new Error('형식 오류');
+      const cur=readLocalPlans(),map=new Map(cur.map(p=>[p.id,p]));
+      inc.forEach(p=>map.set(p.id,p));
+      if(writeLocalPlans([...map.values()])){renderLocalPlanOptions();alert('약속처방 '+inc.length+'개를 불러왔습니다.');}
+    }catch(e){alert('올바른 백업 파일이 아닙니다.');}
+    input.value='';
+  };
+  r.readAsText(f);
 }
 function resetLocalPlanForm(){
  ['localPlanEditId','localPlanName','localPlanRepeat','localPlanMemo'].forEach(id=>document.getElementById(id).value='');
