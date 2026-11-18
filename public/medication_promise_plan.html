@@ -76,8 +76,8 @@ button.yellow{background:#f4b400;color:#111}
 
 .small{font-size:11px}
 
+@page{size:210mm 297mm;margin:7mm;}
 @media print{
-  @page{size:A4 portrait;margin:7mm;}
   body{
     background:#fff !important;
     -webkit-print-color-adjust:exact;
@@ -829,13 +829,21 @@ function printPreview(){
   issueOutputId();
   captureA4Preview().then(canvas=>{
     const w=window.open('','_blank');
+    if(!w){alert('팝업이 차단되었습니다. 팝업을 허용해 주세요.');return;}
+    w.document.open();
     w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>인쇄</title>
-      <style>@page{size:A4 portrait;margin:8mm;}html,body{margin:0;padding:0;background:#fff;width:100%;height:100%;}img{width:194mm;height:281mm;display:block;margin:0 auto;object-fit:fill;}</style></head><body></body></html>`);
+      <style>
+      @page{size:210mm 297mm;margin:8mm;}
+      html,body{margin:0;padding:0;background:#fff;}
+      body{width:194mm;height:280mm;overflow:hidden;}
+      img{display:block;width:194mm;height:280mm;object-fit:fill;page-break-inside:avoid;break-inside:avoid;}
+      </style></head><body></body></html>`);
+    w.document.close();
     const img=w.document.createElement('img');
+    const go=()=>{w.focus();w.print();};
+    img.onload=()=>setTimeout(go,150);
     img.src=canvas.toDataURL('image/png');
     w.document.body.appendChild(img);
-    w.document.close();
-    img.onload=()=>{w.focus();w.print();};
   });
 }
 
