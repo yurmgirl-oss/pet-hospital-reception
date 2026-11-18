@@ -490,6 +490,7 @@ html,body{width:100%;height:100%;overflow:hidden}
 <h2 style="margin:0">📄 실시간 출력</h2>
 <div style="display:flex;gap:8px">
 <button onclick="savePreviewImage()" type="button">🖼 이미지 저장</button>
+<button onclick="savePreviewPDF()" type="button">📄 PDF 저장</button>
 <button onclick="printPreview()" type="button">🖨 인쇄</button>
 </div>
 </div>
@@ -847,16 +848,54 @@ function printPreview(){
   });
 }
 
-function savePreviewImage(){
-  issueOutputId();
+// 캔버스를 A4 세로(210:297) 흰 바탕 위에 8mm 여백으로 배치한 캔버스로 변환
+function toA4Canvas(src){
+  const W=2480,H=3508,m=Math.round(8/25.4*300);
+  const c=document.createElement('canvas');c.width=W;c.height=H;
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);
+  g.drawImage(src,m,m,W-2*m,H-2*m);
+  return c;
+}
+function previewFileBase(){
   const pet=(document.getElementById('pet')?.value||'동물').trim()||'동물';
   const start=(document.getElementById('start')?.value||new Date().toISOString().slice(0,10));
-  const fileName=`${pet}_${start}.png`;
+  return `${pet}_${start}`;
+}
+function savePreviewImage(){
+  issueOutputId();
   captureA4Preview().then(canvas=>{
     const a=document.createElement('a');
-    a.download=fileName;
-    a.href=canvas.toDataURL('image/png');
+    a.download=previewFileBase()+'.png';
+    a.href=toA4Canvas(canvas).toDataURL('image/png');
     a.click();
+  });
+}
+// 외부 라이브러리 없이 A4 세로 1페이지 PDF 생성 (용지 방향이 파일에 고정됨)
+function savePreviewPDF(){
+  issueOutputId();
+  captureA4Preview().then(canvas=>{
+    const jpg=toA4Canvas(canvas).toDataURL('image/jpeg',0.95).split(',')[1];
+    const bin=atob(jpg),img=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++)img[i]=bin.charCodeAt(i);
+    const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+    const add=x=>{const u=typeof x==='string'?enc.encode(x):x;parts.push(u);len+=u.length;};
+    const obj=(n,body)=>{offs[n]=len;add(n+' 0 obj\n');add(body);add('\nendobj\n');};
+    const PW=595.28,PH=841.89;
+    add('%PDF-1.4\n');
+    obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
+    offs[4]=len;add(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width 2480 /Height 3508 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.length} >>\nstream\n`);add(img);add('\nendstream\nendobj\n');
+    const cs=`q ${PW} 0 0 ${PH} 0 0 cm /Im0 Do Q`;
+    obj(5,`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`);
+    const xref=len;
+    add('xref\n0 6\n0000000000 65535 f \n');
+    for(let i=1;i<=5;i++)add(String(offs[i]).padStart(10,'0')+' 00000 n \n');
+    add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+    const blob=new Blob(parts,{type:'application/pdf'});
+    const a=document.createElement('a');
+    a.download=previewFileBase()+'.pdf';a.href=URL.createObjectURL(blob);a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
   });
 }
 
