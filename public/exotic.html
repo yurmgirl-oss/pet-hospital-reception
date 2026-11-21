@@ -170,17 +170,17 @@
             <span id="memoSpeciesTitle" class="text-teal-700 font-extrabold">[게코]</span> 임상 참조 메모 & 상시 보관 노트
           </span>
           <span class="hidden sm:inline-block text-[11px] text-slate-400 font-medium">
-            (GitHub의 메모 전용 구역에서 수정 · 모든 컴퓨터 공통)
+            (이 컴퓨터에 자동 저장 · 다른 컴퓨터와 공유되지 않음)
           </span>
         </div>
         <div id="memoSaveStatus" class="opacity-0 transition-opacity duration-300 text-[11px] font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-          <i class="fa-solid fa-check"></i> 자동 저장됨
+          <i class="fa-solid fa-check"></i> 이 컴퓨터에 저장됨
         </div>
       </div>
       <textarea id="speciesMemoText" rows="3"
-        placeholder="GitHub의 SHARED_SPECIES_MEMOS 구역에 동물별 메모를 입력하세요."
+        placeholder="이 동물에 대한 임상 메모를 자유롭게 입력하세요. 입력 즉시 이 컴퓨터에 자동 저장됩니다."
         class="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition resize-y leading-relaxed"
-        readonly></textarea>
+        ></textarea>
     </section>
 
   </main>
@@ -299,23 +299,33 @@
       }
     ];
 
-    /* ================================================================
-       ★★★ GitHub 메모 수정 전용 구역 (여기만 수정하세요) ★★★
-       각 동물의 백틱(`) 사이에 메모를 적으세요.
-       여러 줄 작성 가능. 백틱(`)과 ${ 는 사용하지 마세요.
-       GitHub Commit 후 배포가 완료되면 모든 컴퓨터에 반영됩니다.
-       ================================================================ */
+    /* 동물별 임상 메모: 이 컴퓨터 브라우저에 로컬 자동 저장 */
+    const LOCAL_MEMO_STORAGE_KEY = 'exotic_species_clinical_memos_v1';
     const SHARED_SPECIES_MEMOS = {
       gecko: `크레스티드(권장 사육온도는 주간온도 24-26도, 야간온도 20-22도 일시적회복관리 25-26도 28도 이상은 주의해야함), 레오파드게코(사육 환경(핫존 30-32, 쿨존 24-26, 야간 21-24)의 바스킹/쿨존 온도 및 습도가 종별 적정 범위인지 재확인 (저체온에 의한 소화 정체 배제)`,
-      parrot: ``,
-      tortoise: ``,
-      hamster: ``,
-      snake: ``,
-      chameleon: ``,
-      chinchilla: ``,
-      hedgehog: ``
+      parrot: ``, tortoise: ``, hamster: ``, snake: ``, chameleon: ``, chinchilla: ``, hedgehog: ``
     };
-    /* =================== 메모 수정 구역 끝 =================== */
+    let localSpeciesMemos = {};
+    try {
+      const saved = localStorage.getItem(LOCAL_MEMO_STORAGE_KEY);
+      if (saved) localSpeciesMemos = JSON.parse(saved) || {};
+    } catch (e) { console.warn('로컬 메모 불러오기 실패', e); }
+    function saveLocalSpeciesMemo() {
+      try {
+        localSpeciesMemos[currentSpeciesId] = document.getElementById('speciesMemoText').value;
+        localStorage.setItem(LOCAL_MEMO_STORAGE_KEY, JSON.stringify(localSpeciesMemos));
+        showMemoSavedStatus();
+      } catch (e) { console.warn('로컬 메모 저장 실패', e); }
+    }
+    function showMemoSavedStatus() {
+      const status = document.getElementById('memoSaveStatus');
+      if (!status) return;
+      status.classList.remove('opacity-0');
+      status.innerHTML = '<i class="fa-solid fa-check"></i> 이 컴퓨터에 저장됨';
+      clearTimeout(window.memoSavedTimer);
+      window.memoSavedTimer = setTimeout(() => status.classList.add('opacity-0'), 1500);
+    }
+    /* 메모 수정 구역 끝 */
 
     let currentSpeciesId = 'gecko';
     let currentUnit = 'g';
@@ -586,13 +596,18 @@
       }
     }
 
-    /* GitHub 코드에 저장된 공통 메모 표시 */
+    /* 동물별 로컬 메모 불러오기 */
     function loadSpeciesMemo() {
       const sp = getCurrentSpecies();
       const titleEl = document.getElementById('memoSpeciesTitle');
       if (titleEl) titleEl.textContent = `[${sp.name}]`;
       const memoEl = document.getElementById('speciesMemoText');
-      if (memoEl) memoEl.value = SHARED_SPECIES_MEMOS[currentSpeciesId] || '';
+      if (memoEl) {
+        memoEl.value = localSpeciesMemos[currentSpeciesId] !== undefined
+          ? localSpeciesMemos[currentSpeciesId]
+          : (SHARED_SPECIES_MEMOS[currentSpeciesId] || '');
+        memoEl.oninput = saveLocalSpeciesMemo;
+      }
     }
 
     /* 이미지 저장 기능 (html2canvas) */
