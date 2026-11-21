@@ -2,102 +2,366 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C1 · 빠른 탈수/수액 임상 평가</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#17243a;font-family:Arial,'Malgun Gothic',sans-serif;padding:7px}
-h1{font-size:30px;margin:0 0 5px} .sub{color:#61738c;font-size:20px;margin-bottom:8px}
-.layout{display:grid;grid-template-columns:minmax(180px,.72fr) minmax(180px,.72fr) minmax(180px,.72fr) minmax(270px,1.12fr) minmax(300px,1.25fr) minmax(300px,1.25fr);gap:8px;align-items:stretch;min-width:1500px}
-.frame{border:1px solid #d6e1f0;border-radius:10px;padding:10px;box-shadow:0 2px 8px #20334a08;min-width:0;background:#fff}
- .framehead{font-size:24px;font-weight:800;margin:0 0 8px;color:#203c60}
-.input-groups{display:grid;grid-template-columns:1fr;gap:4px}
-.input-group{border-radius:8px;padding:8px 9px;border:1px solid transparent;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px;min-width:0}
- .input-group .gtitle{font-size:21px;font-weight:800;white-space:nowrap;min-width:70px}
+h1{font-size:26px;margin:0 0 6px}
+.layout{display:grid;grid-template-columns:minmax(180px,.68fr) minmax(290px,1.12fr) minmax(320px,1.25fr) minmax(240px,.9fr) minmax(270px,1.05fr) minmax(310px,1.2fr);gap:8px;align-items:stretch;min-width:1660px}
+.frame{border:1px solid #d6e1f0;border-radius:10px;padding:9px;box-shadow:0 2px 8px #20334a08;min-width:0;background:#fff;display:flex;flex-direction:column}
+.framehead{font-size:20px;font-weight:800;margin:0 0 8px;color:#203c60;display:flex;justify-content:space-between;align-items:center}
+.input-groups{display:grid;grid-template-columns:1fr;gap:5px}
+.input-group{border-radius:8px;padding:7px 8px;border:1px solid transparent;display:grid;grid-template-columns:58px 1fr;align-items:center;gap:6px;min-width:0}
+.input-group .gtitle{font-size:18px;font-weight:800;white-space:nowrap}
 .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;min-width:0}
-.fields.patient{grid-template-columns:1.1fr 1fr .8fr}.fields.electro{grid-template-columns:1fr 1fr}.fields.hct{grid-template-columns:1fr 1fr}.fields.chem{grid-template-columns:repeat(5,minmax(0,1fr))}
-.field{min-width:0} .field label{display:block;font-size:18px;color:#667b96;margin-bottom:2px;white-space:nowrap}
-.field input,.field select{width:100%;padding:4px 6px;border:1px solid #cbd9eb;border-radius:6px;font-size:22px;background:#fff;color:#14243b;min-width:0;height:42px}
-.patientgrp{background:#eaf3ff;border-color:#c6dcff}.electrogrp{background:#e9fbf4;border-color:#b8ead6}.hctgrp{background:#fff3e7;border-color:#ffd6ad}.chemgrp{background:#f4edff;border-color:#d9c7ff}
-.btns{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap} .btn{border:0;border-radius:8px;padding:10px 14px;font-weight:bold;cursor:pointer;background:#2563eb;color:white;font-size:20px}.btn.secondary{background:#e5edf7;color:#1c3554}
-.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.metric{border:1px solid #d8e4f2;background:#f8fbff;border-radius:8px;padding:8px} .metric .name{font-size:18px;color:#66809c} .metric .value{font-size:26px;font-weight:800;margin:3px 0} .metric .interpret{font-size:18px;color:#52677f}
-.summary{padding:10px;border-radius:8px;margin-top:7px;font-weight:700;line-height:1.45;background:#eef4ff;border:1px solid #d5e2ff;font-size:20px}.summary.warn{background:#fff7e8;border-color:#f2d59a;color:#744800}.summary.good{background:#eaf8f0;border-color:#b8e4c8;color:#14532d}
-.recommend{margin-top:7px;border-radius:8px;padding:10px;background:#f8fafc;border:1px solid #dce5ef;line-height:1.45;font-size:20px}.recommend h3{font-size:23px;margin:0 0 5px} .smallnote{font-size:17px;color:#71839a;line-height:1.35;margin-top:7px}
-.image-box{border:3px dashed #8daed3;border-radius:12px;background:#f3f8ff;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:340px;justify-content:center;align-items:center;text-align:center;position:relative;transition:.15s}.image-box.dragover{background:#dcecff;border-color:#2563eb;box-shadow:0 0 0 4px #2563eb22}.dropzone-label{font-size:23px;font-weight:800;color:#315577;line-height:1.4}.dropzone-sub{font-size:17px;color:#627c98}.image-box input[type=file]{width:100%;font-size:16px;max-width:100%;cursor:pointer}.image-preview{width:100%;max-height:260px;object-fit:contain;border-radius:8px;background:#fff;display:none}
-.image-box input[type=file]{font-size:17px;max-width:100%}.image-preview{width:100%;max-height:38vh;object-fit:contain;border-radius:8px;background:#fff;display:none}
-.image-help{font-size:17px;line-height:1.4;color:#536b86}
-@media(max-width:1500px){.fields.chem{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:950px){body{overflow-x:auto}.fields.chem{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media print{body{background:white;padding:4px}.frame,.metric,.recommend{box-shadow:none}}
+.fields.patient{grid-template-columns:1fr .85fr .75fr .85fr}.fields.electro{grid-template-columns:1fr 1fr}.fields.hct{grid-template-columns:1fr 1fr}.fields.chem{grid-template-columns:repeat(5,minmax(0,1fr))}
+.field{min-width:0} .field label{display:block;font-size:14.5px;color:#526882;margin-bottom:2px;white-space:nowrap;font-weight:700}
+.field input,.field select{width:100%;padding:3px 5px;border:1px solid #cbd9eb;border-radius:6px;font-size:18px;background:#fff;color:#14243b;min-width:0;height:36px}
+.patientgrp{background:#eaf3ff;border-color:#c6dcff}.electrogrp{background:#e9fbf4;border-color:#b8ead6}.hctgrp{background:#fff3e7;border-color:#ffd6ad}.chemgrp{background:#f4edff;border-color:#d9c7ff}.flaggrp{background:#fef2f2;border-color:#fecaca}
+.chk-wrap{display:flex;flex-wrap:wrap;gap:6px;font-size:15px;font-weight:700;color:#7f1d1d}
+.chk-wrap label{display:flex;align-items:center;gap:4px;cursor:pointer}
+.chk-wrap input[type=checkbox]{width:16px;height:16px;accent-color:#dc2626}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px} .btn{border:0;border-radius:8px;padding:8px 10px;font-weight:bold;cursor:pointer;background:#2563eb;color:white;font-size:16.5px}.btn.secondary{background:#e5edf7;color:#1c3554}.btn.gemini{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff}.btn.save{background:#059669;color:#fff}
+.summary{padding:8px;border-radius:8px;margin-top:7px;font-weight:700;line-height:1.4;background:#eef4ff;border:1px solid #d5e2ff;font-size:16px}.summary.warn{background:#fff7e8;border-color:#f2d59a;color:#744800}.summary.danger{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}.summary.good{background:#eaf8f0;border-color:#b8e4c8;color:#14532d}
+.guardbox{margin-top:7px;border-radius:8px;padding:8px;background:#fffbeb;border:1px solid #fde68a;font-size:15.5px;line-height:1.4;color:#78350f}
+.guardbox h4{margin:0 0 4px;font-size:17px;color:#92400e}
+.recommend{margin-top:7px;border-radius:8px;padding:8px;background:#f8fafc;border:1px solid #dce5ef;line-height:1.4;font-size:16px}.recommend h3{font-size:18px;margin:0 0 4px;color:#1e3a5f}
+.monbox{margin-top:7px;border-radius:8px;padding:8px;background:#f0fdf4;border:1px solid #bbf7d0;line-height:1.4;font-size:15.5px;color:#14532d}.monbox h3{font-size:18px;margin:0 0 4px;color:#166534}
+.smallnote{font-size:14px;color:#71839a;line-height:1.3;margin-top:6px}
+.image-box{border:2.5px dashed #8daed3;border-radius:10px;background:#f3f8ff;padding:8px;display:flex;flex-direction:column;gap:6px;flex:1;justify-content:center;align-items:center;text-align:center;position:relative;transition:.15s}.image-box.dragover{background:#dcecff;border-color:#2563eb;box-shadow:0 0 0 4px #2563eb22}.dropzone-label{font-size:18px;font-weight:800;color:#315577;line-height:1.35}.dropzone-sub{font-size:14px;color:#627c98}.image-box input[type=file]{width:100%;font-size:13.5px;max-width:100%;cursor:pointer}.image-preview{width:100%;max-height:48vh;object-fit:contain;border-radius:8px;background:#fff;display:none}
+.gemini-box{display:flex;flex-direction:column;gap:7px;flex:1;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:8px}
+.gemini-prompt,.memo-area{width:100%;flex:1;border:1px solid #cbd5e1;border-radius:7px;padding:8px;font-size:15px;line-height:1.45;font-family:'Malgun Gothic',Arial,sans-serif;resize:none;background:#fff;color:#1e293b}
+.memo-area{background:#fffef5;border-color:#fde68a}
+.badge{display:inline-block;padding:2px 6px;border-radius:5px;font-size:13.5px;font-weight:800}
+.b-ok{background:#dcfce7;color:#166534}.b-warn{background:#fef3c7;color:#92400e}.b-high{background:#fee2e2;color:#991b1b}
+@media print{body{background:white;padding:4px}.frame,.recommend,.monbox,.guardbox{box-shadow:none}}
 </style></head><body>
-<h1>💧 빠른 탈수 · 수액 임상 평가 C1</h1><div class="sub">검사 이미지 3개 → 검사 입력·상평가 시스템 → 수액 계산 V2</div>
+<h1>💧 빠른 탈수 · 수액 임상 평가 C1 <span style="font-size:16px;font-weight:600;color:#475569">| 이미지 · 검사입력 · 오스몰/견제 · 제미나이 · 메모저장 · 수액모니터링</span></h1>
 <div class="layout">
-<section class="frame" id="imageFrame1"><div class="framehead">🖼️ 검사 이미지 1</div>
-<div class="image-box" id="dropZone1" onclick="if(event.target.tagName!=='BUTTON') document.getElementById('labImageFile1').click()"><div class="dropzone-label">📂 이미지 파일 선택<br>또는 여기로 드래그</div><div class="dropzone-sub">CBC 등 1번 검사결과지를 여기에 끌어다 놓으세요</div><input id="labImageFile1" type="file" accept="image/*" onchange="loadLabImage(event,1)" onclick="event.stopPropagation()"><img id="labImagePreview1" class="image-preview" alt="검사 이미지 1"><button type="button" class="btn secondary" onclick="event.stopPropagation();clearLabImage(1)">이미지 제거</button></div></section>
-<section class="frame" id="imageFrame2"><div class="framehead">🖼️ 검사 이미지 2</div>
-<div class="image-box" id="dropZone2" onclick="if(event.target.tagName!=='BUTTON') document.getElementById('labImageFile2').click()"><div class="dropzone-label">📂 이미지 파일 선택<br>또는 여기로 드래그</div><div class="dropzone-sub">Chemistry 등 2번 검사결과지를 여기에 끌어다 놓으세요</div><input id="labImageFile2" type="file" accept="image/*" onchange="loadLabImage(event,2)" onclick="event.stopPropagation()"><img id="labImagePreview2" class="image-preview" alt="검사 이미지 2"><button type="button" class="btn secondary" onclick="event.stopPropagation();clearLabImage(2)">이미지 제거</button></div></section>
-<section class="frame" id="imageFrame3"><div class="framehead">🖼️ 검사 이미지 3</div>
-<div class="image-box" id="dropZone3" onclick="if(event.target.tagName!=='BUTTON') document.getElementById('labImageFile3').click()"><div class="dropzone-label">📂 이미지 파일 선택<br>또는 여기로 드래그</div><div class="dropzone-sub">추가 검사결과·전해질 3번 이미지를 여기에 놓으세요</div><input id="labImageFile3" type="file" accept="image/*" onchange="loadLabImage(event,3)" onclick="event.stopPropagation()"><img id="labImagePreview3" class="image-preview" alt="검사 이미지 3"><button type="button" class="btn secondary" onclick="event.stopPropagation();clearLabImage(3)">이미지 제거</button></div></section>
-<section class="frame" id="inputFrame"><div class="framehead">① 검사 입력</div><div class="input-groups">
-<div class="input-group patientgrp"><div class="gtitle">환자</div><div class="fields patient"><div class="field"><label>동물 이름</label><input id="name" placeholder="이름"></div><div class="field"><label>종</label><select id="species"><option>개</option><option>고양이</option><option>토끼</option><option>기니피그</option><option>햄스터</option><option>데구</option><option>친칠라</option><option>페럿</option><option>앵무새</option><option>파충류</option><option>기타</option></select></div><div class="field"><label>체중 kg</label><input id="wt" type="number" step="0.001" placeholder="kg"></div></div></div>
-<div class="input-group electrogrp"><div class="gtitle">전해질</div><div class="fields electro"><div class="field"><label>Na mEq/L</label><input id="na" type="number" step="0.1" placeholder="Na"></div><div class="field"><label>K mEq/L</label><input id="k" type="number" step="0.1" placeholder="K"></div></div></div>
-<div class="input-group hctgrp"><div class="gtitle">농축</div><div class="fields hct"><div class="field"><label>HCT %</label><input id="hct" type="number" step="0.1" placeholder="HCT"></div><div class="field"><label>Hb g/dL</label><input id="hb" type="number" step="0.1" placeholder="Hb"></div></div></div>
-<div class="input-group chemgrp"><div class="gtitle">생화학</div><div class="fields chem"><div class="field"><label>Glucose</label><input id="glu" type="number" step="0.1" placeholder="mg/dL"></div><div class="field"><label>BUN</label><input id="bun" type="number" step="0.1" placeholder="mg/dL"></div><div class="field"><label>Creat</label><input id="cre" type="number" step="0.01" placeholder="mg/dL"></div><div class="field"><label>TP</label><input id="tp" type="number" step="0.01" placeholder="g/dL"></div><div class="field"><label>Albumin</label><input id="alb" type="number" step="0.01" placeholder="g/dL"></div></div></div>
-</div><div class="btns" style="margin:10px 0 0;display:grid;grid-template-columns:1fr 1fr"><button type="button" class="btn" onclick="evaluateNow()">빠른 평가</button><button type="button" class="btn secondary" onclick="resetForm()">초기화</button><button type="button" class="btn secondary" onclick="saveAssessmentImage()">🖼️ 평가 이미지 저장</button><button type="button" class="btn secondary" onclick="window.print()">인쇄</button></div></section>
-<section class="frame" id="assessmentFrame"><div class="framehead">상 평가 시스템</div><table style="width:100%;border-collapse:collapse;font-size:18px"><thead><tr><th style="text-align:left;border-bottom:1px solid #ccd8e8;padding:6px">항목</th><th style="text-align:left;border-bottom:1px solid #ccd8e8;padding:6px">결과</th><th style="text-align:left;border-bottom:1px solid #ccd8e8;padding:6px">해석</th></tr></thead><tbody id="assessmentRows"><tr><td colspan="3">검사값 입력 후 빠른 평가를 누르세요.</td></tr></tbody></table><div class="summary" id="summary">환자와 검사값을 입력하고 빠른 평가를 누르세요.</div></section>
-<section class="frame" id="fluidFrame"><div class="framehead">③ 수액 계산 V2</div><div class="fields" style="grid-template-columns:repeat(2,minmax(0,1fr))">
-<div class="field"><label>탈수율 % (자동 추정/수정)</label><input id="dehydPct" type="number" step="0.5" value="0"></div><div class="field"><label>유지량 mL/kg/day</label><input id="maintRate2" type="number" value="50"></div>
-<div class="field"><label>지속 손실 mL/day</label><input id="ongoingLoss" type="number" value="0"></div><div class="field"><label>수액 Na mEq/L</label><select id="fluidNa"><option value="130">LRS/Hartmann (약 130)</option><option value="154">0.9% NS (154)</option><option value="140">Plasma-Lyte (약 140)</option><option value="0">D5W (free-water; resuscitation 아님)</option><option value="custom">직접 입력</option></select></div>
-<div class="field" id="customNaWrap" style="display:none"><label>Custom 수액 Na</label><input id="customNa2" type="number" value="0"></div><div class="field"><label>계산 시간 (시간)</label><input id="calcHours" type="number" value="24"></div></div>
-<div class="recommend" id="fluid"><h3>수액 선택 참고</h3>검사 입력 후 평가를 실행하세요.</div><div class="recommend" id="amount"><h3>수액 필요량 계산</h3>평가 후 계산됩니다.</div><div class="smallnote">※ V2 간이 계산: deficit + 유지량 + 지속 손실. 자동 계산량은 처방 확정치가 아니며, 쇼크·심장/신장질환·전해질 이상·특수동물은 개별 계획 및 재평가가 필요합니다.</div></section>
-</div>
 
+<!-- 1번 프레임: 검사 이미지 1 (기존 2, 3 제거) -->
+<section class="frame" id="imageFrame1">
+  <div class="framehead">🖼️ 검사 이미지</div>
+  <div class="image-box" id="dropZone1" onclick="if(event.target.tagName!=='BUTTON') document.getElementById('labImageFile1').click()">
+    <div class="dropzone-label">📂 검사결과지 이미지<br>드래그 또는 선택</div>
+    <div class="dropzone-sub">CBC · 생화학 · 전해질 결과지</div>
+    <input id="labImageFile1" type="file" accept="image/*" onchange="loadLabImage(event,1)" onclick="event.stopPropagation()">
+    <img id="labImagePreview1" class="image-preview" alt="검사 이미지">
+    <button type="button" class="btn secondary" style="padding:5px 10px;font-size:14px" onclick="event.stopPropagation();clearLabImage(1)">이미지 제거</button>
+  </div>
+</section>
+
+<!-- 2번 프레임: 기존 4번 검사 입력 -->
+<section class="frame" id="inputFrame">
+  <div class="framehead">① 검사 입력</div>
+  <div class="input-groups">
+    <div class="input-group patientgrp"><div class="gtitle">환자</div><div class="fields patient">
+      <div class="field"><label>이름</label><input id="name" placeholder="환자명"></div>
+      <div class="field"><label>종</label><select id="species"><option>개</option><option>고양이</option><option>토끼</option><option>기니피그</option><option>햄스터</option><option>데구</option><option>친칠라</option><option>페럿</option><option>앵무새</option><option>파충류</option><option>기타</option></select></div>
+      <div class="field"><label>체중 kg</label><input id="wt" type="number" step="0.001" placeholder="kg"></div>
+      <div class="field"><label>연령군</label><select id="ageGroup"><option value="adult">성체</option><option value="senior">노령(7세↑)</option><option value="young">어림(1세↓)</option></select></div>
+    </div></div>
+
+    <div class="input-group electrogrp"><div class="gtitle">전해질</div><div class="fields electro">
+      <div class="field"><label>Na mEq/L</label><input id="na" type="number" step="0.1" placeholder="140~150"></div>
+      <div class="field"><label>K mEq/L</label><input id="k" type="number" step="0.1" placeholder="3.5~5.5"></div>
+    </div></div>
+
+    <div class="input-group hctgrp"><div class="gtitle">혈구</div><div class="fields hct">
+      <div class="field"><label>HCT %</label><input id="hct" type="number" step="0.1" placeholder="개37-55/묘30-45"></div>
+      <div class="field"><label>Hb g/dL</label><input id="hb" type="number" step="0.1" placeholder="12~18"></div>
+    </div></div>
+
+    <div class="input-group chemgrp"><div class="gtitle">생화학</div><div class="fields chem">
+      <div class="field"><label>Glucose</label><input id="glu" type="number" step="0.1" placeholder="mg/dL"></div>
+      <div class="field"><label>BUN</label><input id="bun" type="number" step="0.1" placeholder="mg/dL"></div>
+      <div class="field"><label>Creat</label><input id="cre" type="number" step="0.01" placeholder="mg/dL"></div>
+      <div class="field"><label>TP</label><input id="tp" type="number" step="0.01" placeholder="g/dL"></div>
+      <div class="field"><label>Albumin</label><input id="alb" type="number" step="0.01" placeholder="g/dL"></div>
+    </div></div>
+
+    <div class="input-group flaggrp"><div class="gtitle">임상소견</div>
+      <div class="chk-wrap">
+        <label><input type="checkbox" id="chkDiarrhea">만성설사/체중감소(PLE)</label>
+        <label><input type="checkbox" id="chkCardiac">심잡음/심장병력</label>
+        <label><input type="checkbox" id="chkShock">점막창백·건조/CRT지연</label>
+      </div>
+    </div>
+  </div>
+  <div class="btns">
+    <button type="button" class="btn" onclick="evaluateNow()">⚡ 빠른 평가 실행</button>
+    <button type="button" class="btn secondary" onclick="resetForm()">초기화</button>
+    <button type="button" class="btn secondary" onclick="saveAssessmentImage()">🖼️ 화면 이미지 저장</button>
+    <button type="button" class="btn secondary" onclick="window.print()">🖨️ 인쇄</button>
+  </div>
+</section>
+
+<!-- 3번 프레임: 기존 5번 오스몰·진단 및 견제 평가 -->
+<section class="frame" id="assessmentFrame">
+  <div class="framehead">② 오스몰 · 진단 및 견제</div>
+  <table style="width:100%;border-collapse:collapse;font-size:15.5px">
+    <thead><tr><th style="text-align:left;border-bottom:1.5px solid #ccd8e8;padding:4px">지표</th><th style="text-align:left;border-bottom:1.5px solid #ccd8e8;padding:4px">수치</th><th style="text-align:left;border-bottom:1.5px solid #ccd8e8;padding:4px">임상 해석</th></tr></thead>
+    <tbody id="assessmentRows"><tr><td colspan="3" style="padding:8px;color:#64748b">검사값 입력 후 빠른 평가를 누르세요.</td></tr></tbody>
+  </table>
+  <div class="summary" id="summary">환자와 검사값을 입력하고 빠른 평가를 누르세요.</div>
+  <div class="guardbox" id="guardrailBox" style="display:none"></div>
+</section>
+
+<!-- 4번 프레임: 제미나이 홈페이지 검색 및 질의 연동 -->
+<section class="frame" id="geminiFrame">
+  <div class="framehead">🤖 제미나이 검색</div>
+  <div class="gemini-box">
+    <div style="font-size:14.5px;color:#4c1d95;font-weight:700;line-height:1.35">
+      현재 입력된 수치·감별 포인트를 자동 정리해 제미나이에 바로 질문할 수 있습니다.
+    </div>
+    <textarea id="geminiPrompt" class="gemini-prompt" placeholder="빠른 평가 실행 시 환자 수치 기반 질문 프롬프트가 자동 생성됩니다. 직접 검색어를 입력해도 됩니다."></textarea>
+    <div style="display:grid;grid-template-columns:1fr;gap:6px">
+      <button type="button" class="btn gemini" onclick="openGeminiSearch()">✨ 질문 복사 + 제미나이 열기</button>
+      <button type="button" class="btn secondary" style="font-size:15px" onclick="copyText('geminiPrompt','질문 프롬프트가 복사되었습니다.')">📋 질문 텍스트만 복사</button>
+    </div>
+    <div class="smallnote" style="margin-top:0">※ 보안 정책상 제미나이는 전용 팝업 창으로 열리며, 클립보드에 자동 복사되므로 Ctrl+V로 즉시 검색하세요.</div>
+  </div>
+</section>
+
+<!-- 5번 프레임: 자료 가공 및 메모장(.txt) 저장 -->
+<section class="frame" id="memoFrame">
+  <div class="framehead">📝 차트 메모 · 저장</div>
+  <textarea id="clinicalMemo" class="memo-area" placeholder="빠른 평가 실행 시 차트 기록용 요약이 자동 입력됩니다. 자유롭게 수정·가공 후 복사하거나 메모장(.txt) 파일로 저장하세요."></textarea>
+  <div class="btns" style="margin-top:7px">
+    <button type="button" class="btn secondary" onclick="copyText('clinicalMemo','차트 메모가 클립보드에 복사되었습니다.')">📋 차트 복사</button>
+    <button type="button" class="btn save" onclick="downloadMemoTxt()">💾 메모장(.txt) 저장</button>
+  </div>
+  <div class="smallnote">※ 파일명: <b>환자명_날짜_수액평가.txt</b> 형식으로 저장됩니다.</div>
+</section>
+
+<!-- 6번 프레임: 수액 처방 · 정상화 목표 및 모니터링 -->
+<section class="frame" id="fluidFrame">
+  <div class="framehead">③ 수액 처방 · 모니터링</div>
+  <div class="fields" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:5px">
+    <div class="field"><label>탈수율 %</label><input id="dehydPct" type="number" step="0.5" value="0"></div>
+    <div class="field"><label>유지량 mL/kg/d</label><input id="maintRate2" type="number" value="50"></div>
+    <div class="field"><label>지속손실 mL/d</label><input id="ongoingLoss" type="number" value="0"></div>
+    <div class="field"><label>수액 선택 (Na)</label><select id="fluidNa"><option value="130">하트만/LRS (130)</option><option value="140">Plasma-Lyte (140)</option><option value="154">0.9% NS (154)</option><option value="0">D5W (Free water)</option><option value="custom">직접 입력</option></select></div>
+    <div class="field" id="customNaWrap" style="display:none"><label>직접 Na</label><input id="customNa2" type="number" value="0"></div>
+    <div class="field"><label>목표시간(hr)</label><input id="calcHours" type="number" value="24"></div>
+  </div>
+  <div class="recommend" id="fluid"><h3>1. 수액 제제 및 정상화 전략</h3>검사 입력 후 평가를 실행하세요.</div>
+  <div class="recommend" id="amount"><h3>2. 투여량 및 속도 계획</h3>평가 후 계산됩니다.</div>
+  <div class="monbox" id="monitoring"><h3>3. 필수 관찰 및 모니터링</h3>평가 후 맞춤형 모니터링 기준이 표시됩니다.</div>
+</section>
+
+</div>
 
 <script>
 const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value),val=id=>$(id).value;
+
 function loadLabImage(event,slot){const file=event.target.files?.[0];if(!file)return;const preview=$('labImagePreview'+slot);preview.src=URL.createObjectURL(file);preview.style.display='block';}
-[1,2,3].forEach(slot=>{const z=$('dropZone'+slot);['dragenter','dragover'].forEach(type=>z.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();z.classList.add('dragover')}));['dragleave','drop'].forEach(type=>z.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();z.classList.remove('dragover')}));z.addEventListener('drop',e=>{const file=e.dataTransfer.files?.[0];if(!file||!file.type.startsWith('image/'))return;const input=$('labImageFile'+slot);try{const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;}catch{}const preview=$('labImagePreview'+slot);if(preview.src)URL.revokeObjectURL(preview.src);preview.src=URL.createObjectURL(file);preview.style.display='block';});});
+const z1=$('dropZone1');
+['dragenter','dragover'].forEach(type=>z1.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();z1.classList.add('dragover')}));
+['dragleave','drop'].forEach(type=>z1.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();z1.classList.remove('dragover')}));
+z1.addEventListener('drop',e=>{const file=e.dataTransfer.files?.[0];if(!file||!file.type.startsWith('image/'))return;const input=$('labImageFile1');try{const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;}catch{}const preview=$('labImagePreview1');if(preview.src)URL.revokeObjectURL(preview.src);preview.src=URL.createObjectURL(file);preview.style.display='block';});
 function clearLabImage(slot){const preview=$('labImagePreview'+slot);if(preview.src)URL.revokeObjectURL(preview.src);preview.removeAttribute('src');preview.style.display='none';$('labImageFile'+slot).value='';}
-function evaluateNow(){
+
+function evaluateNow(fromInput=false){
  const species=val('species'),name=val('name').trim(),w=num('wt'),na=num('na'),k=num('k'),hb=num('hb'),hct=num('hct'),glu=num('glu'),bun=num('bun'),cre=num('cre'),tp=num('tp'),alb=num('alb');
- if(!(w>0)||!(na>0)){alert('체중과 Na는 필수입니다.');return}
- const calc=2*na+(glu>0?glu/18:0)+(bun>0?bun/2.8:0),eff=2*na+(glu>0?glu/18:0),corr=glu>0?na+1.6*((glu-100)/100):na;
- const osm=calc<290?'낮음':calc<=310?'대체로 정상(개·고양이 참고)':'상승';
- const naTxt=na<135?'저Na':na<=150?'정상/경계':na<=160?'고Na 경향':'고Na 뚜렷';
- const kHigh=k>=6.0,kLow=k>0&&k<3.5;
- const renalFlag=(bun>=40)||(cre>=2.0);const severeRenal=(cre>=3.0)||(bun>=80);
- const glucoseHigh=glu>=250,glucoseMild=glu>=180&&glu<250,glucoseLow=glu>0&&glu<70;
- const hctHigh=hct>=55,hbHigh=hb>=18;const tpHigh=tp>=8.0,albHigh=alb>=4.0;
- let concentration=(hctHigh||hbHigh?1:0)+(tpHigh?1:0)+(albHigh?1:0);
- let suspicion=concentration>=2?'혈액농축 근거가 2개 이상 — 탈수 의심':concentration===1?'농축 가능성 — 임상 탈수 소견과 함께 판단':'검사값만으로 탈수 근거가 약함';
- let estimatedPct= concentration>=3?6:concentration===2?4.5:concentration===1?3:0;
- // Values are intentionally broad screening estimates, not a laboratory-derived dehydration percentage.
- const deficit=estimatedPct>0?w*estimatedPct/100*1000:0;
- const maintenanceRate=(species==='고양이'?40:species==='개'?60:50);const maint3=w*maintenanceRate/24*3;
- // Conservative stable-patient 3h suggestion: 3-hour maintenance + 10% of estimated deficit.
- const deficit3=deficit*0.10;const threeHour=maint3+deficit3;
+ const ageGroup=val('ageGroup'), ageLabel=$('ageGroup').options[$('ageGroup').selectedIndex].text;
+ const chkDiarrhea=$('chkDiarrhea').checked, chkCardiac=$('chkCardiac').checked, chkShock=$('chkShock').checked;
+ if(!(w>0)||!(na>0)){if(!fromInput)alert('체중과 Na는 필수입니다.');return}
+
+ // 1. 오스몰 농도 계산
+ const calc=2*na+(glu>0?glu/18:0)+(bun>0?bun/2.8:0);
+ const eff=2*na+(glu>0?glu/18:0);
+ const corrNa=glu>100?na+1.6*((glu-100)/100):na;
+ const osmStatus = calc<285?'저삼투압(세포 부종 주의)':calc<=310?'정상 삼투압(등장성)':'고삼투압(세포 탈수 유도)';
+ const effStatus = eff>315?'유효 삼투압 상승 → 세포내 탈수':eff<280?'유효 삼투압 저하 → 세포 부종 위험':'세포내외 수분 균형 범위';
+
+ // 2. 종별 기준치 설정
+ const hctRefHigh = species==='고양이'?45 : species==='개'?55 : 50;
+ const hctRefLow  = species==='고양이'?30 : species==='개'?37 : 33;
+ const hbRefLow   = species==='고양이'?9.5 : 12.0;
+ const tpRefHigh  = species==='고양이'?8.2 : 7.8;
+ const tpRefLow   = species==='고양이'?5.7 : 5.4;
+ const albRefHigh = species==='고양이'?3.9 : 4.0;
+ const albRefLow  = species==='고양이'?2.4 : 2.5;
+
+ const hctHigh = hct>hctRefHigh, hctLow = hct>0 && hct<hctRefLow;
+ const hbLow   = hb>0 && hb<hbRefLow;
+ const tpHigh  = tp>tpRefHigh,   tpLow  = tp>0 && tp<tpRefLow;
+ const albHigh = alb>albRefHigh, albLow = alb>0 && alb<albRefLow;
+
+ const naTxt = na<135?'저Na혈증':na<=150?'정상':na<=160?'경도 고Na':'중등도↑ 고Na';
+ const kHigh = k>=5.8, kLow = k>0 && k<3.5;
+ const renalFlag = (bun>=35)||(cre>=1.8);
+ const bunCreRatio = (bun>0 && cre>0) ? (bun/cre) : 0;
+
+ // 3. 혈액농축 점수 & 탈수 추정
+ let concScore = (hctHigh?1:0) + (tpHigh?1:0) + (albHigh?1:0) + (chkShock?1:0);
+ let estimatedPct = concScore>=3?7 : concScore===2?5 : concScore===1?3.5 : (chkShock?5:0);
+ if(!fromInput){
+   $('dehydPct').value = estimatedPct;
+   $('maintRate2').value = species==='고양이'?45 : species==='개'?60 : 50;
+ }
+ const dPct = Math.max(0, Number($('dehydPct').value)||0);
+
+ // 4. 임상 견제장치 (마스킹 빈혈, PLE, 노령동물 가성 정상)
+ const guards = [];
+ const plainGuards = [];
+ if((tpHigh || albHigh || bun>=30 || chkShock) && hct>0 && hct<=hctRefLow+5 && !hctLow){
+   guards.push(`<b>[마스킹된 빈혈 의심]</b> TP/Alb 상승·질소혈증 등 탈수 정황 대비 HCT(${hct}%)가 정상 하한선 부근입니다. ${ageGroup==='senior'?'노령동물의 만성/잠혈성 빈혈이 탈수로 정상수치화 되었을 가능성이 높습니다.':'수액 교정 시 HCT가 정상치 이하로 급락할 수 있습니다.'}`);
+   plainGuards.push(`마스킹된 빈혈 의심 (탈수 정황 대비 HCT ${hct}% 정상 하한선)`);
+ } else if(ageGroup==='senior' && hct>0 && hct<hctRefLow+4 && !hctLow){
+   guards.push(`<b>[노령동물 경계 HCT 경고]</b> 현재 HCT(${hct}%)는 정상 내이나 수액 희석 후 빈혈이 드러날 수 있는 경계 수치입니다.`);
+   plainGuards.push(`노령동물 경계 HCT(${hct}%) - 수액 후 빈혈 노출 주의`);
+ }
+ if(hctLow || hbLow){
+   guards.push(`<b>[명백한 빈혈 동반]</b> 현재 상태에서도 빈혈(HCT ${hct||'—'}%, Hb ${hb||'—'})이 확인됩니다. 탈수 교정 시 혈액 희석으로 산소운반능이 급감하므로 수혈 기준(개 HCT<20%, 고양이 <15~18%)을 대비하세요.`);
+   plainGuards.push(`빈혈 동반(HCT ${hct||'—'}%) - 수액 희석에 따른 수혈 대비`);
+ }
+ if((albLow || tpLow) || (chkDiarrhea && alb>0 && alb<=albRefLow+0.4)){
+   guards.push(`<b>[PLE / 저알부민혈증 경고]</b> ${albLow||tpLow?'실제 저알부민/저단백혈증이 확인됩니다.':'만성 설사/체중감소 병력에 알부민이 낮아 탈수로 가려진 PLE 가능성이 높습니다.'} 일반 정질액 빠른 다량 투여 시 교질삼투압 저하로 <b>복수·흉수·폐부종</b> 위험이 큽니다.`);
+   plainGuards.push(`PLE/저알부민혈증(Alb ${alb||'—'}) - 교질삼투압 저하로 복수/부종 주의`);
+ } else if(hctHigh && alb>0 && alb<=albRefLow+0.3){
+   guards.push(`<b>[HCT-Albumin 해리 감지]</b> HCT(${hct}%)는 농축되었으나 Albumin(${alb} g/dL)은 낮거나 경계입니다. 위장관(PLE)·신장(PLN)·간 단백 소실이 탈수로 마스킹되었는지 확인하세요.`);
+   plainGuards.push(`HCT-Alb 해리 (HCT ${hct}% vs Alb ${alb}) - 잠재적 단백 소실 확인`);
+ }
+ if(bun>=35 && cre>0 && cre<1.6 && bunCreRatio>25){
+   guards.push(`<b>[BUN/Creatinine 해리 (비율 ${bunCreRatio.toFixed(0)})]</b> 신전성 탈수 외에 <b>상부 위장관 출혈(흑변/잠혈)</b>에 의한 혈액 단백 흡수 및 빈혈 동반 가능성을 감별하세요.`);
+   plainGuards.push(`BUN 단독 상승(BUN/Cre ${bunCreRatio.toFixed(0)}) - 상부 GI 출혈 감별`);
+ }
+
+ let postHctEst = null;
+ if(hct>0 && dPct>0){
+   const bv = species==='고양이'?60 : 80;
+   const expansionRatio = bv / (bv + (dPct * 10 * 0.45));
+   postHctEst = hct * expansionRatio;
+   if(postHctEst < hctRefLow){
+     guards.push(`<b>[수액 교정 후 예상 희석 HCT: 약 ${postHctEst.toFixed(1)}%]</b> 탈수(${dPct}%) 교정 후 혈액 희석으로 HCT가 종별 정상 하한선(${hctRefLow}%) 미만으로 떨어질 것으로 예측됩니다.`);
+     plainGuards.push(`수액 후 예상 희석 HCT 약 ${postHctEst.toFixed(1)}% (정상 하한 미만 하락 예측)`);
+   }
+ }
+
+ // 5. 급성 경고
  const alerts=[];
- if(kHigh)alerts.push('K 높음: 하트만/LRS에는 K가 포함되어 있어 자동 우선 추천하지 않음. K 재확인·ECG 및 원인 평가 고려.');
- if(kLow)alerts.push('K 낮음: 수액 내 K 보충은 신장기능·소변생성 확인 후 별도 계산.');
- if(glucoseHigh)alerts.push('고혈당: 당뇨/스트레스 고혈당 가능. 계산 오스몰 상승에 glucose가 기여하므로 혈당·요당/케톤 확인 권고.');else if(glucoseMild)alerts.push('혈당 상승: stress/당뇨 감별과 오스몰 기여를 고려.');if(glucoseLow)alerts.push('저혈당: 포도당 보충 필요성 평가, 혈당 재측정하면서 결정.');
- if(renalFlag)alerts.push('BUN/Creatinine 상승: 신전성 관류저하와 신장 손상 감별. 과수액 위험이 있어 소량 투여 후 재평가/소변량 확인 권고.');
- if(na>150)alerts.push('Na 상승: 수분 결핍 가능. 안정화 후 Na 교정 속도를 계획하고 급격한 교정 피하기.');if(na<135)alerts.push('Na 낮음: 원인·증상·발생 기간 확인; 자동 수액/Na 교정 처방 금지.');
- const results=[['Calculated Osmolality',calc.toFixed(1),osm],['Effective Osmolality',eff.toFixed(1),eff>320?'높음':eff>300?'상승/경계':'참고'],['Na',na.toFixed(1),naTxt],['K',k>0?k.toFixed(1):'—',kHigh?'높음 — K 함유 수액 주의':kLow?'낮음':'입력값 참고'],['Hb',hb>0?hb.toFixed(1):'—',hbHigh?'농축 가능':'종별 기준 참고'],['HCT',hct>0?hct+'%':'—',hctHigh?'농축 가능':'종별 기준 참고'],['BUN',bun>0?bun.toFixed(1):'—',bun>=40?'높음 — 관류/신장 감별':bun>=30?'증가 가능':'참고'],['Creatinine',cre>0?cre.toFixed(2):'—',cre>=3?'상당히 상승':cre>=2?'상승 가능':'참고'],['TP / Albumin',`${tp>0?tp.toFixed(2):'—'} / ${alb>0?alb.toFixed(2):'—'}`,tpHigh||albHigh?'농축 가능':'농축 근거 제한']];
- $('metrics')?.remove();
- const rows=[['Calculated Osmolality',calc.toFixed(1),osm],['Effective Osmolality',eff.toFixed(1),eff>320?'높음':eff>300?'상승/경계':'참고'],['Na',na.toFixed(1),naTxt],['HCT',hct>0?hct+'%':'—',hctHigh?'혈액 농축 가능성':'종별 기준 참고'],['TP',tp>0?tp.toFixed(2):'—',tpHigh?'농축 가능성':'참고'],['Albumin',alb>0?alb.toFixed(2):'—',albHigh?'상대적 농축 가능':'참고'],['BUN',bun>0?bun.toFixed(1):'—',bun>=40?'관류 저하 또는 azotemia 감별':bun>=30?'증가 가능':'참고'],['예상 탈수 %',estimatedPct+'%',estimatedPct>0?'농축 패턴 기반 추정치 · 임상 확인':'검사값만으로 추정 근거 제한'],['종합',suspicion,concentration>=2?'탈수/혈액농축 의심':'임상 소견과 함께 판단']];
- $('assessmentRows').innerHTML=rows.map(r=>`<tr><td style="border-bottom:1px solid #e0e8f2;padding:6px;font-weight:700">${r[0]}</td><td style="border-bottom:1px solid #e0e8f2;padding:6px">${r[1]}</td><td style="border-bottom:1px solid #e0e8f2;padding:6px">${r[2]}</td></tr>`).join('');
- $('dehydPct').value=estimatedPct;
- let cls=concentration>=2?'warn':concentration===1?'warn':'good';$('summary').className='summary '+cls;$('summary').innerHTML=`<b>${name?name+' · ':''}종합: ${suspicion}</b><br>탈수율을 검사값으로 정확히 산출할 수는 없으며, 이 화면은 농축 패턴 기반의 대략적 screening estimate입니다.${alerts.length?'<br><br>'+alerts.map(a=>'⚠ '+a).join('<br>'):'<br>뚜렷한 추가 안전 경고는 입력값 기준으로 감지되지 않았습니다.'}`;
- let fluid;
- if(kHigh){fluid='<b>우선 방향:</b> K 상승이 확인되면 하트만/LRS를 자동 선택하지 마세요. 우선 K 없는 balanced crystalloid(예: Plasma-Lyte 계열, 제품별 전해질 확인) 또는 상황에 따라 NS를 검토하되, 고Na·산염기·염소 상태까지 고려해 선택. K 재검 및 ECG/소변생성 평가가 중요.'}
- else if(na>150){fluid='<b>우선 방향:</b> Na 상승. 저혈량/관류 저하가 있으면 초기 안정화용 isotonic crystalloid를 환자 상태에 맞게 소량씩 재평가하며 사용. 안정 후 free-water deficit과 Na 교정 속도에 맞춰 D5W 또는 저Na 수액을 별도 계획. NS(Na 154)는 고Na 환자에서 자동 기본 선택하지 않음.'}
- else if(na<135){fluid='<b>우선 방향:</b> 저Na. 증상·발생기간·원인 확인이 먼저이며, 단순 탈수용 수액을 자동 추천하지 않음. 심한 신경증상/중증 저Na는 별도 교정 프로토콜과 잦은 Na 재검 필요.'}
- else if(severeRenal){fluid='<b>우선 방향:</b> 신장수치 상당히 상승. 탈수/저관류가 확인되면 isotonic crystalloid를 소량씩 투여하고 체중·호흡·소변생성·재검으로 반응 평가. 과수액 위험 때문에 3시간 계산량을 그대로 투여하지 말고 재평가 단위로 나누기. K 포함 수액은 K 결과 확인 후.'}
- else if(renalFlag){fluid='<b>우선 방향:</b> BUN/Creatinine 상승으로 신전성 탈수와 신장질환 감별. 탈수/저관류가 의심되면 balanced crystalloid가 일반적 고려지만, K 상승 시 K 포함 수액은 피하거나 신중히 선택. 소량 투여 후 재평가 권고.'}
- else{fluid='<b>우선 방향:</b> 탈수/혈액농축 의심 시 일반적으로 balanced isotonic crystalloid(하트만/LRS 등)를 우선 고려. NS는 특정 적응증(저염소성 알칼리증 등)에서 고려. D5W 단독은 혈관내 volume 보충용이 아니며, Hartmann+D5는 혈당과 목적을 확인해 선택.'}
- fluid+='<br><br><b>선택 수액 Na:</b> '+($('fluidNa').value==='custom'?($('customNa2').value||'미입력'):$('fluidNa').value)+' mEq/L (Na 차이 및 교정 계획 검토)<br><br><b>Hetastarch:</b> routine 탈수 보충용으로 권하지 않음. 신장/응고 위험 때문에 선택적 적응증에서 담당 수의사가 위험-편익 판단.';$('fluid').innerHTML='<h3>수액 선택 안전 참고</h3>'+fluid;
- const pctText=estimatedPct>0?`<b>대략적 탈수 추정:</b> ${estimatedPct}% (검사 농축 패턴 기반의 넓은 screening band, 확정치 아님).<br><b>추정 손실량:</b> ${deficit.toFixed(0)} mL (${(deficit/w).toFixed(1)} mL/kg).`:'<b>탈수 추정:</b> 입력된 농축 패턴만으로는 탈수율 추정 근거가 약함. 임상 탈수 징후와 체중 변화로 판단.';
- let safety3=threeHour;if(renalFlag||kHigh||na>150||na<135)safety3=Math.min(threeHour,maint3+deficit3);
- const dPct=Math.max(0,Number($('dehydPct').value)||0),rate2=Math.max(0,Number($('maintRate2').value)||50),loss2=Math.max(0,Number($('ongoingLoss').value)||0),hours2=Math.max(1,Number($('calcHours').value)||24),def2=w*dPct/100*1000,maintDay=w*rate2,periodMaint=maintDay*hours2/24,periodLoss=loss2*hours2/24,total2=def2+periodMaint+periodLoss; $('amount').innerHTML='<h3>수액 필요량 계산 V2</h3><b>탈수 부족량:</b> '+def2.toFixed(1)+' mL ('+dPct.toFixed(1)+'% × '+w+' kg)<br><b>유지량:</b> '+maintDay.toFixed(1)+' mL/day; 기간 유지량 '+periodMaint.toFixed(1)+' mL<br><b>지속 손실:</b> '+loss2.toFixed(1)+' mL/day; 기간 손실 '+periodLoss.toFixed(1)+' mL<br><b>총 '+hours2+'시간 계산량:</b> '+total2.toFixed(1)+' mL<br><b>시간당 평균:</b> '+(total2/hours2).toFixed(1)+' mL/h<br><br><b>참고:</b> deficit을 기간 내 전량 교정한다는 단순 계산입니다. 실제 속도/기간은 관류, Na, K, 신장·심장 상태, 지속손실 및 재평가에 따라 조정하세요. 쇼크 환자는 별도 bolus/resuscitation protocol.';
+ if(kHigh) alerts.push('고칼륨혈증(K '+k+'): 하트만(K 함유) 피하고 0.9% NS 우선 고려 및 ECG/배뇨 확인.');
+ if(kLow) alerts.push('저칼륨혈증(K '+k+'): 배뇨 확인 후 수액 내 KCl 보충 계획 필요.');
+ if(glu>=250) alerts.push(`고혈당(${glu}): 유효 오스몰(${eff.toFixed(0)}) 상승 기여. 교정 Na <b>${corrNa.toFixed(1)} mEq/L</b> 기준 평가.`);
+ if(na>150) alerts.push(`고나트륨혈증(${na}): 급속 교정 시 뇌부종 위험(24hr당 10~12 mEq/L 이하 하강).`);
+ if(na<135) alerts.push(`저나트륨혈증(${na}): 급속 상승 시 삼투성 탈수초화(ODS) 위험(시간당 0.5 mEq/L 이하).`);
+ if(chkCardiac) alerts.push('심잡음/심장병력: 수액 속도 30~50% 감량 분할 투여 및 호흡수 집중 감시.');
+ if(renalFlag) alerts.push('질소혈증 동반: 소변량(1.5~2 mL/kg/hr) 미확인 시 무리한 볼루스 주의.');
+
+ // 6. 3번 프레임 렌더링
+ const rows=[
+   ['계산 오스몰', `${calc.toFixed(1)} mOsm/kg`, `<span class="badge ${calc>310||calc<285?'b-warn':'b-ok'}">${osmStatus}</span>`],
+   ['유효 오스몰', `${eff.toFixed(1)} mOsm/kg`, `<span class="badge ${eff>315||eff<280?'b-high':'b-ok'}">${effStatus}</span>`],
+   ['Na / K', `${na.toFixed(1)} / ${k>0?k.toFixed(1):'—'}`, `${naTxt}${glu>150?` (교정Na ${corrNa.toFixed(1)})`:''} · ${kHigh?'⚠고K':kLow?'⚠저K':'K참고'}`],
+   ['HCT / Hb', `${hct>0?hct+'%':'—'} / ${hb>0?hb:'—'}`, hctHigh?'혈액농축 의심':hctLow?'빈혈 확인':(postHctEst&&postHctEst<hctRefLow?`정상(교정후 ~${postHctEst.toFixed(0)}% 하락예상)`:'범위내(마스킹 확인)')],
+   ['TP / Alb', `${tp>0?tp.toFixed(2):'—'} / ${alb>0?alb.toFixed(2):'—'}`, (tpLow||albLow)?'<span class="badge b-high">저단백/PLE주의</span>':(tpHigh||albHigh)?'단백 농축 의심':'범위내'],
+   ['BUN / Cre', `${bun>0?bun.toFixed(1):'—'} / ${cre>0?cre.toFixed(2):'—'}`, renalFlag?'관류저하/신손상 감별':'정상 범위']
+ ];
+ $('assessmentRows').innerHTML=rows.map(r=>`<tr><td style="border-bottom:1px solid #e2e8f0;padding:4px;font-weight:700">${r[0]}</td><td style="border-bottom:1px solid #e2e8f0;padding:4px">${r[1]}</td><td style="border-bottom:1px solid #e2e8f0;padding:4px">${r[2]}</td></tr>`).join('');
+
+ let diagTitle = concScore>=2 ? `탈수/혈액농축 의심 (추정 ${estimatedPct}%)` : concScore===1 ? `경도 탈수 가능성 (추정 ${estimatedPct}%)` : `명백한 혈액농축 소견 약함`;
+ if(guards.length>0) diagTitle += ' + 잠재 기저질환 견제 필요';
+ $('summary').className = 'summary ' + (alerts.length||guards.length ? 'danger' : concScore>=1 ? 'warn' : 'good');
+ $('summary').innerHTML = `<b>${name?name+' · ':''}진단 요약: ${diagTitle}</b>` + (alerts.length?'<br>'+alerts.map(a=>'• '+a).join('<br>'):'<br>• 전해질/혈당 급성 위험 경고 없음');
+
+ if(guards.length>0){
+   $('guardrailBox').style.display='block';
+   $('guardrailBox').innerHTML = `<h4>🛡️ 놓치기 쉬운 임상 견제장치 (${guards.length}건)</h4>` + guards.map(g=>`<div style="margin-bottom:4px">▸ ${g}</div>`).join('');
+ } else {
+   $('guardrailBox').style.display='none';
+ }
+
+ // 7. 6번 프레임: 수액 및 모니터링
+ let fluidChoice = '';
+ let fluidShort = '하트만(LRS) 또는 Plasma-Lyte';
+ if(kHigh) { fluidChoice = '<b>1차 권장: 0.9% NS (생리식염수)</b> — 고칼륨혈증 교정 및 K 부하 회피 목적.'; fluidShort='0.9% NS'; }
+ else if(na>152) { fluidChoice = '<b>1차 권장: 0.9% NS 또는 Plasma-Lyte</b>로 관류 안정화 후 0.45% NS/D5W로 자유수 서서히 보충.'; fluidShort='0.9% NS 후 저장액 전환'; }
+ else if(albLow || tpLow || chkDiarrhea) { fluidChoice = '<b>1차 권장: 하트만(LRS) 또는 Plasma-Lyte (감량 속도)</b> — 교질삼투압 저하로 일반 속도의 60~70% 보수적 투여, 알부민/혈장 병행 검토.'; fluidShort='하트만/Plasma-Lyte (60~70% 감량)'; }
+ else { fluidChoice = '<b>1차 권장: 등장성 평형정질액 (하트만/LRS 또는 Plasma-Lyte)</b> — 세포외액 탈수 및 산염기 균형 정상화.'; }
+
+ $('fluid').innerHTML = `<h3>1. 수액 제제 및 정상화 전략</h3>${fluidChoice}<br><b>정상화 목표:</b> 유효 오스몰 290~310 mOsm/kg 유지, 관류 회복 및 기저 빈혈/저알부민 노출 대비.`;
+
+ const rate2=Math.max(0,Number($('maintRate2').value)||50), loss2=Math.max(0,Number($('ongoingLoss').value)||0), hours2=Math.max(1,Number($('calcHours').value)||24);
+ const def2 = w * dPct / 100 * 1000;
+ const maintDay = w * rate2;
+ const periodMaint = maintDay * hours2 / 24;
+ const periodLoss = loss2 * hours2 / 24;
+ const total2 = def2 + periodMaint + periodLoss;
+ const hourlyRate = total2 / hours2;
+ const first4hRate = (def2*0.25 + maintDay*4/24)/4;
+ const nextRate = hours2>4 ? (total2 - (def2*0.25 + maintDay*4/24))/(hours2-4) : hourlyRate;
+ const splitGuide = hours2>=12 ? `<br><b>분할 투여 팁:</b> 초반 4시간 <b>${first4hRate.toFixed(1)} mL/hr</b> 투여 후 1차 재평가, 이후 <b>${nextRate.toFixed(1)} mL/hr</b> 감속 유지.` : '';
+
+ $('amount').innerHTML = `<h3>2. 투여량 및 목표 시간 (${hours2}시간 기준)</h3>
+   • <b>탈수 부족량:</b> ${def2.toFixed(0)} mL (${dPct}% × ${w}kg)<br>
+   • <b>유지량 + 지속손실:</b> ${periodMaint.toFixed(0)} mL + ${periodLoss.toFixed(0)} mL<br>
+   • <b>총량 / 평균 속도:</b> <span style="font-size:18px;color:#1d4ed8;font-weight:800">${total2.toFixed(0)} mL (${hourlyRate.toFixed(1)} mL/hr)</span>${splitGuide}`;
+
+ const mons = [
+   `<b>PCV/TS 추적 (2~4시간 후):</b> 희석 폭 확인. ${postHctEst&&postHctEst<hctRefLow?`<span style="color:#b91c1c;font-weight:700">예상 희석 HCT(${postHctEst.toFixed(0)}%) 도달 감시!</span>`:'급격한 HCT/TP 하락 시 기저 빈혈·PLE 확정.'}`,
+   `<b>과수액 감시 (매 2~4시간):</b> 안정 호흡수(30회/분 이하), 흉부 수포음, 결막 부종, <b>체중 증가(1일 +5~7% 이내)</b>.`,
+   `<b>배뇨량(UOP) 및 관류:</b> 목표 소변량 <b>${(w*1.5).toFixed(1)}~${(w*2).toFixed(1)} mL/hr</b>, 점막 습윤도, CRT < 2초.`
+ ];
+ if(na>150 || na<135) mons.push(`<b>전해질(Na) 재검 (4~6시간):</b> 시간당 Na 변동 <b>0.5 mEq/L</b> 이하 유지.`);
+ if(albLow || tpLow || chkDiarrhea) mons.push(`<b>PLE/저알부민 감시:</b> 복수 발생 여부 및 말초 사지 부종 촉진.`);
+
+ $('monitoring').innerHTML = `<h3>3. 필수 관찰 및 모니터링</h3>` + mons.map(m=>`<div style="margin-bottom:3px">✓ ${m}</div>`).join('');
+
+ // 8. 4번 프레임(제미나이 질문 프롬프트) & 5번 프레임(차트 메모장) 자동 채우기
+ const today = new Date().toISOString().slice(0,10);
+ const labLine = `Na ${na}, K ${k||'-'}, HCT ${hct||'-'}%, Hb ${hb||'-'}, Glu ${glu||'-'}, BUN ${bun||'-'}, Cre ${cre||'-'}, TP ${tp||'-'}, Alb ${alb||'-'}`;
+ const flagsList = [chkDiarrhea?'만성설사/PLE의심':'', chkCardiac?'심잡음/심장병력':'', chkShock?'점막창백·건조/CRT지연':''].filter(Boolean).join(', ') || '특이 체크 없음';
+
+ $('geminiPrompt').value = `[수의학 임상 감별 및 수액 처치 자문 요청]
+- 환자: ${species} (${ageLabel}), 체중 ${w}kg
+- 검사값: ${labLine}
+- 계산 오스몰: ${calc.toFixed(1)} / 유효 오스몰: ${eff.toFixed(1)} mOsm/kg
+- 임상소견: ${flagsList}
+- 현재 평가: ${diagTitle}${plainGuards.length ? ' (' + plainGuards.join(' / ') + ')' : ''}
+
+위 환자에서 탈수로 인해 마스킹된 기저 빈혈이나 PLE(단백소실성 장병증) 가능성을 배제하기 위해 추가로 확인해야 할 감별 진단과, 안전한 수액 속도 조절 및 모니터링 포인트를 정리해 주세요.`;
+
+ if(!fromInput || !$('clinicalMemo').value.trim()){
+   $('clinicalMemo').value = `[${today}] ${name||'환자'} (${species}, ${ageLabel}, ${w}kg) 탈수·수액 평가
+1. 주요 검사: ${labLine}
+   - 오스몰: 계산 ${calc.toFixed(1)} / 유효 ${eff.toFixed(1)} mOsm/kg (${osmStatus})
+2. 임상 평가: ${diagTitle}
+${plainGuards.length ? '   - 견제 포인트: ' + plainGuards.join('; ') + '\n' : ''}${alerts.length ? '   - 주의 경고: ' + alerts.map(a=>a.replace(/<[^>]*>/g,'')).join('; ') + '\n' : ''}3. 수액 계획 (${hours2}hr 기준):
+   - 제제: ${fluidShort}
+   - 총량: ${total2.toFixed(0)} mL (평균 ${hourlyRate.toFixed(1)} mL/hr | 탈수 ${dPct}%=${def2.toFixed(0)}mL + 유지 ${periodMaint.toFixed(0)}mL + 손실 ${periodLoss.toFixed(0)}mL)
+   - 분할: 초반 4hr ${first4hRate.toFixed(1)} mL/hr 투여 후 재평가 → 이후 ${nextRate.toFixed(1)} mL/hr
+4. 모니터링: 2~4hr 후 PCV/TS 재검${postHctEst&&postHctEst<hctRefLow?'(희석예상 HCT '+postHctEst.toFixed(0)+'%)':''}, 호흡수(SRR<30), 흉부청진, 목표 UOP ${(w*1.5).toFixed(1)}~${(w*2).toFixed(1)} mL/hr`;
+ }
+}
+
+function copyText(elId, msg){
+ const el=$(elId);
+ if(!el.value.trim()){alert('복사할 내용이 없습니다.');return;}
+ navigator.clipboard.writeText(el.value).then(()=>alert(msg)).catch(()=>{el.select();document.execCommand('copy');alert(msg);});
+}
+
+function openGeminiSearch(){
+ const txt = $('geminiPrompt').value.trim();
+ if(txt){
+   navigator.clipboard.writeText(txt).catch(()=>{});
+ }
+ window.open('https://gemini.google.com/app', 'geminiSearchWin', 'width=1100,height=850,noopener,noreferrer');
+}
+
+function downloadMemoTxt(){
+ const content = $('clinicalMemo').value;
+ if(!content.trim()){alert('저장할 메모 내용이 없습니다.');return;}
+ const patient = val('name').trim() || '환자';
+ const dateStr = new Date().toISOString().slice(0,10);
+ const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
+ const url = URL.createObjectURL(blob);
+ const a = document.createElement('a');
+ a.href = url;
+ a.download = `${patient}_${dateStr}_수액평가.txt`;
+ a.click();
+ setTimeout(()=>URL.revokeObjectURL(url), 1500);
 }
 
 async function saveAssessmentImage(){
- const evaluated=($('summary').textContent||'').includes('종합:');
+ const evaluated=($('summary').textContent||'').includes('진단 요약:');
  if(!evaluated){alert('먼저 빠른 평가를 실행해주세요.');return;}
  const target=document.querySelector('.layout');
  const patient=`${val('name').trim()||'환자'}_${val('species')}_${val('wt')||'체중미입력'}kg`;
@@ -105,9 +369,24 @@ async function saveAssessmentImage(){
    if(!window.html2canvas){await new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';sc.onload=resolve;sc.onerror=reject;document.head.appendChild(sc);});}
    const canvas=await html2canvas(target,{scale:2,backgroundColor:'#f3f6fb',useCORS:true,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,target.scrollWidth)});
    canvas.toBlob(blob=>{if(!blob){alert('이미지 생성에 실패했습니다.');return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`C1_${patient}_${new Date().toISOString().slice(0,10)}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);},'image/png');
- }catch(err){console.error(err);alert('이미지 저장에 실패했습니다. 인터넷 연결을 확인하거나 인쇄 기능을 이용해주세요.');}
+ }catch(err){console.error(err);alert('이미지 저장에 실패했습니다.');}
 }
-$('fluidNa').addEventListener('change',()=>{$('customNaWrap').style.display=$('fluidNa').value==='custom'?'block':'none';});['dehydPct','maintRate2','ongoingLoss','calcHours','customNa2'].forEach(id=>$(id).addEventListener('input',()=>{if($('summary').textContent.includes('종합:'))evaluateNow();}));
-function resetForm(){document.querySelectorAll('input').forEach(i=>i.value='');[1,2,3].forEach(clearLabImage);$('dehydPct').value=0;$('maintRate2').value=50;$('ongoingLoss').value=0;$('calcHours').value=24;$('fluidNa').value='130';$('species').selectedIndex=0;$('assessmentRows').innerHTML='<tr><td colspan="3">검사값 입력 후 빠른 평가를 누르세요.</td></tr>'; $('summary').innerHTML='환자와 검사값을 입력하고 빠른 평가를 누르세요.';$('summary').className='summary';$('fluid').innerHTML='<h3>수액 선택 참고</h3>검사 입력 후 평가를 실행하세요.';$('amount').innerHTML='<h3>수액 필요량 계산 V2</h3>평가 후 계산됩니다.';}
 
+$('fluidNa').addEventListener('change',()=>{$('customNaWrap').style.display=$('fluidNa').value==='custom'?'block':'none';});
+['dehydPct','maintRate2','ongoingLoss','calcHours','customNa2'].forEach(id=>$(id).addEventListener('input',()=>{if($('summary').textContent.includes('진단 요약:'))evaluateNow(true);}));
+
+function resetForm(){
+ document.querySelectorAll('input[type=text],input[type=number],input:not([type])').forEach(i=>i.value='');
+ document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
+ clearLabImage(1);
+ $('dehydPct').value=0;$('maintRate2').value=50;$('ongoingLoss').value=0;$('calcHours').value=24;$('fluidNa').value='130';$('species').selectedIndex=0;$('ageGroup').selectedIndex=0;
+ $('assessmentRows').innerHTML='<tr><td colspan="3" style="padding:8px;color:#64748b">검사값 입력 후 빠른 평가를 누르세요.</td></tr>';
+ $('summary').innerHTML='환자와 검사값을 입력하고 빠른 평가를 누르세요.';$('summary').className='summary';
+ $('guardrailBox').style.display='none';
+ $('geminiPrompt').value='';
+ $('clinicalMemo').value='';
+ $('fluid').innerHTML='<h3>1. 수액 제제 및 정상화 전략</h3>검사 입력 후 평가를 실행하세요.';
+ $('amount').innerHTML='<h3>2. 투여량 및 속도 계획</h3>평가 후 계산됩니다.';
+ $('monitoring').innerHTML='<h3>3. 필수 관찰 및 모니터링</h3>평가 후 맞춤형 모니터링 기준이 표시됩니다.';
+}
 </script></body></html>
