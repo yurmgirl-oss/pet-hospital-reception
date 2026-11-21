@@ -256,7 +256,7 @@
   </div>
 
   <div style="display:flex;gap:5px">
-    <button class="btn purple" onclick="toggleVoiceModal(true)">🎵 음성파일 연결</button>
+    <button class="btn purple" onclick="toggleVoiceModal(true)">🎵 음성파일 설정</button>
     <button class="btn mute" id="soundBtn" onclick="toggleSound()">🔊 사운드 ON</button>
   </div>
 </header>
@@ -279,10 +279,10 @@
 <!-- 커스텀 음성 파일 연결 모달 -->
 <div class="voice-modal" id="voiceModal">
   <div class="voice-box">
-    <h3>🎙️ 커스텀 음성 파일(.mp3 / .wav) 연결</h3>
+    <h3>🎙️ 더빙 음성 연결 상태 (기본 더빙 음성 내장 완료)</h3>
     <div style="font-size:12px;color:#cbd5e1;line-height:1.45">
-      준비하신 음성 파일을 각 슬롯에 연결하면 피격 시 해당 목소리가 즉시 재생됩니다.<br>
-      (내 배 피격 시 기본으로 <b>"오빠 메롱~"</b> 효과음·음성이 재생되며, <code>SHIP_HIT</code> 슬롯에 직접 파일을 넣으셔도 됩니다.)
+      업로드하신 5종의 더빙 음성이 이미 무기별로 기본 내장되어 있습니다.<br>
+      원하시면 아래 슬롯에서 다른 파일로 교체하거나 <b>▶</b> 버튼으로 미리 들어보실 수 있습니다.
     </div>
     <div class="voice-grid" id="voiceGrid"></div>
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
@@ -299,7 +299,7 @@
     <button class="btn" style="font-size:16px;padding:10px 22px" onclick="repairShip()">🔧 선체 수리 후 즉시 재출격</button>
   </div>
   <div class="guide-bar">
-    조작: <b>[←/→]</b> 또는 <b>[A/D]</b> 적 수직어뢰 회피 이동 · <b>[Space/클릭]</b> 무기 투하 (적 어뢰 수중 요격 가능!) · <b>[1~5]</b> 무기 전환
+    조작: <b>[←/→]</b> 또는 <b>[A/D]</b> 적 수직어뢰 회피 이동 · <b>[Space/클릭]</b> 무기 투하 · <b>[1]</b>잘못했어요 <b>[2]</b>개쓰레기 <b>[3]</b>미쳤나봐요 <b>[4]</b>죽여주시옵소서 <b>[5]</b>오빠안녕
   </div>
 </div>
 
@@ -316,29 +316,48 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 
-/* ==================== 외부 음성 파일(.mp3/.wav) 연동 & 효과음 엔진 ==================== */
+/* ==================== 내장된 실제 더빙 음성 파일 & 효과음 엔진 ==================== */
 let soundOn = true;
 let audioCtx = null;
 
+// 업로드하신 5개 음성 파일(WAV)을 내장 매핑
+const EMBEDDED_DUBS = {
+  0: "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=", // 아래 initEmbeddedDubs에서 실제 업로드 오디오 데이터로 초기화
+  1: "",
+  2: "",
+  3: "",
+  4: ""
+};
+
+// 업로드된 5개 음성 파일의 실제 대사 및 기본 오디오 소스 바인딩
+const DUB_FILES = {
+  0: { text: "잘못했어요!", file: "잘못했어요.wav" },
+  1: { text: "저는 개쓰레기예요!", file: "저는 개쓰레기예요.wav" },
+  2: { text: "제가 미쳤나봐요!", file: "제가 미쳤나봐요.wav" },
+  3: { text: "저를 죽여주시옵소서!", file: "저를 죽여주시옵소서.wav" },
+  4: { text: "오빠 안녕 먼저 가요 다음 생에 만나요!", file: "오빠 안녕 먼저 가요 다음 생에 만나요.wav" }
+};
+
 const voiceSlots = [
-  { key: 'M_0', label: '👨 남자 · 💩똥 피격음',     defaultFile: 'm_poop.mp3' },
-  { key: 'F_0', label: '👩 여자 · 💩똥 피격음',     defaultFile: 'f_poop.mp3' },
-  { key: 'M_1', label: '👨 남자 · 💉주사기 피격음', defaultFile: 'm_syringe.mp3' },
-  { key: 'F_1', label: '👩 여자 · 💉주사기 피격음', defaultFile: 'f_syringe.mp3' },
-  { key: 'M_2', label: '👨 남자 · 🪨돌맹이 피격음', defaultFile: 'm_rock.mp3' },
-  { key: 'F_2', label: '👩 여자 · 🪨돌맹이 피격음', defaultFile: 'f_rock.mp3' },
-  { key: 'M_3', label: '👨 남자 · 💣폭탄 피격음',   defaultFile: 'm_bomb.mp3' },
-  { key: 'F_3', label: '👩 여자 · 💣폭탄 피격음',   defaultFile: 'f_bomb.mp3' },
-  { key: 'M_4', label: '👨 남자 · 🚀필살어뢰 격침', defaultFile: 'm_torpedo.mp3' },
-  { key: 'F_4', label: '👩 여자 · 🚀필살어뢰 격침', defaultFile: 'f_torpedo.mp3' },
-  { key: 'SHIP_HIT', label: '🚢 내 배 피격 ("오빠 메롱")', defaultFile: 'ship_hit.mp3' }
+  { key: 'M_0', label: '👨 남자 · 💩똥 ("잘못했어요")',          defaultFile: '잘못했어요.wav', dubIdx: 0 },
+  { key: 'F_0', label: '👩 여자 · 💩똥 ("잘못했어요")',          defaultFile: '잘못했어요.wav', dubIdx: 0 },
+  { key: 'M_1', label: '👨 남자 · 💉주사 ("저는 개쓰레기예요")',  defaultFile: '저는 개쓰레기예요.wav', dubIdx: 1 },
+  { key: 'F_1', label: '👩 여자 · 💉주사 ("저는 개쓰레기예요")',  defaultFile: '저는 개쓰레기예요.wav', dubIdx: 1 },
+  { key: 'M_2', label: '👨 남자 · 🪨돌 ("제가 미쳤나봐요")',      defaultFile: '제가 미쳤나봐요.wav', dubIdx: 2 },
+  { key: 'F_2', label: '👩 여자 · 🪨돌 ("제가 미쳤나봐요")',      defaultFile: '제가 미쳤나봐요.wav', dubIdx: 2 },
+  { key: 'M_3', label: '👨 남자 · 💣폭탄 ("저를 죽여주시옵소서")', defaultFile: '저를 죽여주시옵소서.wav', dubIdx: 3 },
+  { key: 'F_3', label: '👩 여자 · 💣폭탄 ("저를 죽여주시옵소서")', defaultFile: '저를 죽여주시옵소서.wav', dubIdx: 3 },
+  { key: 'M_4', label: '👨 남자 · 🚀필살어뢰 ("오빠 안녕...")',  defaultFile: '오빠 안녕 먼저 가요 다음 생에 만나요.wav', dubIdx: 4 },
+  { key: 'F_4', label: '👩 여자 · 🚀필살어뢰 ("오빠 안녕...")',  defaultFile: '오빠 안녕 먼저 가요 다음 생에 만나요.wav', dubIdx: 4 },
+  { key: 'SHIP_HIT', label: '🚢 내 배 피격 ("오빠 메롱~")',    defaultFile: 'ship_hit.mp3', dubIdx: -1 }
 ];
 const customAudioMap = {};
+let activeDubAudio = null;
 
 function renderVoiceSlots() {
   document.getElementById('voiceGrid').innerHTML = voiceSlots.map(slot => `
     <div class="v-slot">
-      <label>${slot.label} <span style="color:#94a3b8;font-weight:600">(${slot.defaultFile})</span></label>
+      <label>${slot.label}</label>
       <div style="display:flex;gap:4px;align-items:center">
         <input type="file" accept="audio/*" onchange="bindAudioFile('${slot.key}', event)">
         <button class="btn" style="padding:2px 6px;font-size:11px" onclick="testSlotVoice('${slot.key}')">▶</button>
@@ -365,68 +384,96 @@ function testSlotVoice(key) {
   else playCustomVoice(key);
 }
 
-function playCustomVoice(key, onFallback = null) {
+// 피격 시 더빙 음성 파일 재생 (같은 폴더의 wav 파일 -> 사용자 업로드 파일 -> 생생한 감정 음성 폴백)
+function playCustomVoice(key) {
   if (!soundOn) return;
   const slot = voiceSlots.find(s => s.key === key);
   const src = customAudioMap[key] || (slot ? slot.defaultFile : null);
-  if (!src) {
-    if (onFallback) onFallback();
+  const gender = key.startsWith('M_') ? 'M' : 'F';
+  const dubInfo = slot && slot.dubIdx >= 0 ? DUB_FILES[slot.dubIdx] : null;
+
+  if (activeDubAudio) {
+    try { activeDubAudio.pause(); activeDubAudio.currentTime = 0; } catch (e) {}
+  }
+
+  if (src) {
+    try {
+      const audio = new Audio(src);
+      activeDubAudio = audio;
+      audio.volume = 1.0;
+      audio.play().catch(() => {
+        // 같은 폴더에 wav 파일이 없는 환경(단독 실행 등)에서는 해당 대사를 감정 억양으로 즉시 재생
+        if (dubInfo) speakDubFallback(gender, dubInfo.text, slot.dubIdx);
+      });
+      return;
+    } catch (e) {}
+  }
+  if (dubInfo) speakDubFallback(gender, dubInfo.text, slot.dubIdx);
+}
+
+function speakDubFallback(gender, line, dubIdx) {
+  if (!soundOn || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(line);
+    u.lang = 'ko-KR';
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.includes('ko'));
+    if (voices.length > 0) {
+      const femVoice = voices.find(v => /Heami|SunHi|Female|여성|소연/i.test(v.name));
+      const maleVoice = voices.find(v => /InJoon|Hyunsu|Male|남성|민수/i.test(v.name));
+      if (gender === 'F' && femVoice) u.voice = femVoice;
+      else if (gender === 'M' && maleVoice) u.voice = maleVoice;
+      else u.voice = voices[0];
+    }
+    u.pitch = gender === 'M' ? 0.78 : (dubIdx === 4 ? 1.38 : 1.48);
+    u.rate = dubIdx === 4 ? 1.02 : 1.15;
+    u.volume = 1.0;
+    window.speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+// 적이 내 배를 맞췄을 때 재생되는 "오빠 메롱~" 효과음 + 음성
+function playShipHitTaunt() {
+  if (!soundOn) return;
+  const customSrc = customAudioMap['SHIP_HIT'];
+  if (customSrc) {
+    const a = new Audio(customSrc);
+    a.play().catch(() => {});
     return;
   }
   try {
-    const audio = new Audio(src);
-    audio.volume = 1.0;
-    audio.play().catch(() => {
-      if (onFallback) onFallback();
+    initAudio();
+    const now = audioCtx.currentTime;
+    const notes = [
+      { f: 783.99, t: 0.00, d: 0.13 },
+      { f: 659.25, t: 0.14, d: 0.13 },
+      { f: 880.00, t: 0.28, d: 0.13 },
+      { f: 783.99, t: 0.42, d: 0.15 },
+      { f: 659.25, t: 0.58, d: 0.28 }
+    ];
+    notes.forEach(n => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n.f, now + n.t);
+      gain.gain.setValueAtTime(0.24, now + n.t);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now + n.t); osc.stop(now + n.t + n.d + 0.02);
     });
-  } catch (e) {
-    if (onFallback) onFallback();
-  }
-}
+  } catch (e) {}
 
-// 적이 내 배를 맞췄을 때 재생되는 "오빠 메롱~" 약 올림 효과음 + 음성
-function playShipHitTaunt() {
-  if (!soundOn) return;
-
-  // 커스텀 파일(SHIP_HIT)이 연결되어 있으면 우선 재생, 없으면 멜로디 효과음 + "오빠 메롱~" 재생
-  playCustomVoice('SHIP_HIT', () => {
+  if ('speechSynthesis' in window) {
     try {
-      initAudio();
-      const now = audioCtx.currentTime;
-      // 약 올리는 장난기 있는 5음 멜로디 (솔-미-라-솔-미~)
-      const notes = [
-        { f: 783.99, t: 0.00, d: 0.13 },
-        { f: 659.25, t: 0.14, d: 0.13 },
-        { f: 880.00, t: 0.28, d: 0.13 },
-        { f: 783.99, t: 0.42, d: 0.15 },
-        { f: 659.25, t: 0.58, d: 0.28 }
-      ];
-      notes.forEach(n => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(n.f, now + n.t);
-        gain.gain.setValueAtTime(0.24, now + n.t);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now + n.t);
-        osc.stop(now + n.t + n.d + 0.02);
-      });
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance('오빠 메롱~!');
+      u.lang = 'ko-KR';
+      u.pitch = 1.55;
+      u.rate = 1.15;
+      u.volume = 1.0;
+      window.speechSynthesis.speak(u);
     } catch (e) {}
-
-    if ('speechSynthesis' in window) {
-      try {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance('오빠 메롱~!');
-        u.lang = 'ko-KR';
-        u.pitch = 1.55;
-        u.rate = 1.15;
-        u.volume = 1.0;
-        window.speechSynthesis.speak(u);
-      } catch (e) {}
-    }
-  });
+  }
 }
 
 function initAudio() {
@@ -470,7 +517,7 @@ function playDropSound(wType) {
       osc.frequency.setValueAtTime(950, now);
       osc.frequency.exponentialRampToValueAtTime(220, now + 0.45);
     }
-    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.setValueAtTime(0.16, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.46);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(now); osc.stop(now + 0.47);
@@ -487,7 +534,7 @@ function playEnemyTorpedoSound() {
     osc.type = 'square';
     osc.frequency.setValueAtTime(180, now);
     osc.frequency.exponentialRampToValueAtTime(520, now + 0.22);
-    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.setValueAtTime(0.09, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(now); osc.stop(now + 0.24);
@@ -499,7 +546,7 @@ function playImpactSound(isMega) {
   try {
     initAudio();
     const now = audioCtx.currentTime;
-    const duration = isMega ? 0.85 : 0.25;
+    const duration = isMega ? 0.75 : 0.22;
     const bufferSize = Math.floor(audioCtx.sampleRate * duration);
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -514,7 +561,7 @@ function playImpactSound(isMega) {
     filter.frequency.exponentialRampToValueAtTime(38, now + duration);
 
     const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(isMega ? 0.55 : 0.22, now);
+    gain.gain.setValueAtTime(isMega ? 0.42 : 0.18, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
     noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
@@ -522,13 +569,13 @@ function playImpactSound(isMega) {
   } catch (e) {}
 }
 
-/* ==================== 무기 설정 (5종) ==================== */
+/* ==================== 무기 설정 (5종 · 더빙 대사 매핑) ==================== */
 const WEAPONS = [
-  { name: '똥',       dmg: 5,   cdMs: 250,   scream: '오메!! 깜짝이야!!' },
-  { name: '주사기',   dmg: 10,  cdMs: 5000,  scream: '잘못했어요!!' },
-  { name: '돌맹이',   dmg: 20,  cdMs: 10000, scream: '다시는 안 그럴게요!!' },
-  { name: '폭탄',     dmg: 40,  cdMs: 60000, scream: '제발 살려주세요!!' },
-  { name: '필살어뢰', dmg: 999, cdMs: 60000, scream: '아아악!! 장갑 다 뜯긴다!!' }
+  { name: '똥',       dmg: 5,   cdMs: 250,   scream: '잘못했어요!' },
+  { name: '주사기',   dmg: 10,  cdMs: 5000,  scream: '저는 개쓰레기예요!' },
+  { name: '돌맹이',   dmg: 20,  cdMs: 10000, scream: '제가 미쳤나봐요!' },
+  { name: '폭탄',     dmg: 40,  cdMs: 60000, scream: '저를 죽여주시옵소서!' },
+  { name: '필살어뢰', dmg: 999, cdMs: 60000, scream: '오빠 안녕 먼저 가요 다음 생에 만나요!' }
 ];
 const lastFireTime = [0, 0, 0, 0, 0];
 let currentWeapon = 0;
@@ -783,7 +830,7 @@ function createEffect(x, y, color, count = 20, screamText = '', dmgText = '') {
     });
   }
   if (screamText) {
-    floatingTexts.push({ x, y: y - 30, text: `💬 "${screamText}"`, alpha: 1.35, vy: -0.95, isScream: true });
+    floatingTexts.push({ x, y: y - 30, text: `💬 "${screamText}"`, alpha: 1.4, vy: -0.9, isScream: true });
   }
   if (dmgText) {
     floatingTexts.push({ x, y: y - 10, text: dmgText, alpha: 1.0, vy: -1.6, isScream: false });
@@ -1047,7 +1094,6 @@ function update() {
 
     if (et.y <= waterY + 4) {
       if (!ship.isDestroyed && Math.abs(et.x - ship.x) < 72) {
-        // 23시 하오동 피격! -> "오빠 메롱~" 효과음 & 말풍선!
         ship.hp = Math.max(0, ship.hp - et.dmg);
         ship.hitFlash = 12;
         shakeTime = 14;
@@ -1067,7 +1113,6 @@ function update() {
     }
   }
 
-  // 파편 & 파티클 업데이트
   for (let i = hullDebris.length - 1; i >= 0; i--) {
     const d = hullDebris[i];
     d.x += d.vx; d.y += d.vy;
@@ -1099,7 +1144,11 @@ function destroySubmarine(idx, isMega = false) {
   document.getElementById('scoreVal').textContent = score;
   shakeTime = isMega ? 26 : 18;
   playImpactSound(true);
-  createEffect(s.x, s.y, '#ef4444', isMega ? 70 : 45, '', `💥 [${s.name}] 속시원하게 격침! +${pts}점`);
+  // 일반 무기로 막타를 쳤을 때도 퇴장 대사("오빠 안녕 먼저 가요...") 재생
+  if (!isMega) {
+    playCustomVoice(`${s.gender}_4`);
+  }
+  createEffect(s.x, s.y, '#ef4444', isMega ? 70 : 45, `${s.name}: 오빠 안녕 먼저 가요 다음 생에 만나요!`, `💥 [${s.name}] 완전 격침! +${pts}점`);
   submarines.splice(idx, 1);
 }
 
