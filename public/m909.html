@@ -184,6 +184,7 @@
       <button class="tab-btn active" id="tab-f1" onclick="switchView('f1')">1️⃣ 원내통합관제 (F1)</button>
       <button class="tab-btn" id="tab-f2" onclick="switchView('f2')" style="color:#fde047;">2️⃣ 🧮 처방용량 계산표 2개 + 🦎 특수동물 (F2)</button>
       <button class="tab-btn" id="tab-f3" onclick="switchView('f3')" style="color:#f9a8d4;">3️⃣ ⭐ 특수환자 관리 (F3)</button>
+      <button class="tab-btn" id="tab-f4" onclick="switchView('f4')" style="color:#67e8f9;">4️⃣ 💧 수액·탈수 빠른 평가 (F4)</button>
     </div>
 
     <div>
@@ -280,6 +281,17 @@
         <div class="panel-body">
           <iframe id="frame-exotic" src="/exotic.html" title="특수동물 관리"></iframe>
         </div>
+      </section>
+    </div>
+
+    <!-- [F4 뷰] C1 빠른 탈수·수액 평가 -->
+    <div id="view-f4" class="f3-layout" style="display: none;">
+      <section class="panel" style="width: 100%; height: 100%;">
+        <div class="panel-header">
+          <div class="panel-title">💧 C1 빠른 탈수 · 수액 임상 평가</div>
+          <div><button class="p-btn" onclick="document.getElementById('frame-c1').contentWindow.location.reload()">새로고침</button><button class="p-btn" onclick="window.open('/c1.html', '_blank')">새창</button></div>
+        </div>
+        <div class="panel-body"><iframe id="frame-c1" src="/c1.html" title="C1 빠른 탈수 및 수액 평가"></iframe></div>
       </section>
     </div>
 
@@ -409,6 +421,7 @@
       document.getElementById('view-f1').style.display = 'none';
       document.getElementById('view-f2').style.display = 'none';
       document.getElementById('view-f3').style.display = 'none';
+      document.getElementById('view-f4').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -421,6 +434,9 @@
       } else if (mode === 'f3') {
         document.getElementById('view-f3').style.display = 'flex';
         document.getElementById('tab-f3').classList.add('active');
+      } else if (mode === 'f4') {
+        document.getElementById('view-f4').style.display = 'flex';
+        document.getElementById('tab-f4').classList.add('active');
       }
     }
 
@@ -436,6 +452,7 @@
       if (e.key === 'F1') { e.preventDefault(); switchView('f1'); }
       if (e.key === 'F2') { e.preventDefault(); switchView('f2'); }
       if (e.key === 'F3') { e.preventDefault(); switchView('f3'); }
+      if (e.key === 'F4') { e.preventDefault(); switchView('f4'); }
       if (e.key === 'F5') { e.preventDefault(); refreshAllFrames(); }
     });
   </script>
