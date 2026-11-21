@@ -30,6 +30,17 @@
   }
   .mono { font-family: 'Consolas', 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
 
+  /* 모든 숫자 입력칸 증감 표시(스피너) 완전 제거 */
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
   /* 상단 헤더 */
   .topbar {
     display: flex;
@@ -69,7 +80,7 @@
   /* 5단 가로 배치 메인 그리드 */
   .five-grid {
     display: grid;
-    grid-template-columns: 0.92fr 1.32fr 1.02fr 0.92fr 1.42fr;
+    grid-template-columns: 0.98fr 1.3fr 1.0fr 0.9fr 1.4fr;
     gap: 6px;
     flex: 1;
     min-height: 0;
@@ -145,6 +156,44 @@
   }
   .card-input:focus { outline: none; border-color: var(--blue); background: #fff; }
 
+  /* 1번 타이머존 전용: 좌측 수동입력 + 우측 대형 시계 배치 */
+  .timer-body {
+    flex: 1;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 5px;
+    align-items: center;
+    min-height: 0;
+    padding: 2px 0;
+  }
+  .timer-left-ctrl {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+    height: 100%;
+  }
+  .timer-left-ctrl label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--muted);
+    text-align: center;
+  }
+  .timer-left-ctrl input {
+    width: 100%;
+    border: 1.5px solid #fca5a5;
+    background: #fff;
+    border-radius: 5px;
+    padding: 4px 2px;
+    font-size: 15px;
+    font-weight: 900;
+    text-align: center;
+    color: #b91c1c;
+    font-family: 'Consolas', monospace;
+  }
+  .timer-left-ctrl input:focus { outline: none; border-color: #dc2626; background: #fef2f2; }
+
   /* 시계 SVG 영역을 가득 키움 */
   .svg-box {
     flex: 1;
@@ -154,6 +203,7 @@
     min-height: 0;
     min-width: 0;
     width: 100%;
+    height: 100%;
     padding: 1px;
   }
   .svg-box svg {
@@ -163,13 +213,13 @@
     filter: drop-shadow(0 2px 3px rgba(15,23,42,0.12));
   }
 
-  .mini-presets { display: flex; gap: 2px; justify-content: center; width: 100%; }
+  .mini-presets { display: flex; gap: 2px; justify-content: center; width: 100%; flex-shrink: 0; }
   .mini-presets button {
     flex: 1;
     border: 1px solid #cbd5e1;
     background: #f8fafc;
     border-radius: 4px;
-    padding: 1.5px 0;
+    padding: 2px 0;
     font-size: 10px;
     font-weight: 800;
     font-family: inherit;
@@ -177,16 +227,6 @@
     color: #334155;
   }
   .mini-presets button:hover { background: var(--red); color: #fff; border-color: var(--red); }
-  .mini-act { display: grid; grid-template-columns: 36px 1fr 1fr; gap: 2px; width: 100%; margin-top: 2px; }
-  .mini-act input {
-    width: 100%;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 1px;
-  }
   .mini-act-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 100%; flex-shrink: 0; }
 
   /* 3열 & 4열 상하 2분할 스택 */
@@ -273,7 +313,9 @@
     font-weight: 800;
     text-align: center;
     color: var(--navy);
+    background: #fff;
   }
+  .bp-field input:focus { outline: none; border-color: #7c3aed; background: #faf5ff; }
   .bp-map-pill {
     background: #f3e8ff;
     border: 1.5px solid #d8b4fe;
@@ -373,9 +415,9 @@
 <!-- 5단 가로 배치 메인 그리드 -->
 <main class="five-grid">
 
-  <!-- [1] 타이머존 (3슬롯 입체 크로노그래프 시계) -->
+  <!-- [1] 타이머존 (3슬롯 입체 크로노그래프 시계 + 좌측 수동입력) -->
   <section class="frame zone-timer">
-    <div class="frame-head"><span><i class="dot" style="background:#dc2626"></i>1. 타이머존</span><span style="font-size:11px;color:#b91c1c">알람 타이머</span></div>
+    <div class="frame-head"><span><i class="dot" style="background:#dc2626"></i>1. 타이머존</span><span style="font-size:11px;color:#b91c1c">좌측입력·알람</span></div>
     <div class="v-stack-3" id="timerStack"></div>
   </section>
 
@@ -408,6 +450,11 @@
 <script>
 const $ = id => document.getElementById(id);
 let soundEnabled = true, voiceEnabled = true, audioCtx = null;
+
+// 숫자 입력칸 휠 스크롤 방지
+document.addEventListener('wheel', e => {
+  if (document.activeElement.type === 'number') document.activeElement.blur();
+}, { passive: true });
 
 function ensureAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -485,7 +532,7 @@ function describeSector(cx, cy, r, startDeg, endDeg) {
   return `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${endDeg - startDeg > 180 ? 1 : 0} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
 }
 
-/* ==================== [1] 타이머존 (3슬롯 · 대형 크로노그래프 시계) ==================== */
+/* ==================== [1] 타이머존 (좌측 수동입력칸 + 우측 대형 시계) ==================== */
 const timerNames = ['타이머 1 (PCV재검)', '타이머 2 (인슐린)', '타이머 3 (처치/멸균)'];
 const timers = Array.from({ length: 3 }, (_, i) => ({ id: i, remain: 0, running: false, alarming: false, warned: false }));
 
@@ -494,48 +541,54 @@ function renderTimers() {
   $('timerStack').innerHTML = timers.map(t => `
     <div class="clock-card" id="tCard${t.id}">
       <input class="card-input" id="tName${t.id}" placeholder="${timerNames[t.id]}">
-      <div class="svg-box">
-        <svg viewBox="0 0 140 140" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <linearGradient id="bezelGrad${t.id}" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#334155"/>
-              <stop offset="50%" stop-color="#0f172a"/>
-              <stop offset="100%" stop-color="#475569"/>
-            </linearGradient>
-            <radialGradient id="dialGrad${t.id}" cx="50%" cy="45%" r="55%">
-              <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="85%" stop-color="#f8fafc"/>
-              <stop offset="100%" stop-color="#e2e8f0"/>
-            </radialGradient>
-          </defs>
-          <rect x="63" y="0" width="14" height="6" rx="2" fill="#475569"/>
-          <circle cx="70" cy="71" r="68" fill="url(#bezelGrad${t.id})"/>
-          <circle cx="70" cy="71" r="63" fill="url(#dialGrad${t.id})" stroke="#cbd5e1" stroke-width="1"/>
-          <g transform="translate(0,1)">
-            <path id="tSec${t.id}" d="" fill="rgba(220, 38, 38, 0.24)"/>
-            ${ticks}
-            <rect x="40" y="83" width="60" height="19" rx="4" fill="#0f172a"/>
-            <text id="tTxt${t.id}" x="70" y="96.5" text-anchor="middle" font-family="Consolas,monospace" font-size="13" font-weight="800" fill="#38bdf8">00:00</text>
-            <g id="tHand${t.id}" transform="rotate(0 70 70)">
-              <polygon points="67.5,79 72.5,79 71,12 69,12" fill="#dc2626"/>
-              <circle cx="70" cy="70" r="6.5" fill="#0f172a" stroke="#f8fafc" stroke-width="1.5"/>
-              <circle cx="70" cy="70" r="2.2" fill="#dc2626"/>
+      <div class="timer-body">
+        <!-- 좌측 수동 입력 및 시작/리셋 컨트롤 -->
+        <div class="timer-left-ctrl">
+          <label>분(min)</label>
+          <input type="number" id="tMin${t.id}" value="10" onfocus="this.dataset.prev=this.value;this.value='';" onblur="if(this.value==='')this.value=this.dataset.prev||'10';" onkeydown="if(event.key==='Enter')applyManualTimer(${t.id})">
+          <button class="btn green" id="tBtn${t.id}" style="padding:4px 2px;font-size:11px" onclick="toggleTimer(${t.id})">시작</button>
+          <button class="btn" style="padding:3px 2px;font-size:10.5px" onclick="resetTimer(${t.id})">리셋</button>
+        </div>
+
+        <!-- 우측 대형 아날로그 시계 -->
+        <div class="svg-box">
+          <svg viewBox="0 0 140 140" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="bezelGrad${t.id}" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#334155"/>
+                <stop offset="50%" stop-color="#0f172a"/>
+                <stop offset="100%" stop-color="#475569"/>
+              </linearGradient>
+              <radialGradient id="dialGrad${t.id}" cx="50%" cy="45%" r="55%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="85%" stop-color="#f8fafc"/>
+                <stop offset="100%" stop-color="#e2e8f0"/>
+              </radialGradient>
+            </defs>
+            <rect x="63" y="0" width="14" height="6" rx="2" fill="#475569"/>
+            <circle cx="70" cy="71" r="68" fill="url(#bezelGrad${t.id})"/>
+            <circle cx="70" cy="71" r="63" fill="url(#dialGrad${t.id})" stroke="#cbd5e1" stroke-width="1"/>
+            <g transform="translate(0,1)">
+              <path id="tSec${t.id}" d="" fill="rgba(220, 38, 38, 0.24)"/>
+              ${ticks}
+              <rect x="40" y="83" width="60" height="19" rx="4" fill="#0f172a"/>
+              <text id="tTxt${t.id}" x="70" y="96.5" text-anchor="middle" font-family="Consolas,monospace" font-size="13" font-weight="800" fill="#38bdf8">00:00</text>
+              <g id="tHand${t.id}" transform="rotate(0 70 70)">
+                <polygon points="67.5,79 72.5,79 71,12 69,12" fill="#dc2626"/>
+                <circle cx="70" cy="70" r="6.5" fill="#0f172a" stroke="#f8fafc" stroke-width="1.5"/>
+                <circle cx="70" cy="70" r="2.2" fill="#dc2626"/>
+              </g>
             </g>
-          </g>
-        </svg>
+          </svg>
+        </div>
       </div>
-      <div style="width:100%;flex-shrink:0">
-        <div class="mini-presets">
-          <button onclick="setTimer(${t.id},5)">5m</button>
-          <button onclick="setTimer(${t.id},15)">15m</button>
-          <button onclick="setTimer(${t.id},30)">30m</button>
-          <button onclick="setTimer(${t.id},60)">60m</button>
-        </div>
-        <div class="mini-act">
-          <input type="number" id="tMin${t.id}" value="10" min="1" max="180">
-          <button class="btn green" id="tBtn${t.id}" style="padding:2px;font-size:11px" onclick="toggleTimer(${t.id})">시작</button>
-          <button class="btn" style="padding:2px;font-size:11px" onclick="resetTimer(${t.id})">리셋</button>
-        </div>
+
+      <!-- 하단 원클릭 프리셋 -->
+      <div class="mini-presets">
+        <button onclick="setTimer(${t.id},5)">5m</button>
+        <button onclick="setTimer(${t.id},15)">15m</button>
+        <button onclick="setTimer(${t.id},30)">30m</button>
+        <button onclick="setTimer(${t.id},60)">60m</button>
       </div>
     </div>
   `).join('');
@@ -560,11 +613,17 @@ function updateTimerUI(id) {
   else { btn.textContent = '시작'; btn.className = 'btn green'; }
 }
 
+function applyManualTimer(id) {
+  const m = Math.max(1, parseFloat($('tMin' + id).value) || 10);
+  setTimer(id, m);
+}
+
 function setTimer(id, min) {
   ensureAudio();
   const t = timers[id];
-  t.remain = min * 60; t.running = true; t.alarming = false; t.warned = false;
+  t.remain = Math.round(min * 60); t.running = true; t.alarming = false; t.warned = false;
   $('tMin' + id).value = min;
+  $('tMin' + id).dataset.prev = min;
   updateTimerUI(id);
 }
 
@@ -573,7 +632,11 @@ function toggleTimer(id) {
   const t = timers[id];
   if (t.alarming) { resetTimer(id); return; }
   if (!t.running) {
-    if (t.remain <= 0) t.remain = Math.max(1, parseFloat($('tMin' + id).value) || 10) * 60;
+    if (t.remain <= 0) {
+      const m = Math.max(1, parseFloat($('tMin' + id).value) || parseFloat($('tMin' + id).dataset.prev) || 10);
+      $('tMin' + id).value = m;
+      t.remain = Math.round(m * 60);
+    }
     t.running = true;
   } else t.running = false;
   updateTimerUI(id);
@@ -840,7 +903,7 @@ function sendTToIcu(id, icuIdx) {
   appendIcuLine(icuIdx, tag, val);
 }
 
-/* ==================== [4] 혈압존 2개 (대형 아날로그 혈압 게이지) ==================== */
+/* ==================== [4] 혈압존 2개 (클릭 시 자동 빈칸 + 대형 게이지) ==================== */
 function renderBpZone() {
   $('bpStack').innerHTML = [0, 1].map(id => `
     <div class="bp-card">
@@ -865,9 +928,18 @@ function renderBpZone() {
         <div id="bpStat${id}" style="font-size:11.5px;font-weight:800;color:#16a34a;flex-shrink:0">✓ 정상 혈압 (SBP 90~140)</div>
       </div>
       <div class="bp-inputs">
-        <div class="bp-field"><label>수축 SBP</label><input type="number" id="bpSys${id}" value="120" oninput="calcBp(${id})"></div>
-        <div class="bp-field"><label>이완 DBP</label><input type="number" id="bpDia${id}" value="80" oninput="calcBp(${id})"></div>
-        <div class="bp-field"><label>평균 MAP</label><div class="bp-map-pill mono" id="bpMap${id}">93</div></div>
+        <div class="bp-field">
+          <label>수축 SBP</label>
+          <input type="number" id="bpSys${id}" value="120" onfocus="this.dataset.prev=this.value;this.value='';" onblur="if(this.value==='')this.value=this.dataset.prev||'120';calcBp(${id});" oninput="calcBp(${id})">
+        </div>
+        <div class="bp-field">
+          <label>이완 DBP</label>
+          <input type="number" id="bpDia${id}" value="80" onfocus="this.dataset.prev=this.value;this.value='';" onblur="if(this.value==='')this.value=this.dataset.prev||'80';calcBp(${id});" oninput="calcBp(${id})">
+        </div>
+        <div class="bp-field">
+          <label>평균 MAP</label>
+          <div class="bp-map-pill mono" id="bpMap${id}">93</div>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;flex-shrink:0">
         <button class="btn active" style="padding:3px;font-size:11px" onclick="sendBpToIcu(${id},0)">→ ICU1 기록</button>
@@ -880,8 +952,10 @@ function renderBpZone() {
 renderBpZone();
 
 function calcBp(id) {
-  const sys = parseFloat($('bpSys' + id).value) || 0;
-  const dia = parseFloat($('bpDia' + id).value) || 0;
+  const sysEl = $('bpSys' + id);
+  const diaEl = $('bpDia' + id);
+  const sys = parseFloat(sysEl.value !== '' ? sysEl.value : sysEl.dataset.prev) || 0;
+  const dia = parseFloat(diaEl.value !== '' ? diaEl.value : diaEl.dataset.prev) || 0;
   const map = Math.round(dia + (sys - dia) / 3);
   $('bpMap' + id).textContent = `${map}`;
 
@@ -897,8 +971,8 @@ function calcBp(id) {
 }
 
 function sendBpToIcu(bpId, icuIdx) {
-  const sys = $('bpSys' + bpId).value || '-';
-  const dia = $('bpDia' + bpId).value || '-';
+  const sys = $('bpSys' + bpId).value || $('bpSys' + bpId).dataset.prev || '-';
+  const dia = $('bpDia' + bpId).value || $('bpDia' + bpId).dataset.prev || '-';
   const map = $('bpMap' + bpId).textContent;
   appendIcuLine(icuIdx, '🩸 혈압측정', `${sys}/${dia} mmHg (MAP ${map})`);
 }
