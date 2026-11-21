@@ -3,518 +3,371 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>C2 · 아날로그 항공 계기판 & 모래시계 임상 유틸리티</title>
+<title>C2 · 23시 동물병원 아날로그 계기판 & 집중 ICU 장부</title>
 <style>
   :root {
-    --bg: #eaf0f6;
-    --panel: #ffffff;
-    --dial-bg: #fffdf7;
-    --border: #c5d3e3;
-    --navy: #1b3252;
+    --bg: #eef2f6;
+    --card: #ffffff;
+    --border: #cbd5e1;
+    --navy: #1e293b;
     --blue: #2563eb;
-    --green: #15803d;
+    --green: #16a34a;
     --amber: #d97706;
     --red: #dc2626;
-    --sand: #d97706;
-    --text: #1e293b;
     --muted: #64748b;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     background: var(--bg);
-    color: var(--text);
+    color: var(--navy);
     font-family: 'Malgun Gothic', 'Segoe UI', Arial, sans-serif;
-    padding: 8px;
+    padding: 7px;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
     overflow: hidden;
   }
   .mono { font-family: 'Consolas', 'Courier New', monospace; }
 
-  /* 상단 밝은 계기판 헤더 */
-  .hud {
+  /* 상단 헤더 */
+  .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(180deg, #ffffff, #f1f5f9);
-    border: 1.5px solid #b8c7da;
-    border-radius: 12px;
-    padding: 6px 14px;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    background: #ffffff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 5px 14px;
     flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
-  .hud-title { display: flex; align-items: center; gap: 10px; }
-  .hud-badge {
-    background: #dbeafe;
-    border: 1px solid #93c5fd;
-    color: #1d4ed8;
-    font-weight: 800;
-    font-size: 13px;
-    padding: 3px 9px;
-    border-radius: 6px;
-  }
-  .hud-title h1 { margin: 0; font-size: 19px; font-weight: 800; color: var(--navy); }
-  .hud-clocks { display: flex; align-items: center; gap: 16px; }
-  .clock-box { text-align: right; background: #f8fafc; padding: 3px 10px; border-radius: 8px; border: 1px solid #dbe4ee; }
-  .clock-label { font-size: 11px; color: var(--muted); font-weight: 700; }
-  .clock-val { font-size: 20px; font-weight: 800; color: var(--navy); }
-  .hud-controls { display: flex; align-items: center; gap: 7px; }
-
+  .topbar h1 { margin: 0; font-size: 18px; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+  .badge { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 8px; border-radius: 5px; font-size: 12px; }
+  .top-right { display: flex; align-items: center; gap: 12px; }
+  .clock-pill { background: #f8fafc; border: 1px solid #cbd5e1; padding: 3px 10px; border-radius: 7px; font-size: 16px; font-weight: 800; color: var(--navy); }
   .btn {
     border: 1px solid #cbd5e1;
     background: #f8fafc;
-    color: #1e293b;
-    border-radius: 7px;
-    padding: 5px 10px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.12s;
-  }
-  .btn:hover { background: #e2e8f0; border-color: #94a3b8; }
-  .btn.active { background: #2563eb; border-color: #1d4ed8; color: #fff; }
-  .btn.green { background: #16a34a; border-color: #15803d; color: #fff; }
-  .btn.green:hover { background: #15803d; }
-  .btn.amber { background: #f59e0b; border-color: #d97706; color: #fff; }
-  .btn.red { background: #dc2626; border-color: #b91c1c; color: #fff; }
-
-  /* 메인 4분할 그리드 */
-  .cockpit {
-    display: grid;
-    grid-template-columns: 1.15fr 1fr;
-    grid-template-rows: 1.08fr 0.92fr;
-    gap: 8px;
-    flex: 1;
-    min-height: 0;
-  }
-  .panel {
-    background: var(--panel);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 9px 11px;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    box-shadow: 0 2px 10px rgba(30, 41, 59, 0.05);
-  }
-  .panel-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1.5px solid #e2e8f0;
-    padding-bottom: 5px;
-    margin-bottom: 7px;
-    flex-shrink: 0;
-  }
-  .panel-title {
-    font-size: 15.5px;
-    font-weight: 800;
     color: var(--navy);
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: #16a34a; }
-  .dot.blue { background: #2563eb; }
-  .dot.amber { background: #d97706; }
-
-  /* 1. 아날로그 모래시계 타이머 뱅크 (6슬롯) */
-  .timer-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 7px;
-    flex: 1;
-    min-height: 0;
-  }
-  .t-card {
-    background: #f8fafc;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 10px;
-    padding: 6px 7px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: 0.2s;
-  }
-  .t-card.running { border-color: #3b82f6; background: #eff6ff; }
-  .t-card.warn { border-color: #f59e0b; background: #fffbeb; animation: pulseAmber 1.2s infinite; }
-  .t-card.alarm { border-color: #dc2626; background: #fef2f2; animation: pulseRed 0.6s infinite; }
-  @keyframes pulseAmber { 50% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.45); } }
-  @keyframes pulseRed { 50% { box-shadow: 0 0 14px rgba(220, 38, 38, 0.6); } }
-
-  .t-label {
-    width: 100%;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: var(--navy);
-    border-radius: 5px;
-    padding: 3px 6px;
-    font-size: 13px;
-    font-weight: 800;
-  }
-  .t-mid {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: 2px 0;
-  }
-  .hg-svg { width: 38px; height: 52px; flex-shrink: 0; }
-  .t-display {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--navy);
-  }
-  .t-card.warn .t-display { color: var(--amber); }
-  .t-card.alarm .t-display { color: var(--red); }
-  .t-presets { display: flex; gap: 3px; justify-content: center; flex-wrap: wrap; }
-  .t-presets button {
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: #334155;
-    border-radius: 4px;
-    padding: 2px 5px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .t-presets button:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
-  .t-actions { display: grid; grid-template-columns: 42px 1fr 1fr; gap: 4px; margin-top: 3px; }
-  .t-actions input {
-    width: 100%;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: var(--navy);
-    border-radius: 4px;
-    text-align: center;
+    border-radius: 6px;
+    padding: 4px 9px;
     font-size: 12px;
     font-weight: 700;
-    padding: 2px;
-  }
-
-  /* 2. 수액 주입 아날로그 연료 게이지 레이더 (3슬롯) */
-  .iv-list { display: flex; flex-direction: column; gap: 6px; flex: 1; justify-content: space-between; }
-  .iv-card {
-    background: #f8fafc;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 10px;
-    padding: 6px 9px;
-    display: grid;
-    grid-template-columns: 94px 1fr;
-    gap: 8px;
-    align-items: center;
-  }
-  .iv-card.active { border-color: #16a34a; background: #f0fdf4; }
-  .iv-card.low { border-color: #f59e0b; background: #fffbeb; }
-  .iv-gauge-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .iv-right { display: flex; flex-direction: column; gap: 5px; }
-  .iv-top { display: grid; grid-template-columns: 1.1fr 0.7fr 0.7fr 0.6fr auto auto; gap: 4px; align-items: center; }
-  .iv-top input {
-    width: 100%;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: var(--navy);
-    border-radius: 5px;
-    padding: 3px 5px;
-    font-size: 12.5px;
-    font-weight: 700;
-  }
-  .iv-stats {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12.5px;
-    color: #334155;
-    font-weight: 700;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    padding: 4px 8px;
-    border-radius: 6px;
-  }
-  .iv-stats span b { color: #1d4ed8; }
-
-  /* 3. 아날로그 호흡수(SRR) 타코미터 계기판 */
-  .rr-wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 10px; flex: 1; min-height: 0; align-items: center; }
-  .rr-dial-pad {
-    background: linear-gradient(180deg, #fffdf9, #f1f5f9);
-    border: 2px solid #94a3b8;
-    border-radius: 14px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     cursor: pointer;
-    user-select: none;
-    padding: 4px;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: 0.08s;
+    transition: 0.1s;
   }
-  .rr-dial-pad:active, .rr-dial-pad.pulse {
-    transform: scale(0.985);
-    border-color: #2563eb;
-    box-shadow: 0 0 15px rgba(37, 99, 235, 0.25);
-  }
-  .rr-side { display: flex; flex-direction: column; justify-content: space-between; gap: 6px; height: 100%; }
-  .rr-box {
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 7px 9px;
-    font-size: 12.5px;
-  }
-  .rr-prog-bg { width: 100%; height: 9px; background: #e2e8f0; border-radius: 5px; overflow: hidden; margin-top: 5px; }
-  .rr-prog-fill { height: 100%; width: 0%; background: #2563eb; transition: width 0.1s linear; }
+  .btn:hover { background: #e2e8f0; }
+  .btn.active { background: var(--blue); border-color: #1d4ed8; color: #fff; }
+  .btn.green { background: var(--green); border-color: #15803d; color: #fff; }
+  .btn.amber { background: var(--amber); border-color: #b45309; color: #fff; }
+  .btn.red { background: var(--red); border-color: #b91c1c; color: #fff; }
 
-  /* 4. 아날로그 초침 스톱워치 + 시간 계산기 + 차트 로그 */
-  .util-grid { display: grid; grid-template-columns: 1.08fr 0.92fr; grid-template-rows: auto 1fr; gap: 7px; flex: 1; min-height: 0; }
-  .u-card {
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
+  /* 16:9 메인 그리드: 좌측 계기판(62%) + 우측 집중 ICU 장부 2개(38%) */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.62fr 1fr;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* 좌측 3단 정사각형 계기판 영역 */
+  .left-deck {
+    display: grid;
+    grid-template-rows: 1fr 1fr 1.05fr;
+    gap: 7px;
+    min-height: 0;
+  }
+  .row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; min-height: 0; }
+  .row-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; min-height: 0; }
+
+  /* 정사각형 스타일 계기 카드 */
+  .sq-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
     padding: 6px 8px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    align-items: center;
+    min-height: 0;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    position: relative;
   }
-  .chrono-row { display: flex; align-items: center; justify-content: space-around; gap: 6px; margin: 2px 0; }
-  .chrono-val { font-size: 21px; font-weight: 800; color: var(--navy); }
-  .time-calc-row { display: flex; align-items: center; gap: 4px; font-size: 12px; margin-bottom: 4px; font-weight: 700; }
-  .time-calc-row input {
-    background: #ffffff;
+  .sq-card.running { border-color: #3b82f6; background: #f8fbff; }
+  .sq-card.warn { border-color: #f59e0b; background: #fffbeb; animation: pulseWarn 1.2s infinite; }
+  .sq-card.alarm { border-color: #dc2626; background: #fef2f2; animation: pulseAlarm 0.6s infinite; }
+  @keyframes pulseWarn { 50% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.45); } }
+  @keyframes pulseAlarm { 50% { box-shadow: 0 0 15px rgba(220, 38, 38, 0.65); } }
+
+  .sq-title-input {
+    width: 100%;
     border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    border-radius: 5px;
+    padding: 3px 6px;
+    font-size: 12.5px;
+    font-weight: 800;
+    text-align: center;
     color: var(--navy);
+  }
+  .sq-title-input:focus { outline: none; border-color: var(--blue); background: #fff; }
+
+  .clock-svg-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    width: 100%;
+  }
+  .clock-svg-wrap svg {
+    height: 100%;
+    max-height: 138px;
+    width: auto;
+  }
+
+  .sq-controls {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .preset-row { display: flex; justify-content: center; gap: 3px; }
+  .preset-row button {
+    border: 1px solid #cbd5e1;
+    background: #fff;
     border-radius: 4px;
-    padding: 2px 5px;
+    padding: 1.5px 5px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #334155;
+  }
+  .preset-row button:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .act-row { display: grid; grid-template-columns: 40px 1fr 1fr; gap: 3px; }
+  .act-row input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 2px;
+  }
+  .act-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; }
+
+  /* 호흡수 계기 카드 (하단 2개) */
+  .rr-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 7px 10px;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 8px;
+    align-items: center;
+    min-height: 0;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  }
+  .rr-dial-btn {
+    height: 100%;
+    background: linear-gradient(180deg, #fffdf9, #f1f5f9);
+    border: 1.5px solid #94a3b8;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    padding: 3px;
+    transition: 0.08s;
+  }
+  .rr-dial-btn:active, .rr-dial-btn.pulse { transform: scale(0.98); border-color: var(--blue); box-shadow: 0 0 12px rgba(37, 99, 235, 0.25); }
+  .rr-right { display: flex; flex-direction: column; justify-content: space-between; height: 100%; gap: 4px; }
+  .prog-bar { width: 100%; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+  .prog-fill { height: 100%; width: 0%; background: var(--blue); transition: width 0.1s linear; }
+
+  /* 우측 집중 ICU 처치 장부 2개 */
+  .right-icu {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+  .icu-card {
+    background: #ffffff;
+    border: 2px solid #93c5fd;
+    border-radius: 12px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 0;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+  }
+  .icu-card.icu2 { border-color: #86efac; box-shadow: 0 2px 8px rgba(22, 163, 74, 0.06); }
+  .icu-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1.5px solid #e2e8f0;
+    padding-bottom: 5px;
+  }
+  .icu-badge {
+    background: #2563eb;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .icu-card.icu2 .icu-badge { background: #16a34a; }
+  .icu-patient-input {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    border-radius: 5px;
+    padding: 3px 7px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--navy);
+  }
+
+  /* 상태 미니 게이지 4종 */
+  .icu-gauges {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    padding: 4px 6px;
+  }
+  .g-item { display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 800; color: #334155; }
+  .g-item input[type=range] { width: 100%; margin: 0; accent-color: #2563eb; height: 14px; cursor: pointer; }
+
+  /* 11종 처치 아이콘 팔레트 */
+  .icon-palette {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3.5px;
+  }
+  .ico-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 3px 2px;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #1e293b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: 0.1s;
+  }
+  .ico-btn:hover { background: #eff6ff; border-color: #3b82f6; transform: translateY(-1px); }
+  .ico-btn:active { transform: scale(0.96); }
+
+  /* 빠른 수치/메모 입력 + 장부 로그창 */
+  .icu-quick-row { display: flex; gap: 4px; }
+  .icu-quick-row input {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    padding: 3px 7px;
     font-size: 12px;
     font-weight: 700;
   }
-  .log-card { grid-column: 1 / 3; display: flex; flex-direction: column; min-height: 0; }
-  .log-area {
+  .icu-log {
     flex: 1;
     width: 100%;
-    background: #fffef7;
     border: 1px solid #cbd5e1;
+    background: #fffef7;
     border-radius: 6px;
-    color: #1e293b;
+    padding: 5px 7px;
     font-family: 'Consolas', 'Malgun Gothic', monospace;
-    font-size: 12.5px;
-    padding: 6px;
-    resize: none;
+    font-size: 12px;
     line-height: 1.4;
+    color: #1e293b;
+    resize: none;
   }
 </style>
 </head>
 <body>
 
-<!-- 상단 밝은 데이라이트 계기판 헤더 -->
-<header class="hud">
-  <div class="hud-title">
-    <span class="hud-badge">ANALOG COCKPIT · C2</span>
-    <h1>23시 동물병원 아날로그 계기판 & 모래시계</h1>
-  </div>
-  <div class="hud-clocks">
-    <div class="clock-box">
-      <div class="clock-label">현재 시각 (KST)</div>
-      <div class="clock-val mono" id="nowClock">00:00:00</div>
-    </div>
-    <div class="clock-box">
-      <div class="clock-label">야간진료 마감(23:00) 잔여</div>
-      <div class="clock-val mono" id="nightRemain" style="color:#d97706">--:--:--</div>
-    </div>
-  </div>
-  <div class="hud-controls">
+<!-- 상단 바 -->
+<header class="topbar">
+  <h1><span class="badge">23시 동물병원</span> 아날로그 임상 계기판 & 집중 ICU 처치 장부</h1>
+  <div class="top-right">
+    <div class="clock-pill mono" id="mainClock">00:00:00</div>
     <button class="btn active" id="btnSound" onclick="toggleAudio()">🔊 차임벨 ON</button>
     <button class="btn active" id="btnVoice" onclick="toggleVoice()">🗣️ 음성알람 ON</button>
-    <button class="btn" onclick="testAlarm()">🔔 알람 테스트</button>
+    <button class="btn red" onclick="stopAllAlarms()">🔕 알람 끄기</button>
   </div>
 </header>
 
-<!-- 메인 4분할 아날로그 계기판 -->
-<main class="cockpit">
+<!-- 16:9 메인 그리드 -->
+<main class="main-grid">
 
-  <!-- [1] 좌측 상단: 아날로그 모래시계 타이머 뱅크 (6슬롯) -->
-  <section class="panel">
-    <div class="panel-head">
-      <div class="panel-title"><span class="dot blue"></span>HOURGLASS BANK · 모래시계 처치 타이머 (6슬롯)</div>
-      <button class="btn red" style="padding:3px 8px;font-size:12px" onclick="stopAllAlarms()">🔕 모든 알람 끄기</button>
-    </div>
-    <div class="timer-grid" id="timerGrid"></div>
-  </section>
+  <!-- 좌측: 정사각형 아날로그 계기판 10개 (타이머4 + 경과시계4 + 호흡수2) -->
+  <div class="left-deck">
+    <!-- 1행: 큼직한 시계형 아날로그 타이머 4개 -->
+    <div class="row-4" id="timerRow"></div>
 
-  <!-- [2] 우측 상단: 수액 주입 아날로그 연료·잔여량 게이지 -->
-  <section class="panel">
-    <div class="panel-head">
-      <div class="panel-title"><span class="dot"></span>IV FUEL GAUGE · 수액 잔여량 아날로그 계기</div>
-      <span style="font-size:12px;color:var(--muted);font-weight:700">환자 · 총량(mL) · 속도(mL/h) · 기경과(분)</span>
-    </div>
-    <div class="iv-list" id="ivList"></div>
-  </section>
+    <!-- 2행: 경과 시간 아날로그 스톱워치 시계 4개 -->
+    <div class="row-4" id="chronoRow"></div>
 
-  <!-- [3] 좌측 하단: 아날로그 호흡수(SRR) 타코미터 계기판 -->
-  <section class="panel">
-    <div class="panel-head">
-      <div class="panel-title"><span class="dot amber"></span>SRR TACHOMETER · 아날로그 호흡수 · 심박수 계기</div>
-      <div style="display:flex;gap:4px">
-        <button class="btn active" id="dur15" onclick="setRrDuration(15)">15초</button>
-        <button class="btn" id="dur30" onclick="setRrDuration(30)">30초</button>
-        <button class="btn" id="dur60" onclick="setRrDuration(60)">60초(정밀)</button>
-      </div>
-    </div>
-    <div class="rr-wrap">
-      <!-- 아날로그 원형 타코미터 다이얼 -->
-      <div class="rr-dial-pad" id="rrPad" onclick="tapBreath()" title="클릭하거나 스페이스바를 누르세요">
-        <svg viewBox="0 0 240 165" style="width:100%;max-height:175px">
-          <!-- 외곽 베젤 -->
-          <circle cx="120" cy="122" r="98" fill="#fffdf7" stroke="#334155" stroke-width="4"/>
-          <circle cx="120" cy="122" r="91" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
-          <!-- 컬러 구간 아크 (0~30 녹색, 30~40 황색, 40~80 적색) -->
-          <path d="M 38 148 A 86 86 0 0 1 94 39" fill="none" stroke="#16a34a" stroke-width="9" stroke-linecap="round"/>
-          <path d="M 94 39 A 86 86 0 0 1 120 36" fill="none" stroke="#f59e0b" stroke-width="9"/>
-          <path d="M 120 36 A 86 86 0 0 1 202 148" fill="none" stroke="#dc2626" stroke-width="9" stroke-linecap="round"/>
-          <!-- 눈금 및 숫자 (JS로 생성) -->
-          <g id="rrTicks"></g>
-          <!-- 디지털 보조창 -->
-          <rect x="86" y="131" width="68" height="24" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
-          <text x="120" y="148" text-anchor="middle" font-family="Consolas,monospace" font-size="16" font-weight="800" fill="#1e293b" id="rrDialText">0 BPM</text>
-          <!-- 아날로그 지침 바늘 (0 = -110도, 80 = +110도) -->
-          <g id="rrNeedle" transform="rotate(-110 120 122)" style="transition:transform 0.18s cubic-bezier(0.2,0.8,0.3,1)">
-            <polygon points="117,128 123,128 120.8,42 119.2,42" fill="#dc2626"/>
-            <circle cx="120" cy="122" r="8" fill="#1e293b" stroke="#f8fafc" stroke-width="2"/>
-          </g>
-          <text x="120" y="92" text-anchor="middle" font-size="11" font-weight="800" fill="#64748b">BREATHS / MIN</text>
-        </svg>
-        <div style="font-size:12px;font-weight:800;color:#2563eb;margin-top:2px" id="rrStatus">가슴 움직임마다 클릭 또는 [SPACE] 키 입력</div>
-      </div>
+    <!-- 3행: 아날로그 호흡수(SRR) 계기판 2개 -->
+    <div class="row-2" id="rrRow"></div>
+  </div>
 
-      <div class="rr-side">
-        <div class="rr-box">
-          <div style="display:flex;justify-content:space-between;font-weight:800;color:#1e293b">
-            <span>측정 경과 (<span id="rrTargetLbl">15</span>초)</span>
-            <span class="mono" id="rrElapsedTxt">0.0s · 0회</span>
-          </div>
-          <div class="rr-prog-bg"><div class="rr-prog-fill" id="rrProg"></div></div>
-          <div style="margin-top:6px;font-size:12px;color:#475569;font-weight:700" id="rrInterpret">기준: 개·고양이 안정 호흡수(SRR) 30회/분 이하 정상</div>
-        </div>
-        <div class="rr-box" style="display:flex;flex-direction:column;gap:5px">
-          <input id="rrPatient" placeholder="환자명 (예: 초코)" style="background:#ffffff;border:1px solid #cbd5e1;color:#1e293b;border-radius:5px;padding:4px 6px;font-size:12.5px;font-weight:700">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
-            <button class="btn green" onclick="recordRrToLog()">📝 결과 로그기록</button>
-            <button class="btn" onclick="resetRr()">🔄 리셋</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- [4] 우측 하단: 아날로그 초침 스톱워치 + 시간 계산기 + 차트 로그 -->
-  <section class="panel">
-    <div class="panel-head">
-      <div class="panel-title"><span class="dot blue"></span>ANALOG CHRONOGRAPH · 진료경과 · 시간계산</div>
-      <button class="btn green" style="padding:3px 8px;font-size:12px" onclick="copyLog()">📋 차트 로그 복사</button>
-    </div>
-    <div class="util-grid">
-      <!-- 아날로그 초침 스톱워치 -->
-      <div class="u-card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:12px;font-weight:800;color:var(--navy)">⏱ 진료 / 마취 경과</span>
-          <label style="font-size:11px;color:#475569;font-weight:700;cursor:pointer"><input type="checkbox" id="chk15mChime" checked> 15분 알림</label>
-        </div>
-        <div class="chrono-row">
-          <svg viewBox="0 0 70 70" style="width:52px;height:52px;flex-shrink:0">
-            <circle cx="35" cy="35" r="32" fill="#fffdf7" stroke="#334155" stroke-width="2.5"/>
-            <line x1="35" y1="6" x2="35" y2="11" stroke="#334155" stroke-width="2"/>
-            <line x1="64" y1="35" x2="59" y2="35" stroke="#334155" stroke-width="2"/>
-            <line x1="35" y1="64" x2="35" y2="59" stroke="#334155" stroke-width="2"/>
-            <line x1="6" y1="35" x2="11" y2="35" stroke="#334155" stroke-width="2"/>
-            <!-- 분침 & 초침 -->
-            <line id="chronoMinHand" x1="35" y1="35" x2="35" y2="16" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/>
-            <line id="chronoSecHand" x1="35" y1="40" x2="35" y2="10" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
-            <circle cx="35" cy="35" r="3" fill="#1e293b"/>
-          </svg>
-          <div class="chrono-val mono" id="chronoDisplay">00:00:00</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
-          <button class="btn green" id="chronoBtn" style="padding:4px" onclick="toggleChrono()">▶ 시작</button>
-          <button class="btn amber" style="padding:4px" onclick="lapChrono()">🚩 구간</button>
-          <button class="btn" style="padding:4px" onclick="resetChrono()">리셋</button>
-        </div>
-      </div>
-
-      <!-- 빠른 시간 계산기 -->
-      <div class="u-card">
-        <div style="font-size:12px;font-weight:800;color:#1d4ed8">🧮 빠른 시간 계산기</div>
-        <div>
-          <div class="time-calc-row">
-            <span style="color:#475569;width:52px">기준시각</span>
-            <input type="time" id="calcBaseTime" style="flex:1" onchange="calcTimeDiff()">
-            <button class="btn" style="padding:2px 6px;font-size:11px" onclick="setNowBaseTime()">현재</button>
-          </div>
-          <div class="time-calc-row">
-            <span style="color:#475569;width:52px">경과/추가</span>
-            <input type="number" id="calcAddHr" value="4" style="width:42px" oninput="calcTimeDiff()"><span>h</span>
-            <input type="number" id="calcAddMin" value="0" style="width:42px" oninput="calcTimeDiff()"><span>m</span>
-          </div>
-        </div>
-        <div id="timeCalcResult" style="font-size:11.5px;color:#1e293b;font-weight:700;line-height:1.35;background:#fff;padding:4px 6px;border-radius:5px;border:1px solid #e2e8f0">
-          기준시각을 설정하세요.
-        </div>
-      </div>
-
-      <!-- 자동 기록 로그 -->
-      <div class="u-card log-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-          <span style="font-size:12px;font-weight:800;color:var(--navy)">📟 실시간 임상 타임스탬프 로그 (자동 누적)</span>
-          <button class="btn" style="padding:1px 6px;font-size:11px" onclick="$('flightLog').value=''">지우기</button>
-        </div>
-        <textarea id="flightLog" class="log-area" placeholder="모래시계 종료, 호흡수 측정, 수액 시작/완료, 구간 기록이 자동으로 시간과 함께 기록됩니다."></textarea>
-      </div>
-    </div>
-  </section>
+  <!-- 우측: 집중 ICU 처치 장부 2개 -->
+  <div class="right-icu" id="icuCol"></div>
 
 </main>
 
 <script>
 const $ = id => document.getElementById(id);
-let soundEnabled = true, voiceEnabled = true;
-let audioCtx = null;
+let soundEnabled = true, voiceEnabled = true, audioCtx = null;
 
 function ensureAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
-function playCockpitChime(type = 'info') {
+function playChime(type = 'info') {
   if (!soundEnabled) return;
   try {
     ensureAudio();
     const now = audioCtx.currentTime;
     const freqs = type === 'alarm' ? [880, 1174.66, 880, 1174.66] : type === 'warn' ? [659.25, 523.25] : [783.99, 1046.5];
-    freqs.forEach((f, idx) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+    freqs.forEach((f, i) => {
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(f, now + idx * 0.18);
-      gain.gain.setValueAtTime(0.22, now + idx * 0.18);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.18 + 0.25);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(now + idx * 0.18);
-      osc.stop(now + idx * 0.18 + 0.26);
+      osc.frequency.setValueAtTime(f, now + i * 0.18);
+      gain.gain.setValueAtTime(0.22, now + i * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.18 + 0.25);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now + i * 0.18); osc.stop(now + i * 0.18 + 0.26);
     });
   } catch (e) {}
 }
 
-function speakAlert(text) {
+function speakText(txt) {
   if (!voiceEnabled || !('speechSynthesis' in window)) return;
   try {
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'ko-KR';
-    u.rate = 1.05;
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang = 'ko-KR'; u.rate = 1.05;
     window.speechSynthesis.speak(u);
   } catch (e) {}
 }
@@ -523,7 +376,7 @@ function toggleAudio() {
   soundEnabled = !soundEnabled;
   $('btnSound').textContent = soundEnabled ? '🔊 차임벨 ON' : '🔇 차임벨 OFF';
   $('btnSound').className = soundEnabled ? 'btn active' : 'btn';
-  if (soundEnabled) playCockpitChime('info');
+  if (soundEnabled) playChime('info');
 }
 
 function toggleVoice() {
@@ -532,138 +385,121 @@ function toggleVoice() {
   $('btnVoice').className = voiceEnabled ? 'btn active' : 'btn';
 }
 
-function testAlarm() {
-  playCockpitChime('alarm');
-  speakAlert('아날로그 계기판 알람 및 음성 안내 테스트입니다.');
-}
+setInterval(() => {
+  $('mainClock').textContent = new Date().toTimeString().slice(0, 8);
+}, 1000);
+$('mainClock').textContent = new Date().toTimeString().slice(0, 8);
 
-function addLog(msg) {
-  const t = new Date().toTimeString().slice(0, 8);
-  const area = $('flightLog');
-  area.value += `[${t}] ${msg}\n`;
-  area.scrollTop = area.scrollHeight;
-}
-
-function copyLog() {
-  const txt = $('flightLog').value.trim();
-  if (!txt) { alert('복사할 로그가 없습니다.'); return; }
-  navigator.clipboard.writeText(txt).then(() => alert('임상 타임스탬프 로그가 클립보드에 복사되었습니다.'));
-}
-
-/* ==================== 상단 시계 & 야간진료 카운트다운 ==================== */
-function updateClocks() {
-  const now = new Date();
-  $('nowClock').textContent = now.toTimeString().slice(0, 8);
-  const closeTime = new Date(now);
-  closeTime.setHours(23, 0, 0, 0);
-  const diff = Math.floor((closeTime - now) / 1000);
-  if (diff > 0) {
-    const h = String(Math.floor(diff / 3600)).padStart(2, '0');
-    const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
-    const s = String(diff % 60).padStart(2, '0');
-    $('nightRemain').textContent = `${h}:${m}:${s}`;
-  } else {
-    $('nightRemain').textContent = '심야/응급';
+/* ==================== SVG 눈금 생성 헬퍼 ==================== */
+function buildDialTicks(cx, cy, rOuter, rInnerMajor, rInnerMinor, showNumbers = true) {
+  let s = '';
+  for (let i = 0; i < 60; i++) {
+    const deg = i * 6;
+    const rad = (deg - 90) * Math.PI / 180;
+    const isMajor = i % 5 === 0;
+    const r1 = isMajor ? rInnerMajor : rInnerMinor;
+    const x1 = cx + r1 * Math.cos(rad), y1 = cy + r1 * Math.sin(rad);
+    const x2 = cx + rOuter * Math.cos(rad), y2 = cy + rOuter * Math.sin(rad);
+    s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${isMajor ? '#1e293b' : '#94a3b8'}" stroke-width="${isMajor ? 2 : 1}"/>`;
+    if (showNumbers && i % 15 === 0) {
+      const val = i === 0 ? 60 : i;
+      const rt = rInnerMajor - 11;
+      const xt = cx + rt * Math.cos(rad), yt = cy + rt * Math.sin(rad) + 4;
+      s += `<text x="${xt.toFixed(1)}" y="${yt.toFixed(1)}" text-anchor="middle" font-size="11" font-weight="800" fill="#334155">${val}</text>`;
+    }
   }
+  return s;
 }
-setInterval(updateClocks, 1000);
-updateClocks();
 
-/* ==================== [1] 아날로그 모래시계 타이머 뱅크 (6슬롯) ==================== */
-const defaultLabels = ['PCV/TS 재검', '인슐린/혈당', '항생제/처치', '안약/네뷸', '멸균기/장비', '예비 모래시계'];
-const timers = Array.from({ length: 6 }, (_, i) => ({
-  id: i,
-  total: 0,
-  remain: 0,
-  running: false,
-  alarming: false,
-  warned: false
-}));
+function describeSector(cx, cy, r, startAngle, endAngle) {
+  if (endAngle <= startAngle) return '';
+  if (endAngle - startAngle >= 359.9) {
+    return `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.01} ${cy - r} Z`;
+  }
+  const startRad = (startAngle - 90) * Math.PI / 180;
+  const endRad = (endAngle - 90) * Math.PI / 180;
+  const x1 = cx + r * Math.cos(startRad), y1 = cy + r * Math.sin(startRad);
+  const x2 = cx + r * Math.cos(endRad), y2 = cy + r * Math.sin(endRad);
+  const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+  return `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
+}
 
-function renderTimerGrid() {
-  $('timerGrid').innerHTML = timers.map(t => `
-    <div class="t-card" id="tCard${t.id}">
-      <input class="t-label" id="tLbl${t.id}" placeholder="${defaultLabels[t.id]}">
-      <div class="t-mid">
-        <!-- SVG 모래시계 -->
-        <svg class="hg-svg" viewBox="0 0 60 84">
-          <defs>
-            <clipPath id="topBulb${t.id}">
-              <path d="M 10 8 L 50 8 C 50 26 33 38 30 42 C 27 38 10 26 10 8 Z"/>
-            </clipPath>
-            <clipPath id="botBulb${t.id}">
-              <path d="M 30 42 C 33 46 50 58 50 76 L 10 76 C 10 58 27 46 30 42 Z"/>
-            </clipPath>
-          </defs>
-          <!-- 나무 프레임 상하판 -->
-          <rect x="5" y="2" width="50" height="5" rx="2.5" fill="#78350f"/>
-          <rect x="5" y="77" width="50" height="5" rx="2.5" fill="#78350f"/>
-          <!-- 유리관 배경 -->
-          <path d="M 10 8 L 50 8 C 50 26 33 38 30 42 C 33 46 50 58 50 76 L 10 76 C 10 58 27 46 30 42 C 27 38 10 26 10 8 Z" fill="#fefce8" stroke="#94a3b8" stroke-width="2"/>
-          <!-- 위쪽 모래 -->
-          <rect id="sandTop${t.id}" x="8" y="8" width="44" height="34" fill="#d97706" clip-path="url(#topBulb${t.id})"/>
-          <!-- 아래쪽 쌓이는 모래 -->
-          <rect id="sandBot${t.id}" x="8" y="76" width="44" height="0" fill="#d97706" clip-path="url(#botBulb${t.id})"/>
-          <!-- 떨어지는 모래 줄기 -->
-          <line id="sandStream${t.id}" x1="30" y1="42" x2="30" y2="76" stroke="#d97706" stroke-width="2" stroke-dasharray="3,2" style="display:none"/>
+/* ==================== [1] 시계형 아날로그 타이머 4개 ==================== */
+const timerDefaults = ['타이머 1 (PCV재검)', '타이머 2 (인슐린)', '타이머 3 (처치/약)', '타이머 4 (멸균/장비)'];
+const timers = Array.from({ length: 4 }, (_, i) => ({ id: i, total: 0, remain: 0, running: false, alarming: false, warned: false }));
+
+function renderTimers() {
+  const ticks = buildDialTicks(70, 70, 62, 54, 58, true);
+  $('timerRow').innerHTML = timers.map(t => `
+    <div class="sq-card" id="tCard${t.id}">
+      <input class="sq-title-input" id="tName${t.id}" placeholder="${timerDefaults[t.id]}">
+      <div class="clock-svg-wrap">
+        <svg viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="66" fill="#fffdf9" stroke="#334155" stroke-width="3.5"/>
+          <!-- 부채꼴 잔여 시간 게이지 (60분 기준) -->
+          <path id="tSector${t.id}" d="" fill="rgba(37, 99, 235, 0.22)"/>
+          ${ticks}
+          <!-- 중앙 디지털 보조 표시 -->
+          <rect x="43" y="84" width="54" height="18" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+          <text id="tText${t.id}" x="70" y="97" text-anchor="middle" font-family="Consolas,monospace" font-size="12.5" font-weight="800" fill="#1e293b">00:00</text>
+          <!-- 아날로그 바늘 -->
+          <g id="tHand${t.id}" transform="rotate(0 70 70)">
+            <line x1="70" y1="74" x2="70" y2="16" stroke="#dc2626" stroke-width="2.8" stroke-linecap="round"/>
+            <circle cx="70" cy="70" r="5" fill="#1e293b" stroke="#fff" stroke-width="1.5"/>
+          </g>
         </svg>
-        <div class="t-display mono" id="tDisp${t.id}">00:00</div>
       </div>
-      <div class="t-presets">
-        <button onclick="startTimerMin(${t.id},5)">5m</button>
-        <button onclick="startTimerMin(${t.id},15)">15m</button>
-        <button onclick="startTimerMin(${t.id},30)">30m</button>
-        <button onclick="startTimerMin(${t.id},60)">1h</button>
-        <button onclick="startTimerMin(${t.id},120)">2h</button>
-      </div>
-      <div class="t-actions">
-        <input type="number" id="tMin${t.id}" value="10" min="1" title="분 입력">
-        <button class="btn green" id="tBtn${t.id}" style="padding:3px;font-size:11.5px" onclick="toggleTimer(${t.id})">시작</button>
-        <button class="btn" style="padding:3px;font-size:11.5px" onclick="resetTimer(${t.id})">정지</button>
+      <div class="sq-controls">
+        <div class="preset-row">
+          <button onclick="setTimer(${t.id},5)">5m</button>
+          <button onclick="setTimer(${t.id},15)">15m</button>
+          <button onclick="setTimer(${t.id},30)">30m</button>
+          <button onclick="setTimer(${t.id},60)">60m</button>
+        </div>
+        <div class="act-row">
+          <input type="number" id="tMin${t.id}" value="10" min="1" max="180" title="분 입력">
+          <button class="btn green" id="tBtn${t.id}" style="padding:2px;font-size:11.5px" onclick="toggleTimer(${t.id})">시작</button>
+          <button class="btn" style="padding:2px;font-size:11.5px" onclick="resetTimer(${t.id})">리셋</button>
+        </div>
       </div>
     </div>
   `).join('');
 }
-renderTimerGrid();
+renderTimers();
 
-function formatMMSS(sec) {
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = sec % 60;
-  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+function fmtTime(sec) {
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-function updateHourglassVisual(id) {
+function updateTimerVisual(id) {
   const t = timers[id];
-  const ratio = t.total > 0 ? Math.max(0, Math.min(1, t.remain / t.total)) : 1;
-  // 위쪽 모래: y가 8에서 42로 내려감
-  const topH = 34 * ratio;
-  const topY = 42 - topH;
-  $('sandTop' + id).setAttribute('y', topY.toFixed(1));
-  $('sandTop' + id).setAttribute('height', topH.toFixed(1));
+  $('tText' + id).textContent = fmtTime(t.remain);
+  // 60분(3600초) 기준 각도 계산 (60분 초과 시 360도 풀표시)
+  const deg = Math.min(360, (t.remain / 3600) * 360);
+  $('tHand' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 70 70)`);
+  const sector = $('tSector' + id);
+  sector.setAttribute('d', describeSector(70, 70, 52, 0, deg));
+  sector.setAttribute('fill', t.remain <= 120 && t.remain > 0 ? 'rgba(217, 119, 6, 0.28)' : 'rgba(37, 99, 235, 0.22)');
 
-  // 아래쪽 모래: 밑바닥(76)에서 위로 차오름
-  const botH = 34 * (1 - ratio);
-  const botY = 76 - botH;
-  $('sandBot' + id).setAttribute('y', botY.toFixed(1));
-  $('sandBot' + id).setAttribute('height', botH.toFixed(1));
-
-  $('sandStream' + id).style.display = (t.running && t.remain > 0) ? 'block' : 'none';
+  const card = $('tCard' + id), btn = $('tBtn' + id);
+  card.classList.remove('running', 'warn', 'alarm');
+  if (t.alarming) {
+    card.classList.add('alarm'); btn.textContent = '알람끔'; btn.className = 'btn red';
+  } else if (t.running) {
+    card.classList.add(t.remain <= 120 ? 'warn' : 'running');
+    btn.textContent = '정지'; btn.className = 'btn amber';
+  } else {
+    btn.textContent = '시작'; btn.className = 'btn green';
+  }
 }
 
-function startTimerMin(id, mins) {
+function setTimer(id, min) {
   ensureAudio();
   const t = timers[id];
-  t.total = mins * 60;
-  t.remain = mins * 60;
-  t.running = true;
-  t.alarming = false;
-  t.warned = false;
-  $('tMin' + id).value = mins;
-  const lbl = $('tLbl' + id).value.trim() || defaultLabels[id];
-  addLog(`모래시계 시작: [${lbl}] ${mins}분 설정`);
-  updateTimerUI(id);
+  t.total = min * 60; t.remain = min * 60; t.running = true; t.alarming = false; t.warned = false;
+  $('tMin' + id).value = min;
+  updateTimerVisual(id);
 }
 
 function toggleTimer(id) {
@@ -673,26 +509,19 @@ function toggleTimer(id) {
   if (!t.running) {
     if (t.remain <= 0) {
       const m = Math.max(1, parseFloat($('tMin' + id).value) || 10);
-      t.total = Math.round(m * 60);
-      t.remain = t.total;
-      const lbl = $('tLbl' + id).value.trim() || defaultLabels[id];
-      addLog(`모래시계 시작: [${lbl}] ${m}분 설정`);
+      t.total = Math.round(m * 60); t.remain = t.total;
     }
     t.running = true;
   } else {
     t.running = false;
   }
-  updateTimerUI(id);
+  updateTimerVisual(id);
 }
 
 function resetTimer(id) {
   const t = timers[id];
-  t.running = false;
-  t.total = 0;
-  t.remain = 0;
-  t.alarming = false;
-  t.warned = false;
-  updateTimerUI(id);
+  t.running = false; t.total = 0; t.remain = 0; t.alarming = false; t.warned = false;
+  updateTimerVisual(id);
 }
 
 function stopAllAlarms() {
@@ -700,415 +529,363 @@ function stopAllAlarms() {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 }
 
-function updateTimerUI(id) {
-  const t = timers[id];
-  const card = $('tCard' + id);
-  const disp = $('tDisp' + id);
-  const btn = $('tBtn' + id);
-  disp.textContent = formatMMSS(t.remain);
-  updateHourglassVisual(id);
-  card.classList.remove('running', 'warn', 'alarm');
-  if (t.alarming) {
-    card.classList.add('alarm');
-    btn.textContent = '확인/끔';
-    btn.className = 'btn red';
-  } else if (t.running) {
-    card.classList.add(t.remain <= 120 ? 'warn' : 'running');
-    btn.textContent = '정지';
-    btn.className = 'btn amber';
-  } else {
-    btn.textContent = '시작';
-    btn.className = 'btn green';
-  }
-}
-
 setInterval(() => {
   timers.forEach(t => {
     if (t.running && t.remain > 0) {
       t.remain--;
-      if (t.remain === 120 && !t.warned) {
-        t.warned = true;
-        playCockpitChime('warn');
-      }
+      if (t.remain === 120 && !t.warned) { t.warned = true; playChime('warn'); }
       if (t.remain === 0) {
-        t.running = false;
-        t.alarming = true;
-        const lbl = $('tLbl' + t.id).value.trim() || defaultLabels[t.id];
-        playCockpitChime('alarm');
-        speakAlert(`${lbl} 시간입니다.`);
-        addLog(`⏳ 모래시계 완료: [${lbl}] 알람!`);
+        t.running = false; t.alarming = true;
+        const lbl = $('tName' + t.id).value.trim() || timerDefaults[t.id];
+        playChime('alarm');
+        speakText(`${lbl} 시간입니다.`);
       }
-      updateTimerUI(t.id);
-    } else if (t.alarming) {
-      if (Math.floor(Date.now() / 1000) % 6 === 0) playCockpitChime('alarm');
+      updateTimerVisual(t.id);
+    } else if (t.alarming && Math.floor(Date.now() / 1000) % 6 === 0) {
+      playChime('alarm');
     }
   });
 }, 1000);
 
-/* ==================== [2] 수액 주입 아날로그 연료 게이지 레이더 ==================== */
-const ivSlots = Array.from({ length: 3 }, (_, i) => ({
-  id: i,
-  running: false,
-  startMs: 0,
-  totalVol: 500,
-  rate: 30,
-  warned10: false,
-  finished: false
-}));
+/* ==================== [2] 경과 시간 아날로그 시계 4개 ==================== */
+const chronoDefaults = ['진료 경과 시계', '마취 경과 시계', '수액 경과 시계', '처치/대기 경과'];
+const chronos = Array.from({ length: 4 }, (_, i) => ({ id: i, running: false, startMs: 0, accumSec: 0 }));
 
-function renderIvList() {
-  $('ivList').innerHTML = ivSlots.map(s => `
-    <div class="iv-card" id="ivCard${s.id}">
-      <!-- 좌측 아날로그 반원형 연료 계기 -->
-      <div class="iv-gauge-box">
-        <svg viewBox="0 0 110 72" style="width:92px;height:62px">
-          <path d="M 12 60 A 43 43 0 0 1 98 60" fill="#fffdf7" stroke="#334155" stroke-width="3"/>
-          <!-- 적색(E, 0~15%), 황색(15~30%), 녹색(F, 30~100%) -->
-          <path d="M 17 58 A 38 38 0 0 1 24 38" fill="none" stroke="#dc2626" stroke-width="5"/>
-          <path d="M 24 38 A 38 38 0 0 1 38 25" fill="none" stroke="#f59e0b" stroke-width="5"/>
-          <path d="M 38 25 A 38 38 0 0 1 93 58" fill="none" stroke="#16a34a" stroke-width="5"/>
-          <text x="16" y="68" font-size="9" font-weight="800" fill="#dc2626">E</text>
-          <text x="55" y="18" text-anchor="middle" font-size="8.5" font-weight="800" fill="#475569">1/2</text>
-          <text x="90" y="68" font-size="9" font-weight="800" fill="#16a34a">F</text>
-          <!-- 지침 바늘: Full(+75도) -> Empty(-75도) -->
-          <g id="ivNeedle${s.id}" transform="rotate(75 55 60)" style="transition:transform 0.4s">
-            <line x1="55" y1="60" x2="55" y2="23" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-            <circle cx="55" cy="60" r="4.5" fill="#1e293b"/>
-          </g>
+function renderChronos() {
+  const ticks = buildDialTicks(70, 70, 62, 54, 58, true);
+  $('chronoRow').innerHTML = chronos.map(c => `
+    <div class="sq-card" id="cCard${c.id}">
+      <input class="sq-title-input" id="cName${c.id}" placeholder="${chronoDefaults[c.id]}">
+      <div class="clock-svg-wrap">
+        <svg viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="66" fill="#f8fafc" stroke="#475569" stroke-width="3.5"/>
+          ${ticks}
+          <rect x="38" y="84" width="64" height="18" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+          <text id="cText${c.id}" x="70" y="97" text-anchor="middle" font-family="Consolas,monospace" font-size="12" font-weight="800" fill="#1e293b">00:00:00</text>
+          <!-- 분침(검정) & 초침(파랑) -->
+          <line id="cMin${c.id}" x1="70" y1="73" x2="70" y2="26" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+          <line id="cSec${c.id}" x1="70" y1="78" x2="70" y2="15" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="70" cy="70" r="4.5" fill="#1e293b"/>
         </svg>
-        <div class="mono" style="font-size:11px;font-weight:800;color:#1e293b" id="ivPctTxt${s.id}">잔여 100%</div>
       </div>
-
-      <!-- 우측 입력 및 수치 정보 -->
-      <div class="iv-right">
-        <div class="iv-top">
-          <input id="ivName${s.id}" placeholder="수액 #${s.id + 1} 환자명">
-          <input type="number" id="ivVol${s.id}" value="500" title="총 수액량(mL)" placeholder="총mL">
-          <input type="number" id="ivRate${s.id}" value="30" step="0.5" title="속도(mL/hr)" placeholder="mL/h">
-          <input type="number" id="ivPreMin${s.id}" value="0" min="0" title="기경과 분" placeholder="경과분">
-          <button class="btn green" id="ivBtn${s.id}" style="padding:3px 7px;font-size:12px" onclick="toggleIv(${s.id})">시작</button>
-          <button class="btn" style="padding:3px 6px;font-size:12px" onclick="resetIv(${s.id})">리셋</button>
-        </div>
-        <div class="iv-stats mono" id="ivStat${s.id}">
-          <span>경과: <b>00:00:00</b></span>
-          <span>주입: <b>0.0 mL</b> / 잔여: <b>500.0 mL</b></span>
-          <span>종료: <b>--:--</b></span>
-        </div>
+      <div class="act-row-2">
+        <button class="btn green" id="cBtn${c.id}" style="padding:3px;font-size:11.5px" onclick="toggleChrono(${c.id})">▶ 시작</button>
+        <button class="btn" style="padding:3px;font-size:11.5px" onclick="resetChrono(${c.id})">초기화</button>
       </div>
     </div>
   `).join('');
 }
-renderIvList();
+renderChronos();
 
-function toggleIv(id) {
-  ensureAudio();
-  const s = ivSlots[id];
-  if (!s.running) {
-    s.totalVol = Math.max(1, parseFloat($('ivVol' + id).value) || 500);
-    s.rate = Math.max(0.1, parseFloat($('ivRate' + id).value) || 30);
-    const preMin = Math.max(0, parseFloat($('ivPreMin' + id).value) || 0);
-    s.startMs = Date.now() - preMin * 60000;
-    s.running = true;
-    s.warned10 = false;
-    s.finished = false;
-    $('ivBtn' + id).textContent = '정지';
-    $('ivBtn' + id).className = 'btn amber';
-    const pName = $('ivName' + id).value.trim() || `수액#${id + 1}`;
-    addLog(`수액 시작: [${pName}] 총 ${s.totalVol}mL @ ${s.rate}mL/hr`);
+function toggleChrono(id) {
+  const c = chronos[id];
+  if (!c.running) {
+    c.startMs = Date.now();
+    c.running = true;
+    $('cCard' + id).classList.add('running');
+    $('cBtn' + id).textContent = '⏸ 정지';
+    $('cBtn' + id).className = 'btn amber';
   } else {
-    s.running = false;
-    $('ivBtn' + id).textContent = '재개';
-    $('ivBtn' + id).className = 'btn green';
+    c.accumSec += Math.floor((Date.now() - c.startMs) / 1000);
+    c.running = false;
+    $('cCard' + id).classList.remove('running');
+    $('cBtn' + id).textContent = '▶ 재개';
+    $('cBtn' + id).className = 'btn green';
   }
 }
 
-function resetIv(id) {
-  const s = ivSlots[id];
-  s.running = false;
-  s.warned10 = false;
-  s.finished = false;
-  $('ivCard' + id).classList.remove('active', 'low');
-  $('ivNeedle' + id).setAttribute('transform', 'rotate(75 55 60)');
-  $('ivPctTxt' + id).textContent = '잔여 100%';
-  $('ivBtn' + id).textContent = '시작';
-  $('ivBtn' + id).className = 'btn green';
-  const v = parseFloat($('ivVol' + id).value) || 500;
-  $('ivStat' + id).innerHTML = `<span>경과: <b>00:00:00</b></span><span>주입: <b>0.0 mL</b> / 잔여: <b>${v.toFixed(1)} mL</b></span><span>종료: <b>--:--</b></span>`;
+function resetChrono(id) {
+  const c = chronos[id];
+  c.running = false; c.accumSec = 0;
+  $('cCard' + id).classList.remove('running');
+  $('cText' + id).textContent = '00:00:00';
+  $('cSec' + id).setAttribute('transform', 'rotate(0 70 70)');
+  $('cMin' + id).setAttribute('transform', 'rotate(0 70 70)');
+  $('cBtn' + id).textContent = '▶ 시작';
+  $('cBtn' + id).className = 'btn green';
 }
 
 setInterval(() => {
-  ivSlots.forEach(s => {
-    if (!s.running) return;
-    const elapsedSec = Math.floor((Date.now() - s.startMs) / 1000);
-    const infused = (elapsedSec / 3600) * s.rate;
-    const remain = Math.max(0, s.totalVol - infused);
-    const remainRatio = Math.max(0, Math.min(1, remain / s.totalVol));
-    const remainPct = Math.round(remainRatio * 100);
-
-    // 아날로그 연료 바늘 각도: 100%(Full) = +75도, 0%(Empty) = -75도
-    const deg = -75 + (remainRatio * 150);
-    $('ivNeedle' + s.id).setAttribute('transform', `rotate(${deg.toFixed(1)} 55 60)`);
-    $('ivPctTxt' + s.id).textContent = `잔여 ${remainPct}%`;
-
-    const h = String(Math.floor(elapsedSec / 3600)).padStart(2, '0');
-    const m = String(Math.floor((elapsedSec % 3600) / 60)).padStart(2, '0');
-    const sec = String(elapsedSec % 60).padStart(2, '0');
-
-    const totalSecNeeded = (s.totalVol / s.rate) * 3600;
-    const endDate = new Date(s.startMs + totalSecNeeded * 1000);
-    const endStr = endDate.toTimeString().slice(0, 5);
-
-    const card = $('ivCard' + s.id);
-    card.classList.add('active');
-    if (remainPct <= 15) card.classList.add('low');
-
-    $('ivStat' + s.id).innerHTML = `
-      <span>경과: <b>${h}:${m}:${sec}</b></span>
-      <span>주입: <b>${infused.toFixed(1)} mL</b> / 잔여: <b>${remain.toFixed(1)} mL</b></span>
-      <span>종료: <b>${endStr}</b></span>
-    `;
-
-    const pName = $('ivName' + s.id).value.trim() || `수액#${s.id + 1}`;
-    if (remainPct <= 10 && remain > 0 && !s.warned10) {
-      s.warned10 = true;
-      playCockpitChime('warn');
-      speakAlert(`${pName} 수액 잔여량이 10퍼센트 미만입니다.`);
-      addLog(`💧 수액 교체요망: [${pName}] 잔여 ${remain.toFixed(0)}mL`);
-    }
-    if (remain <= 0 && !s.finished) {
-      s.finished = true;
-      playCockpitChime('alarm');
-      speakAlert(`${pName} 수액 주입이 완료되었습니다.`);
-      addLog(`✅ 수액 완료: [${pName}] 총 ${s.totalVol}mL 주입 종료`);
-    }
+  chronos.forEach(c => {
+    if (!c.running) return;
+    const sec = c.accumSec + Math.floor((Date.now() - c.startMs) / 1000);
+    const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+    const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+    const s = String(sec % 60).padStart(2, '0');
+    $('cText' + c.id).textContent = `${h}:${m}:${s}`;
+    $('cSec' + c.id).setAttribute('transform', `rotate(${(sec % 60) * 6} 70 70)`);
+    $('cMin' + c.id).setAttribute('transform', `rotate(${((sec / 60) % 60) * 6} 70 70)`);
   });
-}, 1000);
+}, 500);
 
-/* ==================== [3] 아날로그 호흡수(SRR) 타코미터 계기판 ==================== */
-function drawRrTicks() {
-  const g = $('rrTicks');
+/* ==================== [3] 아날로그 호흡수·심박수 계기 2개 ==================== */
+const rrGauges = Array.from({ length: 2 }, (_, i) => ({
+  id: i, duration: 15, taps: [], startMs: 0, timer: null, done: false, lastBpm: 0
+}));
+
+function buildRrTicksSvg() {
   let html = '';
   for (let val = 0; val <= 80; val += 5) {
     const deg = -110 + (val / 80) * 220;
     const rad = (deg - 90) * Math.PI / 180;
     const isMajor = val % 10 === 0;
-    const r1 = isMajor ? 78 : 83;
-    const r2 = 90;
-    const x1 = 120 + r1 * Math.cos(rad);
-    const y1 = 122 + r1 * Math.sin(rad);
-    const x2 = 120 + r2 * Math.cos(rad);
-    const y2 = 122 + r2 * Math.sin(rad);
-    html += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#334155" stroke-width="${isMajor ? 2 : 1.2}"/>`;
+    const r1 = isMajor ? 66 : 71, r2 = 77;
+    const x1 = 105 + r1 * Math.cos(rad), y1 = 105 + r1 * Math.sin(rad);
+    const x2 = 105 + r2 * Math.cos(rad), y2 = 105 + r2 * Math.sin(rad);
+    html += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#334155" stroke-width="${isMajor ? 1.8 : 1}"/>`;
     if (isMajor) {
-      const rt = 66;
-      const xt = 120 + rt * Math.cos(rad);
-      const yt = 122 + rt * Math.sin(rad) + 4;
-      html += `<text x="${xt.toFixed(1)}" y="${yt.toFixed(1)}" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1e293b">${val}</text>`;
+      const rt = 55;
+      html += `<text x="${(105 + rt * Math.cos(rad)).toFixed(1)}" y="${(105 + rt * Math.sin(rad) + 3.5).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#1e293b">${val}</text>`;
     }
   }
-  g.innerHTML = html;
-}
-drawRrTicks();
-
-let rrDuration = 15;
-let rrTaps = [];
-let rrStartMs = 0;
-let rrTimer = null;
-let rrDone = false;
-
-function setRrDuration(sec) {
-  rrDuration = sec;
-  [15, 30, 60].forEach(d => $('dur' + d).className = d === sec ? 'btn active' : 'btn');
-  $('rrTargetLbl').textContent = sec;
-  resetRr();
+  return html;
 }
 
-function tapBreath() {
+function renderRrGauges() {
+  const ticks = buildRrTicksSvg();
+  $('rrRow').innerHTML = rrGauges.map(g => `
+    <div class="rr-card">
+      <div class="rr-dial-btn" id="rrPad${g.id}" onclick="tapRr(${g.id})">
+        <svg viewBox="0 0 210 142" style="width:100%;max-height:132px">
+          <circle cx="105" cy="105" r="84" fill="#fffdf7" stroke="#334155" stroke-width="3.5"/>
+          <path d="M 35 127 A 74 74 0 0 1 83 34" fill="none" stroke="#16a34a" stroke-width="8" stroke-linecap="round"/>
+          <path d="M 83 34 A 74 74 0 0 1 105 31" fill="none" stroke="#f59e0b" stroke-width="8"/>
+          <path d="M 105 31 A 74 74 0 0 1 175 127" fill="none" stroke="#dc2626" stroke-width="8" stroke-linecap="round"/>
+          ${ticks}
+          <rect x="75" y="113" width="60" height="20" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+          <text id="rrVal${g.id}" x="105" y="127" text-anchor="middle" font-family="Consolas,monospace" font-size="14" font-weight="800" fill="#1e293b">0 BPM</text>
+          <g id="rrNeedle${g.id}" transform="rotate(-110 105 105)" style="transition:transform 0.16s">
+            <polygon points="102.5,110 107.5,110 105.6,36 104.4,36" fill="#dc2626"/>
+            <circle cx="105" cy="105" r="6.5" fill="#1e293b" stroke="#fff" stroke-width="1.5"/>
+          </g>
+        </svg>
+        <div style="font-size:11px;font-weight:800;color:#2563eb" id="rrHint${g.id}">호흡마다 클릭 (측정 시작)</div>
+      </div>
+
+      <div class="rr-right">
+        <input class="sq-title-input" id="rrLabel${g.id}" placeholder="호흡수 계기 #${g.id + 1} (환자명)">
+        <div style="display:flex;gap:3px">
+          <button class="btn active" id="rrDur${g.id}_15" style="flex:1;padding:2px;font-size:11px" onclick="setRrDur(${g.id},15)">15초</button>
+          <button class="btn" id="rrDur${g.id}_30" style="flex:1;padding:2px;font-size:11px" onclick="setRrDur(${g.id},30)">30초</button>
+          <button class="btn" id="rrDur${g.id}_60" style="flex:1;padding:2px;font-size:11px" onclick="setRrDur(${g.id},60)">60초</button>
+        </div>
+        <div style="font-size:11.5px;font-weight:700;color:#475569">
+          <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+            <span>경과 (<span id="rrTarget${g.id}">15</span>s)</span>
+            <span class="mono" id="rrElapsed${g.id}">0.0s · 0회</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" id="rrProg${g.id}"></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px">
+          <button class="btn active" style="padding:3px 2px;font-size:11px" onclick="sendRrToIcu(${g.id},0)">→ICU1</button>
+          <button class="btn green" style="padding:3px 2px;font-size:11px" onclick="sendRrToIcu(${g.id},1)">→ICU2</button>
+          <button class="btn" style="padding:3px 2px;font-size:11px" onclick="resetRr(${g.id})">리셋</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+renderRrGauges();
+
+function setRrDur(id, sec) {
+  const g = rrGauges[id];
+  g.duration = sec;
+  [15, 30, 60].forEach(d => $(`rrDur${id}_${d}`).className = d === sec ? 'btn active' : 'btn');
+  $('rrTarget' + id).textContent = sec;
+  resetRr(id);
+}
+
+function tapRr(id) {
   ensureAudio();
-  if (rrDone) resetRr();
+  const g = rrGauges[id];
+  if (g.done) resetRr(id);
   const now = Date.now();
-  if (rrTaps.length === 0) {
-    rrStartMs = now;
-    rrTimer = setInterval(updateRrProgress, 100);
+  if (g.taps.length === 0) {
+    g.startMs = now;
+    g.timer = setInterval(() => updateRrTick(id), 100);
   }
-  rrTaps.push(now);
+  g.taps.push(now);
 
-  const pad = $('rrPad');
+  const pad = $('rrPad' + id);
   pad.classList.add('pulse');
-  setTimeout(() => pad.classList.remove('pulse'), 110);
+  setTimeout(() => pad.classList.remove('pulse'), 100);
 
-  let bpm = 0;
-  if (rrTaps.length >= 2) {
-    const spanSec = (now - rrTaps[0]) / 1000;
-    bpm = Math.round(((rrTaps.length - 1) / spanSec) * 60);
-  } else {
-    bpm = Math.round(60 / rrDuration);
-  }
-  displayRrBpm(bpm);
+  let bpm = g.taps.length >= 2 ? Math.round(((g.taps.length - 1) / ((now - g.taps[0]) / 1000)) * 60) : Math.round(60 / g.duration);
+  g.lastBpm = bpm;
+  updateRrNeedle(id, bpm);
 }
 
-function updateRrProgress() {
-  if (!rrStartMs) return;
-  const elapsed = (Date.now() - rrStartMs) / 1000;
-  const pct = Math.min(100, (elapsed / rrDuration) * 100);
-  $('rrProg').style.width = pct + '%';
-  $('rrElapsedTxt').textContent = `${Math.min(rrDuration, elapsed).toFixed(1)}s · ${rrTaps.length}회`;
+function updateRrTick(id) {
+  const g = rrGauges[id];
+  if (!g.startMs) return;
+  const elapsed = (Date.now() - g.startMs) / 1000;
+  $('rrProg' + id).style.width = Math.min(100, (elapsed / g.duration) * 100) + '%';
+  $('rrElapsed' + id).textContent = `${Math.min(g.duration, elapsed).toFixed(1)}s · ${g.taps.length}회`;
 
-  if (elapsed >= rrDuration) {
-    clearInterval(rrTimer);
-    rrTimer = null;
-    rrDone = true;
-    const finalBpm = Math.round(rrTaps.length * (60 / rrDuration));
-    displayRrBpm(finalBpm);
-    $('rrStatus').textContent = `✅ ${rrDuration}초 측정 완료 (총 ${rrTaps.length}회 감지)`;
-    playCockpitChime('info');
-    speakAlert(`측정 완료. 분당 ${finalBpm}회 입니다.`);
+  if (elapsed >= g.duration) {
+    clearInterval(g.timer); g.timer = null; g.done = true;
+    const finalBpm = Math.round(g.taps.length * (60 / g.duration));
+    g.lastBpm = finalBpm;
+    updateRrNeedle(id, finalBpm);
+    $('rrHint' + id).textContent = `✅ 완료: 분당 ${finalBpm}회 (${g.taps.length}회/${g.duration}s)`;
+    playChime('info');
+    speakText(`호흡수 측정 완료. 분당 ${finalBpm}회 입니다.`);
   } else {
-    $('rrStatus').textContent = `측정 진행 중... 호흡마다 클릭하세요`;
+    $('rrHint' + id).textContent = `측정 중... 호흡마다 클릭`;
   }
 }
 
-function displayRrBpm(bpm) {
+function updateRrNeedle(id, bpm) {
   const clamped = Math.max(0, Math.min(80, bpm));
   const deg = -110 + (clamped / 80) * 220;
-  $('rrNeedle').setAttribute('transform', `rotate(${deg.toFixed(1)} 120 122)`);
-  $('rrDialText').textContent = `${bpm} BPM`;
+  $('rrNeedle' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 105 105)`);
+  const txt = $('rrVal' + id);
+  txt.textContent = `${bpm} BPM`;
+  txt.setAttribute('fill', bpm > 40 ? '#dc2626' : bpm > 30 ? '#d97706' : '#15803d');
+}
 
-  if (bpm > 40) {
-    $('rrDialText').setAttribute('fill', '#dc2626');
-    $('rrInterpret').innerHTML = `<span style="color:#dc2626;font-weight:800">🚨 빈호흡(Tachypnea) 경고:</span> 폐부종·흉수·심부전·통증 감별 필요`;
-  } else if (bpm > 30) {
-    $('rrDialText').setAttribute('fill', '#d97706');
-    $('rrInterpret').innerHTML = `<span style="color:#d97706;font-weight:800">⚠ 경계 상승 (30회 초과):</span> 수액 속도 점검 및 재측정 권고`;
-  } else {
-    $('rrDialText').setAttribute('fill', '#15803d');
-    $('rrInterpret').innerHTML = `<span style="color:#15803d;font-weight:800">✓ 안정 범위 (30회 이하):</span> 정상 안정 호흡수(SRR) 범위`;
+function resetRr(id) {
+  const g = rrGauges[id];
+  clearInterval(g.timer); g.timer = null; g.taps = []; g.startMs = 0; g.done = false; g.lastBpm = 0;
+  $('rrNeedle' + id).setAttribute('transform', 'rotate(-110 105 105)');
+  $('rrVal' + id).textContent = '0 BPM';
+  $('rrVal' + id).setAttribute('fill', '#1e293b');
+  $('rrProg' + id).style.width = '0%';
+  $('rrElapsed' + id).textContent = '0.0s · 0회';
+  $('rrHint' + id).textContent = '호흡마다 클릭 (측정 시작)';
+}
+
+function sendRrToIcu(rrId, icuId) {
+  const g = rrGauges[rrId];
+  if (!g.lastBpm) { alert('먼저 호흡수를 측정해주세요.'); return; }
+  appendIcuEntry(icuId, '🫁 호흡수', `${g.lastBpm} 회/분 (${g.duration}초 측정)`);
+}
+
+/* ==================== [4] 우측 집중 ICU 처치 장부 2개 ==================== */
+const icuIcons = [
+  { ico: '💧', label: '물(음수)' },
+  { ico: '🍚', label: '밥(식이)' },
+  { ico: '🟡', label: '오줌(배뇨)' },
+  { ico: '💩', label: '변(배변)' },
+  { ico: '💉', label: '주사투약' },
+  { ico: '🧴', label: '수액처치' },
+  { ico: '🫧', label: '산소공급' },
+  { ico: '🌡️', label: '실내온도' },
+  { ico: '🩺', label: '체온측정' },
+  { ico: '🫁', label: '호흡수' },
+  { ico: '⚖️', label: '체중측정' }
+];
+
+function renderIcuCards() {
+  $('icuCol').innerHTML = [0, 1].map(idx => `
+    <section class="icu-card ${idx === 1 ? 'icu2' : ''}">
+      <div class="icu-head">
+        <span class="icu-badge">집중 ICU #${idx + 1}</span>
+        <input class="icu-patient-input" id="icuPatient${idx}" placeholder="환자명 · 품종 · 체중 · 주요진단">
+        <button class="btn" style="padding:3px 7px;font-size:11.5px" onclick="copyIcuTxt(${idx})">📋 복사</button>
+        <button class="btn ${idx === 0 ? 'active' : 'green'}" style="padding:3px 8px;font-size:11.5px" onclick="saveIcuTxt(${idx})">💾 TXT저장</button>
+      </div>
+
+      <!-- 상태 게이지 4종 -->
+      <div class="icu-gauges">
+        <div class="g-item">
+          <div style="display:flex;justify-content:space-between"><span>🍚 식욕</span><span id="gFoodV${idx}">50%</span></div>
+          <input type="range" min="0" max="100" step="10" value="50" oninput="$('gFoodV${idx}').textContent=this.value+'%'">
+        </div>
+        <div class="g-item">
+          <div style="display:flex;justify-content:space-between"><span>💧 음수</span><span id="gWaterV${idx}">50%</span></div>
+          <input type="range" min="0" max="100" step="10" value="50" oninput="$('gWaterV${idx}').textContent=this.value+'%'">
+        </div>
+        <div class="g-item">
+          <div style="display:flex;justify-content:space-between"><span>⚡ 활력</span><span id="gVitalV${idx}">50%</span></div>
+          <input type="range" min="0" max="100" step="10" value="50" oninput="$('gVitalV${idx}').textContent=this.value+'%'">
+        </div>
+        <div class="g-item">
+          <div style="display:flex;justify-content:space-between"><span>🧴 수액잔량</span><span id="gFluidV${idx}">100%</span></div>
+          <input type="range" min="0" max="100" step="5" value="100" oninput="$('gFluidV${idx}').textContent=this.value+'%'">
+        </div>
+      </div>
+
+      <!-- 원클릭 처치/관찰 아이콘 팔레트 -->
+      <div class="icon-palette">
+        ${icuIcons.map(item => `
+          <button type="button" class="ico-btn" onclick="clickIcuIcon(${idx}, '${item.ico} ${item.label}')">${item.ico}${item.label.split('(')[0]}</button>
+        `).join('')}
+        <button type="button" class="ico-btn" style="background:#fef2f2;border-color:#fca5a5;color:#b91c1c" onclick="clearIcuLog(${idx})">🗑️비움</button>
+      </div>
+
+      <!-- 간단한 수치/내용 입력 + 장부 텍스트 영역 -->
+      <div class="icu-quick-row">
+        <input id="icuNote${idx}" placeholder="간단한 수치·메모 입력 후 아이콘 클릭 또는 엔터 (예: 38.5도, 20mL 급여)" onkeydown="if(event.key==='Enter') addQuickNote(${idx})">
+        <button class="btn" style="padding:3px 9px;font-size:11.5px" onclick="addQuickNote(${idx})">+ 메모추가</button>
+      </div>
+      <textarea class="icu-log" id="icuLog${idx}" placeholder="위 아이콘(물, 밥, 오줌, 변, 주사, 수액, 산소, 온도, 체온, 호흡, 체중)을 누르면 현재 시각과 함께 자동 기록됩니다."></textarea>
+    </section>
+  `).join('');
+}
+renderIcuCards();
+
+function appendIcuEntry(idx, tag, extraText = '') {
+  const nowStr = new Date().toTimeString().slice(0, 5);
+  const noteInput = $('icuNote' + idx);
+  const noteVal = extraText || noteInput.value.trim();
+  const log = $('icuLog' + idx);
+  const line = `[${nowStr}] ${tag}${noteVal ? ' : ' + noteVal : ''}\n`;
+  log.value += line;
+  log.scrollTop = log.scrollHeight;
+  if (!extraText) noteInput.value = '';
+  noteInput.focus();
+}
+
+function clickIcuIcon(idx, tag) {
+  appendIcuEntry(idx, tag);
+}
+
+function addQuickNote(idx) {
+  const noteVal = $('icuNote' + idx).value.trim();
+  if (!noteVal) return;
+  appendIcuEntry(idx, '📝 관찰메모', noteVal);
+  $('icuNote' + idx).value = '';
+}
+
+function clearIcuLog(idx) {
+  if (confirm(`집중 ICU #${idx + 1} 장부 내용을 초기화할까요?`)) {
+    $('icuLog' + idx).value = '';
   }
 }
 
-function resetRr() {
-  clearInterval(rrTimer);
-  rrTimer = null;
-  rrTaps = [];
-  rrStartMs = 0;
-  rrDone = false;
-  $('rrNeedle').setAttribute('transform', 'rotate(-110 120 122)');
-  $('rrDialText').textContent = '0 BPM';
-  $('rrDialText').setAttribute('fill', '#1e293b');
-  $('rrProg').style.width = '0%';
-  $('rrElapsedTxt').textContent = '0.0s · 0회';
-  $('rrStatus').textContent = '가슴 움직임마다 클릭 또는 [SPACE] 키 입력';
-  $('rrInterpret').textContent = '기준: 개·고양이 안정 호흡수(SRR) 30회/분 이하 정상';
+function buildIcuExportText(idx) {
+  const p = $('icuPatient' + idx).value.trim() || `집중ICU_${idx + 1}번환자`;
+  const today = new Date().toISOString().slice(0, 10);
+  const food = $('gFoodV' + idx).textContent;
+  const water = $('gWaterV' + idx).textContent;
+  const vital = $('gVitalV' + idx).textContent;
+  const fluid = $('gFluidV' + idx).textContent;
+  const body = $('icuLog' + idx).value.trim();
+  return `[23시 동물병원 집중관리 ICU 처치 장부 - ${today}]
+- 환자정보: ${p}
+- 현재 상태 게이지: 식욕 ${food} | 음수 ${water} | 활력 ${vital} | 수액잔량 ${fluid}
+--------------------------------------------------
+${body || '(기록된 처치 내역 없음)'}`;
 }
 
-function recordRrToLog() {
-  const txt = $('rrDialText').textContent;
-  if (txt === '0 BPM') { alert('먼저 호흡수를 측정해주세요.'); return; }
-  const p = $('rrPatient').value.trim() || '환자';
-  addLog(`🫁 호흡수 측정: [${p}] ${txt} (${rrDuration}초 기준)`);
+function copyIcuTxt(idx) {
+  const txt = buildIcuExportText(idx);
+  navigator.clipboard.writeText(txt).then(() => alert(`집중 ICU #${idx + 1} 장부가 클립보드에 복사되었습니다.`));
 }
 
-document.addEventListener('keydown', e => {
-  if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-    e.preventDefault();
-    tapBreath();
-  }
-});
-
-/* ==================== [4] 아날로그 초침 스톱워치 & 시간 계산기 ==================== */
-let chronoRunning = false;
-let chronoStartMs = 0;
-let chronoAccumSec = 0;
-let lastChimeMin = 0;
-
-function toggleChrono() {
-  ensureAudio();
-  if (!chronoRunning) {
-    chronoStartMs = Date.now();
-    chronoRunning = true;
-    $('chronoBtn').textContent = '⏸ 정지';
-    $('chronoBtn').className = 'btn amber';
-    if (chronoAccumSec === 0) addLog('⏱ 진료/마취 경과 계측 시작');
-  } else {
-    chronoAccumSec += Math.floor((Date.now() - chronoStartMs) / 1000);
-    chronoRunning = false;
-    $('chronoBtn').textContent = '▶ 재개';
-    $('chronoBtn').className = 'btn green';
-  }
+function saveIcuTxt(idx) {
+  const p = ($('icuPatient' + idx).value.trim() || `ICU_${idx + 1}번`).replace(/[\\/:*?"<>|]/g, '_');
+  const today = new Date().toISOString().slice(0, 10);
+  const content = buildIcuExportText(idx);
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${p}_${today}_ICU처치장부.txt`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
-
-function getChronoSec() {
-  return chronoAccumSec + (chronoRunning ? Math.floor((Date.now() - chronoStartMs) / 1000) : 0);
-}
-
-function lapChrono() {
-  const sec = getChronoSec();
-  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
-  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-  const s = String(sec % 60).padStart(2, '0');
-  addLog(`🚩 경과 구간 기록: ${h}:${m}:${s}`);
-}
-
-function resetChrono() {
-  chronoRunning = false;
-  chronoAccumSec = 0;
-  lastChimeMin = 0;
-  $('chronoDisplay').textContent = '00:00:00';
-  $('chronoSecHand').setAttribute('transform', 'rotate(0 35 35)');
-  $('chronoMinHand').setAttribute('transform', 'rotate(0 35 35)');
-  $('chronoBtn').textContent = '▶ 시작';
-  $('chronoBtn').className = 'btn green';
-}
-
-setInterval(() => {
-  if (!chronoRunning) return;
-  const sec = getChronoSec();
-  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
-  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-  const s = String(sec % 60).padStart(2, '0');
-  $('chronoDisplay').textContent = `${h}:${m}:${s}`;
-
-  const secDeg = (sec % 60) * 6;
-  const minDeg = ((sec / 60) % 60) * 6;
-  $('chronoSecHand').setAttribute('transform', `rotate(${secDeg} 35 35)`);
-  $('chronoMinHand').setAttribute('transform', `rotate(${minDeg} 35 35)`);
-
-  const mins = Math.floor(sec / 60);
-  if ($('chk15mChime').checked && mins > 0 && mins % 15 === 0 && mins !== lastChimeMin) {
-    lastChimeMin = mins;
-    playCockpitChime('warn');
-    speakAlert(`경과 시간 ${mins}분 입니다. 바이탈을 확인하세요.`);
-    addLog(`🔔 경과 알림: ${mins}분 도달`);
-  }
-}, 500);
-
-function setNowBaseTime() {
-  const now = new Date();
-  $('calcBaseTime').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  calcTimeDiff();
-}
-
-function calcTimeDiff() {
-  const val = $('calcBaseTime').value;
-  if (!val) return;
-  const [bh, bm] = val.split(':').map(Number);
-  const now = new Date();
-  const base = new Date(now);
-  base.setHours(bh, bm, 0, 0);
-
-  let diffMin = Math.round((now - base) / 60000);
-  const diffStr = diffMin >= 0
-    ? `현재까지 <b style="color:#1d4ed8">${Math.floor(diffMin / 60)}시간 ${diffMin % 60}분 경과</b>`
-    : `기준시각까지 <b style="color:#1d4ed8">${Math.floor(Math.abs(diffMin) / 60)}시간 ${Math.abs(diffMin) % 60}분 남음</b>`;
-
-  const addH = parseInt($('calcAddHr').value) || 0;
-  const addM = parseInt($('calcAddMin').value) || 0;
-  const target = new Date(base.getTime() + (addH * 60 + addM) * 60000);
-  const tStr = `${String(target.getHours()).padStart(2, '0')}:${String(target.getMinutes()).padStart(2, '0')}`;
-
-  $('timeCalcResult').innerHTML = `• ${diffStr}<br>• +${addH}h ${addM}m 후 예정: <b style="color:#d97706">${tStr}</b>`;
-}
-setNowBaseTime();
 </script>
 </body>
 </html>
