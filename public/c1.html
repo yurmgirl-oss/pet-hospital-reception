@@ -46,18 +46,19 @@ h1{font-size:30px;margin:0 0 5px} .sub{color:#61738c;font-size:20px;margin-botto
 <section class="frame"><div class="framehead">② 자동평가 및 안전장치</div><div class="results" id="metrics"></div><div class="summary" id="summary">환자와 검사값을 입력하고 빠른 평가를 누르세요.</div></section>
 <section class="frame"><div class="framehead">③ 수액 선택 · 필요량 · 주의사항</div><div class="recommend" id="fluid"><h3>수액 방향</h3>평가 후 결과가 표시됩니다.</div><div class="recommend" id="amount"><h3>탈수 추정 및 3시간 참고량</h3>평가 후 추정치를 표시합니다.</div><div class="smallnote">※ 추정치·screening 도구입니다. 종별 기준, 환자 상태, 체중 변화, 소변 생성, 심장/신장 상태를 확인하고 소량씩 투여 후 재평가하세요.</div></section>
 </div>
-<div class="btns"><button class="btn" onclick="readImagesOCR()">🤖 AI/OCR 읽어 입력 (실험적)</button><button class="btn" onclick="evaluateNow()">빠른 평가</button><button class="btn secondary" onclick="resetForm()">초기화</button><button class="btn secondary" onclick="saveAssessmentImage()">🖼️ 평가 이미지 저장</button><button class="btn secondary" onclick="window.print()">인쇄</button></div>
+<div id="ocrStatus" class="smallnote" style="font-size:18px;font-weight:700;min-height:28px;margin:6px 0;color:#315577">검사 이미지 1·2를 올린 후 OCR 읽어 입력을 누르세요.</div>
+<div class="btns"><button type="button" class="btn" onclick="readImagesOCR()">🤖 AI/OCR 읽어 입력 (실험적)</button><button class="btn" onclick="evaluateNow()">빠른 평가</button><button class="btn secondary" onclick="resetForm()">초기화</button><button class="btn secondary" onclick="saveAssessmentImage()">🖼️ 평가 이미지 저장</button><button class="btn secondary" onclick="window.print()">인쇄</button></div>
 
 <script>
 const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value),val=id=>$(id).value;
 function loadLabImage(event,slot){const file=event.target.files?.[0];if(!file)return;const preview=$('labImagePreview'+slot);preview.src=URL.createObjectURL(file);preview.style.display='block';}
 function clearLabImage(slot){const preview=$('labImagePreview'+slot);if(preview.src)URL.revokeObjectURL(preview.src);preview.removeAttribute('src');preview.style.display='none';$('labImageFile'+slot).value='';}
 async function readImagesOCR(){
- const status=$('ocrStatus');const files=[$('labImageFile1').files[0],$('labImageFile2').files[0]].filter(Boolean);
+ const status=$('ocrStatus');if(!status){alert('OCR 상태 표시 영역을 찾을 수 없습니다.');return;}const files=[$('labImageFile1').files[0],$('labImageFile2').files[0]].filter(Boolean);
  if(!files.length){alert('검사 이미지 1 또는 2를 먼저 올려주세요.');return;}
  status.textContent='OCR 엔진을 불러오는 중… (인터넷 연결 필요)';
  try{
-  if(!window.Tesseract){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});}
+  if(!window.Tesseract){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';script.crossOrigin='anonymous';script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});}
   let all='';
   for(let i=0;i<files.length;i++){status.textContent=`검사 이미지 ${i+1} 읽는 중…`;const result=await Tesseract.recognize(files[i],'eng');all+='\n'+result.data.text;}
   const clean=all.replace(/,/g,'');
