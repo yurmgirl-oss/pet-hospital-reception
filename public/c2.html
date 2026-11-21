@@ -3,25 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>C2 · 23시 동물병원 5단 아날로그 임상 계기판 & ICU 장부</title>
+<title>C2 · 23시 하단오거리 동물병원 아날로그 계기판 & ICU 장부</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
   :root {
-    --bg: #edf2f7;
-    --panel: #ffffff;
-    --border: #c5d3e3;
-    --navy: #1e293b;
+    --bg: #dfe7f1;
+    --navy: #16243b;
     --blue: #2563eb;
-    --green: #16a34a;
+    --green: #15803d;
     --amber: #d97706;
     --red: #dc2626;
-    --muted: #64748b;
+    --muted: #52647c;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--bg);
+    background: linear-gradient(135deg, #dce5f2 0%, #e9eff7 50%, #d8e3f0 100%);
     color: var(--navy);
-    font-family: 'Malgun Gothic', 'Segoe UI', Arial, sans-serif;
+    font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
     padding: 6px;
     height: 100vh;
     display: flex;
@@ -29,53 +28,53 @@
     gap: 6px;
     overflow: hidden;
   }
-  .mono { font-family: 'Consolas', 'Courier New', monospace; }
+  .mono { font-family: 'Consolas', 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
 
   /* 상단 헤더 */
   .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #ffffff;
-    border: 1.5px solid var(--border);
+    background: linear-gradient(90deg, #16243b 0%, #23385c 100%);
+    color: #f8fafc;
     border-radius: 10px;
-    padding: 4px 12px;
+    padding: 5px 14px;
     flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(22, 36, 59, 0.18);
   }
-  .topbar h1 { margin: 0; font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-  .badge { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 5px; font-size: 11.5px; }
+  .topbar h1 { margin: 0; font-size: 16.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
+  .badge { background: #38bdf8; color: #0f172a; padding: 2px 8px; border-radius: 5px; font-size: 11.5px; font-weight: 900; }
   .top-right { display: flex; align-items: center; gap: 8px; }
-  .clock-pill { background: #f8fafc; border: 1px solid #cbd5e1; padding: 2px 9px; border-radius: 6px; font-size: 15px; font-weight: 800; }
+  .clock-pill { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); padding: 2px 10px; border-radius: 6px; font-size: 15px; font-weight: 800; color: #7dd3fc; }
 
   .btn {
     border: 1px solid #cbd5e1;
-    background: #f8fafc;
+    background: #ffffff;
     color: var(--navy);
     border-radius: 6px;
-    padding: 4px 8px;
+    padding: 3.5px 8px;
     font-size: 11.5px;
     font-weight: 700;
+    font-family: inherit;
     cursor: pointer;
-    transition: 0.1s;
+    transition: 0.12s;
     white-space: nowrap;
   }
-  .btn:hover { background: #e2e8f0; }
-  .btn.active { background: var(--blue); border-color: #1d4ed8; color: #fff; }
-  .btn.green { background: var(--green); border-color: #15803d; color: #fff; }
-  .btn.amber { background: var(--amber); border-color: #b45309; color: #fff; }
-  .btn.red { background: var(--red); border-color: #b91c1c; color: #fff; }
+  .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+  .btn.active { background: #2563eb; border-color: #1d4ed8; color: #fff; }
+  .btn.green { background: #16a34a; border-color: #15803d; color: #fff; }
+  .btn.amber { background: #d97706; border-color: #b45309; color: #fff; }
+  .btn.red { background: #dc2626; border-color: #b91c1c; color: #fff; }
 
-  /* 5단 가로 나란히 프레임 그리드 */
+  /* 5단 가로 배치 메인 그리드 */
   .five-grid {
     display: grid;
-    grid-template-columns: 0.85fr 0.85fr 1.05fr 0.92fr 1.55fr;
+    grid-template-columns: 0.88fr 1.28fr 0.96fr 0.88fr 1.48fr;
     gap: 7px;
     flex: 1;
     min-height: 0;
   }
   .frame {
-    background: var(--panel);
-    border: 1.5px solid var(--border);
     border-radius: 12px;
     padding: 7px;
     display: flex;
@@ -83,13 +82,20 @@
     gap: 6px;
     min-height: 0;
     min-width: 0;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
   }
+  /* 존별 바탕색 테마 */
+  .zone-timer  { background: linear-gradient(180deg, #fff5f5 0%, #ffeaea 100%); border: 1.5px solid #fecaca; }
+  .zone-chrono { background: linear-gradient(180deg, #f0f7ff 0%, #e3effd 100%); border: 1.5px solid #bfdbfe; }
+  .zone-touch  { background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%); border: 1.5px solid #fde68a; }
+  .zone-bp     { background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%); border: 1.5px solid #ddd6fe; }
+  .zone-icu    { background: linear-gradient(180deg, #f0fdf4 0%, #e2f8ea 100%); border: 1.5px solid #bbf7d0; }
+
   .frame-head {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 800;
     color: var(--navy);
-    border-bottom: 1.5px solid #e2e8f0;
+    border-bottom: 1.5px solid rgba(15, 23, 42, 0.1);
     padding-bottom: 4px;
     display: flex;
     justify-content: space-between;
@@ -98,18 +104,16 @@
   }
   .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
 
-  /* 1 & 2 프레임: 세로 3슬롯 정사각형 시계 카드 */
-  .v-stack-3 {
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
-    gap: 6px;
-    flex: 1;
-    min-height: 0;
-  }
+  /* 1열: 타이머존 (3슬롯) */
+  .v-stack-3 { display: grid; grid-template-rows: repeat(3, 1fr); gap: 6px; flex: 1; min-height: 0; }
+
+  /* 2열: 경과시간존 (6슬롯 = 2열 × 3행) */
+  .grid-2x3 { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 6px; flex: 1; min-height: 0; }
+
   .clock-card {
-    background: #f8fafc;
+    background: rgba(255, 255, 255, 0.92);
     border: 1.5px solid #cbd5e1;
-    border-radius: 9px;
+    border-radius: 10px;
     padding: 5px 6px;
     display: flex;
     flex-direction: column;
@@ -117,140 +121,131 @@
     align-items: center;
     min-height: 0;
     transition: 0.2s;
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.04);
   }
-  .clock-card.running { border-color: #3b82f6; background: #f0f7ff; }
+  .clock-card.running { border-color: #2563eb; background: #ffffff; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); }
   .clock-card.warn { border-color: #f59e0b; background: #fffbeb; animation: pulseWarn 1.2s infinite; }
   .clock-card.alarm { border-color: #dc2626; background: #fef2f2; animation: pulseAlarm 0.6s infinite; }
-  @keyframes pulseWarn { 50% { box-shadow: 0 0 9px rgba(245, 158, 11, 0.45); } }
-  @keyframes pulseAlarm { 50% { box-shadow: 0 0 14px rgba(220, 38, 38, 0.65); } }
+  @keyframes pulseWarn { 50% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.55); } }
+  @keyframes pulseAlarm { 50% { box-shadow: 0 0 16px rgba(220, 38, 38, 0.75); } }
 
   .card-input {
     width: 100%;
     border: 1px solid #cbd5e1;
-    background: #ffffff;
-    border-radius: 4px;
-    padding: 2px 5px;
-    font-size: 12px;
+    background: #f8fafc;
+    border-radius: 5px;
+    padding: 2px 4px;
+    font-size: 11.5px;
     font-weight: 800;
+    font-family: inherit;
     text-align: center;
     color: var(--navy);
   }
-  .svg-box {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    width: 100%;
-  }
-  .svg-box svg { height: 100%; max-height: 112px; width: auto; }
+  .card-input:focus { outline: none; border-color: var(--blue); background: #fff; }
+
+  .svg-box { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; width: 100%; }
+  .svg-box svg { height: 100%; max-height: 115px; width: auto; filter: drop-shadow(0 2px 3px rgba(15,23,42,0.12)); }
+
   .mini-presets { display: flex; gap: 2px; justify-content: center; width: 100%; }
   .mini-presets button {
     flex: 1;
     border: 1px solid #cbd5e1;
-    background: #fff;
+    background: #f8fafc;
     border-radius: 4px;
     padding: 1.5px 0;
-    font-size: 10.5px;
-    font-weight: 700;
+    font-size: 10px;
+    font-weight: 800;
+    font-family: inherit;
     cursor: pointer;
+    color: #334155;
   }
-  .mini-presets button:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
-  .mini-act { display: grid; grid-template-columns: 38px 1fr 1fr; gap: 3px; width: 100%; margin-top: 2px; }
+  .mini-presets button:hover { background: var(--red); color: #fff; border-color: var(--red); }
+  .mini-act { display: grid; grid-template-columns: 36px 1fr 1fr; gap: 3px; width: 100%; margin-top: 2px; }
   .mini-act input {
     width: 100%;
     border: 1px solid #cbd5e1;
     border-radius: 4px;
     text-align: center;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 800;
     padding: 1px;
   }
-  .mini-act-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; }
+  .mini-act-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 100%; }
 
-  /* 3 프레임: 터치존 (호흡수 · 수액드랍 · 심박수) */
+  /* 3열 & 4열 상하 2분할 스택 */
+  .v-stack-2 { display: grid; grid-template-rows: 1fr 1fr; gap: 6px; flex: 1; min-height: 0; }
+
+  /* 3열: 터치존 카드 (2개) */
+  .touch-card {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1.5px solid #fcd34d;
+    border-radius: 10px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 0;
+  }
   .mode-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
   .touch-pad {
     flex: 1;
-    background: linear-gradient(180deg, #fffdf9, #f1f5f9);
-    border: 2px solid #94a3b8;
-    border-radius: 12px;
+    background: linear-gradient(180deg, #fffdf7, #fef9e7);
+    border: 1.5px solid #f59e0b;
+    border-radius: 9px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     user-select: none;
-    padding: 6px;
+    padding: 3px;
     text-align: center;
     transition: 0.08s;
     min-height: 0;
   }
-  .touch-pad:active, .touch-pad.pulse { transform: scale(0.985); border-color: var(--blue); box-shadow: 0 0 14px rgba(37, 99, 235, 0.25); }
-  .sub-box {
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 6px;
-    font-size: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .prog-bar { width: 100%; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+  .touch-pad:active, .touch-pad.pulse { transform: scale(0.985); border-color: var(--blue); box-shadow: 0 0 12px rgba(37, 99, 235, 0.25); }
+  .prog-bar { width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
   .prog-fill { height: 100%; width: 0%; background: var(--blue); transition: width 0.1s linear; }
 
-  /* 4 프레임: 혈압존 */
-  .bp-dial-wrap {
-    background: linear-gradient(180deg, #fffdf9, #f1f5f9);
-    border: 1.5px solid #cbd5e1;
+  /* 4열: 혈압존 카드 (2개) */
+  .bp-card {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1.5px solid #c4b5fd;
     border-radius: 10px;
-    padding: 6px;
+    padding: 6px 7px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    min-height: 0;
   }
-  .bp-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-  .bp-field label { display: block; font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 2px; }
+  .bp-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; align-items: end; }
+  .bp-field label { display: block; font-size: 10.5px; font-weight: 800; color: var(--muted); margin-bottom: 1px; text-align: center; }
   .bp-field input {
     width: 100%;
     border: 1.5px solid #cbd5e1;
     border-radius: 6px;
-    padding: 5px 6px;
-    font-size: 17px;
+    padding: 4px 2px;
+    font-size: 15px;
     font-weight: 800;
     text-align: center;
     color: var(--navy);
   }
-  .bp-map-box {
-    background: #eff6ff;
-    border: 1.5px solid #bfdbfe;
-    border-radius: 8px;
-    padding: 6px 8px;
+  .bp-map-pill {
+    background: #f3e8ff;
+    border: 1.5px solid #d8b4fe;
+    border-radius: 6px;
+    padding: 4px 2px;
     text-align: center;
-  }
-  .bp-hist {
-    flex: 1;
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 7px;
-    padding: 5px;
-    font-size: 11.5px;
-    overflow-y: auto;
-    line-height: 1.45;
+    font-size: 14px;
+    font-weight: 900;
+    color: #581c87;
   }
 
-  /* 5 프레임: 집중 ICU존 (상하 2개) */
-  .icu-stack {
-    display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 7px;
-    flex: 1;
-    min-height: 0;
-  }
+  /* 5열: 집중 ICU존 (상하 2개) */
   .icu-box {
-    border: 1.5px solid #93c5fd;
-    background: #fbfdff;
+    border: 1.5px solid #86efac;
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 10px;
     padding: 6px 8px;
     display: flex;
@@ -258,11 +253,11 @@
     gap: 4px;
     min-height: 0;
   }
-  .icu-box.icu2 { border-color: #86efac; background: #fafffc; }
+  .icu-box.icu1 { border-color: #93c5fd; }
   .icu-top { display: flex; align-items: center; gap: 4px; }
   .icu-tag { background: var(--blue); color: #fff; font-size: 11px; font-weight: 800; padding: 3px 6px; border-radius: 5px; white-space: nowrap; }
   .icu-box.icu2 .icu-tag { background: var(--green); }
-  .icu-pt { flex: 1; border: 1px solid #cbd5e1; border-radius: 5px; padding: 3px 6px; font-size: 12px; font-weight: 800; min-width: 0; }
+  .icu-pt { flex: 1; border: 1px solid #cbd5e1; border-radius: 5px; padding: 3px 6px; font-size: 12px; font-weight: 800; font-family: inherit; min-width: 0; }
 
   .gauges-4 {
     display: grid;
@@ -276,34 +271,22 @@
   }
   .gauges-4 input[type=range] { width: 100%; margin: 0; height: 12px; accent-color: var(--blue); cursor: pointer; }
 
-  .icon-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 3px;
-  }
+  .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
   .ico-btn {
     border: 1px solid #cbd5e1;
     background: #ffffff;
     border-radius: 5px;
     padding: 2.5px 1px;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 800;
+    font-family: inherit;
     cursor: pointer;
     color: var(--navy);
     transition: 0.1s;
   }
   .ico-btn:hover { background: #eff6ff; border-color: #3b82f6; }
-  .ico-btn.selected {
-    background: #1d4ed8;
-    border-color: #1e40af;
-    color: #ffffff;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
-  }
-  .icu-box.icu2 .ico-btn.selected {
-    background: #15803d;
-    border-color: #166534;
-    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
-  }
+  .ico-btn.selected { background: #1d4ed8; border-color: #1e40af; color: #ffffff; }
+  .icu-box.icu2 .ico-btn.selected { background: #15803d; border-color: #166534; }
 
   .icu-input-row { display: flex; gap: 4px; }
   .icu-input-row input {
@@ -313,6 +296,7 @@
     padding: 3px 6px;
     font-size: 12px;
     font-weight: 700;
+    font-family: inherit;
     min-width: 0;
   }
   .icu-textarea {
@@ -322,9 +306,9 @@
     background: #fffef7;
     border-radius: 6px;
     padding: 4px 6px;
-    font-family: 'Consolas', 'Malgun Gothic', monospace;
+    font-family: 'Pretendard', 'Consolas', sans-serif;
     font-size: 11.5px;
-    line-height: 1.38;
+    line-height: 1.4;
     resize: none;
     color: var(--navy);
   }
@@ -334,141 +318,46 @@
 
 <!-- 상단 헤더 -->
 <header class="topbar">
-  <h1><span class="badge">23시 동물병원</span> 5단 아날로그 임상 계기판 & 집중 ICU 처치 장부</h1>
+  <h1><span class="badge">23시 하단오거리 동물병원</span> 아날로그 임상 계기판 & 집중 ICU 처치 장부</h1>
   <div class="top-right">
     <div class="clock-pill mono" id="mainClock">00:00:00</div>
     <button class="btn active" id="btnSound" onclick="toggleAudio()">🔊 차임벨 ON</button>
     <button class="btn active" id="btnVoice" onclick="toggleVoice()">🗣️ 음성알람 ON</button>
-    <button class="btn red" onclick="stopAllAlarms()">🔕 알람 끄기</button>
+    <button class="btn red" onclick="stopAllAlarms()">🔕 모든 알람 끄기</button>
   </div>
 </header>
 
 <!-- 5단 가로 배치 메인 그리드 -->
 <main class="five-grid">
 
-  <!-- [1] 타이머존 -->
-  <section class="frame">
-    <div class="frame-head"><span><i class="dot" style="background:#dc2626"></i>1. 타이머존</span><span style="font-size:11px;color:var(--muted)">알람시계</span></div>
+  <!-- [1] 타이머존 (3슬롯 입체 크로노그래프 시계) -->
+  <section class="frame zone-timer">
+    <div class="frame-head"><span><i class="dot" style="background:#dc2626"></i>1. 타이머존</span><span style="font-size:11px;color:#b91c1c">알람 타이머</span></div>
     <div class="v-stack-3" id="timerStack"></div>
   </section>
 
-  <!-- [2] 경과시간존 -->
-  <section class="frame">
-    <div class="frame-head"><span><i class="dot" style="background:#2563eb"></i>2. 경과시간존</span><span style="font-size:11px;color:var(--muted)">스톱워치</span></div>
-    <div class="v-stack-3" id="chronoStack"></div>
+  <!-- [2] 경과시간존 (6슬롯 2x3 아날로그 스톱워치) -->
+  <section class="frame zone-chrono">
+    <div class="frame-head"><span><i class="dot" style="background:#2563eb"></i>2. 경과시간존 (6개)</span><span style="font-size:11px;color:#1d4ed8">아날로그 계측</span></div>
+    <div class="grid-2x3" id="chronoGrid"></div>
   </section>
 
-  <!-- [3] 터치존 (호흡수 · 수액드랍 · 심박수) -->
-  <section class="frame">
-    <div class="frame-head"><span><i class="dot" style="background:#d97706"></i>3. 터치존</span><span style="font-size:11px;color:var(--muted)">탭 계측기</span></div>
-    <div class="mode-tabs">
-      <button class="btn active" id="mBtn_rr" onclick="setTouchMode('rr')">🫁 호흡수</button>
-      <button class="btn" id="mBtn_drop" onclick="setTouchMode('drop')">💧 수액드랍</button>
-      <button class="btn" id="mBtn_hr" onclick="setTouchMode('hr')">❤️ 심박수</button>
-    </div>
-
-    <!-- 수액드랍 전용 방울수(Drop factor) 선택 바 -->
-    <div id="dropFactorBar" style="display:none;gap:4px;align-items:center;background:#eff6ff;padding:4px 6px;border-radius:6px;border:1px solid #bfdbfe;font-size:11.5px;font-weight:800">
-      <span>수액세트:</span>
-      <button class="btn active" id="df20" style="flex:1;padding:2px" onclick="setDropFactor(20)">20방울/mL</button>
-      <button class="btn" id="df60" style="flex:1;padding:2px" onclick="setDropFactor(60)">60방울/mL</button>
-    </div>
-
-    <!-- 대형 아날로그 타코미터 터치 패드 -->
-    <div class="touch-pad" id="touchPad" onclick="tapTouchZone()">
-      <svg viewBox="0 0 210 148" style="width:100%;max-height:165px">
-        <circle cx="105" cy="108" r="88" fill="#fffdf7" stroke="#334155" stroke-width="3.5"/>
-        <path id="tArcGreen" d="M 32 132 A 78 78 0 0 1 82 33" fill="none" stroke="#16a34a" stroke-width="8" stroke-linecap="round"/>
-        <path id="tArcAmber" d="M 82 33 A 78 78 0 0 1 105 30" fill="none" stroke="#f59e0b" stroke-width="8"/>
-        <path id="tArcRed" d="M 105 30 A 78 78 0 0 1 178 132" fill="none" stroke="#dc2626" stroke-width="8" stroke-linecap="round"/>
-        <g id="touchTicks"></g>
-        <rect x="65" y="114" width="80" height="22" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
-        <text id="touchMainVal" x="105" y="129" text-anchor="middle" font-family="Consolas,monospace" font-size="14" font-weight="800" fill="#1e293b">0 회/분</text>
-        <g id="touchNeedle" transform="rotate(-110 105 108)" style="transition:transform 0.16s">
-          <polygon points="102.5,113 107.5,113 105.6,35 104.4,35" fill="#dc2626"/>
-          <circle cx="105" cy="108" r="7" fill="#1e293b" stroke="#fff" stroke-width="1.5"/>
-        </g>
-        <text id="touchSubUnit" x="105" y="82" text-anchor="middle" font-size="10" font-weight="800" fill="#64748b">BREATHS / MIN</text>
-      </svg>
-      <div id="touchExtraDisp" class="mono" style="font-size:13px;font-weight:800;color:#1d4ed8;margin-top:2px"></div>
-      <div id="touchHint" style="font-size:11.5px;font-weight:800;color:#475569;margin-top:3px">터치패드를 박자에 맞춰 클릭하세요</div>
-    </div>
-
-    <div class="sub-box">
-      <div style="display:flex;gap:3px">
-        <button class="btn active" id="tDur15" style="flex:1;padding:2px" onclick="setTouchDur(15)">15초</button>
-        <button class="btn" id="tDur30" style="flex:1;padding:2px" onclick="setTouchDur(30)">30초</button>
-        <button class="btn" id="tDur60" style="flex:1;padding:2px" onclick="setTouchDur(60)">60초</button>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:2px">
-          <span>경과 (<span id="tTargetLbl">15</span>s)</span>
-          <span class="mono" id="tElapsedLbl">0.0s · 0회</span>
-        </div>
-        <div class="prog-bar"><div class="prog-fill" id="tProgFill"></div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px">
-        <button class="btn active" style="padding:3px 2px" onclick="sendTouchToIcu(0)">→ICU1</button>
-        <button class="btn green" style="padding:3px 2px" onclick="sendTouchToIcu(1)">→ICU2</button>
-        <button class="btn" style="padding:3px 2px" onclick="resetTouch()">리셋</button>
-      </div>
-    </div>
+  <!-- [3] 터치존 (상·하 2개 독립 계측기) -->
+  <section class="frame zone-touch">
+    <div class="frame-head"><span><i class="dot" style="background:#d97706"></i>3. 터치존 (2개)</span><span style="font-size:11px;color:#b45309">호흡·드랍·심박</span></div>
+    <div class="v-stack-2" id="touchStack"></div>
   </section>
 
-  <!-- [4] 혈압존 -->
-  <section class="frame">
-    <div class="frame-head"><span><i class="dot" style="background:#7c3aed"></i>4. 혈압존</span><span style="font-size:11px;color:var(--muted)">SBP·DBP·MAP</span></div>
-    <div class="bp-dial-wrap">
-      <svg viewBox="0 0 200 120" style="width:100%;max-height:125px">
-        <path d="M 20 102 A 80 80 0 0 1 180 102" fill="#fffdf7" stroke="#334155" stroke-width="3"/>
-        <!-- 저혈압(<90 적색), 정상(90~140 녹색), 경계(140~160 황색), 고혈압(>160 적색) -->
-        <path d="M 26 100 A 74 74 0 0 1 68 36" fill="none" stroke="#dc2626" stroke-width="8"/>
-        <path d="M 68 36 A 74 74 0 0 1 132 36" fill="none" stroke="#16a34a" stroke-width="8"/>
-        <path d="M 132 36 A 74 74 0 0 1 154 50" fill="none" stroke="#f59e0b" stroke-width="8"/>
-        <path d="M 154 50 A 74 74 0 0 1 174 100" fill="none" stroke="#dc2626" stroke-width="8"/>
-        <text x="24" y="114" font-size="9" font-weight="800" fill="#dc2626">60</text>
-        <text x="64" y="28" font-size="9" font-weight="800" fill="#16a34a">90</text>
-        <text x="130" y="28" font-size="9" font-weight="800" fill="#d97706">140</text>
-        <text x="166" y="114" font-size="9" font-weight="800" fill="#dc2626">200</text>
-        <g id="bpNeedle" transform="rotate(0 100 102)" style="transition:transform 0.25s">
-          <line x1="100" y1="102" x2="100" y2="32" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="100" cy="102" r="6" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
-        </g>
-      </svg>
-      <div id="bpStatusTxt" style="font-size:12px;font-weight:800;color:#16a34a">정상 혈압 범위 (SBP 90~140)</div>
-    </div>
-
-    <div class="bp-inputs">
-      <div class="bp-field">
-        <label>수축기 SBP</label>
-        <input type="number" id="bpSys" value="120" oninput="calcBp()">
-      </div>
-      <div class="bp-field">
-        <label>이완기 DBP</label>
-        <input type="number" id="bpDia" value="80" oninput="calcBp()">
-      </div>
-    </div>
-
-    <div class="bp-map-box">
-      <div style="font-size:11px;font-weight:800;color:#1d4ed8">평균동맥압 (MAP)</div>
-      <div class="mono" id="bpMapVal" style="font-size:21px;font-weight:900;color:#1e293b">93 mmHg</div>
-      <div style="font-size:10.5px;color:#475569;font-weight:700">신장·뇌 관류 유지 기준: MAP ≥ 60~70</div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-      <button class="btn active" style="padding:4px" onclick="recordBp(0)">→ ICU1 기록</button>
-      <button class="btn green" style="padding:4px" onclick="recordBp(1)">→ ICU2 기록</button>
-    </div>
-
-    <div class="bp-hist" id="bpHistList">
-      <div style="color:var(--muted);font-weight:700">혈압 측정 이력이 여기에 표시됩니다.</div>
-    </div>
+  <!-- [4] 혈압존 (상·하 2개 독립 혈압계) -->
+  <section class="frame zone-bp">
+    <div class="frame-head"><span><i class="dot" style="background:#7c3aed"></i>4. 혈압존 (2개)</span><span style="font-size:11px;color:#6d28d9">SBP·DBP·MAP</span></div>
+    <div class="v-stack-2" id="bpStack"></div>
   </section>
 
-  <!-- [5] ICU존 (우측 상·하 2개 집중 장부) -->
-  <section class="frame">
-    <div class="frame-head"><span><i class="dot" style="background:#16a34a"></i>5. 집중 ICU존</span><span style="font-size:11px;color:var(--muted)">아이콘 선택 → 내용 입력 → TXT저장</span></div>
-    <div class="icu-stack" id="icuStack"></div>
+  <!-- [5] 집중 ICU존 (상·하 2개 처치 장부) -->
+  <section class="frame zone-icu">
+    <div class="frame-head"><span><i class="dot" style="background:#16a34a"></i>5. 집중 ICU존 (2베드)</span><span style="font-size:11px;color:#15803d">아이콘기록 · TXT저장</span></div>
+    <div class="v-stack-2" id="icuStack"></div>
   </section>
 
 </main>
@@ -526,18 +415,19 @@ function toggleVoice() {
 setInterval(() => { $('mainClock').textContent = new Date().toTimeString().slice(0, 8); }, 1000);
 $('mainClock').textContent = new Date().toTimeString().slice(0, 8);
 
-/* ==================== SVG 눈금/부채꼴 헬퍼 ==================== */
-function buildClockTicks(cx, cy, rOut, rInMaj, rInMin) {
+/* ==================== 고급 아날로그 시계 눈금 & 부채꼴 헬퍼 ==================== */
+function buildFancyTicks(cx, cy, rOut, rInMaj, rInMin, numColor = '#1e293b') {
   let s = '';
   for (let i = 0; i < 60; i++) {
     const rad = (i * 6 - 90) * Math.PI / 180;
     const maj = i % 5 === 0;
     const r1 = maj ? rInMaj : rInMin;
-    s += `<line x1="${(cx + r1 * Math.cos(rad)).toFixed(1)}" y1="${(cy + r1 * Math.sin(rad)).toFixed(1)}" x2="${(cx + rOut * Math.cos(rad)).toFixed(1)}" y2="${(cy + rOut * Math.sin(rad)).toFixed(1)}" stroke="${maj ? '#1e293b' : '#94a3b8'}" stroke-width="${maj ? 1.8 : 1}"/>`;
-    if (i % 15 === 0) {
+    s += `<line x1="${(cx + r1 * Math.cos(rad)).toFixed(1)}" y1="${(cy + r1 * Math.sin(rad)).toFixed(1)}" x2="${(cx + rOut * Math.cos(rad)).toFixed(1)}" y2="${(cy + rOut * Math.sin(rad)).toFixed(1)}" stroke="${maj ? '#0f172a' : '#94a3b8'}" stroke-width="${maj ? 2.2 : 1}"/>`;
+    if (maj) {
       const val = i === 0 ? 60 : i;
       const rt = rInMaj - 10;
-      s += `<text x="${(cx + rt * Math.cos(rad)).toFixed(1)}" y="${(cy + rt * Math.sin(rad) + 3.5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="800" fill="#334155">${val}</text>`;
+      const isQuarter = i % 15 === 0;
+      s += `<text x="${(cx + rt * Math.cos(rad)).toFixed(1)}" y="${(cy + rt * Math.sin(rad) + 3.5).toFixed(1)}" text-anchor="middle" font-size="${isQuarter ? 10.5 : 8.5}" font-weight="${isQuarter ? 900 : 700}" fill="${isQuarter ? '#dc2626' : numColor}">${val}</text>`;
     }
   }
   return s;
@@ -552,25 +442,47 @@ function describeSector(cx, cy, r, startDeg, endDeg) {
   return `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${endDeg - startDeg > 180 ? 1 : 0} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
 }
 
-/* ==================== [1] 타이머존 (3슬롯) ==================== */
+/* ==================== [1] 타이머존 (3슬롯 · 입체 크로노그래프 시계) ==================== */
 const timerNames = ['타이머 1 (PCV재검)', '타이머 2 (인슐린)', '타이머 3 (처치/멸균)'];
 const timers = Array.from({ length: 3 }, (_, i) => ({ id: i, remain: 0, running: false, alarming: false, warned: false }));
 
 function renderTimers() {
-  const ticks = buildClockTicks(65, 65, 58, 50, 54);
+  const ticks = buildFancyTicks(70, 70, 58, 50, 54);
   $('timerStack').innerHTML = timers.map(t => `
     <div class="clock-card" id="tCard${t.id}">
       <input class="card-input" id="tName${t.id}" placeholder="${timerNames[t.id]}">
       <div class="svg-box">
-        <svg viewBox="0 0 130 130">
-          <circle cx="65" cy="65" r="61" fill="#fffdf9" stroke="#334155" stroke-width="3"/>
-          <path id="tSec${t.id}" d="" fill="rgba(220, 38, 38, 0.2)"/>
-          ${ticks}
-          <rect x="39" y="78" width="52" height="17" rx="4" fill="#f1f5f9" stroke="#cbd5e1"/>
-          <text id="tTxt${t.id}" x="65" y="90" text-anchor="middle" font-family="Consolas,monospace" font-size="12" font-weight="800" fill="#1e293b">00:00</text>
-          <g id="tHand${t.id}" transform="rotate(0 65 65)">
-            <line x1="65" y1="69" x2="65" y2="14" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round"/>
-            <circle cx="65" cy="65" r="4.5" fill="#1e293b"/>
+        <svg viewBox="0 0 140 140">
+          <defs>
+            <linearGradient id="bezelGrad${t.id}" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="50%" stop-color="#0f172a"/>
+              <stop offset="100%" stop-color="#475569"/>
+            </linearGradient>
+            <radialGradient id="dialGrad${t.id}" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="85%" stop-color="#f8fafc"/>
+              <stop offset="100%" stop-color="#e2e8f0"/>
+            </radialGradient>
+          </defs>
+          <!-- 상단 용두(크라운) 장식 -->
+          <rect x="64" y="1" width="12" height="6" rx="2" fill="#475569"/>
+          <!-- 외곽 메탈 베젤 -->
+          <circle cx="70" cy="72" r="65" fill="url(#bezelGrad${t.id})"/>
+          <circle cx="70" cy="72" r="60" fill="url(#dialGrad${t.id})" stroke="#cbd5e1" stroke-width="1"/>
+          <!-- 부채꼴 잔여 시간 게이지 -->
+          <g transform="translate(0,2)">
+            <path id="tSec${t.id}" d="" fill="rgba(220, 38, 38, 0.22)"/>
+            ${ticks}
+            <!-- 디지털 보조창 -->
+            <rect x="43" y="83" width="54" height="17" rx="4" fill="#0f172a"/>
+            <text id="tTxt${t.id}" x="70" y="95" text-anchor="middle" font-family="Consolas,monospace" font-size="11.5" font-weight="800" fill="#38bdf8">00:00</text>
+            <!-- 입체 시계 바늘 -->
+            <g id="tHand${t.id}" transform="rotate(0 70 70)">
+              <polygon points="68,78 72,78 70.8,15 69.2,15" fill="#dc2626"/>
+              <circle cx="70" cy="70" r="6" fill="#0f172a" stroke="#f8fafc" stroke-width="1.5"/>
+              <circle cx="70" cy="70" r="2" fill="#dc2626"/>
+            </g>
           </g>
         </svg>
       </div>
@@ -601,8 +513,8 @@ function updateTimerUI(id) {
   const t = timers[id];
   $('tTxt' + id).textContent = fmtMMSS(t.remain);
   const deg = Math.min(360, (t.remain / 3600) * 360);
-  $('tHand' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 65 65)`);
-  $('tSec' + id).setAttribute('d', describeSector(65, 65, 48, 0, deg));
+  $('tHand' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 70 70)`);
+  $('tSec' + id).setAttribute('d', describeSector(70, 70, 49, 0, deg));
   const card = $('tCard' + id), btn = $('tBtn' + id);
   card.classList.remove('running', 'warn', 'alarm');
   if (t.alarming) { card.classList.add('alarm'); btn.textContent = '알람끔'; btn.className = 'btn red'; }
@@ -655,29 +567,30 @@ setInterval(() => {
   });
 }, 1000);
 
-/* ==================== [2] 경과시간존 (3슬롯) ==================== */
-const chronoNames = ['진료 경과 시계', '마취 경과 시계', '수액 경과 시계'];
-const chronos = Array.from({ length: 3 }, (_, i) => ({ id: i, running: false, startMs: 0, accumSec: 0 }));
+/* ==================== [2] 경과시간존 (6슬롯 · 2x3 아날로그 스톱워치) ==================== */
+const chronoNames = ['경과 1 (진료)', '경과 2 (마취)', '경과 3 (수액A)', '경과 4 (수액B)', '경과 5 (처치)', '경과 6 (대기)'];
+const chronos = Array.from({ length: 6 }, (_, i) => ({ id: i, running: false, startMs: 0, accumSec: 0 }));
 
 function renderChronos() {
-  const ticks = buildClockTicks(65, 65, 58, 50, 54);
-  $('chronoStack').innerHTML = chronos.map(c => `
+  const ticks = buildFancyTicks(65, 65, 57, 49, 53, '#334155');
+  $('chronoGrid').innerHTML = chronos.map(c => `
     <div class="clock-card" id="cCard${c.id}">
       <input class="card-input" id="cName${c.id}" placeholder="${chronoNames[c.id]}">
       <div class="svg-box">
         <svg viewBox="0 0 130 130">
-          <circle cx="65" cy="65" r="61" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+          <circle cx="65" cy="65" r="61" fill="#1e3a8a"/>
+          <circle cx="65" cy="65" r="57" fill="#ffffff" stroke="#93c5fd" stroke-width="1"/>
           ${ticks}
-          <rect x="35" y="78" width="60" height="17" rx="4" fill="#fff" stroke="#cbd5e1"/>
-          <text id="cTxt${c.id}" x="65" y="90" text-anchor="middle" font-family="Consolas,monospace" font-size="11.5" font-weight="800" fill="#1e293b">00:00:00</text>
-          <line id="cMin${c.id}" x1="65" y1="68" x2="65" y2="24" stroke="#1e293b" stroke-width="2.8" stroke-linecap="round"/>
-          <line id="cSec${c.id}" x1="65" y1="73" x2="65" y2="14" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round"/>
-          <circle cx="65" cy="65" r="4" fill="#1e293b"/>
+          <rect x="35" y="78" width="60" height="16" rx="4" fill="#eff6ff" stroke="#bfdbfe"/>
+          <text id="cTxt${c.id}" x="65" y="89.5" text-anchor="middle" font-family="Consolas,monospace" font-size="11" font-weight="800" fill="#1e3a8a">00:00:00</text>
+          <line id="cMin${c.id}" x1="65" y1="68" x2="65" y2="25" stroke="#0f172a" stroke-width="2.8" stroke-linecap="round"/>
+          <line id="cSec${c.id}" x1="65" y1="74" x2="65" y2="14" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="65" cy="65" r="4.2" fill="#0f172a"/>
         </svg>
       </div>
       <div class="mini-act-2">
-        <button class="btn green" id="cBtn${c.id}" style="padding:3px;font-size:11px" onclick="toggleChrono(${c.id})">▶ 시작</button>
-        <button class="btn" style="padding:3px;font-size:11px" onclick="resetChrono(${c.id})">리셋</button>
+        <button class="btn green" id="cBtn${c.id}" style="padding:2.5px;font-size:11px" onclick="toggleChrono(${c.id})">▶ 시작</button>
+        <button class="btn" style="padding:2.5px;font-size:11px" onclick="resetChrono(${c.id})">리셋</button>
       </div>
     </div>
   `).join('');
@@ -720,180 +633,234 @@ setInterval(() => {
   });
 }, 500);
 
-/* ==================== [3] 터치존 (호흡수 · 수액드랍 · 심박수) ==================== */
-let touchMode = 'rr'; // 'rr' | 'drop' | 'hr'
-let dropFactor = 20;  // 20 or 60 gtt/mL
-let touchDur = 15;
-let touchTaps = [];
-let touchStartMs = 0;
-let touchTimer = null;
-let touchDone = false;
-let lastTouchSummary = '';
+/* ==================== [3] 터치존 2개 (호흡수 · 수액드랍 · 심박수) ==================== */
+const touchStates = Array.from({ length: 2 }, (_, i) => ({
+  id: i, mode: 'rr', dropFactor: 20, dur: 15, taps: [], startMs: 0, timer: null, done: false, summary: ''
+}));
 
-function drawTouchTicks(maxVal) {
-  const g = $('touchTicks');
+function buildTachoTicks(maxVal) {
   let html = '';
-  const step = maxVal / 8;
   for (let i = 0; i <= 16; i++) {
     const val = (maxVal / 16) * i;
     const deg = -110 + (val / maxVal) * 220;
     const rad = (deg - 90) * Math.PI / 180;
     const maj = i % 2 === 0;
-    const r1 = maj ? 69 : 74, r2 = 81;
-    html += `<line x1="${(105 + r1 * Math.cos(rad)).toFixed(1)}" y1="${(108 + r1 * Math.sin(rad)).toFixed(1)}" x2="${(105 + r2 * Math.cos(rad)).toFixed(1)}" y2="${(108 + r2 * Math.sin(rad)).toFixed(1)}" stroke="#334155" stroke-width="${maj ? 1.8 : 1}"/>`;
+    const r1 = maj ? 64 : 69, r2 = 76;
+    html += `<line x1="${(100 + r1 * Math.cos(rad)).toFixed(1)}" y1="${(100 + r1 * Math.sin(rad)).toFixed(1)}" x2="${(100 + r2 * Math.cos(rad)).toFixed(1)}" y2="${(100 + r2 * Math.sin(rad)).toFixed(1)}" stroke="#334155" stroke-width="${maj ? 1.8 : 1}"/>`;
     if (maj) {
-      const rt = 57;
-      html += `<text x="${(105 + rt * Math.cos(rad)).toFixed(1)}" y="${(108 + rt * Math.sin(rad) + 3.5).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#1e293b">${Math.round(val)}</text>`;
+      const rt = 53;
+      html += `<text x="${(100 + rt * Math.cos(rad)).toFixed(1)}" y="${(100 + rt * Math.sin(rad) + 3.5).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="800" fill="#1e293b">${Math.round(val)}</text>`;
     }
   }
-  g.innerHTML = html;
-}
-drawTouchTicks(80);
-
-function setTouchMode(mode) {
-  touchMode = mode;
-  ['rr', 'drop', 'hr'].forEach(m => $('mBtn_' + m).className = m === mode ? 'btn active' : 'btn');
-  $('dropFactorBar').style.display = mode === 'drop' ? 'flex' : 'none';
-  if (mode === 'rr') {
-    drawTouchTicks(80);
-    $('touchSubUnit').textContent = 'BREATHS / MIN';
-  } else if (mode === 'drop') {
-    drawTouchTicks(120);
-    $('touchSubUnit').textContent = 'DROPS / MIN';
-  } else {
-    drawTouchTicks(240);
-    $('touchSubUnit').textContent = 'HEART BPM';
-  }
-  resetTouch();
+  return html;
 }
 
-function setDropFactor(df) {
-  dropFactor = df;
-  $('df20').className = df === 20 ? 'btn active' : 'btn';
-  $('df60').className = df === 60 ? 'btn active' : 'btn';
-  resetTouch();
+function renderTouchZone() {
+  const ticks = buildTachoTicks(80);
+  $('touchStack').innerHTML = touchStates.map(st => `
+    <div class="touch-card">
+      <div class="mode-tabs">
+        <button class="btn active" id="tm_${st.id}_rr" style="padding:2px" onclick="setTMode(${st.id},'rr')">🫁호흡수</button>
+        <button class="btn" id="tm_${st.id}_drop" style="padding:2px" onclick="setTMode(${st.id},'drop')">💧드랍수</button>
+        <button class="btn" id="tm_${st.id}_hr" style="padding:2px" onclick="setTMode(${st.id},'hr')">❤️심박수</button>
+      </div>
+      <div id="tDropBar${st.id}" style="display:none;gap:3px;align-items:center;font-size:10.5px;font-weight:800">
+        <button class="btn active" id="tDf_${st.id}_20" style="flex:1;padding:1.5px" onclick="setTDrop(${st.id},20)">20방울/mL</button>
+        <button class="btn" id="tDf_${st.id}_60" style="flex:1;padding:1.5px" onclick="setTDrop(${st.id},60)">60방울/mL</button>
+      </div>
+      <div class="touch-pad" id="tPad${st.id}" onclick="tapT(${st.id})">
+        <svg viewBox="0 0 200 132" style="width:100%;max-height:112px">
+          <circle cx="100" cy="100" r="82" fill="#fffdf7" stroke="#334155" stroke-width="3"/>
+          <path d="M 31 122 A 72 72 0 0 1 78 31" fill="none" stroke="#16a34a" stroke-width="7" stroke-linecap="round"/>
+          <path d="M 78 31 A 72 72 0 0 1 100 28" fill="none" stroke="#f59e0b" stroke-width="7"/>
+          <path d="M 100 28 A 72 72 0 0 1 169 122" fill="none" stroke="#dc2626" stroke-width="7" stroke-linecap="round"/>
+          <g id="tTicks${st.id}">${ticks}</g>
+          <rect x="62" y="106" width="76" height="20" rx="4" fill="#f1f5f9" stroke="#94a3b8"/>
+          <text id="tVal${st.id}" x="100" y="120" text-anchor="middle" font-family="Consolas,monospace" font-size="13" font-weight="800" fill="#1e293b">0 회/분</text>
+          <g id="tNeedle${st.id}" transform="rotate(-110 100 100)" style="transition:transform 0.16s">
+            <polygon points="97.8,105 102.2,105 100.6,32 99.4,32" fill="#dc2626"/>
+            <circle cx="100" cy="100" r="6" fill="#1e293b" stroke="#fff" stroke-width="1.5"/>
+          </g>
+        </svg>
+        <div id="tExtra${st.id}" class="mono" style="font-size:11.5px;font-weight:800;color:#1d4ed8"></div>
+        <div id="tHint${st.id}" style="font-size:10.5px;font-weight:800;color:#64748b">터치계기 #${st.id + 1} · 박자마다 클릭</div>
+      </div>
+      <div style="display:flex;gap:3px;align-items:center;font-size:10.5px;font-weight:700">
+        <button class="btn active" id="td_${st.id}_15" style="padding:1.5px 5px" onclick="setTDur(${st.id},15)">15s</button>
+        <button class="btn" id="td_${st.id}_30" style="padding:1.5px 5px" onclick="setTDur(${st.id},30)">30s</button>
+        <button class="btn" id="td_${st.id}_60" style="padding:1.5px 5px" onclick="setTDur(${st.id},60)">60s</button>
+        <div class="prog-bar" style="flex:1"><div class="prog-fill" id="tProg${st.id}"></div></div>
+        <span class="mono" id="tElap${st.id}">0s·0회</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px">
+        <button class="btn active" style="padding:2.5px;font-size:11px" onclick="sendTToIcu(${st.id},0)">→ICU1</button>
+        <button class="btn green" style="padding:2.5px;font-size:11px" onclick="sendTToIcu(${st.id},1)">→ICU2</button>
+        <button class="btn" style="padding:2.5px;font-size:11px" onclick="resetT(${st.id})">리셋</button>
+      </div>
+    </div>
+  `).join('');
+}
+renderTouchZone();
+
+function setTMode(id, mode) {
+  const st = touchStates[id];
+  st.mode = mode;
+  ['rr', 'drop', 'hr'].forEach(m => $(`tm_${id}_${m}`).className = m === mode ? 'btn active' : 'btn');
+  $('tDropBar' + id).style.display = mode === 'drop' ? 'flex' : 'none';
+  $('tTicks' + id).innerHTML = buildTachoTicks(mode === 'rr' ? 80 : mode === 'drop' ? 120 : 240);
+  resetT(id);
 }
 
-function setTouchDur(sec) {
-  touchDur = sec;
-  [15, 30, 60].forEach(d => $('tDur' + d).className = d === sec ? 'btn active' : 'btn');
-  $('tTargetLbl').textContent = sec;
-  resetTouch();
+function setTDrop(id, df) {
+  touchStates[id].dropFactor = df;
+  $('tDf_' + id + '_20').className = df === 20 ? 'btn active' : 'btn';
+  $('tDf_' + id + '_60').className = df === 60 ? 'btn active' : 'btn';
+  resetT(id);
 }
 
-function tapTouchZone() {
+function setTDur(id, sec) {
+  touchStates[id].dur = sec;
+  [15, 30, 60].forEach(d => $(`td_${id}_${d}`).className = d === sec ? 'btn active' : 'btn');
+  resetT(id);
+}
+
+function tapT(id) {
   ensureAudio();
-  if (touchDone) resetTouch();
+  const st = touchStates[id];
+  if (st.done) resetT(id);
   const now = Date.now();
-  if (touchTaps.length === 0) {
-    touchStartMs = now;
-    touchTimer = setInterval(updateTouchTick, 100);
+  if (st.taps.length === 0) {
+    st.startMs = now;
+    st.timer = setInterval(() => tickT(id), 100);
   }
-  touchTaps.push(now);
-
-  const pad = $('touchPad');
+  st.taps.push(now);
+  const pad = $('tPad' + id);
   pad.classList.add('pulse');
   setTimeout(() => pad.classList.remove('pulse'), 100);
 
-  const ratePerMin = touchTaps.length >= 2
-    ? Math.round(((touchTaps.length - 1) / ((now - touchTaps[0]) / 1000)) * 60)
-    : Math.round(60 / touchDur);
-  renderTouchRate(ratePerMin);
+  const rate = st.taps.length >= 2
+    ? Math.round(((st.taps.length - 1) / ((now - st.taps[0]) / 1000)) * 60)
+    : Math.round(60 / st.dur);
+  updateTVisual(id, rate);
 }
 
-function updateTouchTick() {
-  if (!touchStartMs) return;
-  const elapsed = (Date.now() - touchStartMs) / 1000;
-  $('tProgFill').style.width = Math.min(100, (elapsed / touchDur) * 100) + '%';
-  $('tElapsedLbl').textContent = `${Math.min(touchDur, elapsed).toFixed(1)}s · ${touchTaps.length}회`;
-
-  if (elapsed >= touchDur) {
-    clearInterval(touchTimer); touchTimer = null; touchDone = true;
-    const finalRate = Math.round(touchTaps.length * (60 / touchDur));
-    renderTouchRate(finalRate);
-    $('touchHint').textContent = `✅ ${touchDur}초 측정 완료 (${touchTaps.length}회)`;
-    playChime('info');
-    speakText(`측정 완료. 분당 ${finalRate}회 입니다.`);
-  } else {
-    $('touchHint').textContent = `측정 진행 중... 박자마다 터치`;
+function tickT(id) {
+  const st = touchStates[id];
+  if (!st.startMs) return;
+  const elapsed = (Date.now() - st.startMs) / 1000;
+  $('tProg' + id).style.width = Math.min(100, (elapsed / st.dur) * 100) + '%';
+  $('tElap' + id).textContent = `${Math.min(st.dur, elapsed).toFixed(0)}s·${st.taps.length}회`;
+  if (elapsed >= st.dur) {
+    clearInterval(st.timer); st.timer = null; st.done = true;
+    const finalRate = Math.round(st.taps.length * (60 / st.dur));
+    updateTVisual(id, finalRate);
+    $('tHint' + id).textContent = `✅ 완료 (${st.taps.length}회/${st.dur}초)`;
+    playChime('info'); speakText(`측정 완료. 분당 ${finalRate}회 입니다.`);
   }
 }
 
-function renderTouchRate(rate) {
-  let maxScale = touchMode === 'rr' ? 80 : touchMode === 'drop' ? 120 : 240;
-  const clamped = Math.max(0, Math.min(maxScale, rate));
-  const deg = -110 + (clamped / maxScale) * 220;
-  $('touchNeedle').setAttribute('transform', `rotate(${deg.toFixed(1)} 105 108)`);
-
-  if (touchMode === 'rr') {
-    $('touchMainVal').textContent = `${rate} 회/분`;
-    $('touchMainVal').setAttribute('fill', rate > 40 ? '#dc2626' : rate > 30 ? '#d97706' : '#16a34a');
-    $('touchExtraDisp').textContent = rate > 30 ? '⚠ 안정 호흡수(30회) 초과' : '✓ 정상 호흡수 범위';
-    lastTouchSummary = `🫁 호흡수 : ${rate} 회/분 (${touchDur}초)`;
-  } else if (touchMode === 'drop') {
-    const mlHr = ((rate * 60) / dropFactor).toFixed(1);
-    $('touchMainVal').textContent = `${rate} gtt/m`;
-    $('touchMainVal').setAttribute('fill', '#1d4ed8');
-    $('touchExtraDisp').textContent = `환산 속도: 약 ${mlHr} mL/hr (${dropFactor}방울세트)`;
-    lastTouchSummary = `🧴 수액속도 : ${mlHr} mL/hr (${rate}방울/분, ${dropFactor}gtt)`;
+function updateTVisual(id, rate) {
+  const st = touchStates[id];
+  const maxS = st.mode === 'rr' ? 80 : st.mode === 'drop' ? 120 : 240;
+  const deg = -110 + (Math.max(0, Math.min(maxS, rate)) / maxS) * 220;
+  $('tNeedle' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 100 100)`);
+  if (st.mode === 'rr') {
+    $('tVal' + id).textContent = `${rate} 회/분`;
+    $('tVal' + id).setAttribute('fill', rate > 40 ? '#dc2626' : rate > 30 ? '#d97706' : '#16a34a');
+    $('tExtra' + id).textContent = rate > 30 ? '⚠ 30회 초과 주의' : '✓ 정상 호흡수';
+    st.summary = `🫁 호흡수 : ${rate} 회/분 (${st.dur}초)`;
+  } else if (st.mode === 'drop') {
+    const mlHr = ((rate * 60) / st.dropFactor).toFixed(1);
+    $('tVal' + id).textContent = `${rate} gtt/m`;
+    $('tVal' + id).setAttribute('fill', '#1d4ed8');
+    $('tExtra' + id).textContent = `약 ${mlHr} mL/hr (${st.dropFactor}방울)`;
+    st.summary = `🧴 수액속도 : ${mlHr} mL/hr (${rate}방울/분, ${st.dropFactor}gtt)`;
   } else {
-    $('touchMainVal').textContent = `${rate} BPM`;
-    $('touchMainVal').setAttribute('fill', rate > 180 || rate < 60 ? '#dc2626' : '#16a34a');
-    $('touchExtraDisp').textContent = `심박수 ${rate} bpm`;
-    lastTouchSummary = `❤️ 심박수 : ${rate} BPM (${touchDur}초)`;
+    $('tVal' + id).textContent = `${rate} BPM`;
+    $('tVal' + id).setAttribute('fill', rate > 180 || rate < 60 ? '#dc2626' : '#16a34a');
+    $('tExtra' + id).textContent = `심박수 ${rate} bpm`;
+    st.summary = `❤️ 심박수 : ${rate} BPM (${st.dur}초)`;
   }
 }
 
-function resetTouch() {
-  clearInterval(touchTimer); touchTimer = null; touchTaps = []; touchStartMs = 0; touchDone = false; lastTouchSummary = '';
-  $('touchNeedle').setAttribute('transform', 'rotate(-110 105 108)');
-  $('touchMainVal').textContent = touchMode === 'drop' ? '0 gtt/m' : touchMode === 'hr' ? '0 BPM' : '0 회/분';
-  $('touchMainVal').setAttribute('fill', '#1e293b');
-  $('touchExtraDisp').textContent = '';
-  $('tProgFill').style.width = '0%';
-  $('tElapsedLbl').textContent = '0.0s · 0회';
-  $('touchHint').textContent = '터치패드를 박자에 맞춰 클릭하세요';
+function resetT(id) {
+  const st = touchStates[id];
+  clearInterval(st.timer); st.timer = null; st.taps = []; st.startMs = 0; st.done = false; st.summary = '';
+  $('tNeedle' + id).setAttribute('transform', 'rotate(-110 100 100)');
+  $('tVal' + id).textContent = st.mode === 'drop' ? '0 gtt/m' : st.mode === 'hr' ? '0 BPM' : '0 회/분';
+  $('tVal' + id).setAttribute('fill', '#1e293b');
+  $('tExtra' + id).textContent = '';
+  $('tProg' + id).style.width = '0%';
+  $('tElap' + id).textContent = '0s·0회';
+  $('tHint' + id).textContent = `터치계기 #${id + 1} · 박자마다 클릭`;
 }
 
-function sendTouchToIcu(icuIdx) {
-  if (!lastTouchSummary) { alert('먼저 터치존에서 측정을 진행해주세요.'); return; }
-  const [tag, val] = lastTouchSummary.split(' : ');
+function sendTToIcu(id, icuIdx) {
+  const st = touchStates[id];
+  if (!st.summary) { alert('먼저 측정을 진행해주세요.'); return; }
+  const [tag, val] = st.summary.split(' : ');
   appendIcuLine(icuIdx, tag, val);
 }
 
-/* ==================== [4] 혈압존 ==================== */
-function calcBp() {
-  const sys = parseFloat($('bpSys').value) || 0;
-  const dia = parseFloat($('bpDia').value) || 0;
-  const map = Math.round(dia + (sys - dia) / 3);
-  $('bpMapVal').textContent = `${map} mmHg`;
+/* ==================== [4] 혈압존 2개 (상·하 독립 혈압계) ==================== */
+function renderBpZone() {
+  $('bpStack').innerHTML = [0, 1].map(id => `
+    <div class="bp-card">
+      <input class="card-input" id="bpPt${id}" placeholder="혈압계 #${id + 1} (환자명)">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <svg viewBox="0 0 200 112" style="width:100%;max-height:105px">
+          <path d="M 20 98 A 80 80 0 0 1 180 98" fill="#fffdf7" stroke="#334155" stroke-width="3"/>
+          <path d="M 26 96 A 74 74 0 0 1 68 32" fill="none" stroke="#dc2626" stroke-width="8"/>
+          <path d="M 68 32 A 74 74 0 0 1 132 32" fill="none" stroke="#16a34a" stroke-width="8"/>
+          <path d="M 132 32 A 74 74 0 0 1 154 46" fill="none" stroke="#f59e0b" stroke-width="8"/>
+          <path d="M 154 46 A 74 74 0 0 1 174 96" fill="none" stroke="#dc2626" stroke-width="8"/>
+          <text x="23" y="109" font-size="9" font-weight="800" fill="#dc2626">60</text>
+          <text x="64" y="25" font-size="9" font-weight="800" fill="#16a34a">90</text>
+          <text x="130" y="25" font-size="9" font-weight="800" fill="#d97706">140</text>
+          <text x="166" y="109" font-size="9" font-weight="800" fill="#dc2626">200</text>
+          <g id="bpNeedle${id}" transform="rotate(0 100 98)" style="transition:transform 0.25s">
+            <line x1="100" y1="98" x2="100" y2="28" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="100" cy="98" r="5.5" fill="#7c3aed" stroke="#fff" stroke-width="1.5"/>
+          </g>
+        </svg>
+        <div id="bpStat${id}" style="font-size:11px;font-weight:800;color:#16a34a">✓ 정상 혈압 (SBP 90~140)</div>
+      </div>
+      <div class="bp-inputs">
+        <div class="bp-field"><label>수축 SBP</label><input type="number" id="bpSys${id}" value="120" oninput="calcBp(${id})"></div>
+        <div class="bp-field"><label>이완 DBP</label><input type="number" id="bpDia${id}" value="80" oninput="calcBp(${id})"></div>
+        <div class="bp-field"><label>평균 MAP</label><div class="bp-map-pill mono" id="bpMap${id}">93</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <button class="btn active" style="padding:3px;font-size:11px" onclick="sendBpToIcu(${id},0)">→ ICU1 기록</button>
+        <button class="btn green" style="padding:3px;font-size:11px" onclick="sendBpToIcu(${id},1)">→ ICU2 기록</button>
+      </div>
+    </div>
+  `).join('');
+  calcBp(0); calcBp(1);
+}
+renderBpZone();
 
-  // SBP 60~200 범위를 -75도 ~ +75도로 매핑
+function calcBp(id) {
+  const sys = parseFloat($('bpSys' + id).value) || 0;
+  const dia = parseFloat($('bpDia' + id).value) || 0;
+  const map = Math.round(dia + (sys - dia) / 3);
+  $('bpMap' + id).textContent = `${map}`;
+
   const clamped = Math.max(60, Math.min(200, sys));
   const deg = -75 + ((clamped - 60) / 140) * 150;
-  $('bpNeedle').setAttribute('transform', `rotate(${deg.toFixed(1)} 100 102)`);
+  $('bpNeedle' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 100 98)`);
 
-  const st = $('bpStatusTxt');
-  if (sys < 90 || map < 65) {
-    st.textContent = '🚨 저혈압 경고 (관류 저하 주의)'; st.style.color = '#dc2626';
-  } else if (sys > 160) {
-    st.textContent = '🚨 고혈압 경고 (표적장기 손상 주의)'; st.style.color = '#dc2626';
-  } else if (sys > 140) {
-    st.textContent = '⚠ 경계성 고혈압 (흥분/스트레스 감별)'; st.style.color = '#d97706';
-  } else {
-    st.textContent = '✓ 정상 혈압 범위 (SBP 90~140)'; st.style.color = '#16a34a';
-  }
+  const st = $('bpStat' + id);
+  if (sys < 90 || map < 65) { st.textContent = '🚨 저혈압 경고 (관류 저하)'; st.style.color = '#dc2626'; }
+  else if (sys > 160) { st.textContent = '🚨 고혈압 경고 (장기손상 주의)'; st.style.color = '#dc2626'; }
+  else if (sys > 140) { st.textContent = '⚠ 경계성 고혈압'; st.style.color = '#d97706'; }
+  else { st.textContent = '✓ 정상 혈압 (SBP 90~140)'; st.style.color = '#16a34a'; }
 }
-calcBp();
 
-function recordBp(icuIdx) {
-  const sys = $('bpSys').value || '-';
-  const dia = $('bpDia').value || '-';
-  const map = $('bpMapVal').textContent;
-  const nowStr = new Date().toTimeString().slice(0, 5);
-  const hist = $('bpHistList');
-  if (hist.textContent.includes('혈압 측정 이력이')) hist.innerHTML = '';
-  hist.innerHTML = `<div><b>[${nowStr}]</b> ${sys}/${dia} (MAP ${map}) → ICU${icuIdx + 1}</div>` + hist.innerHTML;
+function sendBpToIcu(bpId, icuIdx) {
+  const sys = $('bpSys' + bpId).value || '-';
+  const dia = $('bpDia' + bpId).value || '-';
+  const map = $('bpMap' + bpId).textContent;
   appendIcuLine(icuIdx, '🩸 혈압측정', `${sys}/${dia} mmHg (MAP ${map})`);
 }
 
@@ -911,13 +878,11 @@ const icuIcons = [
   { ico: '🫁', name: '호흡수' },
   { ico: '⚖️', name: '체중측정' }
 ];
-
-// 각 ICU 베드별 현재 선택된 아이콘 상태 저장
 const selectedIcuIcon = ['🩺 체온측정', '🩺 체온측정'];
 
 function renderIcuStack() {
   $('icuStack').innerHTML = [0, 1].map(idx => `
-    <div class="icu-box ${idx === 1 ? 'icu2' : ''}">
+    <div class="icu-box ${idx === 0 ? 'icu1' : 'icu2'}">
       <div class="icu-top">
         <span class="icu-tag">ICU #${idx + 1}</span>
         <input class="icu-pt" id="icuPt${idx}" placeholder="환자명 · 품종 · 체중 · 진단명">
@@ -933,7 +898,7 @@ function renderIcuStack() {
       </div>
 
       <div class="icon-grid" id="icoGrid${idx}">
-        ${icuIcons.map((item, i) => {
+        ${icuIcons.map(item => {
           const fullLabel = `${item.ico} ${item.name}`;
           const isSel = selectedIcuIcon[idx] === fullLabel ? 'selected' : '';
           return `<button type="button" class="ico-btn ${isSel}" onclick="selectAndLogIcon(${idx}, '${fullLabel}', this)">${item.ico}${item.name.split('(')[0]}</button>`;
@@ -942,8 +907,8 @@ function renderIcuStack() {
       </div>
 
       <div class="icu-input-row">
-        <input id="icuNote${idx}" placeholder="[🩺 체온측정] 선택됨 — 수치/내용 입력 후 Enter (또는 아이콘 클릭)" onkeydown="if(event.key==='Enter') submitSelectedIconNote(${idx})">
-        <button class="btn ${idx === 0 ? 'active' : 'green'}" style="padding:3px 8px;font-size:11.5px" onclick="submitSelectedIconNote(${idx})">+ 기록</button>
+        <input id="icuNote${idx}" placeholder="[🩺 체온측정] 선택됨 — 수치/내용 입력 후 Enter" onkeydown="if(event.key==='Enter') submitSelectedIconNote(${idx})">
+        <button class="btn ${idx === 0 ? 'active' : 'green'}" style="padding:3px 8px;font-size:11px" onclick="submitSelectedIconNote(${idx})">+ 기록</button>
       </div>
 
       <textarea class="icu-textarea" id="icuLog${idx}" placeholder="아이콘을 누르면 해당 아이콘 이름으로 시각과 함께 자동 기록됩니다. 내용을 입력 후 Enter를 눌러도 선택된 아이콘 이름으로 기록됩니다."></textarea>
@@ -954,14 +919,11 @@ renderIcuStack();
 
 function selectAndLogIcon(idx, fullLabel, btnEl) {
   selectedIcuIcon[idx] = fullLabel;
-  // 버튼 선택 하이라이트 갱신
   $('icoGrid' + idx).querySelectorAll('.ico-btn').forEach(b => b.classList.remove('selected'));
   btnEl.classList.add('selected');
 
   const noteInput = $('icuNote' + idx);
   noteInput.placeholder = `[${fullLabel}] 선택됨 — 수치/내용 입력 후 Enter`;
-
-  // 현재 입력창에 적힌 내용이 있으면 그 내용과 함께 기록, 없으면 아이콘 이름만 즉시 기록
   const typed = noteInput.value.trim();
   appendIcuLine(idx, fullLabel, typed);
   noteInput.value = '';
@@ -987,7 +949,7 @@ function appendIcuLine(idx, tag, detail = '') {
 function buildIcuReport(idx) {
   const pt = $('icuPt' + idx).value.trim() || `ICU_${idx + 1}번환자`;
   const today = new Date().toISOString().slice(0, 10);
-  return `[23시 동물병원 집중 ICU #${idx + 1} 처치 장부 - ${today}]
+  return `[23시 하단오거리 동물병원 집중 ICU #${idx + 1} 처치 장부 - ${today}]
 - 환자정보: ${pt}
 - 상태게이지: 밥 ${$('gF' + idx).textContent} | 물 ${$('gW' + idx).textContent} | 활력 ${$('gV' + idx).textContent} | 수액잔량 ${$('gL' + idx).textContent}
 --------------------------------------------------
