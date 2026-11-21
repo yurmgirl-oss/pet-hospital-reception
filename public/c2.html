@@ -3,481 +3,485 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>C2 · 23시 하단오거리 동물병원 컬러·번호 구분 계기판 & ICU 장부</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<title>C2 · 23시 동물병원 글래스 콕핏 유틸리티</title>
 <style>
   :root {
-    --bg: #dfe7f1;
-    --navy: #16243b;
-    --blue: #2563eb;
-    --green: #15803d;
-    --amber: #d97706;
-    --red: #dc2626;
-    --muted: #52647c;
+    --bg: #070b14;
+    --panel: #0d1424;
+    --panel2: #111b30;
+    --border: #1e2d4a;
+    --cyan: #38bdf8;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --text: #e2e8f0;
+    --muted: #7c8ea8;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: linear-gradient(135deg, #dce5f2 0%, #e9eff7 50%, #d8e3f0 100%);
-    color: var(--navy);
-    font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
-    padding: 5px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Malgun Gothic', 'Segoe UI', Arial, sans-serif;
+    padding: 8px;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
     overflow: hidden;
   }
-  .mono { font-family: 'Consolas', 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+  .mono { font-family: 'Consolas', 'Courier New', monospace; letter-spacing: 0.5px; }
 
-  /* 숫자 입력칸 증감 화살표(스피너) 완전 제거 */
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-  input[type=number] { -moz-appearance: textfield; appearance: textfield; }
-
-  /* 상단 헤더 */
-  .topbar {
+  /* 상단 HUD 바 */
+  .hud {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(90deg, #16243b 0%, #23385c 100%);
-    color: #f8fafc;
-    border-radius: 9px;
-    padding: 4px 12px;
+    background: linear-gradient(90deg, #0b1324, #13203b, #0b1324);
+    border: 1px solid #263a61;
+    border-radius: 10px;
+    padding: 7px 14px;
+    box-shadow: 0 0 18px #00000080;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(22, 36, 59, 0.18);
   }
-  .topbar h1 { margin: 0; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
-  .badge { background: #38bdf8; color: #0f172a; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 900; }
-  .top-right { display: flex; align-items: center; gap: 7px; }
-  .clock-pill { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); padding: 2px 9px; border-radius: 6px; font-size: 14.5px; font-weight: 800; color: #7dd3fc; }
-
-  .btn {
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    color: var(--navy);
+  .hud-title { display: flex; align-items: center; gap: 10px; }
+  .hud-badge {
+    background: #0ea5e922;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-weight: 800;
+    font-size: 13px;
+    padding: 3px 8px;
     border-radius: 5px;
-    padding: 3px 7px;
-    font-size: 11px;
+  }
+  .hud-title h1 { margin: 0; font-size: 19px; font-weight: 800; color: #f8fafc; }
+  .hud-clocks { display: flex; align-items: center; gap: 18px; }
+  .clock-box { text-align: right; }
+  .clock-label { font-size: 11px; color: var(--muted); font-weight: 700; }
+  .clock-val { font-size: 22px; font-weight: 800; color: var(--cyan); }
+  .hud-controls { display: flex; align-items: center; gap: 8px; }
+  .btn {
+    border: 1px solid #2c426e;
+    background: #16233d;
+    color: #e2e8f0;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
     font-weight: 700;
-    font-family: inherit;
     cursor: pointer;
     transition: 0.12s;
-    white-space: nowrap;
   }
-  .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
-  .btn.active { background: #2563eb; border-color: #1d4ed8; color: #fff; }
-  .btn.green { background: #16a34a; border-color: #15803d; color: #fff; }
-  .btn.amber { background: #d97706; border-color: #b45309; color: #fff; }
-  .btn.red { background: #dc2626; border-color: #b91c1c; color: #fff; }
+  .btn:hover { background: #1f3257; border-color: var(--cyan); }
+  .btn.active { background: #0284c7; border-color: #38bdf8; color: #fff; }
+  .btn.green { background: #065f46; border-color: #10b981; color: #ecfdf5; }
+  .btn.green:hover { background: #047857; }
+  .btn.amber { background: #78350f; border-color: #f59e0b; color: #fef3c7; }
+  .btn.red { background: #7f1d1d; border-color: #ef4444; color: #fee2e2; }
 
-  /* 5단 가로 배치 메인 그리드 */
-  .five-grid {
+  /* 메인 4분할 글래스 콕핏 그리드 */
+  .cockpit {
     display: grid;
-    grid-template-columns: 0.98fr 1.32fr 1.0fr 0.9fr 1.4fr;
-    gap: 6px;
+    grid-template-columns: 1.15fr 1fr;
+    grid-template-rows: 1.08fr 0.92fr;
+    gap: 8px;
     flex: 1;
     min-height: 0;
   }
-  .frame {
-    border-radius: 11px;
-    padding: 6px;
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    position: relative;
+    box-shadow: inset 0 0 20px #00000044;
+  }
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e2d4a;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .panel-title {
+    font-size: 15.5px;
+    font-weight: 800;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .dot.cyan { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  .dot.amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+
+  /* 1. 멀티 타이머 뱅크 (6슬롯) */
+  .timer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 7px;
+    flex: 1;
+    min-height: 0;
+  }
+  .t-card {
+    background: var(--panel2);
+    border: 1px solid #243659;
+    border-radius: 8px;
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: 0.2s;
+  }
+  .t-card.running { border-color: #0284c7; box-shadow: inset 0 0 12px #0284c722; }
+  .t-card.warn { border-color: var(--amber); background: #261b08; animation: blinkAmber 1.2s infinite; }
+  .t-card.alarm { border-color: var(--red); background: #2d0b0e; animation: blinkRed 0.6s infinite; }
+  @keyframes blinkAmber { 50% { border-color: #fbbf24; box-shadow: 0 0 12px #f59e0b55; } }
+  @keyframes blinkRed { 50% { border-color: #f87171; box-shadow: 0 0 18px #ef444499; } }
+
+  .t-label {
+    width: 100%;
+    background: #080d18;
+    border: 1px solid #263859;
+    color: #f8fafc;
+    border-radius: 5px;
+    padding: 4px 6px;
+    font-size: 13.5px;
+    font-weight: 700;
+  }
+  .t-display {
+    font-size: 27px;
+    font-weight: 800;
+    text-align: center;
+    color: var(--cyan);
+    margin: 2px 0;
+  }
+  .t-card.warn .t-display { color: var(--amber); }
+  .t-card.alarm .t-display { color: #ff6b6b; }
+  .t-presets { display: flex; gap: 3px; justify-content: center; flex-wrap: wrap; }
+  .t-presets button {
+    background: #172542;
+    border: 1px solid #2b416b;
+    color: #cbd5e1;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .t-presets button:hover { background: #2563eb; color: #fff; }
+  .t-actions { display: grid; grid-template-columns: 44px 1fr 1fr; gap: 4px; margin-top: 4px; }
+  .t-actions input {
+    width: 100%;
+    background: #080d18;
+    border: 1px solid #263859;
+    color: #fff;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 12.5px;
+    padding: 2px;
+  }
+
+  /* 2. 수액 주입 경과 레이더 */
+  .iv-list { display: flex; flex-direction: column; gap: 7px; flex: 1; justify-content: space-between; }
+  .iv-card {
+    background: var(--panel2);
+    border: 1px solid #243659;
+    border-radius: 8px;
+    padding: 7px 9px;
     display: flex;
     flex-direction: column;
     gap: 5px;
-    min-height: 0;
-    min-width: 0;
-    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
   }
-  .zone-timer  { background: #f8fafc; border: 1.5px solid #cbd5e1; }
-  .zone-chrono { background: #f8fafc; border: 1.5px solid #cbd5e1; }
-  .zone-touch  { background: #f8fafc; border: 1.5px solid #cbd5e1; }
-  .zone-bp     { background: #f8fafc; border: 1.5px solid #cbd5e1; }
-  .zone-icu    { background: #f8fafc; border: 1.5px solid #cbd5e1; }
-
-  .frame-head {
+  .iv-card.active { border-color: #10b981; }
+  .iv-card.low { border-color: var(--amber); }
+  .iv-top { display: grid; grid-template-columns: 1.1fr 0.75fr 0.75fr 0.65fr auto auto; gap: 5px; align-items: center; }
+  .iv-top input {
+    width: 100%;
+    background: #080d18;
+    border: 1px solid #263859;
+    color: #f8fafc;
+    border-radius: 5px;
+    padding: 4px 6px;
     font-size: 13px;
-    font-weight: 800;
-    color: var(--navy);
-    border-bottom: 1.5px solid rgba(15, 23, 42, 0.12);
-    padding-bottom: 3px;
+    font-weight: 700;
+  }
+  .iv-bar-wrap {
+    width: 100%;
+    height: 12px;
+    background: #070c17;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #223354;
+    position: relative;
+  }
+  .iv-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #059669, #34d399);
+    transition: width 0.4s;
+  }
+  .iv-card.low .iv-bar { background: linear-gradient(90deg, #d97706, #fbbf24); }
+  .iv-stats {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
+    font-size: 12.5px;
+    color: #cbd5e1;
+    font-weight: 700;
   }
+  .iv-stats span b { color: var(--cyan); }
 
-  /* 큰 번호 배지 + 이름표 상단 바 */
-  .id-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .num-badge {
-    min-width: 24px;
-    height: 22px;
-    padding: 0 5px;
-    border-radius: 5px;
-    color: #ffffff;
-    font-size: 13.5px;
-    font-weight: 900;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  .card-input {
-    flex: 1;
-    min-width: 0;
-    border: 1.5px solid #cbd5e1;
-    background: #ffffff;
-    border-radius: 5px;
-    padding: 2px 5px;
-    font-size: 11.5px;
-    font-weight: 800;
-    font-family: inherit;
-    color: var(--navy);
-  }
-  .card-input:focus { outline: none; border-color: var(--blue); }
-
-  /* 1열 & 2열 그리드 */
-  .v-stack-3 { display: grid; grid-template-rows: repeat(3, 1fr); gap: 5px; flex: 1; min-height: 0; }
-  .grid-2x3 { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 5px; flex: 1; min-height: 0; }
-  .v-stack-2 { display: grid; grid-template-rows: 1fr 1fr; gap: 5px; flex: 1; min-height: 0; }
-
-  .clock-card {
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 9px;
-    padding: 4px 5px;
+  /* 3. 1분 호흡수(SRR) · 심박수 탭 카운터 */
+  .rr-wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 10px; flex: 1; min-height: 0; }
+  .rr-pad {
+    background: radial-gradient(circle at center, #132544 0%, #0a1222 100%);
+    border: 2px solid #2563eb;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 0;
-    min-width: 0;
-    overflow: hidden;
-    transition: 0.2s;
-    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.05);
-  }
-  .clock-card.warn { animation: pulseWarn 1.1s infinite; }
-  .clock-card.alarm { animation: pulseAlarm 0.55s infinite; }
-  @keyframes pulseWarn { 50% { box-shadow: 0 0 14px rgba(245, 158, 11, 0.75); } }
-  @keyframes pulseAlarm { 50% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.9); transform: scale(1.01); } }
-
-  /* 1번 타이머존 전용: 좌측 수동입력 + 우측 대형 시계 */
-  .timer-body {
-    flex: 1;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 52px 1fr;
-    gap: 4px;
-    align-items: center;
-    min-height: 0;
-    padding: 1px 0;
-  }
-  .timer-left-ctrl {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
     justify-content: center;
-    height: 100%;
-  }
-  .timer-left-ctrl label { font-size: 10px; font-weight: 800; color: var(--muted); text-align: center; }
-  .timer-left-ctrl input {
-    width: 100%;
-    border: 1.5px solid #94a3b8;
-    background: #fff;
-    border-radius: 5px;
-    padding: 3px 2px;
-    font-size: 15px;
-    font-weight: 900;
-    text-align: center;
-    color: var(--navy);
-    font-family: 'Consolas', monospace;
-  }
-  .timer-left-ctrl input:focus { outline: none; border-color: var(--blue); }
-
-  .svg-box {
-    flex: 1;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    min-height: 0;
-    min-width: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .svg-box svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    filter: drop-shadow(0 2px 3px rgba(15,23,42,0.12));
-  }
-
-  .mini-presets { display: flex; gap: 2px; justify-content: center; width: 100%; flex-shrink: 0; }
-  .mini-presets button {
-    flex: 1;
-    border: 1px solid #cbd5e1;
-    background: rgba(255,255,255,0.9);
-    border-radius: 4px;
-    padding: 1.5px 0;
-    font-size: 10px;
-    font-weight: 800;
-    font-family: inherit;
-    cursor: pointer;
-    color: #1e293b;
-  }
-  .mini-presets button:hover { background: #1e293b; color: #fff; }
-  .mini-act-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 100%; flex-shrink: 0; }
-
-  /* 3열: 터치존 카드 */
-  .touch-card {
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 10px;
-    padding: 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-height: 0;
-    overflow: hidden;
-  }
-  .mode-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; flex-shrink: 0; }
-  .touch-pad {
-    flex: 1;
-    background: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
     user-select: none;
-    padding: 2px;
+    padding: 8px;
     text-align: center;
     transition: 0.08s;
-    min-height: 0;
-    overflow: hidden;
   }
-  .touch-pad svg { width: 100%; height: 100%; flex: 1; min-height: 0; display: block; }
-  .touch-pad:active, .touch-pad.pulse { transform: scale(0.985); box-shadow: 0 0 12px rgba(37, 99, 235, 0.3); }
-  .prog-bar { width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
-  .prog-fill { height: 100%; width: 0%; transition: width 0.1s linear; }
+  .rr-pad:active, .rr-pad.pulse { transform: scale(0.985); border-color: #38bdf8; box-shadow: 0 0 24px #38bdf855; }
+  .rr-bpm { font-size: 52px; font-weight: 900; color: var(--green); line-height: 1; }
+  .rr-bpm.warn { color: var(--amber); }
+  .rr-bpm.danger { color: var(--red); }
+  .rr-sub { font-size: 13px; color: #94a3b8; margin-top: 6px; font-weight: 700; }
+  .rr-side { display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+  .rr-box {
+    background: var(--panel2);
+    border: 1px solid #243659;
+    border-radius: 8px;
+    padding: 7px 9px;
+    font-size: 13px;
+  }
+  .rr-prog-bg { width: 100%; height: 8px; background: #070c17; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+  .rr-prog-fill { height: 100%; width: 0%; background: var(--cyan); transition: width 0.1s linear; }
 
-  /* 4열: 혈압존 카드 */
-  .bp-card {
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 10px;
-    padding: 5px 6px;
+  /* 4. 진료/마취 경과 + 시간계산 + 로그 */
+  .util-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; gap: 7px; flex: 1; min-height: 0; }
+  .u-card {
+    background: var(--panel2);
+    border: 1px solid #243659;
+    border-radius: 8px;
+    padding: 7px 9px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 3px;
-    min-height: 0;
-    overflow: hidden;
   }
-  .bp-dial-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    width: 100%;
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 2px;
-    border: 1px solid #e2e8f0;
-  }
-  .bp-dial-area svg { width: 100%; height: 100%; flex: 1; min-height: 0; display: block; }
-  .bp-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; align-items: end; flex-shrink: 0; }
-  .bp-field label { display: block; font-size: 10px; font-weight: 800; color: var(--muted); margin-bottom: 1px; text-align: center; }
-  .bp-field input {
-    width: 100%;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 5px;
-    padding: 3px 2px;
-    font-size: 15px;
-    font-weight: 800;
-    text-align: center;
-    color: var(--navy);
-    background: #fff;
-  }
-  .bp-field input:focus { outline: none; border-color: #7c3aed; }
-  .bp-map-pill {
-    background: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 5px;
-    padding: 3px 2px;
-    text-align: center;
-    font-size: 14.5px;
-    font-weight: 900;
-    color: #1e293b;
-  }
-
-  /* 5열: 집중 ICU존 */
-  .icu-box {
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 10px;
-    padding: 5px 7px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-height: 0;
-  }
-  .icu-top { display: flex; align-items: center; gap: 4px; }
-  .icu-pt { flex: 1; border: 1.5px solid #cbd5e1; background: #fff; border-radius: 5px; padding: 3px 6px; font-size: 12px; font-weight: 800; font-family: inherit; min-width: 0; }
-
-  .gauges-4 {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    background: rgba(255,255,255,0.85);
-    border: 1px solid #cbd5e1;
+  .chrono-val { font-size: 28px; font-weight: 900; color: #fbbf24; text-align: center; margin: 2px 0; }
+  .time-calc-row { display: flex; align-items: center; gap: 4px; font-size: 12.5px; margin-bottom: 4px; }
+  .time-calc-row input {
+    background: #080d18;
+    border: 1px solid #263859;
+    color: #fff;
+    border-radius: 4px;
     padding: 3px 5px;
-    border-radius: 6px;
-    font-size: 10.5px;
-    font-weight: 800;
-  }
-  .gauges-4 input[type=range] { width: 100%; margin: 0; height: 12px; accent-color: var(--blue); cursor: pointer; }
-
-  .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
-  .ico-btn {
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    border-radius: 5px;
-    padding: 2.5px 1px;
-    font-size: 10.5px;
-    font-weight: 800;
-    font-family: inherit;
-    cursor: pointer;
-    color: var(--navy);
-    transition: 0.1s;
-  }
-  .ico-btn:hover { background: #eff6ff; border-color: #3b82f6; }
-  .ico-btn.selected { background: #1d4ed8; border-color: #1e40af; color: #ffffff; }
-  .icu-box.icu2 .ico-btn.selected { background: #15803d; border-color: #166534; }
-
-  .icu-input-row { display: flex; gap: 4px; }
-  .icu-input-row input {
-    flex: 1;
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    border-radius: 5px;
-    padding: 3px 6px;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
-    font-family: inherit;
-    min-width: 0;
   }
-  .icu-textarea {
+  .log-card { grid-column: 1 / 3; display: flex; flex-direction: column; min-height: 0; }
+  .log-area {
     flex: 1;
     width: 100%;
-    border: 1px solid #cbd5e1;
-    background: #fffef9;
+    background: #070c17;
+    border: 1px solid #223354;
     border-radius: 6px;
-    padding: 4px 6px;
-    font-family: 'Pretendard', 'Consolas', sans-serif;
-    font-size: 11.5px;
-    line-height: 1.4;
+    color: #a7f3d0;
+    font-family: 'Consolas', 'Malgun Gothic', monospace;
+    font-size: 12.5px;
+    padding: 6px;
     resize: none;
-    color: var(--navy);
+    line-height: 1.4;
   }
 </style>
 </head>
 <body>
 
-<!-- 상단 헤더 -->
-<header class="topbar">
-  <h1><span class="badge">23시 하단오거리 동물병원</span> 컬러 · 번호 구분 임상 계기판 & 집중 ICU 장부</h1>
-  <div class="top-right">
-    <div class="clock-pill mono" id="mainClock">00:00:00</div>
+<!-- 상단 HUD 비행 계기 바 -->
+<header class="hud">
+  <div class="hud-title">
+    <span class="hud-badge">FLIGHT DECK · C2</span>
+    <h1>23시 동물병원 임상 유틸리티 콕핏</h1>
+  </div>
+  <div class="hud-clocks">
+    <div class="clock-box">
+      <div class="clock-label">CURRENT TIME (KST)</div>
+      <div class="clock-val mono" id="nowClock">00:00:00</div>
+    </div>
+    <div class="clock-box">
+      <div class="clock-label">야간진료 마감(23:00) 잔여</div>
+      <div class="clock-val mono" id="nightRemain" style="color:#fbbf24">--:--:--</div>
+    </div>
+  </div>
+  <div class="hud-controls">
     <button class="btn active" id="btnSound" onclick="toggleAudio()">🔊 차임벨 ON</button>
     <button class="btn active" id="btnVoice" onclick="toggleVoice()">🗣️ 음성알람 ON</button>
-    <button class="btn red" onclick="stopAllAlarms()">🔕 모든 알람 끄기</button>
+    <button class="btn secondary" onclick="testAlarm()">🔔 알람 테스트</button>
   </div>
 </header>
 
-<!-- 5단 가로 배치 메인 그리드 -->
-<main class="five-grid">
+<!-- 메인 4분할 계기판 -->
+<main class="cockpit">
 
-  <!-- [1] 타이머존 (3개: 빨강 1번 · 주황 2번 · 보라 3번) -->
-  <section class="frame zone-timer">
-    <div class="frame-head"><span>⏰ 1. 타이머존</span><span style="font-size:11px;color:#64748b">색상·번호 구분</span></div>
-    <div class="v-stack-3" id="timerStack"></div>
+  <!-- [1] 좌측 상단: 멀티 처치 타이머 뱅크 (6슬롯) -->
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title"><span class="dot cyan"></span>MULTI-TIMER BANK · 처치/재검 타이머 (6슬롯)</div>
+      <button class="btn red" style="padding:3px 8px;font-size:12px" onclick="stopAllAlarms()">🔕 모든 경보음 끄기</button>
+    </div>
+    <div class="timer-grid" id="timerGrid"></div>
   </section>
 
-  <!-- [2] 경과시간존 (6개: 6가지 고유 컬러 & 큰 번호) -->
-  <section class="frame zone-chrono">
-    <div class="frame-head"><span>⏱️ 2. 경과시간존 (6개)</span><span style="font-size:11px;color:#64748b">1~6번 독립시계</span></div>
-    <div class="grid-2x3" id="chronoGrid"></div>
+  <!-- [2] 우측 상단: 수액 주입 경과 & 잔여량 레이더 -->
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title"><span class="dot"></span>IV FLUID RADAR · 수액 경과 및 잔여량 추적</div>
+      <span style="font-size:12px;color:var(--muted)">환자 · 총량(mL) · 속도(mL/h) · 기경과(분)</span>
+    </div>
+    <div class="iv-list" id="ivList"></div>
   </section>
 
-  <!-- [3] 터치존 (2개: 주황 1번 · 청록 2번) -->
-  <section class="frame zone-touch">
-    <div class="frame-head"><span>👆 3. 터치존 (2개)</span><span style="font-size:11px;color:#64748b">호흡·드랍·심박</span></div>
-    <div class="v-stack-2" id="touchStack"></div>
+  <!-- [3] 좌측 하단: 1분 호흡수(SRR) · 심박수 탭 계기 -->
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title"><span class="dot amber"></span>SRR / HR TACHOMETER · 1분 호흡수·심박수 측정기</div>
+      <div style="display:flex;gap:4px">
+        <button class="btn active" id="dur15" onclick="setRrDuration(15)">15초</button>
+        <button class="btn" id="dur30" onclick="setRrDuration(30)">30초</button>
+        <button class="btn" id="dur60" onclick="setRrDuration(60)">60초(정밀)</button>
+      </div>
+    </div>
+    <div class="rr-wrap">
+      <div class="rr-pad" id="rrPad" onclick="tapBreath()">
+        <div style="font-size:12px;color:#38bdf8;font-weight:800;margin-bottom:4px">호흡(또는 심박)마다 클릭 / [SPACE]</div>
+        <div class="rr-bpm mono" id="rrBpm">0</div>
+        <div style="font-size:14px;font-weight:800;color:#cbd5e1;margin-top:2px">회 / 분 (BPM)</div>
+        <div class="rr-sub" id="rrStatus">첫 클릭 시 자동 측정이 시작됩니다</div>
+      </div>
+      <div class="rr-side">
+        <div class="rr-box">
+          <div style="display:flex;justify-content:space-between;font-weight:700">
+            <span>측정 경과 (<span id="rrTargetLbl">15</span>초)</span>
+            <span class="mono" id="rrElapsedTxt">0.0s · 0회</span>
+          </div>
+          <div class="rr-prog-bg"><div class="rr-prog-fill" id="rrProg"></div></div>
+          <div style="margin-top:6px;font-size:12px;color:#94a3b8" id="rrInterpret">기준: 개·고양이 안정 호흡수(SRR) 30회/분 이하 정상</div>
+        </div>
+        <div class="rr-box" style="display:flex;flex-direction:column;gap:5px">
+          <input id="rrPatient" placeholder="환자명 (예: 초코)" style="background:#080d18;border:1px solid #263859;color:#fff;border-radius:5px;padding:4px 6px;font-size:12.5px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+            <button class="btn green" onclick="recordRrToLog()">📝 결과 로그기록</button>
+            <button class="btn" onclick="resetRr()">🔄 리셋</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <!-- [4] 혈압존 (2개: 보라 1번 · 핑크 2번) -->
-  <section class="frame zone-bp">
-    <div class="frame-head"><span>🩺 4. 혈압존 (2개)</span><span style="font-size:11px;color:#64748b">SBP·DBP·MAP</span></div>
-    <div class="v-stack-2" id="bpStack"></div>
-  </section>
+  <!-- [4] 우측 하단: 진료/마취 경과 + 시간 계산기 + 차트 로그 -->
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title"><span class="dot cyan"></span>CHRONOGRAPH & TIME CALC · 진료경과 · 시간계산</div>
+      <button class="btn green" style="padding:3px 8px;font-size:12px" onclick="copyLog()">📋 차트 로그 복사</button>
+    </div>
+    <div class="util-grid">
+      <!-- 진료/마취 스톱워치 -->
+      <div class="u-card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12.5px;font-weight:800;color:#fbbf24">⏱ 진료 / 마취 경과시간</span>
+          <label style="font-size:11.5px;color:#cbd5e1;cursor:pointer"><input type="checkbox" id="chk15mChime" checked> 15분 알림</label>
+        </div>
+        <div class="chrono-val mono" id="chronoDisplay">00:00:00</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+          <button class="btn green" id="chronoBtn" onclick="toggleChrono()">▶ 시작</button>
+          <button class="btn amber" onclick="lapChrono()">🚩 구간기록</button>
+          <button class="btn" onclick="resetChrono()">초기화</button>
+        </div>
+      </div>
 
-  <!-- [5] 집중 ICU존 (2베드: 블루 1번 · 그린 2번) -->
-  <section class="frame zone-icu">
-    <div class="frame-head"><span>🏥 5. 집중 ICU존 (2베드)</span><span style="font-size:11px;color:#64748b">아이콘기록 · TXT저장</span></div>
-    <div class="v-stack-2" id="icuStack"></div>
+      <!-- 시간 덧셈/경과 계산기 -->
+      <div class="u-card">
+        <div style="font-size:12.5px;font-weight:800;color:#38bdf8">🧮 빠른 시간 계산기</div>
+        <div>
+          <div class="time-calc-row">
+            <span style="color:#94a3b8;width:54px">기준시각</span>
+            <input type="time" id="calcBaseTime" style="flex:1" onchange="calcTimeDiff()">
+            <button class="btn" style="padding:2px 6px;font-size:11px" onclick="setNowBaseTime()">현재</button>
+          </div>
+          <div class="time-calc-row">
+            <span style="color:#94a3b8;width:54px">경과/추가</span>
+            <input type="number" id="calcAddHr" value="4" style="width:44px" oninput="calcTimeDiff()"><span>h</span>
+            <input type="number" id="calcAddMin" value="0" style="width:44px" oninput="calcTimeDiff()"><span>m</span>
+          </div>
+        </div>
+        <div id="timeCalcResult" style="font-size:12px;color:#a7f3d0;font-weight:700;line-height:1.3">
+          기준시각을 설정하면 경과·예정시각이 표시됩니다.
+        </div>
+      </div>
+
+      <!-- 자동 기록 로그 -->
+      <div class="u-card log-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="font-size:12px;font-weight:800;color:#cbd5e1">📟 실시간 임상 타임스탬프 로그 (자동 누적)</span>
+          <button class="btn" style="padding:1px 6px;font-size:11px" onclick="$('flightLog').value=''">지우기</button>
+        </div>
+        <textarea id="flightLog" class="log-area" placeholder="타이머 종료, 호흡수 측정, 수액 시작/완료, 구간 기록이 자동으로 시간과 함께 기록됩니다."></textarea>
+      </div>
+    </div>
   </section>
 
 </main>
 
 <script>
 const $ = id => document.getElementById(id);
-let soundEnabled = true, voiceEnabled = true, audioCtx = null;
-
-// 숫자 입력칸 휠 스크롤 방지
-document.addEventListener('wheel', e => {
-  if (document.activeElement.type === 'number') document.activeElement.blur();
-}, { passive: true });
+let soundEnabled = true, voiceEnabled = true;
+let audioCtx = null;
 
 function ensureAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
-function playChime(type = 'info') {
+function playCockpitChime(type = 'info') {
   if (!soundEnabled) return;
   try {
     ensureAudio();
     const now = audioCtx.currentTime;
     const freqs = type === 'alarm' ? [880, 1174.66, 880, 1174.66] : type === 'warn' ? [659.25, 523.25] : [783.99, 1046.5];
-    freqs.forEach((f, i) => {
-      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    freqs.forEach((f, idx) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(f, now + i * 0.18);
-      gain.gain.setValueAtTime(0.22, now + i * 0.18);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.18 + 0.25);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(now + i * 0.18); osc.stop(now + i * 0.18 + 0.26);
+      osc.frequency.setValueAtTime(f, now + idx * 0.18);
+      gain.gain.setValueAtTime(0.22, now + idx * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.18 + 0.25);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now + idx * 0.18);
+      osc.stop(now + idx * 0.18 + 0.26);
     });
   } catch (e) {}
 }
 
-function speakText(txt) {
+function speakAlert(text) {
   if (!voiceEnabled || !('speechSynthesis' in window)) return;
   try {
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(txt);
-    u.lang = 'ko-KR'; u.rate = 1.05;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ko-KR';
+    u.rate = 1.05;
     window.speechSynthesis.speak(u);
   } catch (e) {}
 }
@@ -486,7 +490,7 @@ function toggleAudio() {
   soundEnabled = !soundEnabled;
   $('btnSound').textContent = soundEnabled ? '🔊 차임벨 ON' : '🔇 차임벨 OFF';
   $('btnSound').className = soundEnabled ? 'btn active' : 'btn';
-  if (soundEnabled) playChime('info');
+  if (soundEnabled) playCockpitChime('info');
 }
 
 function toggleVoice() {
@@ -495,124 +499,93 @@ function toggleVoice() {
   $('btnVoice').className = voiceEnabled ? 'btn active' : 'btn';
 }
 
-setInterval(() => { $('mainClock').textContent = new Date().toTimeString().slice(0, 8); }, 1000);
-$('mainClock').textContent = new Date().toTimeString().slice(0, 8);
+function testAlarm() {
+  playCockpitChime('alarm');
+  speakAlert('콕핏 알람 및 음성 안내 테스트입니다.');
+}
 
-/* ==================== 시계 눈금 & 부채꼴 헬퍼 ==================== */
-function buildFancyTicks(cx, cy, rOut, rInMaj, rInMin, accentColor = '#dc2626') {
-  let s = '';
-  for (let i = 0; i < 60; i++) {
-    const rad = (i * 6 - 90) * Math.PI / 180;
-    const maj = i % 5 === 0;
-    const r1 = maj ? rInMaj : rInMin;
-    s += `<line x1="${(cx + r1 * Math.cos(rad)).toFixed(1)}" y1="${(cy + r1 * Math.sin(rad)).toFixed(1)}" x2="${(cx + rOut * Math.cos(rad)).toFixed(1)}" y2="${(cy + rOut * Math.sin(rad)).toFixed(1)}" stroke="${maj ? '#0f172a' : '#94a3b8'}" stroke-width="${maj ? 2.4 : 1.1}"/>`;
-    if (maj) {
-      const val = i === 0 ? 60 : i;
-      const rt = rInMaj - 11;
-      const isQuarter = i % 15 === 0;
-      s += `<text x="${(cx + rt * Math.cos(rad)).toFixed(1)}" y="${(cy + rt * Math.sin(rad) + 4).toFixed(1)}" text-anchor="middle" font-size="${isQuarter ? 12 : 9.5}" font-weight="${isQuarter ? 900 : 700}" fill="${isQuarter ? accentColor : '#1e293b'}">${val}</text>`;
-    }
+function addLog(msg) {
+  const t = new Date().toTimeString().slice(0, 8);
+  const area = $('flightLog');
+  area.value += `[${t}] ${msg}\n`;
+  area.scrollTop = area.scrollHeight;
+}
+
+function copyLog() {
+  const txt = $('flightLog').value.trim();
+  if (!txt) { alert('복사할 로그가 없습니다.'); return; }
+  navigator.clipboard.writeText(txt).then(() => alert('임상 타임스탬프 로그가 클립보드에 복사되었습니다.'));
+}
+
+/* ==================== 상단 시계 & 야간진료 카운트다운 ==================== */
+function updateClocks() {
+  const now = new Date();
+  $('nowClock').textContent = now.toTimeString().slice(0, 8);
+  const closeTime = new Date(now);
+  closeTime.setHours(23, 0, 0, 0);
+  const diff = Math.floor((closeTime - now) / 1000);
+  if (diff > 0) {
+    const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+    const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+    const s = String(diff % 60).padStart(2, '0');
+    $('nightRemain').textContent = `${h}:${m}:${s}`;
+  } else {
+    $('nightRemain').textContent = '심야/응급';
   }
-  return s;
 }
+setInterval(updateClocks, 1000);
+updateClocks();
 
-function describeSector(cx, cy, r, startDeg, endDeg) {
-  if (endDeg <= startDeg) return '';
-  if (endDeg - startDeg >= 359.9) return `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.01} ${cy - r} Z`;
-  const r1 = (startDeg - 90) * Math.PI / 180, r2 = (endDeg - 90) * Math.PI / 180;
-  const x1 = cx + r * Math.cos(r1), y1 = cy + r * Math.sin(r1);
-  const x2 = cx + r * Math.cos(r2), y2 = cy + r * Math.sin(r2);
-  return `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${endDeg - startDeg > 180 ? 1 : 0} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
-}
+/* ==================== [1] 멀티 처치 타이머 뱅크 (6슬롯) ==================== */
+const defaultLabels = ['PCV/TS 재검', '인슐린/혈당', '항생제/처치', '안약/네뷸', '멸균기/장비', '예비 타이머'];
+const timers = Array.from({ length: 6 }, (_, i) => ({
+  id: i,
+  remain: 0,
+  running: false,
+  alarming: false,
+  warned: false
+}));
 
-/* ==================== [1] 타이머존 (3개 고유 컬러 & 큰 번호 배지) ==================== */
-const timerThemes = [
-  { num: '1', colorName: '빨강', main: '#dc2626', bg: '#fef2f2', border: '#f87171', sector: 'rgba(220,38,38,0.24)', placeholder: '빨강 1번 (PCV재검)' },
-  { num: '2', colorName: '주황', main: '#ea580c', bg: '#fff7ed', border: '#fb923c', sector: 'rgba(234,88,12,0.24)', placeholder: '주황 2번 (인슐린/약)' },
-  { num: '3', colorName: '보라', main: '#7c3aed', bg: '#f5f3ff', border: '#a78bfa', sector: 'rgba(124,58,237,0.24)', placeholder: '보라 3번 (처치/멸균)' }
-];
-const timers = Array.from({ length: 3 }, (_, i) => ({ id: i, remain: 0, running: false, alarming: false, warned: false }));
-
-function renderTimers() {
-  $('timerStack').innerHTML = timers.map(t => {
-    const th = timerThemes[t.id];
-    const ticks = buildFancyTicks(70, 70, 61, 52, 57, th.main);
-    return `
-    <div class="clock-card" id="tCard${t.id}" style="background:${th.bg};border-color:${th.border}">
-      <div class="id-header">
-        <span class="num-badge" style="background:${th.main}">${th.num}</span>
-        <input class="card-input" id="tName${t.id}" placeholder="${th.placeholder}" style="border-color:${th.border}">
+function renderTimerGrid() {
+  $('timerGrid').innerHTML = timers.map(t => `
+    <div class="t-card" id="tCard${t.id}">
+      <input class="t-label" id="tLbl${t.id}" placeholder="${defaultLabels[t.id]}">
+      <div class="t-display mono" id="tDisp${t.id}">00:00</div>
+      <div class="t-presets">
+        <button onclick="startTimerMin(${t.id},5)">5m</button>
+        <button onclick="startTimerMin(${t.id},15)">15m</button>
+        <button onclick="startTimerMin(${t.id},30)">30m</button>
+        <button onclick="startTimerMin(${t.id},60)">1h</button>
+        <button onclick="startTimerMin(${t.id},120)">2h</button>
       </div>
-      <div class="timer-body">
-        <div class="timer-left-ctrl">
-          <label style="color:${th.main}">분(min)</label>
-          <input type="number" id="tMin${t.id}" value="10" style="border-color:${th.border};color:${th.main}" onfocus="this.dataset.prev=this.value;this.value='';" onblur="if(this.value==='')this.value=this.dataset.prev||'10';" onkeydown="if(event.key==='Enter')applyManualTimer(${t.id})">
-          <button class="btn green" id="tBtn${t.id}" style="padding:4px 2px;font-size:11px" onclick="toggleTimer(${t.id})">시작</button>
-          <button class="btn" style="padding:3px 2px;font-size:10.5px" onclick="resetTimer(${t.id})">리셋</button>
-        </div>
-
-        <div class="svg-box">
-          <svg viewBox="0 0 140 140" preserveAspectRatio="xMidYMid meet">
-            <rect x="63" y="0" width="14" height="6" rx="2" fill="${th.main}"/>
-            <circle cx="70" cy="71" r="68" fill="${th.main}"/>
-            <circle cx="70" cy="71" r="62.5" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
-            <g transform="translate(0,1)">
-              <path id="tSec${t.id}" d="" fill="${th.sector}"/>
-              ${ticks}
-              <text x="70" y="34" text-anchor="middle" font-size="11" font-weight="900" fill="${th.main}" opacity="0.35">#${th.num} ${th.colorName}</text>
-              <rect x="40" y="83" width="60" height="19" rx="4" fill="#0f172a"/>
-              <text id="tTxt${t.id}" x="70" y="96.5" text-anchor="middle" font-family="Consolas,monospace" font-size="13" font-weight="800" fill="#38bdf8">00:00</text>
-              <g id="tHand${t.id}" transform="rotate(0 70 70)">
-                <polygon points="67.5,79 72.5,79 71,12 69,12" fill="${th.main}"/>
-                <circle cx="70" cy="70" r="6.5" fill="#0f172a" stroke="#f8fafc" stroke-width="1.5"/>
-                <circle cx="70" cy="70" r="2.2" fill="${th.main}"/>
-              </g>
-            </g>
-          </svg>
-        </div>
-      </div>
-
-      <div class="mini-presets">
-        <button onclick="setTimer(${t.id},5)">5m</button>
-        <button onclick="setTimer(${t.id},15)">15m</button>
-        <button onclick="setTimer(${t.id},30)">30m</button>
-        <button onclick="setTimer(${t.id},60)">60m</button>
+      <div class="t-actions">
+        <input type="number" id="tMin${t.id}" value="10" min="1" title="분 입력">
+        <button class="btn green" id="tBtn${t.id}" style="padding:3px;font-size:12px" onclick="toggleTimer(${t.id})">시작</button>
+        <button class="btn" style="padding:3px;font-size:12px" onclick="resetTimer(${t.id})">정지</button>
       </div>
     </div>
-  `}).join('');
+  `).join('');
 }
-renderTimers();
+renderTimerGrid();
 
-function fmtMMSS(sec) {
-  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
-  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
-function updateTimerUI(id) {
-  const t = timers[id], th = timerThemes[id];
-  $('tTxt' + id).textContent = fmtMMSS(t.remain);
-  const deg = Math.min(360, (t.remain / 3600) * 360);
-  $('tHand' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 70 70)`);
-  $('tSec' + id).setAttribute('d', describeSector(70, 70, 51, 0, deg));
-  const card = $('tCard' + id), btn = $('tBtn' + id);
-  card.classList.remove('warn', 'alarm');
-  if (t.alarming) { card.classList.add('alarm'); btn.textContent = '알람끔'; btn.className = 'btn red'; }
-  else if (t.running) {
-    if (t.remain <= 120) card.classList.add('warn');
-    btn.textContent = '정지'; btn.className = 'btn amber';
-  } else { btn.textContent = '시작'; btn.className = 'btn green'; }
+function formatMMSS(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-function applyManualTimer(id) {
-  const m = Math.max(1, parseFloat($('tMin' + id).value) || 10);
-  setTimer(id, m);
-}
-
-function setTimer(id, min) {
+function startTimerMin(id, mins) {
   ensureAudio();
   const t = timers[id];
-  t.remain = Math.round(min * 60); t.running = true; t.alarming = false; t.warned = false;
-  $('tMin' + id).value = min; $('tMin' + id).dataset.prev = min;
+  t.remain = mins * 60;
+  t.running = true;
+  t.alarming = false;
+  t.warned = false;
+  $('tMin' + id).value = mins;
+  const lbl = $('tLbl' + id).value.trim() || defaultLabels[id];
+  addLog(`타이머 시작: [${lbl}] ${mins}분 설정`);
   updateTimerUI(id);
 }
 
@@ -622,17 +595,24 @@ function toggleTimer(id) {
   if (t.alarming) { resetTimer(id); return; }
   if (!t.running) {
     if (t.remain <= 0) {
-      const m = Math.max(1, parseFloat($('tMin' + id).value) || parseFloat($('tMin' + id).dataset.prev) || 10);
-      $('tMin' + id).value = m; t.remain = Math.round(m * 60);
+      const m = Math.max(1, parseFloat($('tMin' + id).value) || 10);
+      t.remain = Math.round(m * 60);
+      const lbl = $('tLbl' + id).value.trim() || defaultLabels[id];
+      addLog(`타이머 시작: [${lbl}] ${m}분 설정`);
     }
     t.running = true;
-  } else t.running = false;
+  } else {
+    t.running = false;
+  }
   updateTimerUI(id);
 }
 
 function resetTimer(id) {
   const t = timers[id];
-  t.running = false; t.remain = 0; t.alarming = false; t.warned = false;
+  t.running = false;
+  t.remain = 0;
+  t.alarming = false;
+  t.warned = false;
   updateTimerUI(id);
 }
 
@@ -641,474 +621,356 @@ function stopAllAlarms() {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 }
 
+function updateTimerUI(id) {
+  const t = timers[id];
+  const card = $('tCard' + id);
+  const disp = $('tDisp' + id);
+  const btn = $('tBtn' + id);
+  disp.textContent = formatMMSS(t.remain);
+  card.classList.remove('running', 'warn', 'alarm');
+  if (t.alarming) {
+    card.classList.add('alarm');
+    btn.textContent = '확인/끔';
+    btn.className = 'btn red';
+  } else if (t.running) {
+    card.classList.add(t.remain <= 120 ? 'warn' : 'running');
+    btn.textContent = '일시정지';
+    btn.className = 'btn amber';
+  } else {
+    btn.textContent = '시작';
+    btn.className = 'btn green';
+  }
+}
+
 setInterval(() => {
   timers.forEach(t => {
     if (t.running && t.remain > 0) {
       t.remain--;
-      if (t.remain === 120 && !t.warned) { t.warned = true; playChime('warn'); }
+      if (t.remain === 120 && !t.warned) {
+        t.warned = true;
+        playCockpitChime('warn');
+      }
       if (t.remain === 0) {
-        t.running = false; t.alarming = true;
-        const th = timerThemes[t.id];
-        const lbl = $('tName' + t.id).value.trim() || `${th.colorName} ${th.num}번 타이머`;
-        playChime('alarm'); speakText(`${lbl} 시간입니다.`);
+        t.running = false;
+        t.alarming = true;
+        const lbl = $('tLbl' + t.id).value.trim() || defaultLabels[t.id];
+        playCockpitChime('alarm');
+        speakAlert(`${lbl} 시간입니다.`);
+        addLog(`⏰ 알람 도달: [${lbl}] 완료!`);
       }
       updateTimerUI(t.id);
-    } else if (t.alarming && Math.floor(Date.now() / 1000) % 6 === 0) playChime('alarm');
+    } else if (t.alarming) {
+      // 6초마다 리마인드 비프
+      if (Math.floor(Date.now() / 1000) % 6 === 0) playCockpitChime('alarm');
+    }
   });
 }, 1000);
 
-/* ==================== [2] 경과시간존 (6개 고유 컬러 & 큰 번호 배지) ==================== */
-const chronoThemes = [
-  { num: '1', colorName: '파랑', main: '#2563eb', bg: '#eff6ff', border: '#93c5fd', placeholder: '파랑 1번 (진료)' },
-  { num: '2', colorName: '청록', main: '#0891b2', bg: '#ecfeff', border: '#67e8f9', placeholder: '청록 2번 (마취)' },
-  { num: '3', colorName: '초록', main: '#16a34a', bg: '#f0fdf4', border: '#86efac', placeholder: '초록 3번 (수액A)' },
-  { num: '4', colorName: '황금', main: '#ca8a04', bg: '#fefce8', border: '#fde047', placeholder: '황금 4번 (수액B)' },
-  { num: '5', colorName: '분홍', main: '#db2777', bg: '#fdf2f8', border: '#f9a8d4', placeholder: '분홍 5번 (처치)' },
-  { num: '6', colorName: '남색', main: '#4f46e5', bg: '#eef2ff', border: '#a5b4fc', placeholder: '남색 6번 (대기)' }
-];
-const chronos = Array.from({ length: 6 }, (_, i) => ({ id: i, running: false, startMs: 0, accumSec: 0 }));
+/* ==================== [2] 수액 주입 경과 & 잔여량 레이더 ==================== */
+const ivSlots = Array.from({ length: 3 }, (_, i) => ({
+  id: i,
+  running: false,
+  startMs: 0,
+  totalVol: 500,
+  rate: 30,
+  warned10: false,
+  finished: false
+}));
 
-function renderChronos() {
-  $('chronoGrid').innerHTML = chronos.map(c => {
-    const th = chronoThemes[c.id];
-    const ticks = buildFancyTicks(70, 70, 61, 52, 57, th.main);
-    return `
-    <div class="clock-card" id="cCard${c.id}" style="background:${th.bg};border-color:${th.border}">
-      <div class="id-header">
-        <span class="num-badge" style="background:${th.main}">${th.num}</span>
-        <input class="card-input" id="cName${c.id}" placeholder="${th.placeholder}" style="border-color:${th.border}">
+function renderIvList() {
+  $('ivList').innerHTML = ivSlots.map(s => `
+    <div class="iv-card" id="ivCard${s.id}">
+      <div class="iv-top">
+        <input id="ivName${s.id}" placeholder="수액 #${s.id + 1} 환자명">
+        <input type="number" id="ivVol${s.id}" value="500" title="총 수액량(mL)" placeholder="총mL">
+        <input type="number" id="ivRate${s.id}" value="30" step="0.5" title="속도(mL/hr)" placeholder="mL/h">
+        <input type="number" id="ivPreMin${s.id}" value="0" min="0" title="이미 경과한 분(선택)" placeholder="경과분">
+        <button class="btn green" id="ivBtn${s.id}" style="padding:4px 8px;font-size:12px" onclick="toggleIv(${s.id})">시작</button>
+        <button class="btn" style="padding:4px 7px;font-size:12px" onclick="resetIv(${s.id})">리셋</button>
       </div>
-      <div class="svg-box">
-        <svg viewBox="0 0 140 140" preserveAspectRatio="xMidYMid meet">
-          <circle cx="70" cy="70" r="68" fill="${th.main}"/>
-          <circle cx="70" cy="70" r="62.5" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
-          ${ticks}
-          <text x="70" y="34" text-anchor="middle" font-size="11" font-weight="900" fill="${th.main}" opacity="0.35">#${th.num} ${th.colorName}</text>
-          <rect x="36" y="83" width="68" height="18" rx="4" fill="${th.bg}" stroke="${th.border}"/>
-          <text id="cTxt${c.id}" x="70" y="96" text-anchor="middle" font-family="Consolas,monospace" font-size="12.5" font-weight="800" fill="${th.main}">00:00:00</text>
-          <line id="cMin${c.id}" x1="70" y1="74" x2="70" y2="25" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
-          <line id="cSec${c.id}" x1="70" y1="80" x2="70" y2="12" stroke="${th.main}" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="70" cy="70" r="4.8" fill="#0f172a"/>
-        </svg>
-      </div>
-      <div class="mini-act-2">
-        <button class="btn green" id="cBtn${c.id}" style="padding:2px;font-size:11px" onclick="toggleChrono(${c.id})">▶ 시작</button>
-        <button class="btn" style="padding:2px;font-size:11px" onclick="resetChrono(${c.id})">리셋</button>
+      <div class="iv-bar-wrap"><div class="iv-bar" id="ivBar${s.id}"></div></div>
+      <div class="iv-stats mono" id="ivStat${s.id}">
+        <span>경과: <b>00:00:00</b></span>
+        <span>주입: <b>0.0 mL</b> / 잔여: <b>500.0 mL</b></span>
+        <span>예정종료: <b>--:--</b></span>
       </div>
     </div>
-  `}).join('');
+  `).join('');
 }
-renderChronos();
+renderIvList();
 
-function toggleChrono(id) {
-  const c = chronos[id];
-  if (!c.running) {
-    c.startMs = Date.now(); c.running = true;
-    $('cBtn' + id).textContent = '⏸ 정지'; $('cBtn' + id).className = 'btn amber';
+function toggleIv(id) {
+  ensureAudio();
+  const s = ivSlots[id];
+  if (!s.running) {
+    s.totalVol = Math.max(1, parseFloat($('ivVol' + id).value) || 500);
+    s.rate = Math.max(0.1, parseFloat($('ivRate' + id).value) || 30);
+    const preMin = Math.max(0, parseFloat($('ivPreMin' + id).value) || 0);
+    s.startMs = Date.now() - preMin * 60000;
+    s.running = true;
+    s.warned10 = false;
+    s.finished = false;
+    $('ivBtn' + id).textContent = '정지';
+    $('ivBtn' + id).className = 'btn amber';
+    const pName = $('ivName' + id).value.trim() || `수액#${id + 1}`;
+    addLog(`수액 시작: [${pName}] 총 ${s.totalVol}mL @ ${s.rate}mL/hr`);
   } else {
-    c.accumSec += Math.floor((Date.now() - c.startMs) / 1000); c.running = false;
-    $('cBtn' + id).textContent = '▶ 재개'; $('cBtn' + id).className = 'btn green';
+    s.running = false;
+    $('ivBtn' + id).textContent = '재개';
+    $('ivBtn' + id).className = 'btn green';
   }
 }
 
-function resetChrono(id) {
-  const c = chronos[id];
-  c.running = false; c.accumSec = 0;
-  $('cTxt' + id).textContent = '00:00:00';
-  $('cSec' + id).setAttribute('transform', 'rotate(0 70 70)');
-  $('cMin' + id).setAttribute('transform', 'rotate(0 70 70)');
-  $('cBtn' + id).textContent = '▶ 시작'; $('cBtn' + id).className = 'btn green';
+function resetIv(id) {
+  const s = ivSlots[id];
+  s.running = false;
+  s.warned10 = false;
+  s.finished = false;
+  $('ivCard' + id).classList.remove('active', 'low');
+  $('ivBar' + id).style.width = '0%';
+  $('ivBtn' + id).textContent = '시작';
+  $('ivBtn' + id).className = 'btn green';
+  const v = parseFloat($('ivVol' + id).value) || 500;
+  $('ivStat' + id).innerHTML = `<span>경과: <b>00:00:00</b></span><span>주입: <b>0.0 mL</b> / 잔여: <b>${v.toFixed(1)} mL</b></span><span>예정종료: <b>--:--</b></span>`;
 }
 
 setInterval(() => {
-  chronos.forEach(c => {
-    if (!c.running) return;
-    const sec = c.accumSec + Math.floor((Date.now() - c.startMs) / 1000);
-    const h = String(Math.floor(sec / 3600)).padStart(2, '0');
-    const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-    const s = String(sec % 60).padStart(2, '0');
-    $('cTxt' + c.id).textContent = `${h}:${m}:${s}`;
-    $('cSec' + c.id).setAttribute('transform', `rotate(${(sec % 60) * 6} 70 70)`);
-    $('cMin' + c.id).setAttribute('transform', `rotate(${((sec / 60) % 60) * 6} 70 70)`);
+  ivSlots.forEach(s => {
+    if (!s.running) return;
+    const elapsedSec = Math.floor((Date.now() - s.startMs) / 1000);
+    const infused = (elapsedSec / 3600) * s.rate;
+    const remain = Math.max(0, s.totalVol - infused);
+    const pct = Math.min(100, (infused / s.totalVol) * 100);
+
+    const h = String(Math.floor(elapsedSec / 3600)).padStart(2, '0');
+    const m = String(Math.floor((elapsedSec % 3600) / 60)).padStart(2, '0');
+    const sec = String(elapsedSec % 60).padStart(2, '0');
+
+    const totalSecNeeded = (s.totalVol / s.rate) * 3600;
+    const endDate = new Date(s.startMs + totalSecNeeded * 1000);
+    const endStr = endDate.toTimeString().slice(0, 5);
+
+    const card = $('ivCard' + s.id);
+    card.classList.add('active');
+    if (pct >= 90) card.classList.add('low');
+
+    $('ivBar' + s.id).style.width = pct.toFixed(1) + '%';
+    $('ivStat' + s.id).innerHTML = `
+      <span>경과: <b>${h}:${m}:${sec}</b></span>
+      <span>주입: <b>${infused.toFixed(1)} mL</b> / 잔여: <b>${remain.toFixed(1)} mL</b></span>
+      <span>예정종료: <b>${endStr}</b></span>
+    `;
+
+    const pName = $('ivName' + s.id).value.trim() || `수액#${s.id + 1}`;
+    if (pct >= 90 && pct < 100 && !s.warned10) {
+      s.warned10 = true;
+      playCockpitChime('warn');
+      speakAlert(`${pName} 수액 잔여량이 10퍼센트 미만입니다.`);
+      addLog(`💧 수액 교체의뢰: [${pName}] 잔여 ${remain.toFixed(0)}mL`);
+    }
+    if (remain <= 0 && !s.finished) {
+      s.finished = true;
+      playCockpitChime('alarm');
+      speakAlert(`${pName} 수액 주입이 완료되었습니다.`);
+      addLog(`✅ 수액 완료: [${pName}] 총 ${s.totalVol}mL 주입 종료`);
+    }
   });
+}, 1000);
+
+/* ==================== [3] 1분 호흡수(SRR) · 심박수 탭 계기 ==================== */
+let rrDuration = 15;
+let rrTaps = [];
+let rrStartMs = 0;
+let rrTimer = null;
+let rrDone = false;
+
+function setRrDuration(sec) {
+  rrDuration = sec;
+  [15, 30, 60].forEach(d => $('dur' + d).className = d === sec ? 'btn active' : 'btn');
+  $('rrTargetLbl').textContent = sec;
+  resetRr();
+}
+
+function tapBreath() {
+  ensureAudio();
+  if (rrDone) resetRr();
+  const now = Date.now();
+  if (rrTaps.length === 0) {
+    rrStartMs = now;
+    rrTimer = setInterval(updateRrProgress, 100);
+  }
+  rrTaps.push(now);
+
+  const pad = $('rrPad');
+  pad.classList.add('pulse');
+  setTimeout(() => pad.classList.remove('pulse'), 110);
+
+  // 실시간 BPM 추정 (2회 이상 탭부터)
+  let bpm = 0;
+  if (rrTaps.length >= 2) {
+    const spanSec = (now - rrTaps[0]) / 1000;
+    bpm = Math.round(((rrTaps.length - 1) / spanSec) * 60);
+  } else {
+    bpm = Math.round(60 / rrDuration);
+  }
+  displayRrBpm(bpm);
+}
+
+function updateRrProgress() {
+  if (!rrStartMs) return;
+  const elapsed = (Date.now() - rrStartMs) / 1000;
+  const pct = Math.min(100, (elapsed / rrDuration) * 100);
+  $('rrProg').style.width = pct + '%';
+  $('rrElapsedTxt').textContent = `${Math.min(rrDuration, elapsed).toFixed(1)}s · ${rrTaps.length}회`;
+
+  if (elapsed >= rrDuration) {
+    clearInterval(rrTimer);
+    rrTimer = null;
+    rrDone = true;
+    const finalBpm = Math.round(rrTaps.length * (60 / rrDuration));
+    displayRrBpm(finalBpm);
+    $('rrStatus').textContent = `✅ ${rrDuration}초 측정 완료 (총 ${rrTaps.length}회 감지)`;
+    playCockpitChime('info');
+    speakAlert(`측정 완료. 분당 ${finalBpm}회 입니다.`);
+  } else {
+    $('rrStatus').textContent = `측정 진행 중... 가슴 움직임마다 클릭하세요`;
+  }
+}
+
+function displayRrBpm(bpm) {
+  const el = $('rrBpm');
+  el.textContent = bpm;
+  el.classList.remove('warn', 'danger');
+  if (bpm > 40) {
+    el.classList.add('danger');
+    $('rrInterpret').innerHTML = `<span style="color:#f87171;font-weight:800">🚨 빈호흡(Tachypnea) 경고:</span> 심부전·폐부종·흉수·통증 감별 필요`;
+  } else if (bpm > 30) {
+    el.classList.add('warn');
+    $('rrInterpret').innerHTML = `<span style="color:#fbbf24;font-weight:800">⚠ 경계 상승 (30회 초과):</span> 수액 속도 점검 및 재측정 권고`;
+  } else {
+    $('rrInterpret').innerHTML = `<span style="color:#34d399;font-weight:800">✓ 안정 범위 (30회 이하):</span> 정상 안정 호흡수(SRR) 범위`;
+  }
+}
+
+function resetRr() {
+  clearInterval(rrTimer);
+  rrTimer = null;
+  rrTaps = [];
+  rrStartMs = 0;
+  rrDone = false;
+  $('rrBpm').textContent = '0';
+  $('rrBpm').classList.remove('warn', 'danger');
+  $('rrProg').style.width = '0%';
+  $('rrElapsedTxt').textContent = '0.0s · 0회';
+  $('rrStatus').textContent = '첫 클릭 시 자동 측정이 시작됩니다';
+  $('rrInterpret').textContent = '기준: 개·고양이 안정 호흡수(SRR) 30회/분 이하 정상';
+}
+
+function recordRrToLog() {
+  const bpm = $('rrBpm').textContent;
+  if (bpm === '0') { alert('먼저 호흡수를 측정해주세요.'); return; }
+  const p = $('rrPatient').value.trim() || '환자';
+  addLog(`🫁 호흡수 측정: [${p}] ${bpm} 회/분 (${rrDuration}초 기준)`);
+}
+
+// 스페이스바 단축키 지원 (입력창 포커스 아닐 때)
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    tapBreath();
+  }
+});
+
+/* ==================== [4] 진료/마취 경과 & 시간 계산기 ==================== */
+let chronoRunning = false;
+let chronoStartMs = 0;
+let chronoAccumSec = 0;
+let lastChimeMin = 0;
+
+function toggleChrono() {
+  ensureAudio();
+  if (!chronoRunning) {
+    chronoStartMs = Date.now();
+    chronoRunning = true;
+    $('chronoBtn').textContent = '⏸ 일시정지';
+    $('chronoBtn').className = 'btn amber';
+    if (chronoAccumSec === 0) addLog('⏱ 진료/마취 경과 계측 시작');
+  } else {
+    chronoAccumSec += Math.floor((Date.now() - chronoStartMs) / 1000);
+    chronoRunning = false;
+    $('chronoBtn').textContent = '▶ 재개';
+    $('chronoBtn').className = 'btn green';
+  }
+}
+
+function getChronoSec() {
+  return chronoAccumSec + (chronoRunning ? Math.floor((Date.now() - chronoStartMs) / 1000) : 0);
+}
+
+function lapChrono() {
+  const sec = getChronoSec();
+  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  addLog(`🚩 경과 구간 기록: ${h}:${m}:${s}`);
+}
+
+function resetChrono() {
+  chronoRunning = false;
+  chronoAccumSec = 0;
+  lastChimeMin = 0;
+  $('chronoDisplay').textContent = '00:00:00';
+  $('chronoBtn').textContent = '▶ 시작';
+  $('chronoBtn').className = 'btn green';
+}
+
+setInterval(() => {
+  if (!chronoRunning) return;
+  const sec = getChronoSec();
+  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  $('chronoDisplay').textContent = `${h}:${m}:${s}`;
+
+  const mins = Math.floor(sec / 60);
+  if ($('chk15mChime').checked && mins > 0 && mins % 15 === 0 && mins !== lastChimeMin) {
+    lastChimeMin = mins;
+    playCockpitChime('warn');
+    speakAlert(`경과 시간 ${mins}분 입니다. 바이탈을 확인하세요.`);
+    addLog(`🔔 경과 알림: ${mins}분 도달`);
+  }
 }, 500);
 
-/* ==================== [3] 터치존 2개 (주황 1번 · 청록 2번) ==================== */
-const touchThemes = [
-  { num: '1', colorName: '주황', main: '#d97706', bg: '#fffbeb', border: '#fbbf24', placeholder: '주황 1번 터치계기 (환자명)' },
-  { num: '2', colorName: '청록', main: '#0d9488', bg: '#f0fdfa', border: '#5eead4', placeholder: '청록 2번 터치계기 (환자명)' }
-];
-const touchStates = Array.from({ length: 2 }, (_, i) => ({
-  id: i, mode: 'rr', dropFactor: 20, dur: 15, taps: [], startMs: 0, timer: null, done: false, summary: ''
-}));
-
-function buildTachoTicks(maxVal) {
-  let html = '';
-  for (let i = 0; i <= 16; i++) {
-    const val = (maxVal / 16) * i;
-    const deg = -110 + (val / maxVal) * 220;
-    const rad = (deg - 90) * Math.PI / 180;
-    const maj = i % 2 === 0;
-    const r1 = maj ? 76 : 82, r2 = 90;
-    html += `<line x1="${(110 + r1 * Math.cos(rad)).toFixed(1)}" y1="${(108 + r1 * Math.sin(rad)).toFixed(1)}" x2="${(110 + r2 * Math.cos(rad)).toFixed(1)}" y2="${(108 + r2 * Math.sin(rad)).toFixed(1)}" stroke="#334155" stroke-width="${maj ? 2 : 1.1}"/>`;
-    if (maj) {
-      const rt = 63;
-      html += `<text x="${(110 + rt * Math.cos(rad)).toFixed(1)}" y="${(108 + rt * Math.sin(rad) + 4).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="800" fill="#1e293b">${Math.round(val)}</text>`;
-    }
-  }
-  return html;
+// 빠른 시간 계산기
+function setNowBaseTime() {
+  const now = new Date();
+  $('calcBaseTime').value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  calcTimeDiff();
 }
 
-function renderTouchZone() {
-  const ticks = buildTachoTicks(80);
-  $('touchStack').innerHTML = touchStates.map(st => {
-    const th = touchThemes[st.id];
-    return `
-    <div class="touch-card" style="background:${th.bg};border-color:${th.border}">
-      <div class="id-header">
-        <span class="num-badge" style="background:${th.main}">${th.num}</span>
-        <input class="card-input" id="tPtName${st.id}" placeholder="${th.placeholder}" style="border-color:${th.border}">
-      </div>
-      <div class="mode-tabs">
-        <button class="btn active" id="tm_${st.id}_rr" style="padding:2px" onclick="setTMode(${st.id},'rr')">🫁호흡수</button>
-        <button class="btn" id="tm_${st.id}_drop" style="padding:2px" onclick="setTMode(${st.id},'drop')">💧드랍수</button>
-        <button class="btn" id="tm_${st.id}_hr" style="padding:2px" onclick="setTMode(${st.id},'hr')">❤️심박수</button>
-      </div>
-      <div id="tDropBar${st.id}" style="display:none;gap:3px;align-items:center;font-size:10.5px;font-weight:800;flex-shrink:0">
-        <button class="btn active" id="tDf_${st.id}_20" style="flex:1;padding:1.5px" onclick="setTDrop(${st.id},20)">20방울/mL</button>
-        <button class="btn" id="tDf_${st.id}_60" style="flex:1;padding:1.5px" onclick="setTDrop(${st.id},60)">60방울/mL</button>
-      </div>
-      <div class="touch-pad" id="tPad${st.id}" style="border-color:${th.border}" onclick="tapT(${st.id})">
-        <svg viewBox="0 0 220 148" preserveAspectRatio="xMidYMid meet">
-          <circle cx="110" cy="108" r="97" fill="#fffdf7" stroke="${th.main}" stroke-width="4"/>
-          <path d="M 30 134 A 85 85 0 0 1 85 27" fill="none" stroke="#16a34a" stroke-width="8" stroke-linecap="round"/>
-          <path d="M 85 27 A 85 85 0 0 1 110 23" fill="none" stroke="#f59e0b" stroke-width="8"/>
-          <path d="M 110 23 A 85 85 0 0 1 190 134" fill="none" stroke="#dc2626" stroke-width="8" stroke-linecap="round"/>
-          <g id="tTicks${st.id}">${ticks}</g>
-          <rect x="66" y="114" width="88" height="24" rx="5" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
-          <text id="tVal${st.id}" x="110" y="131" text-anchor="middle" font-family="Consolas,monospace" font-size="16" font-weight="800" fill="#1e293b">0 회/분</text>
-          <g id="tNeedle${st.id}" transform="rotate(-110 110 108)" style="transition:transform 0.16s">
-            <polygon points="107,114 113,114 110.8,29 109.2,29" fill="${th.main}"/>
-            <circle cx="110" cy="108" r="7" fill="#1e293b" stroke="#fff" stroke-width="1.5"/>
-          </g>
-        </svg>
-        <div id="tExtra${st.id}" class="mono" style="font-size:11.5px;font-weight:800;color:${th.main}"></div>
-        <div id="tHint${st.id}" style="font-size:10.5px;font-weight:800;color:#64748b">#${th.num} ${th.colorName} 터치 · 박자마다 클릭</div>
-      </div>
-      <div style="display:flex;gap:3px;align-items:center;font-size:10.5px;font-weight:700;flex-shrink:0">
-        <button class="btn active" id="td_${st.id}_15" style="padding:1.5px 5px" onclick="setTDur(${st.id},15)">15s</button>
-        <button class="btn" id="td_${st.id}_30" style="padding:1.5px 5px" onclick="setTDur(${st.id},30)">30s</button>
-        <button class="btn" id="td_${st.id}_60" style="padding:1.5px 5px" onclick="setTDur(${st.id},60)">60s</button>
-        <div class="prog-bar" style="flex:1"><div class="prog-fill" id="tProg${st.id}" style="background:${th.main}"></div></div>
-        <span class="mono" id="tElap${st.id}">0s·0회</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;flex-shrink:0">
-        <button class="btn active" style="padding:2.5px;font-size:11px" onclick="sendTToIcu(${st.id},0)">→ICU1</button>
-        <button class="btn green" style="padding:2.5px;font-size:11px" onclick="sendTToIcu(${st.id},1)">→ICU2</button>
-        <button class="btn" style="padding:2.5px;font-size:11px" onclick="resetT(${st.id})">리셋</button>
-      </div>
-    </div>
-  `}).join('');
+function calcTimeDiff() {
+  const val = $('calcBaseTime').value;
+  if (!val) return;
+  const [bh, bm] = val.split(':').map(Number);
+  const now = new Date();
+  const base = new Date(now);
+  base.setHours(bh, bm, 0, 0);
+
+  // 1) 기준시각 대비 현재 경과/남은 시간
+  let diffMin = Math.round((now - base) / 60000);
+  const diffStr = diffMin >= 0
+    ? `현재까지 <b>${Math.floor(diffMin / 60)}시간 ${diffMin % 60}분 경과</b>`
+    : `기준시각까지 <b>${Math.floor(Math.abs(diffMin) / 60)}시간 ${Math.abs(diffMin) % 60}분 남음</b>`;
+
+  // 2) 기준시각 + N시간 M분 후 시각
+  const addH = parseInt($('calcAddHr').value) || 0;
+  const addM = parseInt($('calcAddMin').value) || 0;
+  const target = new Date(base.getTime() + (addH * 60 + addM) * 60000);
+  const tStr = `${String(target.getHours()).padStart(2, '0')}:${String(target.getMinutes()).padStart(2, '0')}`;
+
+  $('timeCalcResult').innerHTML = `• ${diffStr}<br>• +${addH}h ${addM}m 후 예정: <b style="color:#fbbf24">${tStr}</b>`;
 }
-renderTouchZone();
-
-function setTMode(id, mode) {
-  const st = touchStates[id];
-  st.mode = mode;
-  ['rr', 'drop', 'hr'].forEach(m => $(`tm_${id}_${m}`).className = m === mode ? 'btn active' : 'btn');
-  $('tDropBar' + id).style.display = mode === 'drop' ? 'flex' : 'none';
-  $('tTicks' + id).innerHTML = buildTachoTicks(mode === 'rr' ? 80 : mode === 'drop' ? 120 : 240);
-  resetT(id);
-}
-
-function setTDrop(id, df) {
-  touchStates[id].dropFactor = df;
-  $('tDf_' + id + '_20').className = df === 20 ? 'btn active' : 'btn';
-  $('tDf_' + id + '_60').className = df === 60 ? 'btn active' : 'btn';
-  resetT(id);
-}
-
-function setTDur(id, sec) {
-  touchStates[id].dur = sec;
-  [15, 30, 60].forEach(d => $(`td_${id}_${d}`).className = d === sec ? 'btn active' : 'btn');
-  resetT(id);
-}
-
-function tapT(id) {
-  ensureAudio();
-  const st = touchStates[id];
-  if (st.done) resetT(id);
-  const now = Date.now();
-  if (st.taps.length === 0) {
-    st.startMs = now;
-    st.timer = setInterval(() => tickT(id), 100);
-  }
-  st.taps.push(now);
-  const pad = $('tPad' + id);
-  pad.classList.add('pulse');
-  setTimeout(() => pad.classList.remove('pulse'), 100);
-
-  const rate = st.taps.length >= 2
-    ? Math.round(((st.taps.length - 1) / ((now - st.taps[0]) / 1000)) * 60)
-    : Math.round(60 / st.dur);
-  updateTVisual(id, rate);
-}
-
-function tickT(id) {
-  const st = touchStates[id];
-  if (!st.startMs) return;
-  const elapsed = (Date.now() - st.startMs) / 1000;
-  $('tProg' + id).style.width = Math.min(100, (elapsed / st.dur) * 100) + '%';
-  $('tElap' + id).textContent = `${Math.min(st.dur, elapsed).toFixed(0)}s·${st.taps.length}회`;
-  if (elapsed >= st.dur) {
-    clearInterval(st.timer); st.timer = null; st.done = true;
-    const finalRate = Math.round(st.taps.length * (60 / st.dur));
-    updateTVisual(id, finalRate);
-    $('tHint' + id).textContent = `✅ 완료 (${st.taps.length}회/${st.dur}초)`;
-    playChime('info'); speakText(`측정 완료. 분당 ${finalRate}회 입니다.`);
-  }
-}
-
-function updateTVisual(id, rate) {
-  const st = touchStates[id];
-  const maxS = st.mode === 'rr' ? 80 : st.mode === 'drop' ? 120 : 240;
-  const deg = -110 + (Math.max(0, Math.min(maxS, rate)) / maxS) * 220;
-  $('tNeedle' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 110 108)`);
-  if (st.mode === 'rr') {
-    $('tVal' + id).textContent = `${rate} 회/분`;
-    $('tVal' + id).setAttribute('fill', rate > 40 ? '#dc2626' : rate > 30 ? '#d97706' : '#16a34a');
-    $('tExtra' + id).textContent = rate > 30 ? '⚠ 30회 초과 주의' : '✓ 정상 호흡수';
-    st.summary = `🫁 호흡수 : ${rate} 회/분 (${st.dur}초)`;
-  } else if (st.mode === 'drop') {
-    const mlHr = ((rate * 60) / st.dropFactor).toFixed(1);
-    $('tVal' + id).textContent = `${rate} gtt/m`;
-    $('tVal' + id).setAttribute('fill', '#1d4ed8');
-    $('tExtra' + id).textContent = `약 ${mlHr} mL/hr (${st.dropFactor}방울)`;
-    st.summary = `🧴 수액속도 : ${mlHr} mL/hr (${rate}방울/분, ${st.dropFactor}gtt)`;
-  } else {
-    $('tVal' + id).textContent = `${rate} BPM`;
-    $('tVal' + id).setAttribute('fill', rate > 180 || rate < 60 ? '#dc2626' : '#16a34a');
-    $('tExtra' + id).textContent = `심박수 ${rate} bpm`;
-    st.summary = `❤️ 심박수 : ${rate} BPM (${st.dur}초)`;
-  }
-}
-
-function resetT(id) {
-  const st = touchStates[id], th = touchThemes[id];
-  clearInterval(st.timer); st.timer = null; st.taps = []; st.startMs = 0; st.done = false; st.summary = '';
-  $('tNeedle' + id).setAttribute('transform', 'rotate(-110 110 108)');
-  $('tVal' + id).textContent = st.mode === 'drop' ? '0 gtt/m' : st.mode === 'hr' ? '0 BPM' : '0 회/분';
-  $('tVal' + id).setAttribute('fill', '#1e293b');
-  $('tExtra' + id).textContent = '';
-  $('tProg' + id).style.width = '0%';
-  $('tElap' + id).textContent = '0s·0회';
-  $('tHint' + id).textContent = `#${th.num} ${th.colorName} 터치 · 박자마다 클릭`;
-}
-
-function sendTToIcu(id, icuIdx) {
-  const st = touchStates[id];
-  if (!st.summary) { alert('먼저 측정을 진행해주세요.'); return; }
-  const [tag, val] = st.summary.split(' : ');
-  appendIcuLine(icuIdx, tag, val);
-}
-
-/* ==================== [4] 혈압존 2개 (보라 1번 · 핑크 2번) ==================== */
-const bpThemes = [
-  { num: '1', colorName: '보라', main: '#7c3aed', bg: '#f5f3ff', border: '#c4b5fd', placeholder: '보라 1번 혈압계 (환자명)' },
-  { num: '2', colorName: '핑크', main: '#db2777', bg: '#fdf2f8', border: '#f9a8d4', placeholder: '핑크 2번 혈압계 (환자명)' }
-];
-
-function renderBpZone() {
-  $('bpStack').innerHTML = [0, 1].map(id => {
-    const th = bpThemes[id];
-    return `
-    <div class="bp-card" style="background:${th.bg};border-color:${th.border}">
-      <div class="id-header">
-        <span class="num-badge" style="background:${th.main}">${th.num}</span>
-        <input class="card-input" id="bpPt${id}" placeholder="${th.placeholder}" style="border-color:${th.border}">
-      </div>
-      <div class="bp-dial-area" style="border-color:${th.border}">
-        <svg viewBox="0 0 220 128" preserveAspectRatio="xMidYMid meet">
-          <path d="M 16 112 A 94 94 0 0 1 204 112" fill="#fffdf7" stroke="${th.main}" stroke-width="4"/>
-          <path d="M 23 110 A 87 87 0 0 1 73 35" fill="none" stroke="#dc2626" stroke-width="9"/>
-          <path d="M 73 35 A 87 87 0 0 1 147 35" fill="none" stroke="#16a34a" stroke-width="9"/>
-          <path d="M 147 35 A 87 87 0 0 1 173 51" fill="none" stroke="#f59e0b" stroke-width="9"/>
-          <path d="M 173 51 A 87 87 0 0 1 197 110" fill="none" stroke="#dc2626" stroke-width="9"/>
-          <text x="19" y="124" font-size="10.5" font-weight="800" fill="#dc2626">60</text>
-          <text x="68" y="26" font-size="10.5" font-weight="800" fill="#16a34a">90</text>
-          <text x="144" y="26" font-size="10.5" font-weight="800" fill="#d97706">140</text>
-          <text x="186" y="124" font-size="10.5" font-weight="800" fill="#dc2626">200</text>
-          <text x="110" y="72" text-anchor="middle" font-size="11" font-weight="800" fill="#64748b">SBP mmHg</text>
-          <g id="bpNeedle${id}" transform="rotate(0 110 112)" style="transition:transform 0.25s">
-            <polygon points="107,112 113,112 110.8,30 109.2,30" fill="#1e293b"/>
-            <circle cx="110" cy="112" r="7" fill="${th.main}" stroke="#fff" stroke-width="1.5"/>
-          </g>
-        </svg>
-        <div id="bpStat${id}" style="font-size:11px;font-weight:800;color:#16a34a;flex-shrink:0">✓ 정상 혈압 (SBP 90~140)</div>
-      </div>
-      <div class="bp-inputs">
-        <div class="bp-field">
-          <label>수축 SBP</label>
-          <input type="number" id="bpSys${id}" value="120" style="border-color:${th.border}" onfocus="this.dataset.prev=this.value;this.value='';" onblur="if(this.value==='')this.value=this.dataset.prev||'120';calcBp(${id});" oninput="calcBp(${id})">
-        </div>
-        <div class="bp-field">
-          <label>이완 DBP</label>
-          <input type="number" id="bpDia${id}" value="80" style="border-color:${th.border}" onfocus="this.dataset.prev=this.value;this.value='';" onblur="if(this.value==='')this.value=this.dataset.prev||'80';calcBp(${id});" oninput="calcBp(${id})">
-        </div>
-        <div class="bp-field">
-          <label>평균 MAP</label>
-          <div class="bp-map-pill mono" id="bpMap${id}" style="border-color:${th.border};color:${th.main}">93</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;flex-shrink:0">
-        <button class="btn active" style="padding:3px;font-size:11px" onclick="sendBpToIcu(${id},0)">→ ICU1 기록</button>
-        <button class="btn green" style="padding:3px;font-size:11px" onclick="sendBpToIcu(${id},1)">→ ICU2 기록</button>
-      </div>
-    </div>
-  `}).join('');
-  calcBp(0); calcBp(1);
-}
-renderBpZone();
-
-function calcBp(id) {
-  const sysEl = $('bpSys' + id);
-  const diaEl = $('bpDia' + id);
-  const sys = parseFloat(sysEl.value !== '' ? sysEl.value : sysEl.dataset.prev) || 0;
-  const dia = parseFloat(diaEl.value !== '' ? diaEl.value : diaEl.dataset.prev) || 0;
-  const map = Math.round(dia + (sys - dia) / 3);
-  $('bpMap' + id).textContent = `${map}`;
-
-  const clamped = Math.max(60, Math.min(200, sys));
-  const deg = -75 + ((clamped - 60) / 140) * 150;
-  $('bpNeedle' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 110 112)`);
-
-  const st = $('bpStat' + id);
-  if (sys < 90 || map < 65) { st.textContent = '🚨 저혈압 경고 (관류 저하)'; st.style.color = '#dc2626'; }
-  else if (sys > 160) { st.textContent = '🚨 고혈압 경고 (장기손상 주의)'; st.style.color = '#dc2626'; }
-  else if (sys > 140) { st.textContent = '⚠ 경계성 고혈압'; st.style.color = '#d97706'; }
-  else { st.textContent = '✓ 정상 혈압 (SBP 90~140)'; st.style.color = '#16a34a'; }
-}
-
-function sendBpToIcu(bpId, icuIdx) {
-  const sys = $('bpSys' + bpId).value || $('bpSys' + bpId).dataset.prev || '-';
-  const dia = $('bpDia' + bpId).value || $('bpDia' + bpId).dataset.prev || '-';
-  const map = $('bpMap' + bpId).textContent;
-  appendIcuLine(icuIdx, '🩸 혈압측정', `${sys}/${dia} mmHg (MAP ${map})`);
-}
-
-/* ==================== [5] 집중 ICU존 (우측 2베드 · 블루 1번 / 그린 2번) ==================== */
-const icuIcons = [
-  { ico: '💧', name: '물(음수)' },
-  { ico: '🍚', name: '밥(식이)' },
-  { ico: '🟡', name: '오줌(배뇨)' },
-  { ico: '💩', name: '변(배변)' },
-  { ico: '💉', name: '주사투약' },
-  { ico: '🧴', name: '수액처치' },
-  { ico: '🫧', name: '산소공급' },
-  { ico: '🌡️', name: '실내온도' },
-  { ico: '🩺', name: '체온측정' },
-  { ico: '🫁', name: '호흡수' },
-  { ico: '⚖️', name: '체중측정' }
-];
-const selectedIcuIcon = ['🩺 체온측정', '🩺 체온측정'];
-
-function renderIcuStack() {
-  const icuThemes = [
-    { num: '1', main: '#2563eb', bg: '#eff6ff', border: '#60a5fa', cls: 'icu1' },
-    { num: '2', main: '#16a34a', bg: '#f0fdf4', border: '#4ade80', cls: 'icu2' }
-  ];
-  $('icuStack').innerHTML = [0, 1].map(idx => {
-    const th = icuThemes[idx];
-    return `
-    <div class="icu-box ${th.cls}" style="background:${th.bg};border-color:${th.border}">
-      <div class="icu-top">
-        <span class="num-badge" style="background:${th.main}">ICU ${th.num}</span>
-        <input class="icu-pt" id="icuPt${idx}" placeholder="환자명 · 품종 · 체중 · 진단명" style="border-color:${th.border}">
-        <button class="btn" style="padding:2px 6px;font-size:11px" onclick="copyIcu(${idx})">복사</button>
-        <button class="btn ${idx === 0 ? 'active' : 'green'}" style="padding:2px 7px;font-size:11px" onclick="saveIcuTxt(${idx})">TXT저장</button>
-      </div>
-
-      <div class="gauges-4">
-        <div><div style="display:flex;justify-content:space-between"><span>🍚밥</span><span id="gF${idx}">50%</span></div><input type="range" min="0" max="100" step="10" value="50" oninput="$('gF${idx}').textContent=this.value+'%'"></div>
-        <div><div style="display:flex;justify-content:space-between"><span>💧물</span><span id="gW${idx}">50%</span></div><input type="range" min="0" max="100" step="10" value="50" oninput="$('gW${idx}').textContent=this.value+'%'"></div>
-        <div><div style="display:flex;justify-content:space-between"><span>⚡활력</span><span id="gV${idx}">50%</span></div><input type="range" min="0" max="100" step="10" value="50" oninput="$('gV${idx}').textContent=this.value+'%'"></div>
-        <div><div style="display:flex;justify-content:space-between"><span>🧴수액</span><span id="gL${idx}">100%</span></div><input type="range" min="0" max="100" step="5" value="100" oninput="$('gL${idx}').textContent=this.value+'%'"></div>
-      </div>
-
-      <div class="icon-grid" id="icoGrid${idx}">
-        ${icuIcons.map(item => {
-          const fullLabel = `${item.ico} ${item.name}`;
-          const isSel = selectedIcuIcon[idx] === fullLabel ? 'selected' : '';
-          return `<button type="button" class="ico-btn ${isSel}" onclick="selectAndLogIcon(${idx}, '${fullLabel}', this)">${item.ico}${item.name.split('(')[0]}</button>`;
-        }).join('')}
-        <button type="button" class="ico-btn" style="background:#fef2f2;border-color:#fca5a5;color:#b91c1c" onclick="if(confirm('장부를 비울까요?'))$('icuLog${idx}').value=''">🗑️비움</button>
-      </div>
-
-      <div class="icu-input-row">
-        <input id="icuNote${idx}" placeholder="[🩺 체온측정] 선택됨 — 수치/내용 입력 후 Enter" onkeydown="if(event.key==='Enter') submitSelectedIconNote(${idx})">
-        <button class="btn ${idx === 0 ? 'active' : 'green'}" style="padding:3px 8px;font-size:11px" onclick="submitSelectedIconNote(${idx})">+ 기록</button>
-      </div>
-
-      <textarea class="icu-textarea" id="icuLog${idx}" placeholder="아이콘을 누르면 해당 아이콘 이름으로 시각과 함께 자동 기록됩니다. 내용을 입력 후 Enter를 눌러도 선택된 아이콘 이름으로 기록됩니다."></textarea>
-    </div>
-  `}).join('');
-}
-renderIcuStack();
-
-function selectAndLogIcon(idx, fullLabel, btnEl) {
-  selectedIcuIcon[idx] = fullLabel;
-  $('icoGrid' + idx).querySelectorAll('.ico-btn').forEach(b => b.classList.remove('selected'));
-  btnEl.classList.add('selected');
-
-  const noteInput = $('icuNote' + idx);
-  noteInput.placeholder = `[${fullLabel}] 선택됨 — 수치/내용 입력 후 Enter`;
-  const typed = noteInput.value.trim();
-  appendIcuLine(idx, fullLabel, typed);
-  noteInput.value = '';
-  noteInput.focus();
-}
-
-function submitSelectedIconNote(idx) {
-  const noteInput = $('icuNote' + idx);
-  const typed = noteInput.value.trim();
-  const tag = selectedIcuIcon[idx] || '🩺 체온측정';
-  appendIcuLine(idx, tag, typed);
-  noteInput.value = '';
-  noteInput.focus();
-}
-
-function appendIcuLine(idx, tag, detail = '') {
-  const nowStr = new Date().toTimeString().slice(0, 5);
-  const area = $('icuLog' + idx);
-  area.value += `[${nowStr}] ${tag}${detail ? ' : ' + detail : ''}\n`;
-  area.scrollTop = area.scrollHeight;
-}
-
-function buildIcuReport(idx) {
-  const pt = $('icuPt' + idx).value.trim() || `ICU_${idx + 1}번환자`;
-  const today = new Date().toISOString().slice(0, 10);
-  return `[23시 하단오거리 동물병원 집중 ICU #${idx + 1} 처치 장부 - ${today}]
-- 환자정보: ${pt}
-- 상태게이지: 밥 ${$('gF' + idx).textContent} | 물 ${$('gW' + idx).textContent} | 활력 ${$('gV' + idx).textContent} | 수액잔량 ${$('gL' + idx).textContent}
---------------------------------------------------
-${$('icuLog' + idx).value.trim() || '(기록된 처치 내역 없음)'}`;
-}
-
-function copyIcu(idx) {
-  navigator.clipboard.writeText(buildIcuReport(idx)).then(() => alert(`집중 ICU #${idx + 1} 장부가 복사되었습니다.`));
-}
-
-function saveIcuTxt(idx) {
-  const pt = ($('icuPt' + idx).value.trim() || `ICU_${idx + 1}번`).replace(/[\\/:*?"<>|]/g, '_');
-  const today = new Date().toISOString().slice(0, 10);
-  const blob = new Blob([buildIcuReport(idx)], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${pt}_${today}_ICU장부.txt`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-}
+setNowBaseTime();
 </script>
 </body>
 </html>
