@@ -185,6 +185,8 @@
       <button class="tab-btn" id="tab-f2" onclick="switchView('f2')" style="color:#fde047;">2️⃣ 🧮 처방용량 계산표 2개 + 🦎 특수동물 (F2)</button>
       <button class="tab-btn" id="tab-f3" onclick="switchView('f3')" style="color:#f9a8d4;">3️⃣ ⭐ 특수환자 관리 (F3)</button>
       <button class="tab-btn" id="tab-f4" onclick="switchView('f4')" style="color:#67e8f9;">4️⃣ 💧 수액·탈수 빠른 평가 (F4)</button>
+      <button class="tab-btn" id="tab-f5" onclick="switchView('f5')" style="color:#c4b5fd;">5️⃣ 🛠️ C2 임상 유틸리티 (F5)</button>
+      <button class="tab-btn" id="tab-f6" onclick="switchView('f6')" style="color:#fb7185;">6️⃣ 🚢 C3 해전 게임 (F6)</button>
     </div>
 
     <div>
@@ -311,6 +313,28 @@
       </section>
     </div>
 
+    <!-- [F5] C2 임상 유틸리티 -->
+    <div id="view-f5" class="f3-layout" style="display: none;">
+      <section class="panel" style="width: 100%; height: 100%;">
+        <div class="panel-header">
+          <div class="panel-title">🛠️ C2 임상 유틸리티 콕핏</div>
+          <div><button class="p-btn" onclick="document.getElementById('frame-c2').contentWindow.location.reload()">새로고침</button><button class="p-btn" onclick="window.open('/c2.html', '_blank')">새창</button></div>
+        </div>
+        <div class="panel-body"><iframe id="frame-c2" src="/c2.html" title="C2 임상 유틸리티"></iframe></div>
+      </section>
+    </div>
+
+    <!-- [F6] C3 해전 게임 -->
+    <div id="view-f6" class="f3-layout" style="display: none;">
+      <section class="panel" style="width: 100%; height: 100%;">
+        <div class="panel-header">
+          <div class="panel-title">🚢 C3 하오동 해전</div>
+          <div><button class="p-btn" onclick="document.getElementById('frame-c3').contentWindow.location.reload()">새로고침</button><button class="p-btn" onclick="window.open('/c3.html', '_blank')">새창</button></div>
+        </div>
+        <div class="panel-body"><iframe id="frame-c3" src="/c3.html" title="C3 해전 게임"></iframe></div>
+      </section>
+    </div>
+
   </main>
 
   <script>
@@ -422,6 +446,8 @@
       document.getElementById('view-f2').style.display = 'none';
       document.getElementById('view-f3').style.display = 'none';
       document.getElementById('view-f4').style.display = 'none';
+      document.getElementById('view-f5').style.display = 'none';
+      document.getElementById('view-f6').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -437,6 +463,12 @@
       } else if (mode === 'f4') {
         document.getElementById('view-f4').style.display = 'flex';
         document.getElementById('tab-f4').classList.add('active');
+      } else if (mode === 'f5') {
+        document.getElementById('view-f5').style.display = 'flex';
+        document.getElementById('tab-f5').classList.add('active');
+      } else if (mode === 'f6') {
+        document.getElementById('view-f6').style.display = 'flex';
+        document.getElementById('tab-f6').classList.add('active');
       }
     }
 
@@ -453,7 +485,8 @@
       if (e.key === 'F2') { e.preventDefault(); switchView('f2'); }
       if (e.key === 'F3') { e.preventDefault(); switchView('f3'); }
       if (e.key === 'F4') { e.preventDefault(); switchView('f4'); }
-      if (e.key === 'F5') { e.preventDefault(); refreshAllFrames(); }
+      if (e.key === 'F5') { e.preventDefault(); switchView('f5'); }
+      if (e.key === 'F6') { e.preventDefault(); switchView('f6'); }
     });
   </script>
 </body>
