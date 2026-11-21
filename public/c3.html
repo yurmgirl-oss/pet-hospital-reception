@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>23시 하오동 · 쌍방 해전 & 커스텀 보이스 소탕작전</title>
+<title>C3 · 23시 하오동 쌍방 해전 & 커스텀 보이스 소탕작전</title>
 <style>
   * { box-sizing: border-box; user-select: none; }
   body {
@@ -158,25 +158,27 @@
     border: 2px solid #38bdf8;
     border-radius: 12px;
     padding: 16px;
-    width: 640px;
+    width: 650px;
     max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
     color: #f8fafc;
   }
   .voice-box h3 { margin: 0 0 8px; font-size: 17px; color: #38bdf8; }
   .voice-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 7px;
     margin: 10px 0;
   }
   .v-slot {
     background: #0f172a;
     border: 1px solid #334155;
     border-radius: 8px;
-    padding: 7px 9px;
-    font-size: 12px;
+    padding: 6px 8px;
+    font-size: 11.5px;
   }
-  .v-slot label { display: block; font-weight: 800; margin-bottom: 4px; color: #fde047; }
+  .v-slot label { display: block; font-weight: 800; margin-bottom: 3px; color: #fde047; }
   .v-slot input[type=file] { width: 100%; font-size: 11px; color: #cbd5e1; }
 
   .canvas-wrap {
@@ -219,7 +221,7 @@
 
 <header class="hud">
   <div class="hud-left">
-    <div class="title">🚢 23시 하오동 해전</div>
+    <div class="title">🚢 C3 · 23시 하오동 해전</div>
     <div class="stat-pill hp" id="shipHpPill">함선HP: <b id="shipHpVal">100</b></div>
     <div class="stat-pill">격침: <b id="killCnt">0</b>척</div>
     <div class="stat-pill">점수: <b id="scoreVal">0</b></div>
@@ -277,10 +279,10 @@
 <!-- 커스텀 음성 파일 연결 모달 -->
 <div class="voice-modal" id="voiceModal">
   <div class="voice-box">
-    <h3>🎙️ 커스텀 비명 음성 파일(.mp3 / .wav) 연결</h3>
+    <h3>🎙️ 커스텀 음성 파일(.mp3 / .wav) 연결</h3>
     <div style="font-size:12px;color:#cbd5e1;line-height:1.45">
-      준비하신 재미있는 음성 파일을 아래 슬롯에 선택하면 피격 시 해당 목소리가 즉시 재생됩니다.<br>
-      (또는 <code>sub_game.html</code>과 같은 폴더에 <code>m_poop.mp3</code>, <code>f_poop.mp3</code> 등으로 저장해 두셔도 자동 인식됩니다.)
+      준비하신 음성 파일을 각 슬롯에 연결하면 피격 시 해당 목소리가 즉시 재생됩니다.<br>
+      (내 배 피격 시 기본으로 <b>"오빠 메롱~"</b> 효과음·음성이 재생되며, <code>SHIP_HIT</code> 슬롯에 직접 파일을 넣으셔도 됩니다.)
     </div>
     <div class="voice-grid" id="voiceGrid"></div>
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
@@ -293,7 +295,7 @@
   <canvas id="gameCanvas"></canvas>
   <div class="gameover-overlay" id="gameOverBox">
     <div style="font-size:32px;font-weight:900;color:#f87171">💥 23시 하오동 선체 대파!</div>
-    <div style="font-size:16px;color:#e2e8f0">진상 잠수함의 수직 어뢰에 피격되어 긴급 수리가 필요합니다.</div>
+    <div style="font-size:16px;color:#e2e8f0">적 어뢰에 피격되어 긴급 수리가 필요합니다.</div>
     <button class="btn" style="font-size:16px;padding:10px 22px" onclick="repairShip()">🔧 선체 수리 후 즉시 재출격</button>
   </div>
   <div class="guide-bar">
@@ -318,18 +320,18 @@ window.addEventListener('resize', resize);
 let soundOn = true;
 let audioCtx = null;
 
-// 슬롯 키 정의 (같은 폴더 기본 파일명 매핑 + 사용자 파일 업로드 URL 저장)
 const voiceSlots = [
-  { key: 'M_0', label: '👨 남자 · 💩똥 피격음',     defaultFile: 'm_poop.mp3',    url: null },
-  { key: 'F_0', label: '👩 여자 · 💩똥 피격음',     defaultFile: 'f_poop.mp3',    url: null },
-  { key: 'M_1', label: '👨 남자 · 💉주사기 피격음', defaultFile: 'm_syringe.mp3', url: null },
-  { key: 'F_1', label: '👩 여자 · 💉주사기 피격음', defaultFile: 'f_syringe.mp3', url: null },
-  { key: 'M_2', label: '👨 남자 · 🪨돌맹이 피격음', defaultFile: 'm_rock.mp3',    url: null },
-  { key: 'F_2', label: '👩 여자 · 🪨돌맹이 피격음', defaultFile: 'f_rock.mp3',    url: null },
-  { key: 'M_3', label: '👨 남자 · 💣폭탄 피격음',   defaultFile: 'm_bomb.mp3',    url: null },
-  { key: 'F_3', label: '👩 여자 · 💣폭탄 피격음',   defaultFile: 'f_bomb.mp3',    url: null },
-  { key: 'M_4', label: '👨 남자 · 🚀필살어뢰 격침', defaultFile: 'm_torpedo.mp3', url: null },
-  { key: 'F_4', label: '👩 여자 · 🚀필살어뢰 격침', defaultFile: 'f_torpedo.mp3', url: null }
+  { key: 'M_0', label: '👨 남자 · 💩똥 피격음',     defaultFile: 'm_poop.mp3' },
+  { key: 'F_0', label: '👩 여자 · 💩똥 피격음',     defaultFile: 'f_poop.mp3' },
+  { key: 'M_1', label: '👨 남자 · 💉주사기 피격음', defaultFile: 'm_syringe.mp3' },
+  { key: 'F_1', label: '👩 여자 · 💉주사기 피격음', defaultFile: 'f_syringe.mp3' },
+  { key: 'M_2', label: '👨 남자 · 🪨돌맹이 피격음', defaultFile: 'm_rock.mp3' },
+  { key: 'F_2', label: '👩 여자 · 🪨돌맹이 피격음', defaultFile: 'f_rock.mp3' },
+  { key: 'M_3', label: '👨 남자 · 💣폭탄 피격음',   defaultFile: 'm_bomb.mp3' },
+  { key: 'F_3', label: '👩 여자 · 💣폭탄 피격음',   defaultFile: 'f_bomb.mp3' },
+  { key: 'M_4', label: '👨 남자 · 🚀필살어뢰 격침', defaultFile: 'm_torpedo.mp3' },
+  { key: 'F_4', label: '👩 여자 · 🚀필살어뢰 격침', defaultFile: 'f_torpedo.mp3' },
+  { key: 'SHIP_HIT', label: '🚢 내 배 피격 ("오빠 메롱")', defaultFile: 'ship_hit.mp3' }
 ];
 const customAudioMap = {};
 
@@ -339,7 +341,7 @@ function renderVoiceSlots() {
       <label>${slot.label} <span style="color:#94a3b8;font-weight:600">(${slot.defaultFile})</span></label>
       <div style="display:flex;gap:4px;align-items:center">
         <input type="file" accept="audio/*" onchange="bindAudioFile('${slot.key}', event)">
-        <button class="btn" style="padding:2px 6px;font-size:11px" onclick="playCustomVoice('${slot.key}')">▶</button>
+        <button class="btn" style="padding:2px 6px;font-size:11px" onclick="testSlotVoice('${slot.key}')">▶</button>
       </div>
     </div>
   `).join('');
@@ -355,23 +357,76 @@ function bindAudioFile(key, event) {
   if (!file) return;
   if (customAudioMap[key]) URL.revokeObjectURL(customAudioMap[key]);
   customAudioMap[key] = URL.createObjectURL(file);
-  playCustomVoice(key);
+  testSlotVoice(key);
 }
 
-// 커스텀 음성 재생 (업로드된 파일 -> 같은 폴더의 기본 mp3 -> 내장 효과음 순으로 자동 폴백)
-function playCustomVoice(key) {
+function testSlotVoice(key) {
+  if (key === 'SHIP_HIT') playShipHitTaunt();
+  else playCustomVoice(key);
+}
+
+function playCustomVoice(key, onFallback = null) {
   if (!soundOn) return;
   const slot = voiceSlots.find(s => s.key === key);
   const src = customAudioMap[key] || (slot ? slot.defaultFile : null);
-  if (!src) return;
-
+  if (!src) {
+    if (onFallback) onFallback();
+    return;
+  }
   try {
     const audio = new Audio(src);
     audio.volume = 1.0;
     audio.play().catch(() => {
-      // 외부 파일이 아직 연결되지 않은 경우 조용히 패스(기계음 TTS 미사용)
+      if (onFallback) onFallback();
     });
-  } catch (e) {}
+  } catch (e) {
+    if (onFallback) onFallback();
+  }
+}
+
+// 적이 내 배를 맞췄을 때 재생되는 "오빠 메롱~" 약 올림 효과음 + 음성
+function playShipHitTaunt() {
+  if (!soundOn) return;
+
+  // 커스텀 파일(SHIP_HIT)이 연결되어 있으면 우선 재생, 없으면 멜로디 효과음 + "오빠 메롱~" 재생
+  playCustomVoice('SHIP_HIT', () => {
+    try {
+      initAudio();
+      const now = audioCtx.currentTime;
+      // 약 올리는 장난기 있는 5음 멜로디 (솔-미-라-솔-미~)
+      const notes = [
+        { f: 783.99, t: 0.00, d: 0.13 },
+        { f: 659.25, t: 0.14, d: 0.13 },
+        { f: 880.00, t: 0.28, d: 0.13 },
+        { f: 783.99, t: 0.42, d: 0.15 },
+        { f: 659.25, t: 0.58, d: 0.28 }
+      ];
+      notes.forEach(n => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(n.f, now + n.t);
+        gain.gain.setValueAtTime(0.24, now + n.t);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + n.t);
+        osc.stop(now + n.t + n.d + 0.02);
+      });
+    } catch (e) {}
+
+    if ('speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance('오빠 메롱~!');
+        u.lang = 'ko-KR';
+        u.pitch = 1.55;
+        u.rate = 1.15;
+        u.volume = 1.0;
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+    }
+  });
 }
 
 function initAudio() {
@@ -384,6 +439,7 @@ function toggleSound() {
   const btn = document.getElementById('soundBtn');
   btn.textContent = soundOn ? '🔊 사운드 ON' : '🔇 사운드 OFF';
   btn.className = soundOn ? 'btn mute' : 'btn';
+  if (!soundOn && 'speechSynthesis' in window) window.speechSynthesis.cancel();
 }
 
 function playDropSound(wType) {
@@ -573,8 +629,8 @@ const ship = {
   isDestroyed: false
 };
 
-let projectiles = [];     // 아군 투하 무기
-let enemyTorpedoes = [];  // 적 잠수함이 수직으로 발사하는 상향 어뢰
+let projectiles = [];
+let enemyTorpedoes = [];
 let submarines = [];
 let hullDebris = [];
 let particles = [];
@@ -663,7 +719,7 @@ function deploySubmarine(name, gender) {
     spinAngle: 0,
     strippingTimer: 0,
     strippedLayers: 0,
-    fireCooldown: 120 + Math.floor(Math.random() * 140) // 적 잠수함 수직 어뢰 발사 쿨타임
+    fireCooldown: 120 + Math.floor(Math.random() * 140)
   });
 }
 
@@ -824,7 +880,7 @@ function update() {
     p.x += p.vx;
     p.y += p.vy;
 
-    // 적 수직 어뢰와 수중 공중(수중) 충돌 요격 판정!
+    // 적 수직 어뢰 수중 요격 판정
     let intercepted = false;
     for (let k = enemyTorpedoes.length - 1; k >= 0; k--) {
       const et = enemyTorpedoes[k];
@@ -867,7 +923,6 @@ function update() {
 
         const wInfo = WEAPONS[p.type];
         const fullScream = `${s.name}: ${wInfo.scream}`;
-        // 외부 연결 음성 파일 재생
         playCustomVoice(`${s.gender}_${p.type}`);
 
         if (p.type === 4) {
@@ -929,7 +984,6 @@ function update() {
       continue;
     }
 
-    // 적 수직 어뢰 발사 로직 (회전 상태가 아닐 때 주기적으로 수직 상향 어뢰 발사)
     if (s.spinTimer <= 0 && !ship.isDestroyed) {
       s.fireCooldown--;
       if (s.fireCooldown <= 0 && s.x > 60 && s.x < W - 60) {
@@ -973,12 +1027,11 @@ function update() {
     else if (s.dir < 0 && s.x < -160) s.dir = 1;
   }
 
-  // 3) 적 수직 상향 어뢰 업데이트 & 23시 하오동 피격 판정
+  // 3) 적 수직 상향 어뢰 업데이트 & 23시 하오동 피격 시 "오빠 메롱~" 재생
   for (let i = enemyTorpedoes.length - 1; i >= 0; i--) {
     const et = enemyTorpedoes[i];
     et.y += et.vy;
 
-    // 상승 꼬리 거품
     if (Math.random() < 0.5) {
       particles.push({
         x: et.x + (Math.random() - 0.5) * 4,
@@ -992,23 +1045,21 @@ function update() {
       });
     }
 
-    // 수면(waterY) 도달 시 함선 충돌 체크
     if (et.y <= waterY + 4) {
       if (!ship.isDestroyed && Math.abs(et.x - ship.x) < 72) {
-        // 23시 하오동 피격!
+        // 23시 하오동 피격! -> "오빠 메롱~" 효과음 & 말풍선!
         ship.hp = Math.max(0, ship.hp - et.dmg);
         ship.hitFlash = 12;
         shakeTime = 14;
         updateShipHpUI();
-        playImpactSound(true);
-        createEffect(et.x, waterY, '#ef4444', 28, '', `💥 [${et.shooter}] 어뢰 명중! -${et.dmg}HP`);
+        playShipHitTaunt();
+        createEffect(et.x, waterY - 12, '#ef4444', 28, `${et.shooter}: 오빠 메롱~! 😜`, `💥 선체 피격! -${et.dmg}HP`);
 
         if (ship.hp <= 0) {
           ship.isDestroyed = true;
           document.getElementById('gameOverBox').style.display = 'flex';
         }
       } else {
-        // 빗나가서 수면 물기둥 폭발
         playImpactSound(false);
         createEffect(et.x, waterY, '#bae6fd', 14);
       }
@@ -1191,7 +1242,6 @@ function drawDestroyer(x, y) {
   ctx.save();
   ctx.translate(x, y);
 
-  // 함선 체력바 (함교 상단)
   const bw = 90;
   ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
   ctx.fillRect(-bw / 2, -68, bw, 7);
@@ -1236,7 +1286,6 @@ function drawDestroyer(x, y) {
 function drawEnemyTorpedo(et) {
   ctx.save();
   ctx.translate(et.x, et.y);
-  // 위쪽(수면)을 향하는 적 붉은 어뢰
   ctx.fillStyle = '#ef4444';
   ctx.strokeStyle = '#fef08a';
   ctx.lineWidth = 1.8;
