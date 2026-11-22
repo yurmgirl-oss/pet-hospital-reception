@@ -269,7 +269,7 @@
   <div style="display:flex;gap:5px">
     <button class="btn orange" onclick="spawnRandomWave()">🎲 랜덤 진상 출격</button>
     <button class="btn blue" id="pauseBtn" onclick="togglePause()">⏸ 일시정지</button>
-    <button class="btn mute" id="soundBtn" onclick="toggleSound()">🔊 기계음 ON</button>
+    <button class="btn mute" id="soundBtn" onclick="toggleSound()">🔊 감정성우 ON</button>
   </div>
 </header>
 
@@ -277,10 +277,10 @@
 <div class="roster-bar">
   <div class="roster-inputs">
     <select id="newLevel">
-      <option value="1">🟢 1단계 진상 (HP 100 · 느림)</option>
-      <option value="2">🔵 2단계 진상 (HP 180 · 보통)</option>
+      <option value="1">🟢 1단계 진상 (HP 100)</option>
+      <option value="2">🔵 2단계 진상 (HP 180)</option>
       <option value="3">🟣 3단계 진상 (HP 280 · 2연발)</option>
-      <option value="4">🔴 4단계 진상 [보스] (HP 400 · 폭격)</option>
+      <option value="4">🔴 4단계 보스 (HP 400 · 3연발)</option>
     </select>
     <input id="newVillain" placeholder="진상 이름 입력" onkeydown="if(event.key==='Enter')enqueueVillain()">
     <button class="btn blue" onclick="enqueueVillain()">+ 대기열 등록</button>
@@ -293,18 +293,21 @@
 <div class="canvas-wrap">
   <canvas id="gameCanvas"></canvas>
   <div class="toast-msg" id="toastBox"></div>
+
   <div class="pause-overlay" id="pauseBox">
-    <div style="font-size:32px;font-weight:900;color:#fde047;text-shadow:0 2px 10px rgba(0,0,0,0.8)">⏸ 일시정지 (PAUSE)</div>
-    <div style="font-size:15px;color:#e2e8f0;font-weight:700">Backspace 키 또는 아래 버튼을 누르면 전투를 재개합니다.</div>
-    <button class="btn" style="font-size:15px;padding:9px 22px" onclick="togglePause()">▶ 계속하기 (Backspace)</button>
+    <div style="font-size:34px;font-weight:900;color:#fbbf24">⏸ 작전 일시정지</div>
+    <div style="font-size:15px;color:#e2e8f0"><b>[Backspace]</b> 또는 아래 버튼을 누르면 전투를 재개합니다.</div>
+    <button class="btn" style="font-size:16px;padding:10px 24px" onclick="togglePause()">▶ 작전 계속하기</button>
   </div>
+
   <div class="gameover-overlay" id="gameOverBox">
     <div style="font-size:32px;font-weight:900;color:#f87171">💥 23시 하오동 선체 대파!</div>
-    <div style="font-size:16px;color:#e2e8f0">진상 잠수함의 역습 폭탄에 피격되어 긴급 수리가 필요합니다.</div>
+    <div style="font-size:16px;color:#e2e8f0">진상 잠수함의 폭격에 피격되어 긴급 수리가 필요합니다.</div>
     <button class="btn" style="font-size:16px;padding:10px 22px" onclick="repairShip()">🔧 선체 수리 후 즉시 재출격</button>
   </div>
+
   <div class="guide-bar">
-    조작: <b>[←/→]</b> 이동 · <b>[Space]</b> 💩똥 · <b>[A]</b> 💉주사기 · <b>[S]</b> 🪨돌맹이 · <b>[D]</b> 💣폭탄 · <b>[W]</b> 🚀어뢰 · <b>[Q]</b> 🤿나영이특전사 · <b>[Backspace]</b> ⏸ 일시정지
+    이동: <b>[←/→]</b> · 즉시투하: <b>[Space]</b>똥 <b>[A]</b>주사기 <b>[S]</b>돌맹이 <b>[D]</b>폭탄 <b>[W]</b>어뢰 · 특수: <b>[Q]</b>나영이특전사(발사관 5초봉쇄) · 정지: <b>[Backspace]</b>
   </div>
 </div>
 
@@ -313,8 +316,19 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 let W = 1280, H = 720, waterY = 135;
+let toastTimer = null;
+
+function showToast(msg) {
+  const box = document.getElementById('toastBox');
+  if (!box) return;
+  box.textContent = msg;
+  box.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { box.style.opacity = '0'; }, 2400);
+}
+
 function resize() {
-  if (!canvas.parentElement) return;
+  if (!canvas || !canvas.parentElement) return;
   W = canvas.width = canvas.parentElement.clientWidth;
   H = canvas.height = canvas.parentElement.clientHeight;
   waterY = Math.round(H * 0.21);
@@ -323,21 +337,28 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 
-/* ==================== 커스텀 알림 토스트 (alert 대체) ==================== */
-let toastTimer = null;
-function showToast(msg) {
-  const box = document.getElementById('toastBox');
-  box.textContent = msg;
-  box.style.opacity = '1';
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    box.style.opacity = '0';
-  }, 2200);
-}
-
-/* ==================== 기계음 & 합성 효과음 엔진 ==================== */
+/* ==================== 감정 성우 보이스 & 합성 효과음 엔진 ==================== */
 let soundOn = true;
 let audioCtx = null;
+let cachedKoVoices = [];
+
+function refreshVoices() {
+  if (!('speechSynthesis' in window)) return;
+  const all = window.speechSynthesis.getVoices();
+  const ko = all.filter(v => v.lang && v.lang.toLowerCase().includes('ko'));
+  if (ko.length > 0) {
+    // 자연스러운 고음질 한국어 보이스(SunHi, Google, Yuna, Heami 등)를 우선 정렬
+    ko.sort((a, b) => {
+      const score = v => (/SunHi|Natural|Google|Yuna|Heami|서연|유나/i.test(v.name) ? 10 : 0);
+      return score(b) - score(a);
+    });
+    cachedKoVoices = ko;
+  }
+}
+if ('speechSynthesis' in window) {
+  refreshVoices();
+  window.speechSynthesis.onvoiceschanged = refreshVoices;
+}
 
 function initAudio() {
   if (!audioCtx) {
@@ -352,49 +373,93 @@ function initAudio() {
 function toggleSound() {
   soundOn = !soundOn;
   const btn = document.getElementById('soundBtn');
-  btn.textContent = soundOn ? '🔊 기계음 ON' : '🔇 기계음 OFF';
+  btn.textContent = soundOn ? '🔊 감정성우 ON' : '🔇 감정성우 OFF';
   btn.className = soundOn ? 'btn mute' : 'btn';
   if (!soundOn && 'speechSynthesis' in window) {
     try { window.speechSynthesis.cancel(); } catch (e) {}
   }
 }
 
-// 기계음 비프 + 로봇 억양 TTS 결합 발화
-function speakRobotLine(text, weaponType = 0) {
-  if (!soundOn) return;
+// 구절별 억양(피치·속도·휴지)을 다르게 주어 감정을 실어 연기하는 성우 발화 엔진
+function speakEmotionalSequence(phrases, preferredGender = 'F') {
+  if (!soundOn || !('speechSynthesis' in window)) return;
   try {
-    initAudio();
-    if (audioCtx) {
-      const now = audioCtx.currentTime;
-      const baseFreq = weaponType === 4 ? 220 : weaponType === 3 ? 280 : weaponType === 2 ? 340 : weaponType === 1 ? 520 : 420;
-      for (let i = 0; i < 3; i++) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(baseFreq + (i % 2 === 0 ? 90 : -50), now + i * 0.055);
-        gain.gain.setValueAtTime(0.08, now + i * 0.055);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.055 + 0.05);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now + i * 0.055);
-        osc.stop(now + i * 0.055 + 0.055);
+    refreshVoices();
+    window.speechSynthesis.cancel();
+
+    let selectedVoice = null;
+    if (cachedKoVoices.length > 0) {
+      if (preferredGender === 'M') {
+        selectedVoice = cachedKoVoices.find(v => /InJoon|Hyunsu|Male|남성|민수/i.test(v.name)) || cachedKoVoices[0];
+      } else {
+        selectedVoice = cachedKoVoices.find(v => /SunHi|Heami|Yuna|Female|여성|소연/i.test(v.name)) || cachedKoVoices[0];
       }
     }
-  } catch (e) {}
 
-  if ('speechSynthesis' in window) {
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
+    phrases.forEach((p, idx) => {
+      const u = new SpeechSynthesisUtterance(p.text);
       u.lang = 'ko-KR';
-      const voices = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.includes('ko'));
-      if (voices.length > 0) u.voice = voices[0];
-      u.pitch = weaponType === 4 ? 0.65 : weaponType === 3 ? 0.75 : weaponType === 1 ? 1.35 : 0.88;
-      u.rate = weaponType === 4 ? 1.05 : 1.22;
+      if (selectedVoice) u.voice = selectedVoice;
+      u.pitch = p.pitch ?? 1.15;
+      u.rate = p.rate ?? 1.05;
       u.volume = 1.0;
-      window.speechSynthesis.speak(u);
-    } catch (e) {}
+
+      // 구절 사이 짧은 호흡(pause)이 필요하면 지연 후 큐에 투입
+      if (p.delayMs && idx > 0) {
+        setTimeout(() => {
+          if (soundOn && !isPaused) window.speechSynthesis.speak(u);
+        }, p.delayMs);
+      } else {
+        window.speechSynthesis.speak(u);
+      }
+    });
+  } catch (e) {}
+}
+
+// 무기별 감정 폭발 보이스 연기 매핑
+function playWeaponEmotionalVoice(villainName, weaponType) {
+  if (!soundOn) return;
+  const namePart = villainName ? `${villainName}!` : '';
+
+  if (weaponType === 0) {
+    // 💩 똥 -> "앗! 뜨거워~!!" (놀라며 비명 지르는 하이톤 감정 연기)
+    speakEmotionalSequence([
+      { text: namePart, pitch: 1.15, rate: 1.18 },
+      { text: '앗!', pitch: 1.62, rate: 1.28 },
+      { text: '뜨거워어~!!', pitch: 1.48, rate: 0.94 }
+    ], 'F');
+  } else if (weaponType === 1) {
+    // 💉 주사기 -> "으악! 똥침~!!" (찌릿하게 찔린 듯 급상승하는 코믹 비명 연기)
+    speakEmotionalSequence([
+      { text: namePart, pitch: 1.18, rate: 1.2 },
+      { text: '으악!', pitch: 1.58, rate: 1.32 },
+      { text: '똥침~!!', pitch: 1.72, rate: 1.05 }
+    ], 'F');
+  } else if (weaponType === 2) {
+    // 🪨 돌맹이 -> "찰싹! 찰싹! 아야야!" (리듬감 있는 타격감 연기)
+    speakEmotionalSequence([
+      { text: namePart, pitch: 1.1, rate: 1.15 },
+      { text: '찰싹!', pitch: 1.38, rate: 1.28 },
+      { text: '찰싹!', pitch: 1.52, rate: 1.25 }
+    ], 'F');
+  } else if (weaponType === 3) {
+    // 💣 폭탄 -> "이 진상아! 뒤져라~!!" (웅장하고 박력 넘치는 카리스마 보이스)
+    speakEmotionalSequence([
+      { text: `${villainName}!`, pitch: 0.85, rate: 1.08 },
+      { text: '뒤져라~!!', pitch: 0.72, rate: 0.88 }
+    ], 'M');
+  } else if (weaponType === 4) {
+    // 🚀 어뢰 -> "잘 가라! 꺼져라~!!" (시원하게 날려버리는 통쾌한 피날레 연기)
+    speakEmotionalSequence([
+      { text: `${villainName},`, pitch: 1.05, rate: 1.05 },
+      { text: '꺼져라~!!', pitch: 0.76, rate: 0.86 }
+    ], 'M');
   }
+}
+
+// 호환용 단일 호출 래퍼
+function speakRobotLine(text, weaponType = 0) {
+  speakEmotionalSequence([{ text, pitch: weaponType >= 3 ? 0.82 : 1.25, rate: 1.05 }], weaponType >= 3 ? 'M' : 'F');
 }
 
 function playDropSound(wType) {
@@ -487,13 +552,13 @@ function playImpactSound(isMega) {
   } catch (e) {}
 }
 
-/* ==================== 무기 설정 (5종 · 요청 기계음 대사 매핑) ==================== */
+/* ==================== 무기 설정 (5종 · 감정 보이스 대사 매핑) ==================== */
 const WEAPONS = [
-  { name: '똥',     dmg: 5,   cdMs: 250,   scream: '앗 드러워!' },
-  { name: '주사기', dmg: 10,  cdMs: 5000,  scream: '똥침!' },
-  { name: '돌맹이', dmg: 20,  cdMs: 10000, scream: '찰싹찰싹!' },
-  { name: '폭탄',   dmg: 40,  cdMs: 60000, scream: '뒤져라!' },
-  { name: '어뢰',   dmg: 999, cdMs: 60000, scream: '꺼져라!' }
+  { name: '똥',     dmg: 5,   cdMs: 250,   scream: '앗! 뜨거워~!!' },
+  { name: '주사기', dmg: 10,  cdMs: 5000,  scream: '으악! 똥침~!!' },
+  { name: '돌맹이', dmg: 20,  cdMs: 10000, scream: '찰싹! 찰싹!' },
+  { name: '폭탄',   dmg: 40,  cdMs: 60000, scream: '뒤져라~!!' },
+  { name: '어뢰',   dmg: 999, cdMs: 60000, scream: '꺼져라~!!' }
 ];
 const lastFireTime = [0, 0, 0, 0, 0];
 let currentWeapon = 0;
@@ -529,7 +594,7 @@ function updateWeaponCooldownUI() {
       sub.textContent = `${(remainMs / 1000).toFixed(1)}초`;
     } else {
       btn.classList.remove('cooling');
-      if (idx === 0) sub.textContent = '앗 드러워!';
+      if (idx === 0) sub.textContent = '앗! 뜨거워!';
       else if (idx === 1) sub.textContent = '준비 (5초)';
       else if (idx === 2) sub.textContent = '준비 (10초)';
       else sub.textContent = '준비 (60초)';
@@ -586,7 +651,10 @@ function deployNayoungCommando() {
 
   lastSpecialTime = now;
   playDropSound(1);
-  speakRobotLine('나영이 특전사 투입! 발사관 봉쇄!', 1);
+  speakEmotionalSequence([
+    { text: '나영이 특전사 투입!', pitch: 1.22, rate: 1.15 },
+    { text: '발사관 완전 봉쇄!', pitch: 1.05, rate: 1.08 }
+  ], 'F');
   createEffect(ship.x, waterY - 8, '#34d399', 22, '🤿 나영이 특전사 다이빙!', '🛡️ 특수작전 개시 (5초 방어)');
 
   commandoUnits.push({
@@ -1280,8 +1348,8 @@ function update() {
         s.hitFlash = 8;
 
         const wInfo = WEAPONS[p.type];
-        const robotScream = `${s.name} ${wInfo.scream}`;
-        speakRobotLine(robotScream, p.type);
+        const robotScream = `${s.name}! ${wInfo.scream}`;
+        playWeaponEmotionalVoice(s.name, p.type);
 
         if (p.type === 4) {
           s.strippingTimer = 75;
@@ -1500,7 +1568,10 @@ function update() {
         ship.hitFlash = 12;
         shakeTime = 14;
         updateShipHpUI();
-        speakRobotLine(`${eb.shooter} 명중!`, 3);
+        speakEmotionalSequence([
+          { text: `${eb.shooter}!`, pitch: 0.9, rate: 1.1 },
+          { text: '명중했다!', pitch: 1.28, rate: 1.15 }
+        ], 'M');
         createEffect(eb.x, waterY - 12, '#ef4444', 28, `${eb.shooter} [${eb.level}단계] 폭격 명중!`, `💥 선체 피격! -${eb.dmg}HP`);
 
         if (ship.hp <= 0) {
@@ -1552,9 +1623,9 @@ function destroySubmarine(idx, isMega = false) {
   shakeTime = isMega ? 26 : 18;
   playImpactSound(true);
 
-  const exitScream = `${s.name} 꺼져라!`;
+  const exitScream = `${s.name}! 꺼져라~!!`;
   if (!isMega) {
-    speakRobotLine(exitScream, 4);
+    playWeaponEmotionalVoice(s.name, 4);
   }
 
   // 격침된 자리에 수중 생물들이 모여들어 잔해를 뜯어먹는 포식 구역 생성
