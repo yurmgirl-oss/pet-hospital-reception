@@ -387,6 +387,9 @@ function speakEmotionalSequence(phrases, preferredGender = 'F') {
     refreshVoices();
     window.speechSynthesis.cancel();
 
+    const validPhrases = phrases.filter(p => p && p.text && p.text.trim().length > 0);
+    if (validPhrases.length === 0) return;
+
     let selectedVoice = null;
     if (cachedKoVoices.length > 0) {
       if (preferredGender === 'M') {
@@ -396,23 +399,29 @@ function speakEmotionalSequence(phrases, preferredGender = 'F') {
       }
     }
 
-    phrases.forEach((p, idx) => {
-      const u = new SpeechSynthesisUtterance(p.text);
+    // 브라우저 TTS 큐 씹힘 방지를 위해 onend 체이닝으로 한 구절씩 순차 발화
+    const speakAt = (idx) => {
+      if (idx >= validPhrases.length || !soundOn || isPaused) return;
+      const p = validPhrases[idx];
+      const u = new SpeechSynthesisUtterance(p.text.trim());
       u.lang = 'ko-KR';
       if (selectedVoice) u.voice = selectedVoice;
       u.pitch = p.pitch ?? 1.15;
       u.rate = p.rate ?? 1.05;
       u.volume = 1.0;
 
-      // 구절 사이 짧은 호흡(pause)이 필요하면 지연 후 큐에 투입
-      if (p.delayMs && idx > 0) {
-        setTimeout(() => {
-          if (soundOn && !isPaused) window.speechSynthesis.speak(u);
-        }, p.delayMs);
-      } else {
-        window.speechSynthesis.speak(u);
-      }
-    });
+      u.onend = () => {
+        setTimeout(() => speakAt(idx + 1), 35);
+      };
+      u.onerror = () => {
+        speakAt(idx + 1);
+      };
+
+      window.speechSynthesis.speak(u);
+    };
+
+    // cancel() 직후 첫 발화가 씹히지 않도록 짧은 딜레이 후 시작
+    setTimeout(() => speakAt(0), 30);
   } catch (e) {}
 }
 
@@ -425,33 +434,30 @@ function playWeaponEmotionalVoice(villainName, weaponType) {
     // 💩 똥 -> "앗! 뜨거워~!!" (놀라며 비명 지르는 하이톤 감정 연기)
     speakEmotionalSequence([
       { text: namePart, pitch: 1.15, rate: 1.18 },
-      { text: '앗!', pitch: 1.62, rate: 1.28 },
-      { text: '뜨거워어~!!', pitch: 1.48, rate: 0.94 }
+      { text: '앗! 뜨거워어~!!', pitch: 1.56, rate: 1.04 }
     ], 'F');
   } else if (weaponType === 1) {
     // 💉 주사기 -> "으악! 똥침~!!" (찌릿하게 찔린 듯 급상승하는 코믹 비명 연기)
     speakEmotionalSequence([
       { text: namePart, pitch: 1.18, rate: 1.2 },
-      { text: '으악!', pitch: 1.58, rate: 1.32 },
-      { text: '똥침~!!', pitch: 1.72, rate: 1.05 }
+      { text: '으악! 똥침~!!', pitch: 1.68, rate: 1.12 }
     ], 'F');
   } else if (weaponType === 2) {
-    // 🪨 돌맹이 -> "찰싹! 찰싹! 아야야!" (리듬감 있는 타격감 연기)
+    // 🪨 돌맹이 -> "찰싹! 찰싹!" (리듬감 있는 타격감 연기)
     speakEmotionalSequence([
       { text: namePart, pitch: 1.1, rate: 1.15 },
-      { text: '찰싹!', pitch: 1.38, rate: 1.28 },
-      { text: '찰싹!', pitch: 1.52, rate: 1.25 }
+      { text: '찰싹! 찰싹!', pitch: 1.46, rate: 1.24 }
     ], 'F');
   } else if (weaponType === 3) {
-    // 💣 폭탄 -> "이 진상아! 뒤져라~!!" (웅장하고 박력 넘치는 카리스마 보이스)
+    // 💣 폭탄 -> "뒤져라~!!" (웅장하고 박력 넘치는 카리스마 보이스)
     speakEmotionalSequence([
-      { text: `${villainName}!`, pitch: 0.85, rate: 1.08 },
+      { text: namePart, pitch: 0.85, rate: 1.08 },
       { text: '뒤져라~!!', pitch: 0.72, rate: 0.88 }
     ], 'M');
   } else if (weaponType === 4) {
-    // 🚀 어뢰 -> "잘 가라! 꺼져라~!!" (시원하게 날려버리는 통쾌한 피날레 연기)
+    // 🚀 어뢰 -> "꺼져라~!!" (시원하게 날려버리는 통쾌한 피날레 연기)
     speakEmotionalSequence([
-      { text: `${villainName},`, pitch: 1.05, rate: 1.05 },
+      { text: namePart, pitch: 1.05, rate: 1.05 },
       { text: '꺼져라~!!', pitch: 0.76, rate: 0.86 }
     ], 'M');
   }
