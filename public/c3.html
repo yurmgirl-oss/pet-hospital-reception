@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>C3 · 23시 하오동 쌍방 해전 & 커스텀 보이스 소탕작전</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C3 · 23시 하오동 진상 소탕 해전</title>
 <style>
   * { box-sizing: border-box; user-select: none; }
   body {
@@ -25,6 +25,7 @@
     padding: 6px 12px;
     gap: 8px;
     flex-shrink: 0;
+    flex-wrap: wrap;
   }
   .hud-left { display: flex; align-items: center; gap: 8px; }
   .title { font-size: 15.5px; font-weight: 900; color: #38bdf8; white-space: nowrap; }
@@ -42,7 +43,7 @@
   .stat-pill.hp.danger b { color: #f87171; }
 
   /* 5종 무기 & 쿨타임 게이지 버튼 */
-  .weapons { display: flex; gap: 4px; }
+  .weapons { display: flex; gap: 4px; flex-wrap: wrap; }
   .w-btn {
     position: relative;
     overflow: hidden;
@@ -55,7 +56,7 @@
     font-weight: 800;
     cursor: pointer;
     transition: 0.12s;
-    min-width: 96px;
+    min-width: 94px;
     text-align: center;
   }
   .w-btn.active {
@@ -70,7 +71,7 @@
     border-color: #fca5a5;
     box-shadow: 0 0 12px rgba(239, 68, 68, 0.85);
   }
-  .w-btn.cooling { opacity: 0.7; }
+  .w-btn.cooling { opacity: 0.72; }
   .w-cd-bar {
     position: absolute;
     bottom: 0;
@@ -93,8 +94,9 @@
     padding: 5px 12px;
     gap: 8px;
     flex-shrink: 0;
+    flex-wrap: wrap;
   }
-  .roster-inputs { display: flex; gap: 5px; align-items: center; }
+  .roster-inputs { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
   .roster-inputs select, .roster-inputs input {
     background: #0f172a;
     border: 1px solid #475569;
@@ -104,7 +106,7 @@
     font-size: 12px;
     font-weight: 700;
   }
-  .roster-inputs input { width: 130px; user-select: text; }
+  .roster-inputs input { width: 135px; user-select: text; }
   .btn {
     border: 0;
     background: #10b981;
@@ -117,7 +119,7 @@
     white-space: nowrap;
   }
   .btn.blue { background: #2563eb; }
-  .btn.purple { background: #7c3aed; }
+  .btn.orange { background: #d97706; }
   .btn.red { background: #dc2626; }
   .btn.mute { background: #475569; }
 
@@ -139,47 +141,11 @@
     font-weight: 800;
     white-space: nowrap;
   }
-  .q-tag.M { background: #1e3a8a; border: 1px solid #60a5fa; color: #dbeafe; }
-  .q-tag.F { background: #831843; border: 1px solid #f472b6; color: #fce7f3; }
+  .q-tag.lv1 { background: #065f46; border: 1px solid #34d399; color: #d1fae5; }
+  .q-tag.lv2 { background: #1e3a8a; border: 1px solid #60a5fa; color: #dbeafe; }
+  .q-tag.lv3 { background: #6b21a8; border: 1px solid #c084fc; color: #f3e8ff; }
+  .q-tag.lv4 { background: #991b1b; border: 1px solid #f87171; color: #fee2e2; }
   .q-tag button { background: none; border: 0; color: #fca5a5; font-weight: 900; cursor: pointer; padding: 0 2px; }
-
-  /* 커스텀 음성 파일 연결 모달 */
-  .voice-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(2, 6, 23, 0.78);
-    z-index: 50;
-    align-items: center;
-    justify-content: center;
-  }
-  .voice-box {
-    background: #1e293b;
-    border: 2px solid #38bdf8;
-    border-radius: 12px;
-    padding: 16px;
-    width: 650px;
-    max-width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
-    color: #f8fafc;
-  }
-  .voice-box h3 { margin: 0 0 8px; font-size: 17px; color: #38bdf8; }
-  .voice-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 7px;
-    margin: 10px 0;
-  }
-  .v-slot {
-    background: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    padding: 6px 8px;
-    font-size: 11.5px;
-  }
-  .v-slot label { display: block; font-weight: 800; margin-bottom: 3px; color: #fde047; }
-  .v-slot input[type=file] { width: 100%; font-size: 11px; color: #cbd5e1; }
 
   .canvas-wrap {
     flex: 1;
@@ -194,7 +160,7 @@
     bottom: 8px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(15, 23, 42, 0.88);
     border: 1px solid rgba(148, 163, 184, 0.4);
     padding: 5px 15px;
     border-radius: 20px;
@@ -204,11 +170,28 @@
     pointer-events: none;
     white-space: nowrap;
   }
+  .toast-msg {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(220, 38, 38, 0.92);
+    border: 1px solid #fca5a5;
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 800;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 30;
+  }
   .gameover-overlay {
     display: none;
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.72);
+    background: rgba(15, 23, 42, 0.76);
     align-items: center;
     justify-content: center;
     flex-direction: column;
@@ -221,7 +204,7 @@
 
 <header class="hud">
   <div class="hud-left">
-    <div class="title">🚢 C3 · 23시 하오동 해전</div>
+    <div class="title">🚢 C3 · 23시 하오동 진상 소탕</div>
     <div class="stat-pill hp" id="shipHpPill">함선HP: <b id="shipHpVal">100</b></div>
     <div class="stat-pill">격침: <b id="killCnt">0</b>척</div>
     <div class="stat-pill">점수: <b id="scoreVal">0</b></div>
@@ -230,16 +213,16 @@
   <div class="weapons">
     <button class="w-btn active" id="w0" onclick="selectWeapon(0)">
       [1] 💩똥 (5)
-      <span class="w-sub" id="wSub0">연속·둔화</span>
+      <span class="w-sub" id="wSub0">앗 드러워!</span>
       <div class="w-cd-bar" id="wBar0"></div>
     </button>
     <button class="w-btn" id="w1" onclick="selectWeapon(1)">
-      [2] 💉주사 (10)
+      [2] 💉주사기 (10)
       <span class="w-sub" id="wSub1">준비 (5초)</span>
       <div class="w-cd-bar" id="wBar1"></div>
     </button>
     <button class="w-btn" id="w2" onclick="selectWeapon(2)">
-      [3] 🪨돌 (20)
+      [3] 🪨돌맹이 (20)
       <span class="w-sub" id="wSub2">준비 (10초)</span>
       <div class="w-cd-bar" id="wBar2"></div>
     </button>
@@ -249,26 +232,28 @@
       <div class="w-cd-bar" id="wBar3"></div>
     </button>
     <button class="w-btn torpedo" id="w4" onclick="selectWeapon(4)">
-      [5] 🚀필살어뢰
+      [5] 🚀어뢰 (필살)
       <span class="w-sub" id="wSub4">준비 (60초)</span>
       <div class="w-cd-bar" id="wBar4"></div>
     </button>
   </div>
 
   <div style="display:flex;gap:5px">
-    <button class="btn purple" onclick="toggleVoiceModal(true)">🎵 음성파일 설정</button>
-    <button class="btn mute" id="soundBtn" onclick="toggleSound()">🔊 사운드 ON</button>
+    <button class="btn orange" onclick="spawnRandomWave()">🎲 랜덤 진상 출격</button>
+    <button class="btn mute" id="soundBtn" onclick="toggleSound()">🔊 기계음 ON</button>
   </div>
 </header>
 
-<!-- 지정 출격 등록 및 대기열 바 -->
+<!-- 지정 출격 등록 및 대기열 바 (진상 1~4단계 통합 등급 체계) -->
 <div class="roster-bar">
   <div class="roster-inputs">
-    <select id="newGender">
-      <option value="M">👨남자 (HP 200)</option>
-      <option value="F">👩여자 (HP 100)</option>
+    <select id="newLevel">
+      <option value="1">🟢 1단계 진상 (HP 100 · 느림)</option>
+      <option value="2">🔵 2단계 진상 (HP 180 · 보통)</option>
+      <option value="3">🟣 3단계 진상 (HP 280 · 2연발)</option>
+      <option value="4">🔴 4단계 진상 [보스] (HP 400 · 폭격)</option>
     </select>
-    <input id="newVillain" placeholder="출격할 이름 입력" onkeydown="if(event.key==='Enter')enqueueVillain()">
+    <input id="newVillain" placeholder="진상 이름 입력" onkeydown="if(event.key==='Enter')enqueueVillain()">
     <button class="btn blue" onclick="enqueueVillain()">+ 대기열 등록</button>
     <button class="btn" onclick="launchNextFromQueue()">▶ 즉시 출격</button>
     <button class="btn red" onclick="clearQueue()">비움</button>
@@ -276,30 +261,16 @@
   <div class="queue-list" id="queueList"></div>
 </div>
 
-<!-- 커스텀 음성 파일 연결 모달 -->
-<div class="voice-modal" id="voiceModal">
-  <div class="voice-box">
-    <h3>🎙️ 더빙 음성 연결 상태 (기본 더빙 음성 내장 완료)</h3>
-    <div style="font-size:12px;color:#cbd5e1;line-height:1.45">
-      업로드하신 5종의 더빙 음성이 이미 무기별로 기본 내장되어 있습니다.<br>
-      원하시면 아래 슬롯에서 다른 파일로 교체하거나 <b>▶</b> 버튼으로 미리 들어보실 수 있습니다.
-    </div>
-    <div class="voice-grid" id="voiceGrid"></div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
-      <button class="btn blue" onclick="toggleVoiceModal(false)">확인 및 닫기</button>
-    </div>
-  </div>
-</div>
-
 <div class="canvas-wrap">
   <canvas id="gameCanvas"></canvas>
+  <div class="toast-msg" id="toastBox"></div>
   <div class="gameover-overlay" id="gameOverBox">
     <div style="font-size:32px;font-weight:900;color:#f87171">💥 23시 하오동 선체 대파!</div>
-    <div style="font-size:16px;color:#e2e8f0">적 어뢰에 피격되어 긴급 수리가 필요합니다.</div>
+    <div style="font-size:16px;color:#e2e8f0">진상 잠수함의 역습 폭탄에 피격되어 긴급 수리가 필요합니다.</div>
     <button class="btn" style="font-size:16px;padding:10px 22px" onclick="repairShip()">🔧 선체 수리 후 즉시 재출격</button>
   </div>
   <div class="guide-bar">
-    조작: <b>[←/→]</b> 또는 <b>[A/D]</b> 적 수직어뢰 회피 이동 · <b>[Space/클릭]</b> 무기 투하 · <b>[1]</b>잘못했어요 <b>[2]</b>개쓰레기 <b>[3]</b>미쳤나봐요 <b>[4]</b>죽여주시옵소서 <b>[5]</b>오빠안녕
+    조작: <b>[←/→]</b> 또는 <b>[A/D]</b> 이동 · <b>[Space/클릭]</b> 투하 · 수심별 <b>다층 조류(해류)</b> 계산 조준 · <b>[1]</b>똥 <b>[2]</b>주사기 <b>[3]</b>돌맹이 <b>[4]</b>폭탄 <b>[5]</b>어뢰
   </div>
 </div>
 
@@ -313,168 +284,23 @@ function resize() {
   H = canvas.height = canvas.parentElement.clientHeight;
   waterY = Math.round(H * 0.21);
   buildSeabed();
+  buildCurrentStreams();
 }
 window.addEventListener('resize', resize);
 
-/* ==================== 내장된 실제 더빙 음성 파일 & 효과음 엔진 ==================== */
+/* ==================== 토스트 안내 메시지 (alert 대체) ==================== */
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toastBox');
+  el.textContent = msg;
+  el.style.opacity = '1';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.opacity = '0'; }, 1800);
+}
+
+/* ==================== 기계음(TTS) & Web Audio 효과음 엔진 ==================== */
 let soundOn = true;
 let audioCtx = null;
-
-// 업로드하신 5개 음성 파일(WAV)을 내장 매핑
-const EMBEDDED_DUBS = {
-  0: "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=", // 아래 initEmbeddedDubs에서 실제 업로드 오디오 데이터로 초기화
-  1: "",
-  2: "",
-  3: "",
-  4: ""
-};
-
-// 업로드된 5개 음성 파일의 실제 대사 및 기본 오디오 소스 바인딩
-const DUB_FILES = {
-  0: { text: "잘못했어요!", file: "잘못했어요.wav" },
-  1: { text: "저는 개쓰레기예요!", file: "저는 개쓰레기예요.wav" },
-  2: { text: "제가 미쳤나봐요!", file: "제가 미쳤나봐요.wav" },
-  3: { text: "저를 죽여주시옵소서!", file: "저를 죽여주시옵소서.wav" },
-  4: { text: "오빠 안녕 먼저 가요 다음 생에 만나요!", file: "오빠 안녕 먼저 가요 다음 생에 만나요.wav" }
-};
-
-const voiceSlots = [
-  { key: 'M_0', label: '👨 남자 · 💩똥 ("잘못했어요")',          defaultFile: '잘못했어요.wav', dubIdx: 0 },
-  { key: 'F_0', label: '👩 여자 · 💩똥 ("잘못했어요")',          defaultFile: '잘못했어요.wav', dubIdx: 0 },
-  { key: 'M_1', label: '👨 남자 · 💉주사 ("저는 개쓰레기예요")',  defaultFile: '저는 개쓰레기예요.wav', dubIdx: 1 },
-  { key: 'F_1', label: '👩 여자 · 💉주사 ("저는 개쓰레기예요")',  defaultFile: '저는 개쓰레기예요.wav', dubIdx: 1 },
-  { key: 'M_2', label: '👨 남자 · 🪨돌 ("제가 미쳤나봐요")',      defaultFile: '제가 미쳤나봐요.wav', dubIdx: 2 },
-  { key: 'F_2', label: '👩 여자 · 🪨돌 ("제가 미쳤나봐요")',      defaultFile: '제가 미쳤나봐요.wav', dubIdx: 2 },
-  { key: 'M_3', label: '👨 남자 · 💣폭탄 ("저를 죽여주시옵소서")', defaultFile: '저를 죽여주시옵소서.wav', dubIdx: 3 },
-  { key: 'F_3', label: '👩 여자 · 💣폭탄 ("저를 죽여주시옵소서")', defaultFile: '저를 죽여주시옵소서.wav', dubIdx: 3 },
-  { key: 'M_4', label: '👨 남자 · 🚀필살어뢰 ("오빠 안녕...")',  defaultFile: '오빠 안녕 먼저 가요 다음 생에 만나요.wav', dubIdx: 4 },
-  { key: 'F_4', label: '👩 여자 · 🚀필살어뢰 ("오빠 안녕...")',  defaultFile: '오빠 안녕 먼저 가요 다음 생에 만나요.wav', dubIdx: 4 },
-  { key: 'SHIP_HIT', label: '🚢 내 배 피격 ("오빠 메롱~")',    defaultFile: 'ship_hit.mp3', dubIdx: -1 }
-];
-const customAudioMap = {};
-let activeDubAudio = null;
-
-function renderVoiceSlots() {
-  document.getElementById('voiceGrid').innerHTML = voiceSlots.map(slot => `
-    <div class="v-slot">
-      <label>${slot.label}</label>
-      <div style="display:flex;gap:4px;align-items:center">
-        <input type="file" accept="audio/*" onchange="bindAudioFile('${slot.key}', event)">
-        <button class="btn" style="padding:2px 6px;font-size:11px" onclick="testSlotVoice('${slot.key}')">▶</button>
-      </div>
-    </div>
-  `).join('');
-}
-renderVoiceSlots();
-
-function toggleVoiceModal(show) {
-  document.getElementById('voiceModal').style.display = show ? 'flex' : 'none';
-}
-
-function bindAudioFile(key, event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  if (customAudioMap[key]) URL.revokeObjectURL(customAudioMap[key]);
-  customAudioMap[key] = URL.createObjectURL(file);
-  testSlotVoice(key);
-}
-
-function testSlotVoice(key) {
-  if (key === 'SHIP_HIT') playShipHitTaunt();
-  else playCustomVoice(key);
-}
-
-// 피격 시 더빙 음성 파일 재생 (같은 폴더의 wav 파일 -> 사용자 업로드 파일 -> 생생한 감정 음성 폴백)
-function playCustomVoice(key) {
-  if (!soundOn) return;
-  const slot = voiceSlots.find(s => s.key === key);
-  const src = customAudioMap[key] || (slot ? slot.defaultFile : null);
-  const gender = key.startsWith('M_') ? 'M' : 'F';
-  const dubInfo = slot && slot.dubIdx >= 0 ? DUB_FILES[slot.dubIdx] : null;
-
-  if (activeDubAudio) {
-    try { activeDubAudio.pause(); activeDubAudio.currentTime = 0; } catch (e) {}
-  }
-
-  if (src) {
-    try {
-      const audio = new Audio(src);
-      activeDubAudio = audio;
-      audio.volume = 1.0;
-      audio.play().catch(() => {
-        // 같은 폴더에 wav 파일이 없는 환경(단독 실행 등)에서는 해당 대사를 감정 억양으로 즉시 재생
-        if (dubInfo) speakDubFallback(gender, dubInfo.text, slot.dubIdx);
-      });
-      return;
-    } catch (e) {}
-  }
-  if (dubInfo) speakDubFallback(gender, dubInfo.text, slot.dubIdx);
-}
-
-function speakDubFallback(gender, line, dubIdx) {
-  if (!soundOn || !('speechSynthesis' in window)) return;
-  try {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(line);
-    u.lang = 'ko-KR';
-    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.includes('ko'));
-    if (voices.length > 0) {
-      const femVoice = voices.find(v => /Heami|SunHi|Female|여성|소연/i.test(v.name));
-      const maleVoice = voices.find(v => /InJoon|Hyunsu|Male|남성|민수/i.test(v.name));
-      if (gender === 'F' && femVoice) u.voice = femVoice;
-      else if (gender === 'M' && maleVoice) u.voice = maleVoice;
-      else u.voice = voices[0];
-    }
-    u.pitch = gender === 'M' ? 0.78 : (dubIdx === 4 ? 1.38 : 1.48);
-    u.rate = dubIdx === 4 ? 1.02 : 1.15;
-    u.volume = 1.0;
-    window.speechSynthesis.speak(u);
-  } catch (e) {}
-}
-
-// 적이 내 배를 맞췄을 때 재생되는 "오빠 메롱~" 효과음 + 음성
-function playShipHitTaunt() {
-  if (!soundOn) return;
-  const customSrc = customAudioMap['SHIP_HIT'];
-  if (customSrc) {
-    const a = new Audio(customSrc);
-    a.play().catch(() => {});
-    return;
-  }
-  try {
-    initAudio();
-    const now = audioCtx.currentTime;
-    const notes = [
-      { f: 783.99, t: 0.00, d: 0.13 },
-      { f: 659.25, t: 0.14, d: 0.13 },
-      { f: 880.00, t: 0.28, d: 0.13 },
-      { f: 783.99, t: 0.42, d: 0.15 },
-      { f: 659.25, t: 0.58, d: 0.28 }
-    ];
-    notes.forEach(n => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(n.f, now + n.t);
-      gain.gain.setValueAtTime(0.24, now + n.t);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(now + n.t); osc.stop(now + n.t + n.d + 0.02);
-    });
-  } catch (e) {}
-
-  if ('speechSynthesis' in window) {
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance('오빠 메롱~!');
-      u.lang = 'ko-KR';
-      u.pitch = 1.55;
-      u.rate = 1.15;
-      u.volume = 1.0;
-      window.speechSynthesis.speak(u);
-    } catch (e) {}
-  }
-}
 
 function initAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -484,9 +310,72 @@ function initAudio() {
 function toggleSound() {
   soundOn = !soundOn;
   const btn = document.getElementById('soundBtn');
-  btn.textContent = soundOn ? '🔊 사운드 ON' : '🔇 사운드 OFF';
+  btn.textContent = soundOn ? '🔊 기계음 ON' : '🔇 기계음 OFF';
   btn.className = soundOn ? 'btn mute' : 'btn';
   if (!soundOn && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
+// 기계음 비프 프리앰블 + Web Speech API 로봇/기계음 TTS 발화
+function speakRobotVoice(text, weaponType = 0) {
+  if (!soundOn) return;
+
+  // 짧은 전자 기계음 비프(합성음)로 로봇 발화 느낌 강화
+  try {
+    initAudio();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    const baseFreq = weaponType === 4 ? 220 : weaponType === 3 ? 310 : 440;
+    osc.frequency.setValueAtTime(baseFreq, now);
+    osc.frequency.setValueAtTime(baseFreq * 1.35, now + 0.045);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.095);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  } catch (e) {}
+
+  if (!('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'ko-KR';
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.includes('ko'));
+    if (voices.length > 0) {
+      utter.voice = voices[0];
+    }
+    // 기계음 느낌의 또박또박하고 평탄한 피치 및 속도 설정
+    utter.pitch = weaponType === 4 ? 0.65 : weaponType === 3 ? 1.35 : 0.82;
+    utter.rate = weaponType === 4 ? 1.05 : 1.24;
+    utter.volume = 1.0;
+    window.speechSynthesis.speak(utter);
+  } catch (e) {}
+}
+
+function playShipHitTaunt() {
+  if (!soundOn) return;
+  try {
+    initAudio();
+    const now = audioCtx.currentTime;
+    const notes = [
+      { f: 783.99, t: 0.00, d: 0.11 },
+      { f: 659.25, t: 0.12, d: 0.11 },
+      { f: 880.00, t: 0.24, d: 0.11 },
+      { f: 659.25, t: 0.36, d: 0.22 }
+    ];
+    notes.forEach(n => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(n.f, now + n.t);
+      gain.gain.setValueAtTime(0.16, now + n.t);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now + n.t); osc.stop(now + n.t + n.d + 0.02);
+    });
+  } catch (e) {}
 }
 
 function playDropSound(wType) {
@@ -517,27 +406,27 @@ function playDropSound(wType) {
       osc.frequency.setValueAtTime(950, now);
       osc.frequency.exponentialRampToValueAtTime(220, now + 0.45);
     }
-    gain.gain.setValueAtTime(0.16, now);
+    gain.gain.setValueAtTime(0.15, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.46);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(now); osc.stop(now + 0.47);
   } catch (e) {}
 }
 
-function playEnemyTorpedoSound() {
+function playEnemyTorpedoSound(level = 1) {
   if (!soundOn) return;
   try {
     initAudio();
     const now = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(180, now);
-    osc.frequency.exponentialRampToValueAtTime(520, now + 0.22);
-    gain.gain.setValueAtTime(0.09, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+    osc.type = level >= 3 ? 'sawtooth' : 'square';
+    osc.frequency.setValueAtTime(160 + level * 35, now);
+    osc.frequency.exponentialRampToValueAtTime(480 + level * 60, now + 0.2);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.21);
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(now); osc.stop(now + 0.24);
+    osc.start(now); osc.stop(now + 0.22);
   } catch (e) {}
 }
 
@@ -546,7 +435,7 @@ function playImpactSound(isMega) {
   try {
     initAudio();
     const now = audioCtx.currentTime;
-    const duration = isMega ? 0.75 : 0.22;
+    const duration = isMega ? 0.72 : 0.22;
     const bufferSize = Math.floor(audioCtx.sampleRate * duration);
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -561,7 +450,7 @@ function playImpactSound(isMega) {
     filter.frequency.exponentialRampToValueAtTime(38, now + duration);
 
     const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(isMega ? 0.42 : 0.18, now);
+    gain.gain.setValueAtTime(isMega ? 0.4 : 0.17, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
     noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
@@ -569,13 +458,13 @@ function playImpactSound(isMega) {
   } catch (e) {}
 }
 
-/* ==================== 무기 설정 (5종 · 더빙 대사 매핑) ==================== */
+/* ==================== 무기 5종 & 기계음 대사 정의 ==================== */
 const WEAPONS = [
-  { name: '똥',       dmg: 5,   cdMs: 250,   scream: '잘못했어요!' },
-  { name: '주사기',   dmg: 10,  cdMs: 5000,  scream: '저는 개쓰레기예요!' },
-  { name: '돌맹이',   dmg: 20,  cdMs: 10000, scream: '제가 미쳤나봐요!' },
-  { name: '폭탄',     dmg: 40,  cdMs: 60000, scream: '저를 죽여주시옵소서!' },
-  { name: '필살어뢰', dmg: 999, cdMs: 60000, scream: '오빠 안녕 먼저 가요 다음 생에 만나요!' }
+  { name: '똥',     dmg: 5,   cdMs: 250,   scream: '앗 드러워!' },
+  { name: '주사기', dmg: 10,  cdMs: 5000,  scream: '똥침!' },
+  { name: '돌맹이', dmg: 20,  cdMs: 10000, scream: '찰싹찰싹!' },
+  { name: '폭탄',   dmg: 40,  cdMs: 60000, scream: '뒤져라!' },
+  { name: '어뢰',   dmg: 999, cdMs: 60000, scream: '꺼져라!' }
 ];
 const lastFireTime = [0, 0, 0, 0, 0];
 let currentWeapon = 0;
@@ -603,7 +492,7 @@ function updateWeaponCooldownUI() {
       sub.textContent = `${(remainMs / 1000).toFixed(1)}초`;
     } else {
       btn.classList.remove('cooling');
-      if (idx === 0) sub.textContent = '연속·둔화';
+      if (idx === 0) sub.textContent = '앗 드러워!';
       else if (idx === 1) sub.textContent = '준비 (5초)';
       else if (idx === 2) sub.textContent = '준비 (10초)';
       else sub.textContent = '준비 (60초)';
@@ -611,20 +500,130 @@ function updateWeaponCooldownUI() {
   });
 }
 
+/* ==================== 진상 1~4단계 등급 스펙 ==================== */
+const VILLAIN_LEVELS = {
+  1: {
+    lv: 1,
+    tag: 'Lv.1',
+    hp: 100,
+    baseSpeed: 1.15,
+    fireInterval: 240,
+    torpedoVy: -3.0,
+    torpedoDmg: 10,
+    w: 132,
+    h: 36,
+    hullColor: '#059669',
+    towerColor: '#064e3b',
+    strokeColor: '#6ee7b7',
+    score: 120
+  },
+  2: {
+    lv: 2,
+    tag: 'Lv.2',
+    hp: 180,
+    baseSpeed: 1.65,
+    fireInterval: 180,
+    torpedoVy: -4.0,
+    torpedoDmg: 14,
+    w: 146,
+    h: 40,
+    hullColor: '#2563eb',
+    towerColor: '#1e3a8a',
+    strokeColor: '#93c5fd',
+    score: 220
+  },
+  3: {
+    lv: 3,
+    tag: 'Lv.3',
+    hp: 280,
+    baseSpeed: 2.25,
+    fireInterval: 125,
+    torpedoVy: -5.2,
+    torpedoDmg: 18,
+    w: 162,
+    h: 45,
+    hullColor: '#7c3aed',
+    towerColor: '#4c1d95',
+    strokeColor: '#d8b4fe',
+    score: 360
+  },
+  4: {
+    lv: 4,
+    tag: 'Lv.4 보스',
+    hp: 400,
+    baseSpeed: 2.95,
+    fireInterval: 80,
+    torpedoVy: -6.5,
+    torpedoDmg: 22,
+    w: 186,
+    h: 52,
+    hullColor: '#dc2626',
+    towerColor: '#7f1d1d',
+    strokeColor: '#fca5a5',
+    score: 600
+  }
+};
+
+/* ==================== 수심(깊이)에 따른 4층 다층 조류(해류) 시스템 ==================== */
+const CURRENT_LAYERS = [
+  { name: '표층 강한 순조류',   ratioStart: 0.00, ratioEnd: 0.25, vx: +1.4, arrow: '>>>', color: 'rgba(125, 211, 252, 0.22)' },
+  { name: '중상층 역조류',      ratioStart: 0.25, ratioEnd: 0.50, vx: -1.1, arrow: '<<<', color: 'rgba(56, 189, 248, 0.16)' },
+  { name: '중하층 완만 조류',   ratioStart: 0.50, ratioEnd: 0.75, vx: +0.8, arrow: '>>',  color: 'rgba(14, 165, 233, 0.14)' },
+  { name: '심층 심해 소용돌이', ratioStart: 0.75, ratioEnd: 1.00, vx: -1.7, arrow: '<<<<', color: 'rgba(2, 132, 199, 0.24)' }
+];
+
+let currentStreams = [];
+
+function getWaterCurrentAtY(y) {
+  if (y <= waterY) return 0;
+  const seaDepth = Math.max(1, (H - 16) - waterY);
+  const ratio = Math.max(0, Math.min(0.999, (y - waterY) / seaDepth));
+  for (const layer of CURRENT_LAYERS) {
+    if (ratio >= layer.ratioStart && ratio < layer.ratioEnd) {
+      return layer.vx;
+    }
+  }
+  return 0;
+}
+
+function buildCurrentStreams() {
+  currentStreams = [];
+  const seaDepth = Math.max(100, (H - 16) - waterY);
+  CURRENT_LAYERS.forEach((layer, lIdx) => {
+    const yTop = waterY + seaDepth * layer.ratioStart;
+    const yBot = waterY + seaDepth * layer.ratioEnd;
+    for (let i = 0; i < 8; i++) {
+      currentStreams.push({
+        x: Math.random() * W,
+        y: yTop + 10 + Math.random() * Math.max(12, (yBot - yTop) - 20),
+        len: 42 + Math.abs(layer.vx) * 28 + Math.random() * 25,
+        vx: layer.vx,
+        layerIdx: lIdx,
+        alpha: 0.22 + Math.random() * 0.2
+      });
+    }
+  });
+}
+
 /* ==================== 지정 출격 대기열 ==================== */
-let spawnQueue = [];
-let autoDeployCooldown = 0;
+let spawnQueue = [
+  { name: '김진상', level: 1 },
+  { name: '박진상', level: 2 },
+  { name: '최진상', level: 3 },
+  { name: '왕진상', level: 4 }
+];
+let autoDeployCooldown = 30;
 
 function renderQueueUI() {
   const box = document.getElementById('queueList');
   if (spawnQueue.length === 0) {
-    box.innerHTML = `<span style="font-size:11.5px;color:#94a3b8;font-weight:700">※ 지정 출격 대기열이 비어 있습니다. 왼쪽에서 이름을 입력해 등록하세요.</span>`;
+    box.innerHTML = `<span style="font-size:11.5px;color:#94a3b8;font-weight:700">※ 출격 대기열이 비어 있습니다. 왼쪽에서 단계와 이름을 입력해 등록하세요.</span>`;
     return;
   }
   box.innerHTML = `<span style="font-size:11px;color:#38bdf8;font-weight:800">대기(${spawnQueue.length}):</span>` +
     spawnQueue.map((item, idx) => `
-      <span class="q-tag ${item.gender}">
-        ${idx + 1}. ${item.gender === 'M' ? '👨' : '👩'} ${item.name}
+      <span class="q-tag lv${item.level}">
+        ${idx + 1}. [Lv.${item.level}] ${item.name}
         <button onclick="removeFromQueue(${idx})" title="삭제">×</button>
       </span>
     `).join('');
@@ -632,14 +631,14 @@ function renderQueueUI() {
 
 function enqueueVillain() {
   const inp = document.getElementById('newVillain');
-  const gender = document.getElementById('newGender').value;
+  const level = parseInt(document.getElementById('newLevel').value, 10) || 1;
   const name = inp.value.trim();
   if (!name) {
-    alert('출격할 이름을 입력해주세요.');
+    showToast('⚠️ 출격할 진상 이름을 입력해주세요!');
     inp.focus();
     return;
   }
-  spawnQueue.push({ name, gender });
+  spawnQueue.push({ name, level });
   inp.value = '';
   inp.focus();
   renderQueueUI();
@@ -656,10 +655,20 @@ function clearQueue() {
 }
 
 function launchNextFromQueue() {
-  if (spawnQueue.length === 0) return;
+  if (spawnQueue.length === 0) {
+    showToast('대기열이 비어 있습니다. 먼저 진상을 등록하세요!');
+    return;
+  }
   const next = spawnQueue.shift();
   renderQueueUI();
-  deploySubmarine(next.name, next.gender);
+  deploySubmarine(next.name, next.level);
+}
+
+function spawnRandomWave() {
+  const samples = ['이진상', '정진상', '강진상', '조진상', '윤진상', '장진상', '임진상', '한진상'];
+  const name = samples[Math.floor(Math.random() * samples.length)];
+  const level = 1 + Math.floor(Math.random() * 4);
+  deploySubmarine(name, level);
 }
 
 /* ==================== 게임 엔티티 ==================== */
@@ -669,7 +678,7 @@ const keys = {};
 const ship = {
   x: 600,
   vx: 0,
-  speed: 7.0,
+  speed: 7.2,
   hp: 100,
   maxHp: 100,
   hitFlash: 0,
@@ -684,7 +693,8 @@ let particles = [];
 let floatingTexts = [];
 let seabedRocks = [];
 let seaweeds = [];
-let bigFishes = [];
+let seaCreatures = [];
+let feastZones = [];
 let bubbles = [];
 
 function updateShipHpUI() {
@@ -723,11 +733,41 @@ function buildSeabed() {
 }
 
 function initAmbientLife() {
-  bigFishes = [
-    { x: 200, y: H * 0.42, vx: 1.1, size: 46, color: '#38bdf8' },
-    { x: 900, y: H * 0.68, vx: -1.4, size: 34, color: '#f59e0b' },
-    { x: 520, y: H * 0.80, vx: 0.85, size: 38, color: '#a78bfa' }
+  seaCreatures = [];
+  const speciesPool = [
+    { kind: 'shark',     size: 38, color: '#64748b', belly: '#e2e8f0', speed: 2.3 },
+    { kind: 'shark',     size: 34, color: '#475569', belly: '#cbd5e1', speed: 2.2 },
+    { kind: 'fish',      size: 23, color: '#38bdf8', belly: '#bae6fd', speed: 1.9 },
+    { kind: 'fish',      size: 21, color: '#f59e0b', belly: '#fef08a', speed: 2.0 },
+    { kind: 'fish',      size: 24, color: '#34d399', belly: '#a7f3d0', speed: 1.8 },
+    { kind: 'fish',      size: 19, color: '#fb7185', belly: '#fecdd3', speed: 2.1 },
+    { kind: 'squid',     size: 26, color: '#c084fc', belly: '#f3e8ff', speed: 1.75 },
+    { kind: 'jellyfish', size: 22, color: '#f472b6', belly: '#fbcfe8', speed: 1.5 }
   ];
+
+  for (let i = 0; i < 16; i++) {
+    const sp = speciesPool[i % speciesPool.length];
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    seaCreatures.push({
+      id: i,
+      kind: sp.kind,
+      x: Math.random() * W,
+      y: waterY + 45 + Math.random() * Math.max(80, H - waterY - 95),
+      vx: dir * (0.9 + Math.random() * 0.9),
+      vy: (Math.random() - 0.5) * 0.4,
+      size: sp.size,
+      color: sp.color,
+      belly: sp.belly,
+      swimSpeed: sp.speed,
+      orbitAngle: (Math.PI * 2 * i) / 16,
+      orbitRadius: 46 + (i % 4) * 16,
+      orbitSpeed: (i % 2 === 0 ? 1 : -1) * (0.045 + Math.random() * 0.025),
+      chompPhase: Math.random() * Math.PI * 2,
+      state: 'wander', // 'wander' | 'swarm' | 'feast'
+      facing: dir
+    });
+  }
+
   for (let i = 0; i < 35; i++) {
     bubbles.push({
       x: Math.random() * W,
@@ -738,25 +778,24 @@ function initAmbientLife() {
   }
 }
 
-function deploySubmarine(name, gender) {
+function deploySubmarine(name, level) {
+  const spec = VILLAIN_LEVELS[level] || VILLAIN_LEVELS[1];
   const fromLeft = Math.random() < 0.5;
-  const depthMin = waterY + 90;
-  const depthMax = H - 115;
+  const depthMin = waterY + 75;
+  const depthMax = H - 105;
   const y = depthMin + Math.random() * Math.max(60, depthMax - depthMin);
 
-  const maxHp = gender === 'M' ? 200 : 100;
-  const baseSpeed = (gender === 'M' ? 1.25 : 1.7) + Math.random() * 0.6;
-
   submarines.push({
-    x: fromLeft ? -140 : W + 140,
+    x: fromLeft ? -150 : W + 150,
     y,
     dir: fromLeft ? 1 : -1,
-    baseSpeed,
-    w: gender === 'M' ? 152 : 136,
-    h: gender === 'M' ? 44 : 38,
-    gender,
-    hp: maxHp,
-    maxHp,
+    level: spec.lv,
+    spec,
+    baseSpeed: spec.baseSpeed + Math.random() * 0.35,
+    w: spec.w,
+    h: spec.h,
+    hp: spec.hp,
+    maxHp: spec.hp,
     name,
     hitFlash: 0,
     bobPhase: Math.random() * Math.PI * 2,
@@ -766,7 +805,7 @@ function deploySubmarine(name, gender) {
     spinAngle: 0,
     strippingTimer: 0,
     strippedLayers: 0,
-    fireCooldown: 120 + Math.floor(Math.random() * 140)
+    fireCooldown: Math.floor(spec.fireInterval * (0.55 + Math.random() * 0.5))
   });
 }
 
@@ -784,11 +823,11 @@ function fireWeapon() {
     x: ship.x,
     y: waterY + 10,
     vx: 0,
-    vy: currentWeapon === 4 ? 5.2 : currentWeapon === 1 ? 6.4 : currentWeapon === 2 ? 5.0 : currentWeapon === 3 ? 4.4 : 3.5,
+    vy: currentWeapon === 4 ? 5.2 : currentWeapon === 1 ? 6.5 : currentWeapon === 2 ? 5.0 : currentWeapon === 3 ? 4.4 : 3.5,
     type: currentWeapon,
     dmg: w.dmg,
     rot: 0,
-    life: 500
+    life: 520
   });
 }
 
@@ -830,7 +869,7 @@ function createEffect(x, y, color, count = 20, screamText = '', dmgText = '') {
     });
   }
   if (screamText) {
-    floatingTexts.push({ x, y: y - 30, text: `💬 "${screamText}"`, alpha: 1.4, vy: -0.9, isScream: true });
+    floatingTexts.push({ x, y: y - 32, text: `🤖 ${screamText}`, alpha: 1.45, vy: -0.9, isScream: true });
   }
   if (dmgText) {
     floatingTexts.push({ x, y: y - 10, text: dmgText, alpha: 1.0, vy: -1.6, isScream: false });
@@ -839,7 +878,6 @@ function createEffect(x, y, color, count = 20, screamText = '', dmgText = '') {
 
 function spawnHullArmorPeel(s, layerIdx) {
   const side = layerIdx % 2 === 0 ? -1 : 1;
-  const color = s.gender === 'M' ? '#2563eb' : '#ec4899';
   hullDebris.push({
     x: s.x + (Math.random() - 0.5) * 50,
     y: s.y + side * 10,
@@ -849,7 +887,7 @@ function spawnHullArmorPeel(s, layerIdx) {
     h: 12 + Math.random() * 6,
     rot: 0,
     vRot: (Math.random() - 0.5) * 0.25,
-    color,
+    color: s.spec.hullColor,
     alpha: 1
   });
 }
@@ -861,12 +899,21 @@ function update() {
   if (ship.hitFlash > 0) ship.hitFlash--;
   updateWeaponCooldownUI();
 
+  // 대기열 자동 출격 (동시 최대 4척 유지)
   if (autoDeployCooldown > 0) autoDeployCooldown--;
   if (spawnQueue.length > 0 && submarines.length < 4 && autoDeployCooldown === 0) {
     launchNextFromQueue();
     autoDeployCooldown = 140;
   }
 
+  // 조류 흐름선 애니메이션 업데이트
+  currentStreams.forEach(st => {
+    st.x += st.vx * 1.15;
+    if (st.vx > 0 && st.x > W + 80) st.x = -80;
+    else if (st.vx < 0 && st.x < -80) st.x = W + 80;
+  });
+
+  // 아군 구축함 이동
   if (!ship.isDestroyed) {
     if (keys['ArrowLeft'] || keys['KeyA']) ship.vx = -ship.speed;
     else if (keys['ArrowRight'] || keys['KeyD']) ship.vx = ship.speed;
@@ -876,33 +923,45 @@ function update() {
     ship.x = Math.max(85, Math.min(W - 85, ship.x));
   }
 
+  // 수중 기포 (조류에 약간 휩쓸리며 상승)
   bubbles.forEach(b => {
+    const cur = getWaterCurrentAtY(b.y);
     b.y -= b.vy;
+    b.x += cur * 0.35;
+    if (b.x < 0) b.x += W;
+    if (b.x > W) b.x -= W;
     if (b.y < waterY + 5) { b.y = H - 20; b.x = Math.random() * W; }
   });
 
-  bigFishes.forEach(f => {
-    f.x += f.vx;
-    if (f.vx > 0 && f.x > W + 100) f.x = -100;
-    if (f.vx < 0 && f.x < -100) f.x = W + 100;
-  });
+  // 수중 생물 군집 AI 업데이트 (자유 유영 -> 체력 30% 미만 진상 포위 -> 격침 후 잔해 포식 잔치)
+  updateSeaCreatures();
 
-  // 1) 아군 투하 무기 업데이트
+  // 1) 아군 투하 무기 업데이트 (수심별 조류 X축 물리 적용)
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const p = projectiles[i];
     p.life--;
 
+    const currentVx = getWaterCurrentAtY(p.y);
+
     if (p.type === 0) {
-      p.vy = Math.min(6.2, p.vy + 0.07);
-      p.vx = Math.sin(p.life * 0.2) * 0.7;
+      // 💩 똥: 가벼워서 조류에 가장 크게 휩쓸림
+      p.vy = Math.min(6.0, p.vy + 0.065);
+      p.vx = Math.sin(p.life * 0.18) * 0.45 + currentVx * 0.95;
     } else if (p.type === 1) {
-      p.vy = 7.4;
+      // 💉 주사기: 날렵하지만 중층/심층 조류에 편향됨
+      p.vy = 7.2;
+      p.vx = currentVx * 0.65;
     } else if (p.type === 2) {
+      // 🪨 돌맹이: 무거워서 조류 영향을 적게 받음
       p.vy = Math.min(8.8, p.vy + 0.16);
+      p.vx = currentVx * 0.42;
       p.rot += 0.12;
     } else if (p.type === 3) {
+      // 💣 폭탄: 조류를 타고 대각선으로 낙하
       p.vy = Math.min(7.8, p.vy + 0.12);
+      p.vx = currentVx * 0.58;
     } else if (p.type === 4) {
+      // 🚀 어뢰: 유도 추진 + 조류 저항 보정
       let nearest = null, minDist = 99999;
       submarines.forEach(s => {
         if (s.strippingTimer > 0) return;
@@ -911,12 +970,13 @@ function update() {
       });
       if (nearest) {
         const ang = Math.atan2(nearest.y - p.y, nearest.x - p.x);
-        p.vx += Math.cos(ang) * 0.55;
-        p.vy += Math.sin(ang) * 0.55;
+        p.vx += Math.cos(ang) * 0.58 + currentVx * 0.14;
+        p.vy += Math.sin(ang) * 0.58;
         const spd = Math.hypot(p.vx, p.vy);
-        if (spd > 7.2) { p.vx = (p.vx / spd) * 7.2; p.vy = (p.vy / spd) * 7.2; }
+        if (spd > 7.4) { p.vx = (p.vx / spd) * 7.4; p.vy = (p.vy / spd) * 7.4; }
         p.rot = Math.atan2(p.vy, p.vx) - Math.PI / 2;
       } else {
+        p.vx = currentVx * 0.5;
         p.vy += 0.1;
       }
       if (Math.random() < 0.7) {
@@ -927,17 +987,17 @@ function update() {
     p.x += p.vx;
     p.y += p.vy;
 
-    // 적 수직 어뢰 수중 요격 판정
+    // 적 폭탄/어뢰 수중 요격 판정
     let intercepted = false;
     for (let k = enemyTorpedoes.length - 1; k >= 0; k--) {
       const et = enemyTorpedoes[k];
-      if (Math.hypot(p.x - et.x, p.y - et.y) < 22) {
+      if (Math.hypot(p.x - et.x, p.y - et.y) < 23) {
         intercepted = true;
         enemyTorpedoes.splice(k, 1);
         score += 30;
         document.getElementById('scoreVal').textContent = score;
         playImpactSound(false);
-        createEffect(et.x, et.y, '#38bdf8', 16, '', '🛡️ 적 어뢰 요격! +30');
+        createEffect(et.x, et.y, '#38bdf8', 16, '', '🛡️ 적 폭탄 요격! +30');
         break;
       }
     }
@@ -969,37 +1029,42 @@ function update() {
         s.hitFlash = 8;
 
         const wInfo = WEAPONS[p.type];
-        const fullScream = `${s.name}: ${wInfo.scream}`;
-        playCustomVoice(`${s.gender}_${p.type}`);
+        const screamLine = `${s.name} ${wInfo.scream}`;
 
         if (p.type === 4) {
+          // 5번 어뢰 직격: "[이름] 굿바이!"
+          speakRobotVoice(screamLine, 4);
           s.strippingTimer = 75;
           s.strippedLayers = 0;
-          shakeTime = 12;
+          shakeTime = 14;
           playImpactSound(false);
-          createEffect(p.x, p.y, '#f43f5e', 25, fullScream, '🚀 필살어뢰 직격!! 선체 분해!');
+          createEffect(p.x, p.y, '#f43f5e', 28, screamLine, '🚀 어뢰 직격!! 선체 분해!');
         } else {
           s.hp = Math.max(0, s.hp - p.dmg);
-          if (p.type === 0) {
-            s.slowTimer = 300;
-            createEffect(p.x, p.y, '#854d0e', 18, fullScream, `-${p.dmg} (속도저하!)`);
-            playImpactSound(false);
-          } else if (p.type === 1) {
-            s.smokeTimer = 360;
-            createEffect(p.x, p.y, '#e2e8f0', 22, fullScream, `-${p.dmg} (연기폴폴!)`);
-            playImpactSound(false);
-          } else if (p.type === 2) {
-            s.spinTimer = 210;
-            createEffect(p.x, p.y, '#94a3b8', 24, fullScream, `-${p.dmg} (빙글빙글!)`);
-            playImpactSound(false);
-          } else if (p.type === 3) {
-            shakeTime = 16;
-            createEffect(p.x, p.y, '#ef4444', 42, fullScream, `-${p.dmg} 대폭발!!`);
-            playImpactSound(true);
-          }
 
           if (s.hp <= 0) {
-            destroySubmarine(j);
+            // 일반 무기(1~4번)로 막타 격침 시에도 "[이름] 굿바이!" 발화 및 말풍선 출력
+            destroySubmarine(j, false);
+          } else {
+            // 생존 시 무기별 지정 기계음 대사 발화
+            speakRobotVoice(screamLine, p.type);
+            if (p.type === 0) {
+              s.slowTimer = 300;
+              createEffect(p.x, p.y, '#854d0e', 18, screamLine, `-${p.dmg} (둔화!)`);
+              playImpactSound(false);
+            } else if (p.type === 1) {
+              s.smokeTimer = 360;
+              createEffect(p.x, p.y, '#e2e8f0', 22, screamLine, `-${p.dmg} (연기!)`);
+              playImpactSound(false);
+            } else if (p.type === 2) {
+              s.spinTimer = 210;
+              createEffect(p.x, p.y, '#94a3b8', 24, screamLine, `-${p.dmg} (회전!)`);
+              playImpactSound(false);
+            } else if (p.type === 3) {
+              shakeTime = 16;
+              createEffect(p.x, p.y, '#ef4444', 42, screamLine, `-${p.dmg} 대폭발!!`);
+              playImpactSound(true);
+            }
           }
         }
         break;
@@ -1010,7 +1075,7 @@ function update() {
     }
   }
 
-  // 2) 적 잠수함 이동 & 수직 어뢰 발사 업데이트
+  // 2) 진상 잠수함(1~4단계) 이동(조류 영향) & 단계별 역습 폭탄(어뢰) 발사 업데이트
   for (let i = submarines.length - 1; i >= 0; i--) {
     const s = submarines[i];
     if (s.hitFlash > 0) s.hitFlash--;
@@ -1031,18 +1096,56 @@ function update() {
       continue;
     }
 
+    // 단계별 역습 폭탄/어뢰 발사 로직
     if (s.spinTimer <= 0 && !ship.isDestroyed) {
       s.fireCooldown--;
       if (s.fireCooldown <= 0 && s.x > 60 && s.x < W - 60) {
-        s.fireCooldown = (s.slowTimer > 0 ? 280 : 170) + Math.floor(Math.random() * 140);
-        playEnemyTorpedoSound();
-        enemyTorpedoes.push({
-          x: s.x,
-          y: s.y - s.h * 0.5,
-          vy: -3.4 - Math.random() * 1.1,
-          dmg: 15,
-          shooter: s.name
-        });
+        const slowFactor = s.slowTimer > 0 ? 1.55 : 1.0;
+        s.fireCooldown = Math.floor(s.spec.fireInterval * slowFactor * (0.85 + Math.random() * 0.3));
+        playEnemyTorpedoSound(s.level);
+
+        if (s.level === 1 || s.level === 2) {
+          // 1~2단계: 단발 상향 어뢰
+          enemyTorpedoes.push({
+            x: s.x,
+            y: s.y - s.h * 0.5,
+            vx: (ship.x - s.x) * 0.002,
+            vy: s.spec.torpedoVy,
+            dmg: s.spec.torpedoDmg,
+            level: s.level,
+            shooter: s.name
+          });
+        } else if (s.level === 3) {
+          // 3단계: 55% 확률로 2연발 쌍둥이 폭탄 발사
+          const isDouble = Math.random() < 0.55;
+          const offsets = isDouble ? [-22, 22] : [0];
+          offsets.forEach(ox => {
+            enemyTorpedoes.push({
+              x: s.x + ox,
+              y: s.y - s.h * 0.5,
+              vx: (ship.x - (s.x + ox)) * 0.0035,
+              vy: s.spec.torpedoVy,
+              dmg: s.spec.torpedoDmg,
+              level: s.level,
+              shooter: s.name
+            });
+          });
+        } else if (s.level === 4) {
+          // 4단계(보스급): 3발 부채꼴 폭격 사격!
+          const spreadVxs = [-1.45, 0, 1.45];
+          const aimBias = Math.max(-1.2, Math.min(1.2, (ship.x - s.x) * 0.004));
+          spreadVxs.forEach(svx => {
+            enemyTorpedoes.push({
+              x: s.x + svx * 12,
+              y: s.y - s.h * 0.5,
+              vx: svx + aimBias,
+              vy: s.spec.torpedoVy,
+              dmg: s.spec.torpedoDmg,
+              level: s.level,
+              shooter: s.name
+            });
+          });
+        }
       }
     }
 
@@ -1067,39 +1170,59 @@ function update() {
       }
     }
 
-    s.x += s.dir * curSpeed;
+    // 수심별 조류가 잠수함 이동 속도에도 물리적으로 작용 (순류 시 가속, 역류 시 감속)
+    let subCurrentVx = getWaterCurrentAtY(s.y) * 0.42;
+
+    // 체력 30% 미만 빈사 상태 시 주변 수중 생물 포위로 인해 조류 타기 및 이동 흐름 방해
+    const isCritical = s.hp > 0 && s.hp < s.maxHp * 0.3 && s.strippingTimer === 0;
+    s.swarmedCount = 0;
+    if (isCritical) {
+      let nearbyCount = 0;
+      seaCreatures.forEach(c => {
+        if (Math.hypot(c.x - s.x, c.y - s.y) < 155) nearbyCount++;
+      });
+      s.swarmedCount = nearbyCount;
+      const dragPenalty = Math.max(0.28, 1 - nearbyCount * 0.06);
+      curSpeed *= dragPenalty;
+      subCurrentVx *= 0.15; // 수중 생물 떼가 선체를 에워싸 조류 추진 흐름 차단
+      s.y += Math.sin(waveTick * 6 + s.bobPhase) * 0.85; // 에워싼 생물들과 부딪히며 선체 흔들림
+    }
+
+    s.x += s.dir * curSpeed + subCurrentVx;
     s.bobPhase += 0.05;
 
     if (s.dir > 0 && s.x > W + 160) s.dir = -1;
     else if (s.dir < 0 && s.x < -160) s.dir = 1;
   }
 
-  // 3) 적 수직 상향 어뢰 업데이트 & 23시 하오동 피격 시 "오빠 메롱~" 재생
+  // 3) 진상 잠수함이 쏜 폭탄/어뢰 업데이트 (상승 중 다층 조류 X축 영향 받음)
   for (let i = enemyTorpedoes.length - 1; i >= 0; i--) {
     const et = enemyTorpedoes[i];
+    const layerCurrent = getWaterCurrentAtY(et.y);
+    et.x += (et.vx || 0) + layerCurrent * 0.55;
     et.y += et.vy;
 
-    if (Math.random() < 0.5) {
+    if (Math.random() < 0.55) {
       particles.push({
         x: et.x + (Math.random() - 0.5) * 4,
         y: et.y + 10,
         vx: 0,
         vy: 0.6,
-        r: 2.5,
-        color: '#fca5a5',
-        alpha: 0.75,
+        r: et.level >= 3 ? 3.5 : 2.5,
+        color: et.level === 4 ? '#fb923c' : '#fca5a5',
+        alpha: 0.78,
         isSmoke: false
       });
     }
 
     if (et.y <= waterY + 4) {
-      if (!ship.isDestroyed && Math.abs(et.x - ship.x) < 72) {
+      if (!ship.isDestroyed && Math.abs(et.x - ship.x) < 74) {
         ship.hp = Math.max(0, ship.hp - et.dmg);
         ship.hitFlash = 12;
         shakeTime = 14;
         updateShipHpUI();
         playShipHitTaunt();
-        createEffect(et.x, waterY - 12, '#ef4444', 28, `${et.shooter}: 오빠 메롱~! 😜`, `💥 선체 피격! -${et.dmg}HP`);
+        createEffect(et.x, waterY - 12, '#ef4444', 28, `[Lv.${et.level}] ${et.shooter} 폭탄 명중!`, `💥 선체 피격! -${et.dmg}HP`);
 
         if (ship.hp <= 0) {
           ship.isDestroyed = true;
@@ -1135,20 +1258,131 @@ function update() {
   }
 }
 
+function updateSeaCreatures() {
+  // 1) 포식 구역(격침 잔해 먹이 잔치) 타이머 감소
+  for (let i = feastZones.length - 1; i >= 0; i--) {
+    feastZones[i].timer--;
+    // 잔해 뜯어먹는 파편/기포 이펙트
+    if (feastZones[i].timer % 5 === 0) {
+      particles.push({
+        x: feastZones[i].x + (Math.random() - 0.5) * 70,
+        y: feastZones[i].y + (Math.random() - 0.5) * 40,
+        vx: (Math.random() - 0.5) * 2.2,
+        vy: -0.6 - Math.random() * 1.2,
+        r: 2.5 + Math.random() * 3,
+        color: Math.random() > 0.4 ? '#fde047' : '#f87171',
+        alpha: 0.95,
+        isSmoke: false
+      });
+    }
+    if (feastZones[i].timer <= 0) {
+      feastZones.splice(i, 1);
+    }
+  }
+
+  // 2) 체력 30% 미만 빈사 상태 잠수함 탐색
+  const dyingSubs = submarines.filter(s => s.hp > 0 && s.hp < s.maxHp * 0.3 && s.strippingTimer === 0);
+
+  seaCreatures.forEach((c, idx) => {
+    c.chompPhase += 0.24;
+
+    if (feastZones.length > 0) {
+      // 최우선: 격침된 진상 잠수함 잔해로 몰려들어 뜯어먹는 포식 연출
+      const fz = feastZones[idx % feastZones.length];
+      c.state = 'feast';
+      c.orbitAngle += c.orbitSpeed * 2.4;
+      const lungeR = 14 + Math.abs(Math.sin(c.chompPhase * 1.5)) * 34;
+      const tx = fz.x + Math.cos(c.orbitAngle) * lungeR;
+      const ty = fz.y + Math.sin(c.orbitAngle) * (lungeR * 0.6);
+      const dx = tx - c.x;
+      const dy = ty - c.y;
+      c.x += dx * 0.14;
+      c.y += dy * 0.14;
+      if (Math.abs(dx) > 0.3) c.facing = dx >= 0 ? 1 : -1;
+    } else if (dyingSubs.length > 0) {
+      // 2순위: 체력 30% 미만 빈사 잠수함 주변으로 몰려들어 포위 및 흐름 방해
+      let targetSub = dyingSubs[0];
+      let minDist = Math.hypot(targetSub.x - c.x, targetSub.y - c.y);
+      for (let k = 1; k < dyingSubs.length; k++) {
+        const d = Math.hypot(dyingSubs[k].x - c.x, dyingSubs[k].y - c.y);
+        if (d < minDist) { minDist = d; targetSub = dyingSubs[k]; }
+      }
+
+      c.state = 'swarm';
+      c.orbitAngle += c.orbitSpeed;
+      const rx = targetSub.w * 0.56 + (idx % 3) * 14;
+      const ry = targetSub.h * 0.78 + (idx % 3) * 10;
+      const tx = targetSub.x + Math.cos(c.orbitAngle) * rx;
+      const ty = targetSub.y + Math.sin(c.orbitAngle) * ry;
+      const dx = tx - c.x;
+      const dy = ty - c.y;
+      c.x += dx * 0.085;
+      c.y += dy * 0.085;
+      if (Math.abs(dx) > 0.25) c.facing = dx >= 0 ? 1 : -1;
+
+      // 입맛을 다시며 군침 기포 뿜기
+      if (minDist < 120 && Math.random() < 0.04) {
+        particles.push({
+          x: c.x + c.facing * (c.size * 0.5),
+          y: c.y,
+          vx: c.facing * 0.6,
+          vy: -0.9,
+          r: 2.2,
+          color: '#e0f2fe',
+          alpha: 0.85,
+          isSmoke: false
+        });
+      }
+    } else {
+      // 평상시: 다층 조류를 타고 자유 유영
+      c.state = 'wander';
+      const cur = getWaterCurrentAtY(c.y);
+      c.x += c.vx + cur * 0.28;
+      c.y += Math.sin(waveTick * 1.4 + c.id) * 0.35;
+      c.facing = (c.vx + cur * 0.28) >= 0 ? 1 : -1;
+
+      if (c.x > W + 90) c.x = -90;
+      if (c.x < -90) c.x = W + 90;
+      c.y = Math.max(waterY + 35, Math.min(H - 45, c.y));
+    }
+  });
+}
+
 function destroySubmarine(idx, isMega = false) {
   const s = submarines[idx];
   kills++;
-  const pts = (s.gender === 'M' ? 200 : 100) * (isMega ? 2 : 1);
+  const pts = s.spec.score * (isMega ? 2 : 1);
   score += pts;
   document.getElementById('killCnt').textContent = kills;
   document.getElementById('scoreVal').textContent = score;
   shakeTime = isMega ? 26 : 18;
   playImpactSound(true);
-  // 일반 무기로 막타를 쳤을 때도 퇴장 대사("오빠 안녕 먼저 가요...") 재생
+
+  const goodbyeLine = `${s.name} 꺼져라!`;
   if (!isMega) {
-    playCustomVoice(`${s.gender}_4`);
+    // 1~4번 일반 무기로 막타 격침 시에도 "[이름] 꺼져라!" 기계음 발화
+    speakRobotVoice(goodbyeLine, 4);
   }
-  createEffect(s.x, s.y, '#ef4444', isMega ? 70 : 45, `${s.name}: 오빠 안녕 먼저 가요 다음 생에 만나요!`, `💥 [${s.name}] 완전 격침! +${pts}점`);
+  createEffect(s.x, s.y, '#ef4444', isMega ? 70 : 45, goodbyeLine, `💥 [Lv.${s.level} ${s.name}] 격침! +${pts}점`);
+
+  // 격침 위치에 수중 생물 포식 잔치 구역 생성 + 먹이 파편 살포
+  feastZones.push({ x: s.x, y: s.y, timer: 165 });
+  floatingTexts.push({ x: s.x, y: s.y + 24, text: '🦈🐟 수중 생물 떼 포식 잔치 개시!', alpha: 1.5, vy: -0.55, isScream: true });
+  for (let k = 0; k < 10; k++) {
+    hullDebris.push({
+      x: s.x + (Math.random() - 0.5) * 40,
+      y: s.y + (Math.random() - 0.5) * 20,
+      vx: (Math.random() - 0.5) * 3.5,
+      vy: (Math.random() - 0.5) * 2.5,
+      w: 14 + Math.random() * 12,
+      h: 7 + Math.random() * 5,
+      rot: Math.random() * Math.PI,
+      vRot: (Math.random() - 0.5) * 0.2,
+      color: k % 2 === 0 ? s.spec.hullColor : '#fbbf24',
+      alpha: 1.3
+    });
+  }
+
   submarines.splice(idx, 1);
 }
 
@@ -1159,6 +1393,7 @@ function draw() {
     ctx.translate((Math.random() - 0.5) * 11, (Math.random() - 0.5) * 11);
   }
 
+  // 하늘
   const skyGrad = ctx.createLinearGradient(0, 0, 0, waterY);
   skyGrad.addColorStop(0, '#0f172a');
   skyGrad.addColorStop(0.6, '#1e3a8a');
@@ -1171,6 +1406,7 @@ function draw() {
   ctx.arc(W - 140, 50, 23, 0, Math.PI * 2);
   ctx.fill();
 
+  // 바다 배경
   const seaGrad = ctx.createLinearGradient(0, waterY, 0, H);
   seaGrad.addColorStop(0, '#0284c7');
   seaGrad.addColorStop(0.45, '#0369a1');
@@ -1178,6 +1414,10 @@ function draw() {
   ctx.fillStyle = seaGrad;
   ctx.fillRect(0, waterY, W, H - waterY);
 
+  // 다층 조류(해류) 구역 경계, 흐름선 애니메이션 및 수심 가이드 라벨 렌더링
+  drawCurrentLayers();
+
+  // 수중 기포
   ctx.fillStyle = 'rgba(224, 242, 254, 0.35)';
   bubbles.forEach(b => {
     ctx.beginPath();
@@ -1185,24 +1425,10 @@ function draw() {
     ctx.fill();
   });
 
-  bigFishes.forEach(f => {
-    ctx.save();
-    ctx.translate(f.x, f.y);
-    if (f.vx < 0) ctx.scale(-1, 1);
-    ctx.fillStyle = f.color;
-    ctx.globalAlpha = 0.52;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, f.size, f.size * 0.45, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(-f.size * 0.85, 0);
-    ctx.lineTo(-f.size * 1.35, -f.size * 0.38);
-    ctx.lineTo(-f.size * 1.35, f.size * 0.38);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  });
+  // 수중 생물 군집 렌더링 (평상시 유영 / 빈사 진상 포위 / 격침 잔해 포식)
+  drawSeaCreatures();
 
+  // 해저 바닥 & 해초 & 암초
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(0, H - 16, W, 16);
 
@@ -1253,6 +1479,7 @@ function draw() {
   projectiles.forEach(p => drawProjectile(p));
   enemyTorpedoes.forEach(et => drawEnemyTorpedo(et));
 
+  // 수면 파도선
   ctx.strokeStyle = '#bae6fd';
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -1285,6 +1512,73 @@ function draw() {
   ctx.globalAlpha = 1;
 
   ctx.restore();
+}
+
+function drawCurrentLayers() {
+  const seaDepth = Math.max(1, (H - 16) - waterY);
+
+  CURRENT_LAYERS.forEach((layer, idx) => {
+    const yTop = waterY + seaDepth * layer.ratioStart;
+    const yBot = waterY + seaDepth * layer.ratioEnd;
+    const midY = (yTop + yBot) * 0.5;
+
+    // 수심 층 경계 점선
+    if (idx > 0) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(186, 230, 253, 0.22)';
+      ctx.setLineDash([8, 8]);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(0, yTop);
+      ctx.lineTo(W, yTop);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 좌측 수심 가이드 라벨 (조류 방향 및 세기 표시)
+    ctx.save();
+    const signStr = layer.vx > 0 ? `+${layer.vx.toFixed(1)}` : `${layer.vx.toFixed(1)}`;
+    const labelText = `🌊 ${layer.name} (${signStr}) ${layer.arrow}`;
+    ctx.font = '800 11px "Malgun Gothic", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.42)';
+    ctx.fillRect(10, yTop + 6, 205, 19);
+    ctx.fillStyle = layer.vx > 0 ? '#bae6fd' : '#fde68a';
+    ctx.fillText(labelText, 16, yTop + 19);
+    ctx.restore();
+  });
+
+  // 반투명 조류 흐름선 & 방향 화살표 애니메이션
+  currentStreams.forEach(st => {
+    ctx.save();
+    ctx.strokeStyle = st.vx > 0 ? `rgba(186, 230, 253, ${st.alpha})` : `rgba(253, 224, 71, ${st.alpha * 0.9})`;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+
+    const dir = st.vx >= 0 ? 1 : -1;
+    const startX = st.x - dir * st.len * 0.5;
+    const endX = st.x + dir * st.len * 0.5;
+
+    ctx.beginPath();
+    for (let px = 0; px <= st.len; px += 10) {
+      const curX = startX + dir * px;
+      const waveY = st.y + Math.sin(curX * 0.05 + waveTick * 2.5) * 2.5;
+      if (px === 0) ctx.moveTo(curX, waveY);
+      else ctx.lineTo(curX, waveY);
+    }
+    ctx.stroke();
+
+    // 흐름 끝 화살촉
+    const tipY = st.y + Math.sin(endX * 0.05 + waveTick * 2.5) * 2.5;
+    ctx.beginPath();
+    ctx.moveTo(endX, tipY);
+    ctx.lineTo(endX - dir * 7, tipY - 4);
+    ctx.moveTo(endX, tipY);
+    ctx.lineTo(endX - dir * 7, tipY + 4);
+    ctx.stroke();
+
+    ctx.restore();
+  });
 }
 
 function drawDestroyer(x, y) {
@@ -1335,9 +1629,16 @@ function drawDestroyer(x, y) {
 function drawEnemyTorpedo(et) {
   ctx.save();
   ctx.translate(et.x, et.y);
-  ctx.fillStyle = '#ef4444';
+  const angle = Math.atan2(et.vy, et.vx || 0) + Math.PI / 2;
+  ctx.rotate(angle);
+
+  const isBoss = et.level === 4;
+  ctx.fillStyle = isBoss ? '#f97316' : et.level === 3 ? '#c084fc' : '#ef4444';
   ctx.strokeStyle = '#fef08a';
-  ctx.lineWidth = 1.8;
+  ctx.lineWidth = isBoss ? 2.2 : 1.6;
+  const scale = isBoss ? 1.25 : 1.0;
+  ctx.scale(scale, scale);
+
   ctx.beginPath();
   ctx.moveTo(0, -15);
   ctx.lineTo(5, 8);
@@ -1359,6 +1660,15 @@ function drawSubmarine(s) {
     ctx.rotate(s.spinAngle);
   }
 
+  // 4단계 보스급 외곽 붉은 오라 링
+  if (s.level === 4 && s.strippingTimer === 0) {
+    ctx.strokeStyle = 'rgba(248, 113, 113, 0.5)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, s.w * 0.56, s.h * 0.65, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
   if (s.strippedLayers < 1) {
     ctx.save();
     ctx.scale(s.dir, 1);
@@ -1370,8 +1680,15 @@ function drawSubmarine(s) {
     ctx.lineTo(15, -s.h * 0.85);
     ctx.stroke();
 
-    ctx.fillStyle = s.hitFlash > 0 ? '#ffffff' : (s.gender === 'M' ? '#1e3a8a' : '#9d174d');
+    ctx.fillStyle = s.hitFlash > 0 ? '#ffffff' : s.spec.towerColor;
     ctx.fillRect(-16, -s.h * 0.68, 32, s.h * 0.35);
+
+    // 3~4단계 상부 포탑 강화 포신
+    if (s.level >= 3) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(-10, -s.h * 0.82, 5, 10);
+      if (s.level === 4) ctx.fillRect(4, -s.h * 0.82, 5, 10);
+    }
 
     ctx.fillStyle = '#fbbf24';
     ctx.fillRect(-s.w * 0.54, -8, 7, 16);
@@ -1391,13 +1708,13 @@ function drawSubmarine(s) {
   }
 
   if (s.strippedLayers < 4) {
-    const hullColor = s.hitFlash > 0 ? '#ffffff' : (s.gender === 'M' ? '#1d4ed8' : '#db2777');
-    const strokeColor = s.gender === 'M' ? '#93c5fd' : '#fbcfe8';
+    const hullColor = s.hitFlash > 0 ? '#ffffff' : s.spec.hullColor;
+    const strokeColor = s.spec.strokeColor;
     const shrink = s.strippedLayers * 18;
 
     ctx.fillStyle = hullColor;
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = s.level === 4 ? 3.2 : 2.4;
     ctx.beginPath();
     ctx.roundRect(-s.w * 0.5 + shrink, -s.h * 0.45, Math.max(20, s.w - shrink * 2), s.h * 0.9, 18);
     ctx.fill();
@@ -1412,30 +1729,148 @@ function drawSubmarine(s) {
     ctx.fill();
   }
 
-  const icon = s.gender === 'M' ? '👨' : '👩';
+  // 통합 진상 등급 배지 + 이름
+  const icon = s.level === 4 ? '👑' : '👾';
   ctx.fillStyle = '#ffffff';
   ctx.font = '900 12.5px "Malgun Gothic", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(`${icon} ${s.name}`, 0, 1);
+  ctx.fillText(`${icon} [${s.spec.tag}] ${s.name}`, 0, 1);
 
   ctx.restore();
 
   if (s.strippingTimer === 0) {
-    const bw = 76;
+    const bw = Math.max(76, s.w * 0.56);
     const barY = -s.h * 0.95 - 12;
+    const isCritical = s.hp > 0 && s.hp < s.maxHp * 0.3;
+
     ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
     ctx.fillRect(-bw / 2, barY, bw, 7);
-    ctx.fillStyle = s.gender === 'M' ? '#38bdf8' : '#f472b6';
+    ctx.fillStyle = isCritical ? '#ef4444' : s.spec.strokeColor;
     ctx.fillRect(-bw / 2, barY, bw * (s.hp / s.maxHp), 7);
 
     ctx.font = '800 10.5px Consolas, sans-serif';
-    ctx.fillStyle = '#fef08a';
+    ctx.fillStyle = isCritical ? '#fca5a5' : '#fef08a';
     ctx.textAlign = 'center';
     ctx.fillText(`${s.hp}/${s.maxHp}`, 0, barY - 3);
+
+    // 체력 30% 미만 시 포위 및 포식 대기 경고 배지 표시
+    if (isCritical) {
+      const pulse = 0.85 + Math.sin(waveTick * 6) * 0.15;
+      ctx.save();
+      ctx.globalAlpha = pulse;
+      ctx.font = '900 11.5px "Malgun Gothic", sans-serif';
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 3.5;
+      const warnText = '🐟 수중생물 포위! 포식 대기중...';
+      ctx.strokeText(warnText, 0, barY - 17);
+      ctx.fillStyle = '#fde047';
+      ctx.fillText(warnText, 0, barY - 17);
+      ctx.restore();
+    }
   }
 
   ctx.restore();
+}
+
+function drawSeaCreatures() {
+  seaCreatures.forEach(c => {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    if (c.facing < 0) ctx.scale(-1, 1);
+
+    const isHungry = c.state === 'swarm' || c.state === 'feast';
+    ctx.globalAlpha = isHungry ? 0.96 : 0.62;
+
+    // 포위/포식 상태일 때 입을 뻐끔거리며(벌렸다 닫았다) 먹이 노리는 모션 계산
+    const mouthOpen = isHungry ? (0.18 + Math.abs(Math.sin(c.chompPhase * (c.state === 'feast' ? 1.8 : 1.0))) * 0.42) : 0.05;
+
+    if (c.kind === 'shark') {
+      // 상어 몸통 + 등지느러미 + 벌어지는 턱
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.moveTo(c.size, 0);
+      ctx.quadraticCurveTo(0, -c.size * 0.46, -c.size * 0.9, -c.size * 0.12);
+      ctx.lineTo(-c.size * 1.35, -c.size * 0.42);
+      ctx.lineTo(-c.size * 1.12, 0);
+      ctx.lineTo(-c.size * 1.35, c.size * 0.42);
+      ctx.lineTo(-c.size * 0.9, c.size * 0.12);
+      ctx.quadraticCurveTo(0, c.size * 0.42, c.size * 0.85, c.size * 0.12);
+      ctx.closePath();
+      ctx.fill();
+
+      // 등지느러미
+      ctx.beginPath();
+      ctx.moveTo(-c.size * 0.1, -c.size * 0.34);
+      ctx.lineTo(-c.size * 0.35, -c.size * 0.72);
+      ctx.lineTo(-c.size * 0.45, -c.size * 0.28);
+      ctx.closePath();
+      ctx.fill();
+
+      // 포식 모드일 때 붉은 입과 날카로운 이빨 연출
+      if (isHungry) {
+        ctx.fillStyle = '#991b1b';
+        ctx.beginPath();
+        ctx.moveTo(c.size * 0.35, 0);
+        ctx.lineTo(c.size * 0.98, -c.size * mouthOpen * 0.55);
+        ctx.lineTo(c.size * 0.92, c.size * mouthOpen * 0.65);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(c.size * 0.75, -c.size * mouthOpen * 0.35);
+        ctx.lineTo(c.size * 0.82, 0);
+        ctx.lineTo(c.size * 0.89, -c.size * mouthOpen * 0.42);
+        ctx.fill();
+      }
+    } else if (c.kind === 'squid' || c.kind === 'jellyfish') {
+      // 오징어 / 해파리 + 촉수 흔들림
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.ellipse(c.size * 0.15, 0, c.size * 0.65, c.size * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = c.belly;
+      ctx.lineWidth = 2.2;
+      for (let t = -2; t <= 2; t++) {
+        const wave = Math.sin(c.chompPhase + t) * 5;
+        ctx.beginPath();
+        ctx.moveTo(-c.size * 0.4, t * 4);
+        ctx.quadraticCurveTo(-c.size * 0.85, t * 4 + wave, -c.size * 1.25, t * 5 - wave);
+        ctx.stroke();
+      }
+    } else {
+      // 일반 물고기 떼 (입 뻐끔 모션 포함)
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, c.size * 0.68, mouthOpen, Math.PI * 2 - mouthOpen);
+      ctx.lineTo(0, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // 꼬리지느러미
+      const tailSwing = Math.sin(c.chompPhase * 1.3) * 4;
+      ctx.beginPath();
+      ctx.moveTo(-c.size * 0.6, 0);
+      ctx.lineTo(-c.size * 1.15, -c.size * 0.42 + tailSwing);
+      ctx.lineTo(-c.size * 1.15, c.size * 0.42 + tailSwing);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 눈동자 (포식 상태일 때 번뜩이는 노란/붉은 눈)
+    ctx.fillStyle = isHungry ? '#fef08a' : '#ffffff';
+    ctx.beginPath();
+    ctx.arc(c.size * 0.36, -c.size * 0.16, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = isHungry ? '#dc2626' : '#0f172a';
+    ctx.beginPath();
+    ctx.arc(c.size * 0.4, -c.size * 0.16, 1.7, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  });
 }
 
 function drawProjectile(p) {
