@@ -187,6 +187,7 @@
       <button class="tab-btn" id="tab-f4" onclick="switchView('f4')" style="color:#67e8f9;">4️⃣ 💧 수액·탈수 빠른 평가 (F4)</button>
       <button class="tab-btn" id="tab-f5" onclick="switchView('f5')" style="color:#c4b5fd;">5️⃣ 🛠️ C2 임상 유틸리티 (F5)</button>
       <button class="tab-btn" id="tab-f6" onclick="switchView('f6')" style="color:#fb7185;">6️⃣ 🚢 C3 해전 게임 (F6)</button>
+      <button class="tab-btn" id="tab-f7" onclick="switchView('f7')" style="color:#fcd34d;">7️⃣ 🧠 메모천국 (F7)</button>
     </div>
 
     <div>
@@ -324,6 +325,18 @@
       </section>
     </div>
 
+    <!-- [F7] 메모천국 -->
+    <div id="view-f7" class="f3-layout" style="display: none;">
+      <section class="panel" style="width: 100%; height: 100%;">
+        <div class="panel-header">
+          <div class="panel-title">🧠 메모천국 · 나만의 임상 포켓노트</div>
+          <div><button class="p-btn" onclick="document.getElementById('frame-memo').contentWindow.location.reload()">새로고침</button><button class="p-btn" onclick="window.open('/memo.html', '_blank')">새창</button></div>
+        </div>
+        <div class="panel-body"><iframe id="frame-memo" src="/memo.html" title="메모천국"></iframe></div>
+      </section>
+    </div>
+
+
     <!-- [F6] C3 해전 게임 -->
     <div id="view-f6" class="f3-layout" style="display: none;">
       <section class="panel" style="width: 100%; height: 100%;">
@@ -448,6 +461,7 @@
       document.getElementById('view-f4').style.display = 'none';
       document.getElementById('view-f5').style.display = 'none';
       document.getElementById('view-f6').style.display = 'none';
+      document.getElementById('view-f7').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -469,6 +483,9 @@
       } else if (mode === 'f6') {
         document.getElementById('view-f6').style.display = 'flex';
         document.getElementById('tab-f6').classList.add('active');
+      } else if (mode === 'f7') {
+        document.getElementById('view-f7').style.display = 'flex';
+        document.getElementById('tab-f7').classList.add('active');
       }
     }
 
@@ -487,6 +504,7 @@
       if (e.key === 'F4') { e.preventDefault(); switchView('f4'); }
       if (e.key === 'F5') { e.preventDefault(); switchView('f5'); }
       if (e.key === 'F6') { e.preventDefault(); switchView('f6'); }
+      if (e.key === 'F7') { e.preventDefault(); switchView('f7'); }
     });
   </script>
 </body>
