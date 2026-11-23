@@ -1056,21 +1056,23 @@ function renderIcuStack() {
 renderIcuStack();
 
 function selectAndLogIcon(idx, fullLabel, btnEl) {
+  // 아이콘 선택은 항목만 지정하고, 기록은 실제 입력 후 제출할 때 생성
   selectedIcuIcon[idx] = fullLabel;
   $('icoGrid' + idx).querySelectorAll('.ico-btn').forEach(b => b.classList.remove('selected'));
   btnEl.classList.add('selected');
 
   const noteInput = $('icuNote' + idx);
   noteInput.placeholder = `[${fullLabel}] 선택됨 — 수치/내용 입력 후 Enter`;
-  const typed = noteInput.value.trim();
-  appendIcuLine(idx, fullLabel, typed);
-  noteInput.value = '';
   noteInput.focus();
 }
 
 function submitSelectedIconNote(idx) {
   const noteInput = $('icuNote' + idx);
   const typed = noteInput.value.trim();
+  if (!typed) {
+    noteInput.focus();
+    return;
+  }
   const tag = selectedIcuIcon[idx] || '🩺 체온측정';
   appendIcuLine(idx, tag, typed);
   noteInput.value = '';
