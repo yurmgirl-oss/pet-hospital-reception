@@ -153,10 +153,10 @@
     display: block;
   }
 
-  /* M5(40%) + M6(30%) 듀얼 서브그리드 */
+  /* M3 + M6 반반 듀얼 서브그리드 */
   .dual-subgrid {
     display: grid;
-    grid-template-columns: 4fr 3fr;
+    grid-template-columns: 1fr 1fr;
     width: 100%;
     height: 100%;
     gap: 8px;
@@ -197,20 +197,11 @@
     <!-- [중간 + 우측 70% 영역: 탭에 따라 스위칭] -->
     <section id="right-work-area" style="width: 100%; height: 100%;">
       
-      <!-- 1번 뷰: M5 대기판(40%) + M6 접수관리(30%) (F1) -->
+      <!-- 1번 뷰: M3 + M6 반반 배치 (F1) -->
       <div id="view-m3-duo" class="dual-subgrid" style="display: grid;">
         <div class="panel">
           <div class="panel-header">
-            <div class="panel-title">🐾 [창 2] m5 접수 대기판</div>
-            <button class="p-btn" onclick="document.getElementById('frame-m5').contentWindow.location.reload()">새로고침</button>
-          </div>
-          <div class="panel-body">
-            <iframe id="frame-m5" src="/m5.html"></iframe>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">🩺 [창 3] m6 접수 관리</div>
+            <div class="panel-title">🩺 [창 2] m6 접수 관리</div>
             <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
           </div>
           <div class="panel-body">
@@ -226,7 +217,7 @@
 
   <script>
     function refreshAllFrames() {
-      ['frame-desk', 'frame-m5', 'frame-m6'].forEach(id => {
+      ['frame-desk', 'frame-m6'].forEach(id => {
         const frame = document.getElementById(id);
         if (frame) {
           try { frame.contentWindow.location.reload(); } catch (e) {}
