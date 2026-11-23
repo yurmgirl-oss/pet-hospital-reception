@@ -3,11 +3,11 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#17243a;font-family:Arial,'Malgun Gothic',sans-serif;padding:7px}
 h1{font-size:25px;margin:0 0 6px}
-.layout{display:grid;grid-template-columns:minmax(175px,.65fr) minmax(305px,1.18fr) minmax(335px,1.3fr) minmax(235px,.88fr) minmax(265px,1.02fr) minmax(310px,1.2fr);gap:8px;align-items:stretch;min-width:1680px}
-.frame{border:1px solid #d6e1f0;border-radius:10px;padding:9px;box-shadow:0 2px 8px #20334a08;min-width:0;background:#fff;display:flex;flex-direction:column}
+.layout{display:grid;grid-template-columns:minmax(175px,.65fr) minmax(305px,1.18fr) minmax(335px,1.3fr) minmax(235px,.88fr) minmax(265px,1.02fr) minmax(310px,1.2fr);gap:12px;align-items:stretch;min-width:1680px;min-height:calc(100vh - 58px)}
+.frame{border:1px solid #d6e1f0;border-radius:10px;padding:12px;box-shadow:0 2px 8px #20334a08;min-width:0;background:#fff;display:flex;flex-direction:column;min-height:calc(100vh - 58px);gap:10px}
 .framehead{font-size:19.5px;font-weight:800;margin:0 0 7px;color:#203c60;display:flex;justify-content:space-between;align-items:center}
-.input-groups{display:grid;grid-template-columns:1fr;gap:4px}
-.input-group{border-radius:8px;padding:6px 7px;border:1px solid transparent;display:grid;grid-template-columns:56px 1fr;align-items:center;gap:5px;min-width:0}
+.input-groups{display:grid;grid-template-columns:1fr;gap:9px;flex:1;align-content:space-evenly}
+.input-group{border-radius:8px;padding:9px 8px;border:1px solid transparent;display:grid;grid-template-columns:56px 1fr;align-items:center;gap:7px;min-width:0}
 .input-group .gtitle{font-size:17px;font-weight:800;white-space:nowrap}
 .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;min-width:0}
 .fields.patient{grid-template-columns:1fr .82fr .75fr .85fr}.fields.vital{grid-template-columns:repeat(4,minmax(0,1fr))}.fields.electro{grid-template-columns:1fr 1fr}.fields.hct{grid-template-columns:1fr 1fr}.fields.chem{grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -17,7 +17,7 @@ h1{font-size:25px;margin:0 0 6px}
 .chk-wrap{display:flex;flex-wrap:wrap;gap:6px;font-size:14.5px;font-weight:700;color:#713f12}
 .chk-wrap label{display:flex;align-items:center;gap:3px;cursor:pointer}
 .chk-wrap input[type=checkbox]{width:15px;height:15px;accent-color:#dc2626}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px} .btn{border:0;border-radius:8px;padding:8px 9px;font-weight:bold;cursor:pointer;background:#2563eb;color:white;font-size:16px}.btn.secondary{background:#e5edf7;color:#1c3554}.btn.gemini{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff}.btn.save{background:#059669;color:#fff}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto;padding-top:8px} .btn{border:0;border-radius:8px;padding:8px 9px;font-weight:bold;cursor:pointer;background:#2563eb;color:white;font-size:16px}.btn.secondary{background:#e5edf7;color:#1c3554}.btn.gemini{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff}.btn.save{background:#059669;color:#fff}
 .panicbox{margin-bottom:7px;border-radius:8px;padding:8px;background:#fef2f2;border:2px solid #dc2626;color:#7f1d1d;font-size:15px;line-height:1.4;animation:pulseBorder 2s infinite}
 .panicbox h4{margin:0 0 4px;font-size:16.5px;color:#b91c1c;display:flex;align-items:center;gap:5px}
 @keyframes pulseBorder{0%,100%{box-shadow:0 0 0 0 #dc262633}50%{box-shadow:0 0 0 4px #dc262611}}
@@ -27,7 +27,7 @@ h1{font-size:25px;margin:0 0 6px}
 .recommend{margin-top:6px;border-radius:8px;padding:8px;background:#f8fafc;border:1px solid #dce5ef;line-height:1.38;font-size:15.5px}.recommend h3{font-size:17.5px;margin:0 0 4px;color:#1e3a5f}
 .monbox{margin-top:6px;border-radius:8px;padding:8px;background:#f0fdf4;border:1px solid #bbf7d0;line-height:1.38;font-size:15px;color:#14532d}.monbox h3{font-size:17.5px;margin:0 0 4px;color:#166534}
 .smallnote{font-size:13.5px;color:#71839a;line-height:1.3;margin-top:5px}
-.image-box{border:2.5px dashed #8daed3;border-radius:10px;background:#f3f8ff;padding:8px;display:flex;flex-direction:column;gap:6px;flex:1;justify-content:center;align-items:center;text-align:center;position:relative;transition:.15s}.image-box.dragover{background:#dcecff;border-color:#2563eb;box-shadow:0 0 0 4px #2563eb22}.dropzone-label{font-size:17.5px;font-weight:800;color:#315577;line-height:1.35}.dropzone-sub{font-size:13.5px;color:#627c98}.image-box input[type=file]{width:100%;font-size:13px;max-width:100%;cursor:pointer}.image-preview{width:100%;max-height:48vh;object-fit:contain;border-radius:8px;background:#fff;display:none}
+.image-box{border:2.5px dashed #8daed3;border-radius:10px;background:#f3f8ff;padding:7px;display:flex;flex-direction:column;gap:5px;flex:1;min-height:0;justify-content:center;align-items:center;text-align:center;position:relative;transition:.15s}.image-box.dragover{background:#dcecff;border-color:#2563eb;box-shadow:0 0 0 4px #2563eb22}.dropzone-label{font-size:16px;font-weight:800;color:#315577;line-height:1.3}.dropzone-sub{font-size:12.5px;color:#627c98}.image-box input[type=file]{width:100%;font-size:12px;max-width:100%;cursor:pointer}.image-preview{width:100%;height:100%;min-height:0;object-fit:contain;border-radius:8px;background:#fff;display:none}.image-frame-content{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}.image-box.has-image .dropzone-label,.image-box.has-image .dropzone-sub,.image-box.has-image input[type=file]{display:none}.image-box.has-image{padding:5px}.image-box.has-image .image-preview{display:block}.image-box .clear-image{flex-shrink:0}
 .gemini-box{display:flex;flex-direction:column;gap:7px;flex:1;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:8px}
 .gemini-prompt,.memo-area{width:100%;flex:1;border:1px solid #cbd5e1;border-radius:7px;padding:8px;font-size:14.5px;line-height:1.42;font-family:'Malgun Gothic',Arial,sans-serif;resize:none;background:#fff;color:#1e293b}
 .memo-area{background:#fffef5;border-color:#fde68a}
@@ -38,15 +38,24 @@ h1{font-size:25px;margin:0 0 6px}
 <h1>💧 빠른 탈수 · 수액 · 임계 임상 평가 C1 <span style="font-size:15.5px;font-weight:600;color:#475569">| 이미지 · 입력(쇼크/임계) · 오스몰/견제 · 제미나이 · 메모저장 · 수액모니터링</span></h1>
 <div class="layout">
 
-<!-- 1번 프레임: 검사 이미지 -->
+<!-- 1번 프레임: 검사 이미지 2단 분할 -->
 <section class="frame" id="imageFrame1">
-  <div class="framehead">🖼️ 검사 이미지</div>
-  <div class="image-box" id="dropZone1" onclick="if(event.target.tagName!=='BUTTON') document.getElementById('labImageFile1').click()">
-    <div class="dropzone-label">📂 검사결과지 이미지<br>드래그 또는 선택</div>
-    <div class="dropzone-sub">CBC · 생화학 · 전해질 결과지</div>
-    <input id="labImageFile1" type="file" accept="image/*" onchange="loadLabImage(event,1)" onclick="event.stopPropagation()">
-    <img id="labImagePreview1" class="image-preview" alt="검사 이미지">
-    <button type="button" class="btn secondary" style="padding:5px 10px;font-size:13.5px" onclick="event.stopPropagation();clearLabImage(1)">이미지 제거</button>
+  <div class="framehead">🖼️ 검사 이미지 (2단)</div>
+  <div class="image-frame-content">
+    <div class="image-box" id="dropZone1" onclick="if(event.target.tagName!=='BUTTON') document.getElementById('labImageFile1').click()">
+      <div class="dropzone-label">📂 검사 이미지 ①<br>상단 / 전반부</div>
+      <div class="dropzone-sub">드래그 또는 파일 선택</div>
+      <input id="labImageFile1" type="file" accept="image/*" onchange="loadLabImage(event,1)" onclick="event.stopPropagation()">
+      <img id="labImagePreview1" class="image-preview" alt="검사 이미지 상단">
+      <button type="button" class="btn secondary clear-image" style="padding:5px 10px;font-size:13px" onclick="event.stopPropagation();clearLabImage(1)">① 이미지 제거</button>
+    </div>
+    <div class="image-box" id="dropZone2" onclick="if(event.target.tagName!=='BUTTON') document.getElementById('labImageFile2').click()">
+      <div class="dropzone-label">📂 검사 이미지 ②<br>하단 / 후반부</div>
+      <div class="dropzone-sub">드래그 또는 파일 선택</div>
+      <input id="labImageFile2" type="file" accept="image/*" onchange="loadLabImage(event,2)" onclick="event.stopPropagation()">
+      <img id="labImagePreview2" class="image-preview" alt="검사 이미지 하단">
+      <button type="button" class="btn secondary clear-image" style="padding:5px 10px;font-size:13px" onclick="event.stopPropagation();clearLabImage(2)">② 이미지 제거</button>
+    </div>
   </div>
 </section>
 
@@ -162,12 +171,10 @@ h1{font-size:25px;margin:0 0 6px}
 <script>
 const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value),val=id=>$(id).value;
 
-function loadLabImage(event,slot){const file=event.target.files?.[0];if(!file)return;const preview=$('labImagePreview'+slot);preview.src=URL.createObjectURL(file);preview.style.display='block';}
-const z1=$('dropZone1');
-['dragenter','dragover'].forEach(type=>z1.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();z1.classList.add('dragover')}));
-['dragleave','drop'].forEach(type=>z1.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();z1.classList.remove('dragover')}));
-z1.addEventListener('drop',e=>{const file=e.dataTransfer.files?.[0];if(!file||!file.type.startsWith('image/'))return;const input=$('labImageFile1');try{const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;}catch{}const preview=$('labImagePreview1');if(preview.src)URL.revokeObjectURL(preview.src);preview.src=URL.createObjectURL(file);preview.style.display='block';});
-function clearLabImage(slot){const preview=$('labImagePreview'+slot);if(preview.src)URL.revokeObjectURL(preview.src);preview.removeAttribute('src');preview.style.display='none';$('labImageFile'+slot).value='';}
+function loadLabImage(event,slot){const file=event.target.files?.[0];if(!file)return;showLabImage(file,slot);}
+function showLabImage(file,slot){const preview=$('labImagePreview'+slot),zone=$('dropZone'+slot);if(preview.src)URL.revokeObjectURL(preview.src);preview.src=URL.createObjectURL(file);zone.classList.add('has-image');}
+[1,2].forEach(slot=>{const zone=$('dropZone'+slot);['dragenter','dragover'].forEach(type=>zone.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();zone.classList.add('dragover')}));['dragleave','drop'].forEach(type=>zone.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();zone.classList.remove('dragover')}));zone.addEventListener('drop',e=>{const file=e.dataTransfer.files?.[0];if(!file||!file.type.startsWith('image/'))return;const input=$('labImageFile'+slot);try{const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;}catch{}showLabImage(file,slot);});});
+function clearLabImage(slot){const preview=$('labImagePreview'+slot);if(preview.src)URL.revokeObjectURL(preview.src);preview.removeAttribute('src');preview.style.display='none';$('labImageFile'+slot).value='';$('dropZone'+slot).classList.remove('has-image');}
 
 function evaluateNow(fromInput=false){
  const species=val('species'),name=val('name').trim(),w=num('wt'),na=num('na'),k=num('k'),hb=num('hb'),hct=num('hct'),glu=num('glu'),bun=num('bun'),cre=num('cre'),tp=num('tp'),alb=num('alb');
