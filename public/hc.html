@@ -164,6 +164,8 @@
     align-items: center;
     border-bottom: 1px dashed #cbd5e1;
     padding-bottom: 3px;
+    gap: 4px;
+    flex-wrap: wrap;
   }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
   .field { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
@@ -285,6 +287,22 @@
   .q-chip.hot:hover { background: #ffe4e6; }
   .q-chip.teal { border-color: #0d9488; color: #0f766e; background: #f0fdfa; font-weight: 600; }
   .q-chip.teal:hover { background: #ccfbf1; }
+  .q-chip.custom-saved {
+    border-color: #2563eb;
+    color: #1e40af;
+    background: #eff6ff;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .q-chip.custom-saved:hover { background: #dbeafe; }
+  .chip-del-x {
+    color: #dc2626;
+    font-weight: 800;
+    margin-left: 2px;
+    padding: 0 2px;
+  }
 
   /* 체크박스 리스트 UI */
   .chk-category {
@@ -624,7 +642,7 @@
     <span class="badge">좌측 4단 섹션 선택 → 우측 5단 3-Page 출력</span>
   </div>
   <div class="top-actions">
-    <button class="btn btn-light" onclick="saveData()">💾 브라우저 저장</button>
+    <button class="btn btn-light" onclick="saveData()">💾 전체 저장</button>
     <button class="btn btn-amber" onclick="exportJSON()">📤 백업(JSON)</button>
     <button class="btn btn-light" onclick="document.getElementById('importFile').click()">📥 불러오기</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
@@ -779,16 +797,19 @@
     </div>
     <div class="frame-body">
 
-      <!-- [신설] 가장 중요한 약물처치 · 처방식/기능성보조제 · 재검주기/목표수치 대형 표 빌더 -->
+      <!-- 가장 중요한 약물처치 · 처방식/기능성보조제 · 재검주기/목표수치 대형 표 빌더 -->
       <div class="sec-box" style="background:#f0fdfa; border-color:#5eead4;">
         <div class="sec-title" style="color:#0f766e;">
-          <span>💊 약물처치 · 처방식/보조제 · 재검목표표 (Page 2 강조)</span>
-          <button class="btn btn-teal" style="padding:1px 6px; font-size:9.5px;" onclick="addCarePlanRow('', '', '', '')">+ 행 추가</button>
+          <span>💊 약물처치 · 처방식/보조제 · 재검목표표</span>
+          <div style="display:flex; gap:3px;">
+            <button class="btn btn-light" style="padding:2px 6px; font-size:9.5px; border:1px solid #0d9488; color:#0f766e;" onclick="addCarePlanRow('', '', '', '')">+ 행 추가</button>
+            <button class="btn btn-teal" style="padding:2px 7px; font-size:9.5px;" onclick="saveCarePlanTable()">💾 표 내용 저장</button>
+          </div>
         </div>
         <div style="font-size:9.3px; color:#115e59; margin-bottom:4px;">
-          * 아래 질환 버튼을 누르면 <strong>약물처치·추천 처방식/보조제·재검주기 및 목표수치</strong>가 표에 자동 추가됩니다.
+          * 행 추가·작성 후 <strong>[💾 표 내용 저장]</strong>을 누르면 현재 표가 저장되며, 새 항목은 아래 파란색 상용구 버튼으로도 등록됩니다.
         </div>
-        <div class="quick-chip-bar">
+        <div class="quick-chip-bar" id="carePlanChipBar">
           <button class="q-chip teal" onclick="addCarePlanRow('간 · 담낭', '간보호제(실리마린/SAMe) + 이담제(UDCA) 내복약 처방', '로얄캐닌 헤파틱 / 힐스 l/d 처방식, 간기능 보조 간식', '1개월 후 재검 (목표: ALT 100 이하, 담낭 슬러지 감소)')">+ 간·담낭</button>
           <button class="q-chip teal" onclick="addCarePlanRow('신장 · 수분', '혈압·단백뇨 조절제 및 인흡착제·수액 보충 처치', '로얄캐닌 레날 / 힐스 k/d 처방식, 신장전용 오메가-3·유산균', '1~3개월 후 재검 (목표: SDMA 14 이하, CREA 1.6 이하)')">+ 신장(CKD)</button>
           <button class="q-chip teal" onclick="addCarePlanRow('심장 · 혈압', '심장 수축력·혈관 확장 내복약 (단계별 맞춤 처방)', '로얄캐닌 카디악 / 힐스 h/d 저염식, 코엔자임Q10·타우린 보조제', '3~6개월 심장초음파 (목표: 수면 호흡수 30회 미만, 혈압 140 이하)')">+ 심장(MMVD)</button>
@@ -1018,9 +1039,7 @@
                   <th style="width:27%">권장 재검 주기 &amp; 목표 수치</th>
                 </tr>
               </thead>
-              <tbody id="outCarePlanBody">
-                <!-- JS로 실시간 동기화 -->
-              </tbody>
+              <tbody id="outCarePlanBody"></tbody>
             </table>
           </div>
         </div>
@@ -1057,7 +1076,7 @@
             <div class="pre-text" id="outMonitorGuide" style="min-height:55px;"></div>
           </div>
 
-          <!-- 9. 건강 유지 목표: 예방접종·항체·사상충 & 처방식·영양제 -->
+          <!-- 9. 건강 유지 목표: 예방접종·항체·사상충 -->
           <div class="report-box">
             <div class="report-box-title"><span>9. 현재 건강 유지를 위한 필수 예방관리 (접종·항체가·심장사상충)</span></div>
             <div class="pre-text" id="outPreventPlan" style="min-height:55px;"></div>
@@ -1117,7 +1136,7 @@
     }
   ];
 
-  // 2. [신설] 약물처치 · 처방식/보조제 · 재검주기/목표수치 정밀 로드맵 표 초기 샘플
+  // 2. 약물처치 · 처방식/보조제 · 재검주기/목표수치 정밀 로드맵 표 초기 샘플
   let carePlanRows = [
     {
       target: '간 · 담낭 대사',
@@ -1132,6 +1151,9 @@
       goal: '6개월 정기 구강 점검\n(목표: 잇몸 발적 완화 및 치석 재침착 억제)'
     }
   ];
+
+  // 사용자 정의 상용구 칩 저장소
+  let customCareChips = [];
 
   // 외부 신체검사 체크박스 프리셋
   const extExamPresets = [
@@ -1253,7 +1275,7 @@
     sync();
   }
 
-  // [신설] 약물처치 · 처방식/보조제 · 재검목표 카드 렌더링
+  // 약물처치 · 처방식/보조제 · 재검목표 카드 렌더링
   function renderCarePlanCards() {
     const container = document.getElementById('carePlanCardContainer');
     container.innerHTML = '';
@@ -1290,6 +1312,64 @@
     carePlanRows.splice(idx, 1);
     renderCarePlanCards();
     sync();
+  }
+
+  // 사용자 정의 상용구 칩 렌더링
+  function renderCustomCareChips() {
+    const bar = document.getElementById('carePlanChipBar');
+    bar.querySelectorAll('.custom-saved').forEach(el => el.remove());
+
+    customCareChips.forEach((chip, idx) => {
+      const btn = document.createElement('span');
+      btn.className = 'q-chip custom-saved';
+      btn.title = '클릭 시 표에 행 추가';
+      btn.innerHTML = `<span onclick="addCarePlanRowFromCustom(${idx})">+ ${chip.target}</span><span class="chip-del-x" onclick="deleteCustomCareChip(${idx})" title="상용구 삭제">×</span>`;
+      bar.appendChild(btn);
+    });
+  }
+
+  function addCarePlanRowFromCustom(idx) {
+    const c = customCareChips[idx];
+    if (c) addCarePlanRow(c.target, c.med, c.diet, c.goal);
+  }
+
+  function deleteCustomCareChip(idx) {
+    if (!confirm(`'${customCareChips[idx].target}' 저장 상용구를 삭제하시겠습니까?`)) return;
+    customCareChips.splice(idx, 1);
+    localStorage.setItem('23si_hc_custom_chips', JSON.stringify(customCareChips));
+    renderCustomCareChips();
+  }
+
+  // [신설] 표 내용 저장 버튼 동작 (현재 표 저장 + 새 항목 상용구 자동 등록)
+  function saveCarePlanTable() {
+    localStorage.setItem('23si_hc_v5_data', JSON.stringify(collectAllData()));
+
+    const defaultTargets = ['간 · 담낭', '신장 · 수분', '심장 · 혈압', '고양이 요로기', '슬개골 · 관절', '기관협착 · 호흡', '갑상선 · 부신', '췌장 · 소화기'];
+    let addedCount = 0;
+
+    carePlanRows.forEach(row => {
+      const t = (row.target || '').trim();
+      if (!t) return;
+      const isDefault = defaultTargets.includes(t);
+      const existingIdx = customCareChips.findIndex(c => c.target === t);
+      if (!isDefault) {
+        if (existingIdx >= 0) {
+          customCareChips[existingIdx] = { ...row };
+        } else {
+          customCareChips.push({ ...row });
+          addedCount++;
+        }
+      }
+    });
+
+    localStorage.setItem('23si_hc_custom_chips', JSON.stringify(customCareChips));
+    renderCustomCareChips();
+
+    if (addedCount > 0) {
+      alert(`✅ 표 내용이 안전하게 저장되었으며, 새로 작성한 ${addedCount}개 항목이 상단 파란색 상용구 버튼에도 등록되었습니다!`);
+    } else {
+      alert('✅ 현재 [약물처치 · 처방식/보조제 · 재검목표표] 내용이 안전하게 저장되었습니다.');
+    }
   }
 
   function renderCheckboxGroup(containerId, list, isCategorized = false) {
@@ -1355,8 +1435,14 @@
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('examDate').value = today;
 
+    const savedChips = localStorage.getItem('23si_hc_custom_chips');
+    if (savedChips) {
+      try { customCareChips = JSON.parse(savedChips) || []; } catch (e) {}
+    }
+
     renderProblemCards();
     renderCarePlanCards();
+    renderCustomCareChips();
     renderCheckboxGroup('extExamCheckboxes', extExamPresets, true);
     renderCheckboxGroup('organCheckboxes', organDeepPresets, true);
     renderCheckboxGroup('hydrationCheckboxes', hydrationPresets, false);
@@ -1461,7 +1547,7 @@
     }
     setTxt('outOrganFindings', organResult || '• 주요 장기 및 질환군 특이 문제점 없음');
 
-    // [신설] 2페이지 하단 대형 정밀 관리 로드맵 표 동기화
+    // 2페이지 하단 대형 정밀 관리 로드맵 표 동기화
     const outCareBody = document.getElementById('outCarePlanBody');
     outCareBody.innerHTML = '';
     if (carePlanRows.length === 0) {
@@ -1576,7 +1662,7 @@
 
   function saveData() {
     localStorage.setItem('23si_hc_v5_data', JSON.stringify(collectAllData()));
-    alert('✅ 현재 맞춤형 건강검진 결과 리포트가 브라우저에 저장되었습니다.');
+    alert('✅ 현재 맞춤형 건강검진 결과 리포트 전체가 브라우저에 저장되었습니다.');
   }
 
   function exportJSON() {
