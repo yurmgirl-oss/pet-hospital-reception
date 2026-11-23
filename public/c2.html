@@ -135,8 +135,8 @@
     border: 1.5px solid #cbd5e1;
     background: #ffffff;
     border-radius: 5px;
-    padding: 2px 5px;
-    font-size: 11.5px;
+    padding: 6px 5px;
+    font-size: 22px;
     font-weight: 800;
     font-family: inherit;
     color: var(--navy);
@@ -173,7 +173,7 @@
     flex: 1;
     width: 100%;
     display: grid;
-    grid-template-columns: 52px 1fr;
+    grid-template-columns: 92px 1fr;
     gap: 4px;
     align-items: center;
     min-height: 0;
@@ -186,14 +186,14 @@
     justify-content: center;
     height: 100%;
   }
-  .timer-left-ctrl label { font-size: 10px; font-weight: 800; color: var(--muted); text-align: center; }
+  .timer-left-ctrl label { font-size: 16px; font-weight: 800; color: var(--muted); text-align: center; }
   .timer-left-ctrl input {
     width: 100%;
     border: 1.5px solid #94a3b8;
     background: #fff;
     border-radius: 5px;
-    padding: 3px 2px;
-    font-size: 15px;
+    padding: 12px 4px;
+    font-size: 30px;
     font-weight: 900;
     text-align: center;
     color: var(--navy);
@@ -531,7 +531,7 @@ const timerThemes = [
   { num: '2', colorName: '주황', main: '#ea580c', bg: '#fff7ed', border: '#fb923c', sector: 'rgba(234,88,12,0.24)', placeholder: '주황 2번 (인슐린/약)' },
   { num: '3', colorName: '보라', main: '#7c3aed', bg: '#f5f3ff', border: '#a78bfa', sector: 'rgba(124,58,237,0.24)', placeholder: '보라 3번 (처치/멸균)' }
 ];
-const timers = Array.from({ length: 3 }, (_, i) => ({ id: i, remain: 0, running: false, alarming: false, warned: false }));
+const timers = Array.from({ length: 3 }, (_, i) => ({ id: i, remain: 0, duration: 0, running: false, alarming: false, warned: false }));
 
 function renderTimers() {
   $('timerStack').innerHTML = timers.map(t => {
@@ -547,8 +547,8 @@ function renderTimers() {
         <div class="timer-left-ctrl">
           <label style="color:${th.main}">분(min)</label>
           <input type="number" id="tMin${t.id}" value="10" style="border-color:${th.border};color:${th.main}" onfocus="this.dataset.prev=this.value;this.value='';" onblur="if(this.value==='')this.value=this.dataset.prev||'10';" onkeydown="if(event.key==='Enter')applyManualTimer(${t.id})">
-          <button class="btn green" id="tBtn${t.id}" style="padding:4px 2px;font-size:11px" onclick="toggleTimer(${t.id})">시작</button>
-          <button class="btn" style="padding:3px 2px;font-size:10.5px" onclick="resetTimer(${t.id})">리셋</button>
+          <button class="btn green" id="tBtn${t.id}" style="padding:10px 2px;font-size:16px;font-weight:900" onclick="toggleTimer(${t.id})">시작</button>
+          <button class="btn" style="padding:8px 2px;font-size:14px;font-weight:800" onclick="resetTimer(${t.id})">리셋</button>
         </div>
 
         <div class="svg-box">
@@ -591,7 +591,7 @@ function fmtMMSS(sec) {
 function updateTimerUI(id) {
   const t = timers[id], th = timerThemes[id];
   $('tTxt' + id).textContent = fmtMMSS(t.remain);
-  const deg = Math.min(360, (t.remain / 3600) * 360);
+  const deg = t.duration > 0 ? Math.min(360, (t.remain / t.duration) * 360) : 0;
   $('tHand' + id).setAttribute('transform', `rotate(${deg.toFixed(1)} 70 70)`);
   $('tSec' + id).setAttribute('d', describeSector(70, 70, 51, 0, deg));
   const card = $('tCard' + id), btn = $('tBtn' + id);
@@ -611,7 +611,7 @@ function applyManualTimer(id) {
 function setTimer(id, min) {
   ensureAudio();
   const t = timers[id];
-  t.remain = Math.round(min * 60); t.running = true; t.alarming = false; t.warned = false;
+  t.remain = Math.round(min * 60); t.duration = t.remain; t.running = true; t.alarming = false; t.warned = false;
   $('tMin' + id).value = min; $('tMin' + id).dataset.prev = min;
   updateTimerUI(id);
 }
@@ -623,7 +623,7 @@ function toggleTimer(id) {
   if (!t.running) {
     if (t.remain <= 0) {
       const m = Math.max(1, parseFloat($('tMin' + id).value) || parseFloat($('tMin' + id).dataset.prev) || 10);
-      $('tMin' + id).value = m; t.remain = Math.round(m * 60);
+      $('tMin' + id).value = m; t.remain = Math.round(m * 60); t.duration = t.remain;
     }
     t.running = true;
   } else t.running = false;
@@ -645,7 +645,7 @@ setInterval(() => {
   timers.forEach(t => {
     if (t.running && t.remain > 0) {
       t.remain--;
-      if (t.remain === 120 && !t.warned) { t.warned = true; playChime('warn'); }
+      if (t.remain === 120 && t.duration > 120 && !t.warned) { t.warned = true; playChime('warn'); }
       if (t.remain === 0) {
         t.running = false; t.alarming = true;
         const th = timerThemes[t.id];
@@ -692,8 +692,8 @@ function renderChronos() {
         </svg>
       </div>
       <div class="mini-act-2">
-        <button class="btn green" id="cBtn${c.id}" style="padding:2px;font-size:11px" onclick="toggleChrono(${c.id})">▶ 시작</button>
-        <button class="btn" style="padding:2px;font-size:11px" onclick="resetChrono(${c.id})">리셋</button>
+        <button class="btn green" id="cBtn${c.id}" style="padding:7px 2px;font-size:15px;font-weight:900" onclick="toggleChrono(${c.id})">▶ 시작</button>
+        <button class="btn" style="padding:6px 2px;font-size:14px;font-weight:800" onclick="resetChrono(${c.id})">리셋</button>
       </div>
     </div>
   `}).join('');
