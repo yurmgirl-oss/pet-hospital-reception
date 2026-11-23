@@ -89,10 +89,10 @@
   }
   .btn-all-refresh:hover { background: #065f46; }
 
-  /* 메인 레이아웃: 좌측 30% 고정 + 우측 70% 전환 영역 */
+  /* 메인 레이아웃: M3와 M6가 전체 화면을 50:50으로 차지 */
   .main-container {
     display: grid;
-    grid-template-columns: 3fr 7fr;
+    grid-template-columns: 1fr 1fr;
     height: calc(100% - 48px);
     width: 100%;
     gap: 8px;
@@ -177,47 +177,35 @@
     </div>
   </header>
 
-  <!-- 메인 분할 영역 -->
+  <!-- 메인 분할 영역: M3와 M6가 전체 공간을 반반 차지 -->
   <main class="main-container">
-
-    <!-- [창 1: 좌측 30% 항상 고정] 카운터 접수현황판 -->
     <section class="panel">
       <div class="panel-header">
-        <div class="panel-title">📋 원내 접수 현황판 (M3 고정)</div>
+        <div class="panel-title">📋 원내 접수 현황판 (M3)</div>
         <div>
-          <button class="p-btn" onclick="document.getElementById('frame-desk').contentWindow.location.reload()">새로고침</button>
+          <button class="p-btn" onclick="document.getElementById('frame-m3').contentWindow.location.reload()">새로고침</button>
           <button class="p-btn" onclick="window.open('/counter.html', '_blank')">새창</button>
         </div>
       </div>
       <div class="panel-body">
-        <iframe id="frame-desk" src="/counter.html"></iframe>
+        <iframe id="frame-m3" src="/counter.html"></iframe>
       </div>
     </section>
 
-    <!-- [중간 + 우측 70% 영역: 탭에 따라 스위칭] -->
-    <section id="right-work-area" style="width: 100%; height: 100%;">
-      
-      <!-- 1번 뷰: M3 + M6 반반 배치 (F1) -->
-      <div id="view-m3-duo" class="dual-subgrid" style="display: grid;">
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">🩺 [창 2] m6 접수 관리</div>
-            <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
-          </div>
-          <div class="panel-body">
-            <iframe id="frame-m6" src="/m6"></iframe>
-          </div>
-        </div>
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🩺 접수 관리 (M6)</div>
+        <button class="p-btn" onclick="document.getElementById('frame-m6').contentWindow.location.reload()">새로고침</button>
       </div>
-
-
+      <div class="panel-body">
+        <iframe id="frame-m6" src="/m6"></iframe>
+      </div>
     </section>
-
   </main>
 
   <script>
     function refreshAllFrames() {
-      ['frame-desk', 'frame-m6'].forEach(id => {
+      ['frame-m3', 'frame-m6'].forEach(id => {
         const frame = document.getElementById(id);
         if (frame) {
           try { frame.contentWindow.location.reload(); } catch (e) {}
