@@ -1078,7 +1078,8 @@ function submitSelectedIconNote(idx) {
 }
 
 function appendIcuLine(idx, tag, detail = '') {
-  const nowStr = new Date().toTimeString().slice(0, 5);
+  const now = new Date();
+  const nowStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
   const area = $('icuLog' + idx);
   area.value += `[${nowStr}] ${tag}${detail ? ' : ' + detail : ''}\n`;
   area.scrollTop = area.scrollHeight;
@@ -1086,7 +1087,8 @@ function appendIcuLine(idx, tag, detail = '') {
 
 function buildIcuReport(idx) {
   const pt = $('icuPt' + idx).value.trim() || `ICU_${idx + 1}번환자`;
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   return `[23시 하단오거리 동물병원 집중 ICU #${idx + 1} 처치 장부 - ${today}]
 - 환자정보: ${pt}
 - 상태게이지: 밥 ${$('gF' + idx).textContent} | 물 ${$('gW' + idx).textContent} | 활력 ${$('gV' + idx).textContent} | 수액잔량 ${$('gL' + idx).textContent}
@@ -1100,7 +1102,8 @@ function copyIcu(idx) {
 
 function saveIcuTxt(idx) {
   const pt = ($('icuPt' + idx).value.trim() || `ICU_${idx + 1}번`).replace(/[\\/:*?"<>|]/g, '_');
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const blob = new Blob([buildIcuReport(idx)], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
