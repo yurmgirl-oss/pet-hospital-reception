@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>23시 하단오거리 동물병원 - 맞춤형 건강검진 & 헬스케어 리포트 (hc.html)</title>
+<title>23시 하단오거리 동물병원 - 종합 건강검진 심층 결과표 (hc.html)</title>
 <style>
   :root {
-    --bg-main: #eef2f6;
+    --bg-main: #e2e8f0;
     --panel-bg: #ffffff;
     --primary: #1e3a8a;
     --primary-light: #eff6ff;
@@ -56,7 +56,7 @@
     justify-content: space-between;
     padding: 0 16px;
     flex-shrink: 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
   }
   .top-bar .title {
     font-size: 14.5px;
@@ -97,13 +97,13 @@
   .btn-rose { background: #e11d48; color: #fff; }
   .btn-rose:hover { background: #be123c; }
 
-  /* 16:9 5-프레임 메인 컨테이너 */
+  /* 16:9 5-프레임 메인 컨테이너: 좌측 4개 섹션 프레임 + 우측 1개 통합 출력 스크롤 프레임 */
   .workspace {
     flex: 1;
     display: grid;
-    grid-template-columns: 21.5% 21.5% 19% 19% 19%;
-    gap: 8px;
-    padding: 8px;
+    grid-template-columns: 16.5% 19.5% 19.5% 19.5% 25%;
+    gap: 6px;
+    padding: 6px;
     height: calc(100vh - 44px);
     overflow: hidden;
   }
@@ -115,12 +115,12 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
   .frame-header {
-    padding: 6px 10px;
-    font-size: 12px;
+    padding: 6px 9px;
+    font-size: 11.8px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -129,28 +129,30 @@
     flex-shrink: 0;
   }
   .f1-header { background: #dbeafe; color: #1e3a8a; }
-  .f2-header { background: #ccfbf1; color: #115e59; }
-  .f3-header { background: #f1f5f9; color: #334155; }
+  .f2-header { background: #e0e7ff; color: #3730a3; }
+  .f3-header { background: #ccfbf1; color: #115e59; }
+  .f4-header { background: #fef3c7; color: #92400e; }
+  .f5-header { background: #1e293b; color: #f8fafc; }
 
   .frame-body {
     flex: 1;
     overflow-y: auto;
-    padding: 7px;
-    font-size: 11.5px;
+    padding: 6px;
+    font-size: 11px;
   }
   .frame-body::-webkit-scrollbar { width: 5px; }
-  .frame-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  .frame-body::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
 
   /* 입력 폼 스타일 */
   .sec-box {
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    padding: 6px 7px;
-    margin-bottom: 7px;
+    padding: 6px;
+    margin-bottom: 6px;
     background: #f8fafc;
   }
   .sec-title {
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--primary);
     margin-bottom: 5px;
@@ -160,16 +162,16 @@
     border-bottom: 1px dashed #cbd5e1;
     padding-bottom: 3px;
   }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
   .field { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
-  .field label { font-size: 10px; font-weight: 600; color: #475569; }
+  .field label { font-size: 9.8px; font-weight: 600; color: #475569; }
   .field input, .field select, .field textarea {
     width: 100%;
-    padding: 4px 6px;
+    padding: 3.5px 5px;
     border: 1px solid #cbd5e1;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 10.8px;
     background: #fff;
   }
   .field input:focus, .field select:focus, .field textarea:focus {
@@ -178,12 +180,64 @@
     background: #eff6ff;
   }
 
+  /* 문제 검사 항목 입력 테이블 */
+  .prob-input-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  .prob-input-table th, .prob-input-table td {
+    border: 1px solid #cbd5e1;
+    padding: 2px;
+    text-align: center;
+  }
+  .prob-input-table th { background: #e2e8f0; font-weight: 700; }
+  .prob-input-table input, .prob-input-table select {
+    width: 100%;
+    border: none;
+    font-size: 10px;
+    padding: 2px;
+    background: transparent;
+  }
+  .prob-input-table input:focus, .prob-input-table select:focus {
+    background: #fef9c3;
+    outline: none;
+  }
+  .del-row-btn {
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    border-radius: 3px;
+    padding: 1px 4px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 9px;
+  }
+
+  .quick-chip-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-bottom: 5px;
+  }
+  .q-chip {
+    background: #fff;
+    border: 1px solid #94a3b8;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 9.8px;
+    cursor: pointer;
+    color: #1e293b;
+  }
+  .q-chip:hover { background: #dbeafe; border-color: #2563eb; color: #1e3a8a; }
+
   /* 체크박스 리스트 UI */
   .chk-category {
-    font-size: 10.5px;
+    font-size: 10.2px;
     font-weight: 700;
     color: #0f766e;
-    margin: 5px 0 3px 0;
+    margin: 5px 0 2px 0;
   }
   .chk-list {
     display: flex;
@@ -194,13 +248,13 @@
   .chk-item {
     display: flex;
     align-items: flex-start;
-    gap: 5px;
+    gap: 4px;
     background: #fff;
     border: 1px solid #e2e8f0;
-    padding: 3px 6px;
+    padding: 3px 5px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 10.5px;
+    font-size: 10px;
     line-height: 1.35;
     transition: 0.1s;
   }
@@ -215,32 +269,47 @@
   }
   .chk-item.warn-item { border-left: 3px solid #f59e0b; }
   .chk-item.normal-item { border-left: 3px solid #10b981; }
+  .chk-item.deep-item { border-left: 3px solid #2563eb; }
 
-  /* 우측 3개 출력지 미리보기 컨테이너 */
-  .preview-wrapper {
-    background: #cbd5e1;
-    padding: 6px;
-    overflow-y: auto;
+  /* 5번째 프레임: 우측 통합 A4 3장 스크롤 출력 뷰어 */
+  .print-scroll-area {
     flex: 1;
+    background: #64748b;
+    padding: 10px 8px;
+    overflow-y: auto;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .print-scroll-area::-webkit-scrollbar { width: 7px; }
+  .print-scroll-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+  .page-badge-divider {
+    background: #1e293b;
+    color: #f8fafc;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 10px;
+    align-self: flex-start;
   }
 
-  /* A4 용지 비율 시뮬레이션 */
+  /* A4 용지 시뮬레이션 카드 */
   .a4-sheet {
     width: 100%;
-    min-height: 100%;
+    min-height: 460px;
     background: #ffffff;
-    padding: 11px 13px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    padding: 13px 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     font-size: 9.2px;
-    line-height: 1.38;
+    line-height: 1.4;
     color: #1e293b;
     border-top: 4px solid var(--primary);
+    border-radius: 2px;
   }
 
   .sheet-header {
@@ -258,7 +327,7 @@
     letter-spacing: -0.3px;
   }
   .sheet-sub {
-    font-size: 8px;
+    font-size: 7.8px;
     color: var(--text-muted);
     font-weight: 600;
   }
@@ -267,14 +336,14 @@
     border: 1px solid #cbd5e1;
     border-radius: 4px;
     padding: 5px 7px;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
   }
   .report-box-title {
-    font-size: 9.8px;
+    font-size: 9.6px;
     font-weight: 700;
     color: #fff;
     background: var(--primary);
-    padding: 2px 6px;
+    padding: 2.5px 6px;
     border-radius: 3px;
     margin-bottom: 4px;
     display: flex;
@@ -288,7 +357,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 3px;
-    font-size: 8.8px;
+    font-size: 8.6px;
   }
   .info-cell {
     background: #f8fafc;
@@ -301,11 +370,11 @@
   .report-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 8.6px;
+    font-size: 8.5px;
   }
   .report-table th, .report-table td {
     border: 1px solid #cbd5e1;
-    padding: 2.5px 4px;
+    padding: 3px 4px;
   }
   .report-table th {
     background: #f1f5f9;
@@ -314,11 +383,15 @@
     text-align: center;
   }
 
+  .judge-high { color: #dc2626; font-weight: 800; background: #fef2f2; text-align: center; }
+  .judge-low { color: #2563eb; font-weight: 800; background: #eff6ff; text-align: center; }
+  .judge-warn { color: #d97706; font-weight: 800; background: #fffbeb; text-align: center; }
+
   .pre-text {
     white-space: pre-wrap;
     word-break: keep-all;
     font-size: 8.8px;
-    line-height: 1.42;
+    line-height: 1.44;
   }
 
   .focus-banner {
@@ -327,7 +400,7 @@
     border-left: 4px solid #e11d48;
     border-radius: 4px;
     padding: 5px 7px;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
   }
   .focus-banner-title {
     font-size: 9.5px;
@@ -347,7 +420,7 @@
     color: #64748b;
   }
 
-  /* 인쇄 전용 스타일: 우측 3장만 A4 3페이지로 깔끔하게 출력 */
+  /* 인쇄 전용 스타일: 5번째 프레임의 A4 3장만 정확히 3페이지로 인쇄 */
   @media print {
     @page {
       size: A4 portrait;
@@ -359,7 +432,7 @@
       overflow: visible !important;
       display: block !important;
     }
-    .top-bar, .control-frame, .frame-header {
+    .top-bar, .control-frame, .frame-header, .page-badge-divider {
       display: none !important;
     }
     .workspace {
@@ -368,18 +441,12 @@
       padding: 0 !important;
       overflow: visible !important;
     }
-    .print-frame {
+    .print-master-frame {
       border: none !important;
       box-shadow: none !important;
       display: block !important;
-      page-break-after: always;
-      break-after: page;
     }
-    .print-frame:last-child {
-      page-break-after: auto;
-      break-after: auto;
-    }
-    .preview-wrapper {
+    .print-scroll-area {
       background: #fff !important;
       padding: 0 !important;
       overflow: visible !important;
@@ -392,17 +459,23 @@
       padding: 6mm 8mm !important;
       font-size: 11px !important;
       line-height: 1.48 !important;
+      page-break-after: always;
+      break-after: page;
+    }
+    .a4-sheet:last-child {
+      page-break-after: auto;
+      break-after: auto;
     }
     .sheet-title { font-size: 17px !important; }
     .sheet-sub { font-size: 10.5px !important; }
-    .report-box { padding: 7px 9px !important; margin-bottom: 8px !important; }
+    .report-box { padding: 7px 9px !important; margin-bottom: 9px !important; }
     .report-box-title { font-size: 12.5px !important; padding: 3.5px 8px !important; }
     .info-grid { font-size: 11px !important; gap: 5px !important; }
     .info-cell { padding: 4px 7px !important; }
     .report-table { font-size: 10.8px !important; }
     .report-table th, .report-table td { padding: 4.5px 6px !important; }
-    .pre-text { font-size: 11px !important; line-height: 1.52 !important; }
-    .focus-banner { padding: 7px 10px !important; margin-bottom: 8px !important; }
+    .pre-text { font-size: 11px !important; line-height: 1.54 !important; }
+    .focus-banner { padding: 7px 10px !important; margin-bottom: 9px !important; }
     .focus-banner-title { font-size: 12px !important; }
     .sheet-footer { font-size: 9.5px !important; padding-top: 6px !important; }
   }
@@ -413,8 +486,8 @@
 <!-- 상단 툴바 -->
 <div class="top-bar">
   <div class="title">
-    🏥 23시 하단오거리 동물병원 — 맞춤형 건강검진 & 헬스케어 리포트
-    <span class="badge">보호자 맞춤 케어플랜 3-Page 양식</span>
+    🏥 23시 하단오거리 동물병원 — 맞춤형 종합 건강검진 심층 리포트
+    <span class="badge">좌측 4단 섹션 선택 → 우측 5단 3-Page 출력</span>
   </div>
   <div class="top-actions">
     <button class="btn btn-light" onclick="saveData()">💾 브라우저 저장</button>
@@ -429,22 +502,21 @@
 <!-- 16:9 5-프레임 작업 영역 -->
 <div class="workspace">
 
-  <!-- [프레임 1] 메인 컨트롤 1: 환자정보, 기초신체검사(안압 포함), 외부신체검사 체크박스 -->
+  <!-- [프레임 1] 섹션 1: 환자 기본정보 및 기초 신체검사(안압 포함) -->
   <div class="frame control-frame">
     <div class="frame-header f1-header">
-      <span>1. 환자정보 & 신체검사(기초·외부)</span>
-      <span style="font-size:10px; font-weight:500;">체크 시 1페이지 반영</span>
+      <span>1. 환자정보 & 기초신체검사</span>
+      <span style="font-size:9.5px; font-weight:500;">Page 1 상단</span>
     </div>
     <div class="frame-body">
       
-      <!-- 환자 기본정보 -->
       <div class="sec-box">
-        <div class="sec-title">🐾 환자 및 보호자 정보</div>
+        <div class="sec-title">🐾 환자 및 보호자 기본정보</div>
         <div class="grid-2">
           <div class="field"><label>환자명</label><input type="text" id="pName" value="보리" oninput="sync()"></div>
           <div class="field"><label>보호자명</label><input type="text" id="oName" value="김민수" oninput="sync()"></div>
         </div>
-        <div class="grid-3">
+        <div class="grid-2">
           <div class="field">
             <label>축종</label>
             <select id="pSpecies" onchange="sync()">
@@ -454,30 +526,29 @@
             </select>
           </div>
           <div class="field"><label>품종</label><input type="text" id="pBreed" value="말티즈" oninput="sync()"></div>
+        </div>
+        <div class="grid-2">
           <div class="field"><label>성별/중성화</label><input type="text" id="pSex" value="남아(중성화)" oninput="sync()"></div>
-        </div>
-        <div class="grid-3">
           <div class="field"><label>나이(세)</label><input type="number" step="0.1" id="pAge" value="8.5" onfocus="this.select()" oninput="sync()"></div>
-          <div class="field">
-            <label>생애주기</label>
-            <select id="pLifeStage" onchange="applyLifeStagePreset(); sync()">
-              <option value="성장기 (1세 미만)">성장기(&lt;1세)</option>
-              <option value="성년기 (1~6세)">성년기(1~6세)</option>
-              <option value="중년기 (7~9세)" selected>중년기(7~9세)</option>
-              <option value="노령기 (10세 이상)">노령기(10세+)</option>
-            </select>
-          </div>
-          <div class="field"><label>검진일</label><input type="date" id="examDate" oninput="sync()"></div>
         </div>
+        <div class="field">
+          <label>생애주기 구분 (자동 프리셋)</label>
+          <select id="pLifeStage" onchange="applyLifeStagePreset(); sync()">
+            <option value="성장기 (1세 미만)">성장기 (1세 미만)</option>
+            <option value="성년기 (1~6세)">성년기 (1~6세)</option>
+            <option value="중년기 (7~9세)" selected>중년기 (7~9세)</option>
+            <option value="노령기 (10세 이상)">노령기 (10세 이상)</option>
+          </select>
+        </div>
+        <div class="field"><label>검진일자</label><input type="date" id="examDate" oninput="sync()"></div>
       </div>
 
-      <!-- 기초 신체검사 (안압 추가) -->
       <div class="sec-box">
         <div class="sec-title">🩺 기초 신체검사 (바이탈 & 안압)</div>
-        <div class="grid-3">
+        <div class="grid-2">
           <div class="field"><label>체중 (kg)</label><input type="number" step="0.01" id="vWeight" value="4.35" onfocus="this.select()" oninput="sync()"></div>
           <div class="field">
-            <label>BCS (9점)</label>
+            <label>BCS (9점 만점)</label>
             <select id="vBcs" onchange="sync()">
               <option value="3/9 (저체중)">3/9 (저체중)</option>
               <option value="4/9 (적정)">4/9 (적정)</option>
@@ -486,17 +557,81 @@
               <option value="7/9 (비만)">7/9 (비만)</option>
             </select>
           </div>
-          <div class="field"><label>체온 (℃)</label><input type="number" step="0.1" id="vTemp" value="38.5" onfocus="this.select()" oninput="sync()"></div>
-        </div>
-        <div class="grid-3">
-          <div class="field"><label>심박수 (회/분)</label><input type="number" id="vHr" value="118" onfocus="this.select()" oninput="sync()"></div>
-          <div class="field"><label>호흡수 (회/분)</label><input type="number" id="vRr" value="24" onfocus="this.select()" oninput="sync()"></div>
-          <div class="field"><label>수축기 혈압</label><input type="number" id="vBp" value="132" onfocus="this.select()" oninput="sync()"></div>
         </div>
         <div class="grid-2">
-          <div class="field"><label>안압 - 좌안 OS (mmHg)</label><input type="number" id="vIopL" value="16" onfocus="this.select()" oninput="sync()"></div>
-          <div class="field"><label>안압 - 우안 OD (mmHg)</label><input type="number" id="vIopR" value="17" onfocus="this.select()" oninput="sync()"></div>
+          <div class="field"><label>직장 체온 (℃)</label><input type="number" step="0.1" id="vTemp" value="38.5" onfocus="this.select()" oninput="sync()"></div>
+          <div class="field"><label>수축기 혈압 (mmHg)</label><input type="number" id="vBp" value="132" onfocus="this.select()" oninput="sync()"></div>
         </div>
+        <div class="grid-2">
+          <div class="field"><label>심박수 (회/분)</label><input type="number" id="vHr" value="118" onfocus="this.select()" oninput="sync()"></div>
+          <div class="field"><label>호흡수 (회/분)</label><input type="number" id="vRr" value="24" onfocus="this.select()" oninput="sync()"></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>안압 좌안 OS (mmHg)</label><input type="number" id="vIopL" value="16" onfocus="this.select()" oninput="sync()"></div>
+          <div class="field"><label>안압 우안 OD (mmHg)</label><input type="number" id="vIopR" value="17" onfocus="this.select()" oninput="sync()"></div>
+        </div>
+      </div>
+
+      <div class="sec-box" style="background:#fff1f2; border-color:#fda4af;">
+        <div class="sec-title" style="color:#be123c;">🚨 오늘의 핵심 중점 관리 (1가지)</div>
+        <div class="field">
+          <select id="topFocusSelect" onchange="applyTopFocus(); sync()">
+            <option value="[간·담낭 대사 집중 관리] 간효소 수치 상승 및 담낭 내 슬러지가 확인되어 저지방 식이 전환과 이담제·간보호제 복용이 최우선 과제입니다." selected>1. 간·담낭 대사 저하 & 슬러지</option>
+            <option value="[심장·혈압 집중 관리] 초기 심장 판막 변성 및 심근 스트레스가 관찰되어 매일 수면 시 호흡수 측정과 심장 영양제·정기 심장초음파가 필수입니다.">2. 심장 판막 변화 & 혈압 관리</option>
+            <option value="[신장·비뇨기 집중 관리] 신장 조기 지표 상승 및 방광 슬러지가 보여 충분한 음수량 유지와 저인·저단백 신장 관리가 최우선입니다.">3. 신장 기능 보호 & 음수량</option>
+            <option value="[치아·구강 집중 관리] 치석 침착 및 치은염이 진행 중이므로 전신 세균 감염 예방을 위한 스케일링과 매일 양치질이 시급합니다.">4. 치주질환 & 구강 위생 관리</option>
+            <option value="[체중·관절 집중 관리] 과체중 및 슬개골·척추 부담이 확인되어 적정 체중 감량과 관절 보호 영양제 급여가 가장 중요합니다.">5. 체중 감량 & 관절 보호</option>
+            <option value="[내분비·호르몬 집중 관리] 갑상선 또는 부신 호르몬 불균형 의심 소견이 있어 정밀 호르몬 추적 검사와 대사 관리가 필요합니다.">6. 내분비(갑상선·쿠싱) 추적</option>
+          </select>
+        </div>
+        <div class="field">
+          <textarea id="topFocusText" rows="3" oninput="sync()">[간·담낭 대사 집중 관리] 간효소 수치 상승 및 담낭 내 슬러지가 확인되어 저지방 식이 전환과 이담제·간보호제 복용이 최우선 과제입니다.</textarea>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- [프레임 2] 섹션 2: 문제 검사 항목 리스트(표) & 외부 신체검사 -->
+  <div class="frame control-frame">
+    <div class="frame-header f2-header">
+      <span>2. 문제검사항목표 & 외부신체검사</span>
+      <span style="font-size:9.5px; font-weight:500;">Page 1~2 반영</span>
+    </div>
+    <div class="frame-body">
+
+      <!-- 문제 검사 항목 리스트 (표) -->
+      <div class="sec-box">
+        <div class="sec-title">
+          <span>📊 문제 검사 항목 리스트 (표 생성)</span>
+          <button class="btn btn-light" style="padding:1px 6px; font-size:10px; border:1px solid #94a3b8;" onclick="addProblemRow('', '', '', '▲ 상승')">+ 행 추가</button>
+        </div>
+        <div class="quick-chip-bar">
+          <button class="q-chip" onclick="addProblemRow('간효소 (ALT)', '10 ~ 100 U/L', '142 U/L', '▲ 상승')">+ ALT</button>
+          <button class="q-chip" onclick="addProblemRow('담도효소 (ALP)', '23 ~ 212 U/L', '268 U/L', '▲ 상승')">+ ALP</button>
+          <button class="q-chip" onclick="addProblemRow('조기신장 (SDMA)', '0 ~ 14 ug/dL', '16 ug/dL', '▲ 경계상승')">+ SDMA</button>
+          <button class="q-chip" onclick="addProblemRow('신장수치 (CREA)', '0.5 ~ 1.8 mg/dL', '1.9 mg/dL', '▲ 상승')">+ CREA</button>
+          <button class="q-chip" onclick="addProblemRow('복부초음파 (담낭)', '무에코(슬러지 없음)', '슬러지 25% 관찰', '이상소견')">+ 담낭슬러지</button>
+          <button class="q-chip" onclick="addProblemRow('흉부방사선 (VHS)', '8.5 ~ 10.5 v', '10.8 v (경미비대)', '▲ 경계비대')">+ 심비대</button>
+          <button class="q-chip" onclick="addProblemRow('갑상선 (Total T4)', '1.0 ~ 4.0 ug/dL', '0.8 ug/dL', '▼ 저하')">+ T4저하</button>
+          <button class="q-chip" onclick="addProblemRow('췌장염 (cPL/fPL)', '정상 범위 (음성)', '약양성 (경계)', '주의관찰')">+ 췌장염</button>
+          <button class="q-chip" onclick="addProblemRow('심장마커 (NT-proBNP)', '900 pmol/L 미만', '1,150 pmol/L', '▲ 상승')">+ BNP</button>
+          <button class="q-chip" onclick="addProblemRow('요검사 (단백뇨 UPC)', '0.2 미만 (정상)', '0.45 (경계단백뇨)', '▲ 상승')">+ 단백뇨</button>
+        </div>
+        <table class="prob-input-table">
+          <thead>
+            <tr>
+              <th style="width:28%">검사항목</th>
+              <th style="width:25%">정상범위</th>
+              <th style="width:23%">결과</th>
+              <th style="width:18%">판정</th>
+              <th style="width:6%"></th>
+            </tr>
+          </thead>
+          <tbody id="probTableBody">
+            <!-- JS로 동적 생성 -->
+          </tbody>
+        </table>
       </div>
 
       <!-- 외부 신체검사 체크박스 (눈, 귀, 치아, 항문낭, 피부) -->
@@ -504,82 +639,85 @@
         <div class="sec-title">🔍 외부 신체검사 (눈·귀·치아·항문낭·피부)</div>
         <div id="extExamCheckboxes"></div>
         <div class="field" style="margin-top:4px;">
-          <label>외부 신체검사 추가 메모 (직접 수정 가능)</label>
-          <textarea id="extCustomText" rows="2" placeholder="체크된 항목 외 추가 소견을 입력하세요." oninput="sync()"></textarea>
+          <label>외부 신체검사 추가 메모</label>
+          <textarea id="extCustomText" rows="2" placeholder="체크된 항목 외 추가 소견 입력..." oninput="sync()"></textarea>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- [프레임 2] 메인 컨트롤 2: 장기별 문제점, 추적모니터링, 예방·처방식·총평 체크박스 -->
+  <!-- [프레임 3] 섹션 3: 7대 주요 장기별 문제점 및 심층 대책 -->
   <div class="frame control-frame">
-    <div class="frame-header f2-header">
-      <span>2. 문제점·정밀추적·관리목표 선택</span>
-      <span style="font-size:10px; font-weight:500;">체크 시 2·3페이지 반영</span>
+    <div class="frame-header f3-header">
+      <span>3. 장기별 문제점 & 심층 관리대책</span>
+      <span style="font-size:9.5px; font-weight:500;">Page 2 반영</span>
     </div>
     <div class="frame-body">
 
-      <!-- 가장 중점적으로 관리할 한 가지 핵심 문제 -->
-      <div class="sec-box" style="background:#fff1f2; border-color:#fda4af;">
-        <div class="sec-title" style="color:#be123c;">🚨 오늘의 가장 핵심적인 중점 관리 문제 (1가지 강조)</div>
-        <div class="field">
-          <select id="topFocusSelect" onchange="applyTopFocus(); sync()">
-            <option value="">-- 중점 강조할 핵심 문제 선택 --</option>
-            <option value="[간·담낭 집중 관리] 간효소 상승 및 담낭 슬러지가 확인되어 저지방 식이와 이담제·간보호제 복용이 최우선 과제입니다." selected>간·담낭 대사 저하 및 슬러지 관리</option>
-            <option value="[심장·혈압 집중 관리] 초기 심장 판막 변화가 관찰되어 매일 수면 시 호흡수 체크와 심장 영양제·정기 심장초음파가 필수입니다.">심장 판막 변화 및 호흡수 관리</option>
-            <option value="[신장·비뇨기 집중 관리] 신장 수치 경계 및 방광 내 슬러지가 보여 음수량 증대와 신장 처방식·정기 혈액 추적이 최우선입니다.">신장 기능 보호 및 음수량 관리</option>
-            <option value="[치아·구강 집중 관리] 치석 및 치은염이 진행 중이므로 전신 세균 감염 예방을 위한 스케일링과 매일 양치 관리가 시급합니다.">치주질환 및 구강 위생 관리</option>
-            <option value="[체중·관절 집중 관리] 과체중 및 슬개골·척추 부담이 확인되어 체중 감량과 관절 영양제 급여가 가장 중요합니다.">체중 감량 및 관절 보호 관리</option>
-            <option value="[내분비·호르몬 집중 관리] 갑상선 또는 부신 호르몬 불균형 의심 소견이 있어 정밀 호르몬 추적 검사가 필요합니다.">내분비(갑상선·쿠싱) 정밀 추적</option>
-          </select>
-        </div>
-        <div class="field">
-          <textarea id="topFocusText" rows="2" oninput="sync()">[간·담낭 집중 관리] 간효소 상승 및 담낭 슬러지가 확인되어 저지방 식이와 이담제·간보호제 복용이 최우선 과제입니다.</textarea>
-        </div>
-      </div>
-
-      <!-- 7대 주요 장기별 발견된 문제점 및 관리 방향 (체크박스) -->
       <div class="sec-box">
-        <div class="sec-title">🫀 주요 장기별 발견 문제점 & 관리방향 (2페이지)</div>
+        <div class="sec-title">🫀 7대 주요 장기 문제점 및 심층 대책 선택</div>
+        <div style="font-size:9.8px; color:#475569; margin-bottom:4px;">
+          * 문제점과 구체적 관리 대책(식이·투약·홈케어)이 함께 출력됩니다.
+        </div>
         <div id="organCheckboxes"></div>
+        <div class="field" style="margin-top:4px;">
+          <label>장기별 추가 맞춤 대책 직접 입력</label>
+          <textarea id="organCustomText" rows="2" placeholder="환자 특이사항에 맞는 추가 심층 대책 입력..." oninput="sync()"></textarea>
+        </div>
       </div>
 
-      <!-- 정밀 추적 모니터링 필요 항목 (항체, 갑상선, 쿠싱, 췌장염, BNP, 암표지자) -->
+    </div>
+  </div>
+
+  <!-- [프레임 4] 섹션 4: 정밀 추적모니터링, 예방의학, 처방식·영양제, 최종 총평 -->
+  <div class="frame control-frame">
+    <div class="frame-header f4-header">
+      <span>4. 추적검사·예방목표·총평·재검</span>
+      <span style="font-size:9.5px; font-weight:500;">Page 3 반영</span>
+    </div>
+    <div class="frame-body">
+
+      <!-- 정밀 추적 모니터링 필요 항목 -->
       <div class="sec-box">
-        <div class="sec-title">🔬 향후 정밀 추적 모니터링 검사 안내 (2페이지)</div>
+        <div class="sec-title">🔬 향후 정밀 추적 모니터링 항목 및 필요성</div>
         <div id="monitorCheckboxes"></div>
       </div>
 
       <!-- 건강 유지 목표: 예방접종, 항체가, 심장사상충 + 처방식·영양제 -->
       <div class="sec-box">
-        <div class="sec-title">🛡️ 예방의학 & 처방식·영양제 플랜 (3페이지)</div>
+        <div class="sec-title">🛡️ 예방의학(접종·항체·사상충) & 처방식·영양제</div>
         <div id="preventCheckboxes"></div>
       </div>
 
       <!-- 최종 총평 & 다음 검사 주기 -->
       <div class="sec-box">
-        <div class="sec-title">📝 최종 총평 & 다음 재검 스케줄 (3페이지)</div>
+        <div class="sec-title">📝 오늘의 최종 총평 & 다음 재검 스케줄</div>
         <div class="field">
-          <label>오늘 드러난 문제점 최종 총평 (보호자 격려 및 목표의식)</label>
-          <textarea id="finalReviewText" rows="2" oninput="sync()">오늘 검진을 통해 우리 아이의 현재 몸 상태를 정확히 파악한 것이 가장 큰 수확입니다. 현재 발견된 경미한 간·담낭 부담과 치석은 지금부터 식이 조절과 꾸준한 홈케어로 충분히 건강하게 되돌릴 수 있는 단계입니다.</textarea>
+          <label>오늘 드러난 문제점 최종 총평 (목표의식 부여)</label>
+          <textarea id="finalReviewText" rows="3" oninput="sync()">오늘 검진을 통해 우리 아이의 현재 몸 상태를 정확히 파악한 것이 가장 큰 수확입니다. 현재 확인된 경미한 간·담낭 대사 부담과 치석은 지금부터 식이 조절과 꾸준한 홈케어로 충분히 건강하게 되돌릴 수 있는 단계입니다. 지금의 좋은 컨디션을 오래 유지할 수 있도록 보호자님과 병원이 함께 관리해 나가겠습니다.</textarea>
         </div>
         <div class="field">
           <label>다음 검사 주기 및 가정 내 핵심 관리 요령</label>
-          <textarea id="nextScheduleText" rows="2" oninput="sync()">• [1개월 후 재검] 간보호제·이담제 복용 반응 확인을 위한 간수치 및 담낭 초음파 추적\n• [6개월 후 정기검진] 생애주기에 맞춘 반기 종합 혈액·영상 정밀 점검\n• [가정 내 요령] 고지방 간식 중단, 하루 음수량 유지, 매일 양치질 및 수면 호흡수 체크</textarea>
+          <textarea id="nextScheduleText" rows="3" oninput="sync()">• [1개월 후 단기 재검] 간보호제·이담제 복용 반응 확인을 위한 간효소 및 담낭 초음파 추적
+• [6개월 후 정기검진] 생애주기에 맞춘 반기 종합 혈액·영상·호르몬 정밀 점검
+• [가정 내 관리 요령] 고지방 간식(육포·치즈) 중단, 하루 음수량(kg당 50~60ml) 유지, 매일 양치질</textarea>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- [프레임 3] 출력지 1페이지: 환자정보, 기초신체검사(안압 포함), 외부신체검사 -->
-  <div class="frame print-frame">
-    <div class="frame-header f3-header">
-      <span>📄 1페이지 (기본정보 & 기초·외부 신체검사)</span>
-      <span style="font-size:10px; color:#2563eb;">A4 Page 1/3</span>
+  <!-- [프레임 5] 5번째 프레임: 통합 A4 3장 스크롤 출력 뷰어 -->
+  <div class="frame print-master-frame">
+    <div class="frame-header f5-header">
+      <span>🖨️ 통합 출력 미리보기 (A4 3장 스크롤 뷰)</span>
+      <span style="font-size:10px; color:#38bdf8;">위아래 스크롤 확인</span>
     </div>
-    <div class="preview-wrapper">
+    <div class="print-scroll-area">
+
+      <!-- ================= PAGE 1 ================= -->
+      <div class="page-badge-divider">📄 1페이지 / 총 3페이지 — 기본정보 · 기초신체검사 · 외부신체검사</div>
       <div class="a4-sheet">
         <div>
           <div class="sheet-header">
@@ -654,15 +792,14 @@
             </table>
           </div>
 
-          <!-- 3. 외부 신체검사 (눈, 귀, 치아, 항문낭, 피부) -->
+          <!-- 3. 외부 신체검사 -->
           <div class="report-box">
             <div class="report-box-title"><span>3. 외부 신체검사 소견 (눈 · 귀 · 치아 · 항문낭 · 피부)</span></div>
             <div class="pre-text" id="outExtExam" style="min-height:115px;"></div>
           </div>
 
-          <!-- 안내 문구 -->
-          <div style="background:#f8fafc; border:1px dashed #94a3b8; border-radius:4px; padding:5px 7px; font-size:8.2px; color:#475569;">
-            💡 <strong>검진 결과 안내 원칙:</strong> 본 보고서는 보호자님께서 아이의 건강 상태와 앞으로의 관리 목표를 한눈에 이해하실 수 있도록 핵심 소견 중심으로 작성되었습니다. 정밀 X-ray 영상이나 초음파 사진, 전체 혈액 수치 원본이 필요하신 경우 언제든 데스크에 말씀해 주시면 별도로 출력해 드립니다.
+          <div style="background:#f8fafc; border:1px dashed #94a3b8; border-radius:4px; padding:5px 7px; font-size:8px; color:#475569;">
+            💡 <strong>검진 결과 안내 원칙:</strong> 본 결과표는 보호자님께서 아이의 문제점과 향후 건강 관리 목표를 명확히 이해하실 수 있도록 핵심 소견 중심으로 작성되었습니다. 정밀 X-ray 영상, 초음파 사진, 전체 혈액 수치 원본이 필요하신 경우 데스크에서 별도로 출력해 드립니다.
           </div>
         </div>
 
@@ -671,101 +808,102 @@
           <span>Page 1 of 3</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- [프레임 4] 출력지 2페이지: 핵심 중점 문제 강조, 장기별 문제점 & 관리방향, 추적모니터링 필요성 -->
-  <div class="frame print-frame">
-    <div class="frame-header f3-header">
-      <span>📄 2페이지 (장기별 문제점 & 정밀 추적모니터링)</span>
-      <span style="font-size:10px; color:#2563eb;">A4 Page 2/3</span>
-    </div>
-    <div class="preview-wrapper">
+      <!-- ================= PAGE 2 ================= -->
+      <div class="page-badge-divider">📄 2페이지 / 총 3페이지 — 핵심 중점관리 · 문제 검사항목 표 · 장기별 심층대책</div>
       <div class="a4-sheet">
         <div>
           <div class="sheet-header">
             <div>
-              <div class="sheet-title">장기별 검진 소견 및 정밀 추적 가이드</div>
-              <div class="sheet-sub">ORGAN SYSTEM FINDINGS & TARGETED MONITORING (2/3)</div>
+              <div class="sheet-title">문제 검사 항목 분석 및 장기별 심층 대책</div>
+              <div class="sheet-sub">ABNORMAL FINDINGS TABLE & ORGAN MANAGEMENT PLAN (2/3)</div>
             </div>
             <div style="text-align:right; font-size:8.5px; font-weight:700; color:#475569;">
               환자명: <span class="syncName">보리</span> (<span class="syncDate">2026-11-23</span>)
             </div>
           </div>
 
-          <!-- 오늘의 핵심 중점 관리 포인트 (1가지 부각) -->
+          <!-- 오늘의 핵심 중점 관리 포인트 (1가지 강조) -->
           <div class="focus-banner">
             <div class="focus-banner-title">🚨 오늘 검진에서 가장 신경 써서 관리해야 할 핵심 포인트</div>
             <div class="pre-text" id="outTopFocus" style="font-weight:700; color:#881337;"></div>
           </div>
 
-          <!-- 4. 주요 장기별 문제점 및 관리 방향 (간, 담낭, 신장, 심장, 비장, 소화기, 비뇨기) -->
+          <!-- 4. 문제 검사 항목 리스트 표 -->
           <div class="report-box">
-            <div class="report-box-title"><span>4. 주요 장기별 확인된 문제점 및 맞춤형 관리 방향</span></div>
-            <div class="pre-text" id="outOrganFindings" style="min-height:110px;"></div>
+            <div class="report-box-title rose"><span>4. 주의 및 관리가 필요한 문제 검사 항목 리스트</span></div>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th style="width:28%">검사 항목 및 내용</th>
+                  <th style="width:26%">정상 참고범위</th>
+                  <th style="width:26%">금회 검사 결과</th>
+                  <th style="width:20%">판정</th>
+                </tr>
+              </thead>
+              <tbody id="outProbTableBody">
+                <!-- JS로 실시간 동기화 -->
+              </tbody>
+            </table>
           </div>
 
-          <!-- 5. 향후 추적 모니터링이 필요한 정밀 검사 안내 -->
-          <div class="report-box" style="background:#f8fafc;">
-            <div class="report-box-title teal"><span>5. 향후 정밀 추적 모니터링 항목 및 필요성 안내</span></div>
-            <div style="font-size:8px; color:#475569; margin-bottom:4px;">
-              * 아이의 연령과 현재 소견을 고려할 때, 아래 항목들에 대한 주기적 추적 검사가 질병의 조기 발견에 큰 도움이 됩니다.
-            </div>
-            <div class="pre-text" id="outMonitorGuide" style="min-height:95px;"></div>
+          <!-- 5. 7대 주요 장기별 문제점 및 심층 대책 -->
+          <div class="report-box">
+            <div class="report-box-title"><span>5. 주요 장기별 문제점 분석 및 심층 관리 대책</span></div>
+            <div class="pre-text" id="outOrganFindings" style="min-height:130px;"></div>
           </div>
         </div>
 
         <div class="sheet-footer">
-          <span>* X-ray·초음파·혈액검사 원본 결과지가 필요하시면 원내 데스크에서 즉시 출력해 드립니다.</span>
+          <span>* 정상 범위를 유지 중인 기타 검사 항목들은 양호한 상태입니다.</span>
           <span>Page 2 of 3</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- [프레임 5] 출력지 3페이지: 예방의학(접종·항체·사상충), 처방식·영양제, 최종 총평 및 다음 재검 스케줄 -->
-  <div class="frame print-frame">
-    <div class="frame-header f3-header">
-      <span>📄 3페이지 (건강유지 플랜 · 처방식 · 최종 총평)</span>
-      <span style="font-size:10px; color:#2563eb;">A4 Page 3/3</span>
-    </div>
-    <div class="preview-wrapper">
+      <!-- ================= PAGE 3 ================= -->
+      <div class="page-badge-divider">📄 3페이지 / 총 3페이지 — 정밀 추적모니터링 · 예방의학·처방식 · 최종 총평</div>
       <div class="a4-sheet">
         <div>
           <div class="sheet-header">
             <div>
-              <div class="sheet-title">건강 유지 목표 및 평생 관리 로드맵</div>
-              <div class="sheet-sub">PREVENTIVE HEALTHCARE, NUTRITION & FINAL REVIEW (3/3)</div>
+              <div class="sheet-title">정밀 추적 모니터링 및 건강 유지 로드맵</div>
+              <div class="sheet-sub">TARGETED MONITORING, PREVENTIVE CARE & FINAL REVIEW (3/3)</div>
             </div>
             <div style="text-align:right; font-size:8.5px; font-weight:700; color:#475569;">
               환자명: <span class="syncName">보리</span> (<span class="syncLife">중년기</span>)
             </div>
           </div>
 
-          <!-- 6. 현재 건강을 지키기 위한 예방의학 & 처방식·영양제 -->
+          <!-- 6. 정밀 추적 모니터링 필요성 안내 -->
+          <div class="report-box" style="background:#f8fafc;">
+            <div class="report-box-title teal"><span>6. 향후 정밀 추적 모니터링 항목 및 필요성 안내</span></div>
+            <div class="pre-text" id="outMonitorGuide" style="min-height:85px;"></div>
+          </div>
+
+          <!-- 7. 건강 유지 목표: 예방접종·항체·사상충 & 처방식·영양제 -->
           <div class="report-box">
-            <div class="report-box-title teal"><span>6. 건강 유지를 위한 필수 예방관리 & 처방식·영양제 플랜</span></div>
-            <div class="pre-text" id="outPreventPlan" style="min-height:115px;"></div>
+            <div class="report-box-title"><span>7. 현재 건강 유지를 위한 필수 예방관리 & 처방식·영양제 플랜</span></div>
+            <div class="pre-text" id="outPreventPlan" style="min-height:95px;"></div>
           </div>
 
-          <!-- 7. 오늘 드러난 문제점에 대한 최종 총평 -->
+          <!-- 8. 오늘 드러난 문제점에 대한 최종 총평 -->
           <div class="report-box" style="background:#fffbeb; border-color:#fcd34d;">
-            <div class="report-box-title amber"><span>7. 오늘 검진 결과 최종 총평 및 보호자님께 드리는 말씀</span></div>
-            <div class="pre-text" id="outFinalReview" style="min-height:55px;"></div>
+            <div class="report-box-title amber"><span>8. 오늘 검진 결과 최종 총평 및 건강 유지 목표</span></div>
+            <div class="pre-text" id="outFinalReview" style="min-height:50px;"></div>
           </div>
 
-          <!-- 8. 다음 검사 주기 및 가정 내 관리 요령 -->
+          <!-- 9. 다음 검사 주기 및 가정 내 관리 요령 -->
           <div class="report-box" style="background:#eff6ff; border-color:#93c5fd;">
-            <div class="report-box-title"><span>8. 다음 권장 재검 주기 및 가정 내 핵심 관리 요령</span></div>
-            <div class="pre-text" id="outNextSchedule" style="min-height:55px;"></div>
+            <div class="report-box-title"><span>9. 다음 권장 재검 주기 및 가정 내 핵심 관리 요령</span></div>
+            <div class="pre-text" id="outNextSchedule" style="min-height:50px;"></div>
           </div>
 
           <!-- 병원 안내 -->
           <div style="border:1px solid #cbd5e1; border-radius:4px; padding:5px 7px; background:#f8fafc;">
-            <div style="font-weight:800; color:#1e3a8a; font-size:9px; margin-bottom:2px;">🏥 23시 하단오거리 동물병원 진료 및 상담 안내</div>
-            <div style="font-size:8px; color:#334155; line-height:1.38;">
+            <div style="font-weight:800; color:#1e3a8a; font-size:8.8px; margin-bottom:2px;">🏥 23시 하단오거리 동물병원 진료 및 상담 안내</div>
+            <div style="font-size:7.8px; color:#334155; line-height:1.35;">
               • <strong>대표전화:</strong> 051) 264-8275 &nbsp;|&nbsp; <strong>상담 전용:</strong> 010-4685-3499 &nbsp;|&nbsp; <strong>진료시간:</strong> 평일 오전 09:00 ~ 오후 10:00 (야간 진료)<br>
-              • 검진 후 식이 변경이나 영양제 급여, 이상 증상 발견 시 언제든 편하게 연락해 주세요.
+              • 검진 후 식이 변경, 영양제 급여, 이상 증상 발견 시 언제든 병원으로 연락해 주세요.
             </div>
           </div>
         </div>
@@ -775,12 +913,19 @@
           <span>Page 3 of 3</span>
         </div>
       </div>
+
     </div>
   </div>
 
 </div>
 
 <script>
+  // 기본 문제 검사 항목 초기 샘플
+  let problemRows = [
+    { item: '혈청화학 - 간효소 (ALT)', norm: '10 ~ 100 U/L', res: '142 U/L', judge: '▲ 상승' },
+    { item: '복부초음파 - 담낭 슬러지', norm: '무에코 (슬러지 없음)', res: '슬러지 약 25% 관찰', judge: '주의관찰' }
+  ];
+
   // 1. 외부 신체검사 체크박스 프리셋 (눈, 귀, 치아, 항문낭, 피부)
   const extExamPresets = [
     { cat: '👁️ 눈 (안과)', items: [
@@ -808,35 +953,97 @@
     ]}
   ];
 
-  // 2. 7대 주요 장기별 문제점 및 관리 방향 체크박스 (간, 담낭, 신장, 심장, 비장, 소화기계, 비뇨기계)
-  const organPresets = [
-    { id: 'org_liver', type: 'warn', text: '• [간] 간세포 대사 효소 상승 소견 — 고지방 간식을 제한하고 간보호제(실리마린/SAMe) 복용 및 간 처방식 급여로 간 피로를 줄여주어야 합니다.', checked: true },
-    { id: 'org_gb', type: 'warn', text: '• [담낭] 담낭 내 슬러지(담즙 찌꺼기) 확인 — 방치 시 담낭 점액종이나 담도 폐색으로 진행할 수 있어 이담제 복용과 주기적 초음파 추적이 중요합니다.', checked: true },
-    { id: 'org_kidney', type: 'warn', text: '• [신장] 신장 기능 경계치 또는 조기 신부전 주의 소견 — 신장은 한 번 손상되면 회복이 어려우므로 충분한 음수량 유지와 저인·저단백 신장 관리가 필수입니다.', checked: false },
-    { id: 'org_heart', type: 'warn', text: '• [심장] 심잡음 또는 초기 판막 변성(MMVD) 의심 — 흥분을 피하고 수면 시 호흡수(분당 30회 이하)를 매일 기록하며 심장 영양제 및 정기 심장초음파가 필요합니다.', checked: false },
-    { id: 'org_spleen', type: 'warn', text: '• [비장] 비장 실질의 경미한 종대 또는 결절성 변화 관찰 — 노령기 비장 종괴 감별을 위해 3~6개월 간격의 복부 초음파 모니터링을 권장합니다.', checked: false },
-    { id: 'org_gi', type: 'warn', text: '• [소화기계] 위장관 가스 증가 및 만성 위장관 예민 소견 — 규칙적인 소량 다회 급여와 유산균(프로바이오틱스) 복용, 사람 음식 급여 금지가 필요합니다.', checked: false },
-    { id: 'org_urinary', type: 'warn', text: '• [비뇨기계] 방광 내 미세 슬러지/결정 또는 방광벽 비후 관찰 — 배뇨 횟수와 소변 색깔을 잘 관찰하고 처방식 및 충분한 수분 섭취로 결석 형성을 예방해야 합니다.', checked: false },
-    { id: 'org_normal_all', type: 'normal', text: '• [주요 장기 양호] 간, 담낭, 신장, 심장, 비장, 소화기·비뇨기계 전반에 걸쳐 현재 특이 병변 없이 건강한 상태를 유지하고 있습니다.', checked: false }
+  // 2. 7대 주요 장기별 문제점 및 심층 대책 프리셋 (간, 담낭, 신장, 심장, 비장, 소화기계, 비뇨기계)
+  const organDeepPresets = [
+    { cat: '🟤 간 (Liver)', items: [
+      { id: 'org_liver_1', type: 'deep', text: '• [간 — 문제점 및 심층대책] 간세포 대사 효소 상승이 확인되었습니다. 간은 침묵의 장기로 70% 이상 손상되기 전까지 증상이 없으므로, 즉시 고지방 간식·사람 음식을 전면 중단하고 간 처방식 전환과 함께 간세포 재생 보조제(실리마린, SAMe, 우르소데옥시콜산)를 꾸준히 투여하여 수치를 정상화해야 합니다.', checked: true },
+      { id: 'org_liver_2', type: 'warn', text: '• [간 — 만성/결절성 변화 대책] 간 실질의 불균질 에코 또는 경미한 종대가 관찰됩니다. 간 기능 부전 및 담도계 합병증 예방을 위해 1~2개월 간격의 간수치(ALT, ALP, GGT, 총담즙산) 모니터링과 항산화 영양제 급여가 필수적입니다.', checked: false }
+    ]},
+    { cat: '🟢 담낭 (Gallbladder)', items: [
+      { id: 'org_gb_1', type: 'deep', text: '• [담낭 — 문제점 및 심층대책] 담낭 내 담즙 찌꺼기(슬러지)가 축적되어 있습니다. 이를 방치하면 점액종으로 굳어져 담도 폐색이나 담낭 파열 같은 응급 수술 상황으로 이어질 수 있으므로, 저지방 식단 철저 유지와 이담제 복용, 3개월 간격의 상복부 초음파 추적이 반드시 필요합니다.', checked: true }
+    ]},
+    { cat: '🟣 신장 (Kidney)', items: [
+      { id: 'org_kid_1', type: 'deep', text: '• [신장 — 조기 보호 심층대책] 조기 신장 지표(SDMA) 또는 신장 수치 경계 상승이 관찰됩니다. 한 번 손상된 네프론은 재생되지 않으므로 지금 단계에서 습식 사료 병행 및 음수량 증대(체중 kg당 50~60ml 이상), 인(Phosphorus)과 나트륨이 제한된 신장 보호 식이·인흡착제/오메가-3 관리가 신부전 진행을 늦추는 핵심입니다.', checked: false },
+      { id: 'org_kid_2', type: 'warn', text: '• [신장 — 구조적 변화 대책] 초음파상 신장 피질 에코 상승 또는 신우 확장 소견이 보입니다. 고혈압과 단백뇨(UPC) 동반 여부를 정기적으로 체크하여 신장 손상을 최소화해야 합니다.', checked: false }
+    ]},
+    { cat: '❤️ 심장 (Heart)', items: [
+      { id: 'org_hrt_1', type: 'deep', text: '• [심장 — 판막 및 심근 심층대책] 심잡음 또는 초기 승모판 폐쇄부전(MMVD) 변화가 확인되었습니다. 심부전(폐수종)으로의 진행을 늦추기 위해 과도한 흥분과 격렬한 운동을 피하고, 가정에서 매일 수면 중 호흡수(분당 30회 이하 정상)를 기록하며, 심근 보호 영양제(코엔자임Q10·타우린·오메가-3) 및 6개월 간격 심장초음파 추적이 필수적입니다.', checked: false }
+    ]},
+    { cat: '🩸 비장 (Spleen)', items: [
+      { id: 'org_spl_1', type: 'deep', text: '• [비장 — 문제점 및 심층대책] 비장 실질의 경미한 종대 또는 국소 결절성 변화가 관찰됩니다. 중·노령기 비장 종괴는 초기 감별이 매우 중요하므로, 빈혈 수치(HCT) 체크와 함께 3개월 간격의 정밀 복부 초음파를 통해 크기와 혈류 변화를 면밀히 추적 관찰해야 합니다.', checked: false }
+    ]},
+    { cat: '🟡 소화기계 (GI Tract)', items: [
+      { id: 'org_gi_1', type: 'deep', text: '• [소화기계 — 문제점 및 심층대책] 위장관 가스 증가 및 만성 위장관 예민(장벽 비후) 소견이 확인되었습니다. 소화기 부담을 줄이기 위해 하루 사료량을 2~3회로 나누어 규칙적으로 급여하고, 고순도 반려동물 전용 프로바이오틱스(유산균) 및 소화효소 보충, 알레르기 유발 간식 제한이 필요합니다.', checked: false }
+    ]},
+    { cat: '🔵 비뇨기계 (Urinary)', items: [
+      { id: 'org_uri_1', type: 'deep', text: '• [비뇨기계 — 문제점 및 심층대책] 방광 내 미세 슬러지(결정) 또는 방광벽 비후가 관찰됩니다. 방광염 및 요로결석(스트루바이트/칼슘옥살레이트) 형성을 막기 위해 수분 섭취를 극대화하고, 비뇨기 처방식 급여 및 배뇨 자세·횟수·혈뇨 여부를 매일 세심히 관찰해 주세요.', checked: false }
+    ]},
+    { cat: '✅ 전반 양호', items: [
+      { id: 'org_all_ok', type: 'normal', text: '• [주요 장기 전반 양호] 간, 담낭, 신장, 심장, 비장, 소화기 및 비뇨기계 전반에 걸쳐 현재 특이 병변 없이 건강한 기능을 유지하고 있습니다. 지금의 좋은 상태를 유지하기 위한 예방 중심의 정기 관리가 권장됩니다.', checked: false }
+    ]}
   ];
 
-  // 3. 정밀 추적 모니터링 필요성 안내 체크박스 (항체, 갑상선, 쿠싱, 췌장염, BNP, 암표지자)
+  // 3. 정밀 추적 모니터링 필요성 안내 체크박스
   const monitorPresets = [
-    { id: 'mon_titer', text: '• [항체가 검사 (백신 항체수치)] 매년 무조건적인 추가 접종 대신, 현재 체내에 홍역·파보·간염 방어 항체가 충분히 유지되고 있는지 혈액으로 확인하여 꼭 필요한 백신만 안전하게 접종하기 위해 필요합니다.', checked: true },
-    { id: 'mon_thyroid', text: '• [갑상선 호르몬 검사 (T4 / fT4 / TSH)] 이유 없는 체중 증가·무기력·탈모(강아지 저하증) 또는 체중 감소·식욕항진(고양이 항진증)은 일반 혈액검사로 놓치기 쉬워 호르몬 정밀 추적이 중요합니다.', checked: false },
-    { id: 'mon_cushing', text: '• [부신피질기능항진증 (쿠싱 스크리닝)] 음수량과 소변량이 늘고 배가 볼록해지며 간수치(ALP)가 지속적으로 높을 경우, 부신 호르몬 이상 여부를 확인하여 합병증(당뇨·혈전)을 예방해야 합니다.', checked: false },
-    { id: 'mon_panc', text: '• [췌장염 정밀 키트 (cPL / fPL)] 간·담낭 슬러지가 있거나 기름진 음식 섭취 후 구토·식욕부진이 나타날 때, 급·만성 췌장염 동반 여부를 조기에 감별하기 위해 필수적입니다.', checked: true },
-    { id: 'mon_bnp', text: '• [심장 바이오마커 (NT-proBNP)] 심장 근육이 받는 스트레스 수치를 혈액으로 정량 평가하여, 겉으로 기침이나 호흡곤란 증상이 나타나기 전 초기 심장병 진행 속도를 파악하는 데 매우 유용합니다.', checked: false },
-    { id: 'mon_cancer', text: '• [종양(암) 표지자 및 정기 초음파 스크리닝] 7세 이상 중·노령기에는 종양 발생률이 급증하므로, 혈액 종양 스크리닝 검사와 6개월 간격의 흉·복부 영상 추적을 통해 조기 발견율을 높여야 합니다.', checked: false }
+    { id: 'mon_titer', text: '• [백신 항체가 검사 (항체수치 모니터링)] 매년 획일적인 추가 접종 대신, 현재 혈액 내 홍역·파보·전염성간염 방어 항체가 충분히 유지되는지 수치로 확인하여 면역 공백은 막고 불필요한 백신 부작용은 피하기 위해 반드시 필요합니다.', checked: true },
+    { id: 'mon_thyroid', text: '• [갑상선 호르몬 정밀 검사 (T4 / fT4 / TSH)] 노령견의 이유 없는 비만·무기력·피부병(저하증)과 노령묘의 식욕왕성·체중감소(항진증)는 일반 혈액검사로 놓치기 쉬워 정기적인 호르몬 패널 추적이 중요합니다.', checked: false },
+    { id: 'mon_cushing', text: '• [부신피질기능항진증 (쿠싱 증후군 스크리닝)] 음수량·배뇨량 증가, 복부 팽만, 간수치(ALP) 지속 상승 시 부신 호르몬 과다 분비 여부를 확인해야 당뇨병, 고혈압, 혈전증 같은 치명적 합병증을 막을 수 있습니다.', checked: false },
+    { id: 'mon_panc', text: '• [췌장염 정밀 키트 (cPL / fPL)] 간·담낭 슬러지가 동반되거나 기름진 음식 섭취 후 구토·복통·식욕부진이 보일 때, 만성·급성 췌장염 진행 여부를 조기에 포착하기 위한 필수 추적 검사입니다.', checked: true },
+    { id: 'mon_bnp', text: '• [심장 바이오마커 (NT-proBNP)] 심장 근육이 받는 압력과 스트레스를 혈액 수치로 정량화하여, 겉으로 기침이나 호흡곤란 증상이 나타나기 전 심장병의 진행 단계를 객관적으로 추적하는 데 매우 유용합니다.', checked: false },
+    { id: 'mon_cancer', text: '• [암(종양) 표지자 검사 및 정기 영상 스크리닝] 7세 이상 중·노령기에는 종양 발생률이 급격히 높아지므로, 혈액 종양 스크리닝 검사와 6개월 간격의 흉·복부 정밀 영상 추적을 통해 조기 발견 및 완치율을 높여야 합니다.', checked: false }
   ];
 
-  // 4. 건강 유지 목표: 예방접종, 항체가, 심장사상충 + 처방식·영양제 체크박스
+  // 4. 건강 유지 목표: 예방접종, 항체가, 심장사상충 + 처방식·영양제
   const preventPresets = [
-    { id: 'prev_vax', text: '• [종합예방접종 & 항체가 관리] 전염병(홍역·파보·전염성간염·켄넬코프·인플루엔자/범백혈구감소증 등)은 노령기 면역력이 약해질수록 치명적입니다. 정기 항체가 확인 및 연 1회 부스터 접종으로 기초 면역 방어막을 유지해 주세요.', checked: true },
-    { id: 'prev_hw', text: '• [심장사상충 & 내·외부 기생충 예방] 모기를 통해 감염되는 심장사상충은 감염 후 치료가 매우 위험하고 어렵습니다. 매월 1회 정기 예방약 투여와 연 1회 심장사상충 항원 키트 검사는 우리 아이 생명을 지키는 가장 확실한 투자입니다.', checked: true },
-    { id: 'prev_diet', text: '• [맞춤형 처방식 및 식이 관리] 현재 확인된 장기의 부담을 줄이기 위해 일반 사료 및 고지방·고단백 간식을 중단하고, 수의사가 권장하는 기능성 처방식(간·담낭 / 신장 / 비뇨기 / 위장관 처방식)으로 급여를 전환해 주세요.', checked: true },
-    { id: 'prev_supp', text: '• [필수 기능성 영양제 가이드] 약물 치료와 더불어 간보호제(실리마린/SAMe), 고순도 오메가-3(항염·혈행개선), 유산균, 관절 또는 심장 보조제를 꾸준히 급여하시면 장기 기능 회복과 노화 지연에 큰 시너지가 납니다.', checked: true }
+    { id: 'prev_vax', text: '• [종합예방접종 & 항체가 유지의 중요성] 전염병(홍역·파보·간염·켄넬코프·인플루엔자/범백혈구감소증 등)은 나이가 들수록 면역력이 저하되어 감염 시 생명을 위협합니다. 정기적인 항체가 확인과 연 1회 추가 접종은 현재의 건강을 지키는 가장 기본적인 방어막입니다.', checked: true },
+    { id: 'prev_hw', text: '• [심장사상충 & 내·외부 기생충 정기 예방] 모기를 매개로 감염되는 심장사상충은 일단 성충으로 자라면 심장과 폐혈관을 망가뜨려 치료가 매우 위험합니다. 매월 1회 빠짐없는 예방약 투여와 연 1회 심장사상충 항원 검사를 꼭 실천해 주세요.', checked: true },
+    { id: 'prev_diet', text: '• [맞춤형 기능성 처방식 급여 안내] 현재 확인된 장기의 부담을 근본적으로 덜어주기 위해 일반 사료와 고지방·고염분 간식을 중단하고, 수의사가 처방한 전용 처방식(간·담낭 / 신장 / 비뇨기 / 위장관 처방식)을 주식으로 급여해 주세요.', checked: true },
+    { id: 'prev_supp', text: '• [핵심 기능성 영양제 조합 권장] 치료 및 예방 효과를 높이기 위해 간보호제(실리마린/SAMe), 고순도 오메가-3(항염·혈행개선), 유산균(장면역), 관절 또는 심장 보조제를 아이의 상태에 맞게 꾸준히 급여해 주시기 바랍니다.', checked: true }
   ];
+
+  // 문제 검사 항목 테이블 렌더링
+  function renderProblemTable() {
+    const tbody = document.getElementById('probTableBody');
+    tbody.innerHTML = '';
+    problemRows.forEach((row, idx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" value="${row.item}" placeholder="항목명" oninput="updateProbRow(${idx}, 'item', this.value)"></td>
+        <td><input type="text" value="${row.norm}" placeholder="정상범위" oninput="updateProbRow(${idx}, 'norm', this.value)"></td>
+        <td><input type="text" value="${row.res}" placeholder="결과값" oninput="updateProbRow(${idx}, 'res', this.value)"></td>
+        <td>
+          <select onchange="updateProbRow(${idx}, 'judge', this.value)">
+            <option value="▲ 상승" ${row.judge==='▲ 상승'?'selected':''}>▲ 상승</option>
+            <option value="▼ 저하" ${row.judge==='▼ 저하'?'selected':''}>▼ 저하</option>
+            <option value="▲ 경계상승" ${row.judge==='▲ 경계상승'?'selected':''}>▲ 경계상승</option>
+            <option value="▲ 경계비대" ${row.judge==='▲ 경계비대'?'selected':''}>▲ 경계비대</option>
+            <option value="주의관찰" ${row.judge==='주의관찰'?'selected':''}>주의관찰</option>
+            <option value="이상소견" ${row.judge==='이상소견'?'selected':''}>이상소견</option>
+            <option value="양성(+)" ${row.judge==='양성(+)'?'selected':''}>양성(+)</option>
+          </select>
+        </td>
+        <td><button class="del-row-btn" onclick="removeProblemRow(${idx})">X</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function addProblemRow(item, norm, res, judge) {
+    problemRows.push({ item, norm, res, judge });
+    renderProblemTable();
+    sync();
+  }
+
+  function updateProbRow(idx, key, val) {
+    problemRows[idx][key] = val;
+    sync();
+  }
+
+  function removeProblemRow(idx) {
+    problemRows.splice(idx, 1);
+    renderProblemTable();
+    sync();
+  }
 
   function renderCheckboxGroup(containerId, list, isCategorized = false) {
     const container = document.getElementById(containerId);
@@ -868,24 +1075,29 @@
 
   function createChkLabel(item) {
     const label = document.createElement('label');
-    label.className = 'chk-item ' + (item.type === 'warn' ? 'warn-item' : (item.type === 'normal' ? 'normal-item' : ''));
+    let cls = 'chk-item';
+    if (item.type === 'warn') cls += ' warn-item';
+    else if (item.type === 'normal') cls += ' normal-item';
+    else if (item.type === 'deep') cls += ' deep-item';
+
+    label.className = cls;
     label.innerHTML = `<input type="checkbox" id="${item.id}" ${item.checked ? 'checked' : ''} onchange="sync()"><span>${item.text}</span>`;
     return label;
   }
 
-  function getCheckedTexts(list, isCategorized = false) {
+  function getCheckedTexts(list, isCategorized = false, addBullet = false) {
     const selected = [];
     if (isCategorized) {
       list.forEach(group => {
         group.items.forEach(item => {
           const el = document.getElementById(item.id);
-          if (el && el.checked) selected.push('• ' + item.text);
+          if (el && el.checked) selected.push((addBullet ? '• ' : '') + item.text);
         });
       });
     } else {
       list.forEach(item => {
         const el = document.getElementById(item.id);
-        if (el && el.checked) selected.push(item.text);
+        if (el && el.checked) selected.push((addBullet ? '• ' : '') + item.text);
       });
     }
     return selected.join('\n');
@@ -895,15 +1107,20 @@
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('examDate').value = today;
 
+    renderProblemTable();
     renderCheckboxGroup('extExamCheckboxes', extExamPresets, true);
-    renderCheckboxGroup('organCheckboxes', organPresets, false);
+    renderCheckboxGroup('organCheckboxes', organDeepPresets, true);
     renderCheckboxGroup('monitorCheckboxes', monitorPresets, false);
     renderCheckboxGroup('preventCheckboxes', preventPresets, false);
 
-    const saved = localStorage.getItem('23si_hc_v2_data');
+    const saved = localStorage.getItem('23si_hc_v3_data');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        if (parsed.problemRows) {
+          problemRows = parsed.problemRows;
+          renderProblemTable();
+        }
         if (parsed.fields) {
           Object.keys(parsed.fields).forEach(id => {
             const el = document.getElementById(id);
@@ -949,7 +1166,7 @@
     setTxt('outIopR', getVal('vIopR'));
 
     // 외부 신체검사 조합
-    let extResult = getCheckedTexts(extExamPresets, true);
+    let extResult = getCheckedTexts(extExamPresets, true, true);
     const customExt = getVal('extCustomText').trim();
     if (customExt) {
       extResult += (extResult ? '\n' : '') + '• [추가 소견] ' + customExt;
@@ -959,16 +1176,42 @@
     // 핵심 중점 관리 포인트
     setTxt('outTopFocus', getVal('topFocusText'));
 
-    // 7대 장기별 문제점 및 관리방향
-    const organResult = getCheckedTexts(organPresets, false);
+    // 문제 검사 항목 리스트 표 출력 동기화
+    const outProbBody = document.getElementById('outProbTableBody');
+    outProbBody.innerHTML = '';
+    if (problemRows.length === 0) {
+      outProbBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#059669; font-weight:700; padding:6px;">특이 이상 수치가 발견되지 않았으며 전반적으로 양호합니다.</td></tr>';
+    } else {
+      problemRows.forEach(r => {
+        let jClass = 'judge-warn';
+        if (r.judge.includes('상승') || r.judge.includes('비대') || r.judge.includes('양성') || r.judge.includes('이상')) jClass = 'judge-high';
+        else if (r.judge.includes('저하')) jClass = 'judge-low';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight:700;">${r.item || '-'}</td>
+          <td style="text-align:center; color:#475569;">${r.norm || '-'}</td>
+          <td style="text-align:center; font-weight:700;">${r.res || '-'}</td>
+          <td class="${jClass}">${r.judge}</td>
+        `;
+        outProbBody.appendChild(tr);
+      });
+    }
+
+    // 7대 장기별 문제점 및 심층 대책
+    let organResult = getCheckedTexts(organDeepPresets, true, false);
+    const customOrgan = getVal('organCustomText').trim();
+    if (customOrgan) {
+      organResult += (organResult ? '\n' : '') + '• [추가 맞춤 대책] ' + customOrgan;
+    }
     setTxt('outOrganFindings', organResult || '• 주요 장기 특이 문제점 없음');
 
     // 정밀 추적 모니터링 안내
-    const monitorResult = getCheckedTexts(monitorPresets, false);
+    const monitorResult = getCheckedTexts(monitorPresets, false, false);
     setTxt('outMonitorGuide', monitorResult || '• 현재 연령 기준 6개월 간격의 정기 혈액·영상 추적 검사를 권장합니다.');
 
     // 예방의학 & 처방식·영양제
-    const preventResult = getCheckedTexts(preventPresets, false);
+    const preventResult = getCheckedTexts(preventPresets, false, false);
     setTxt('outPreventPlan', preventResult || '• 정기 예방접종 및 심장사상충 예방을 꾸준히 유지해 주세요.');
 
     // 최종 총평 및 다음 재검 스케줄
@@ -1003,7 +1246,7 @@
   }
 
   function collectAllData() {
-    const fieldIds = ['pName','oName','pSpecies','pBreed','pSex','pAge','pLifeStage','examDate','vWeight','vBcs','vTemp','vHr','vRr','vBp','vIopL','vIopR','extCustomText','topFocusSelect','topFocusText','finalReviewText','nextScheduleText'];
+    const fieldIds = ['pName','oName','pSpecies','pBreed','pSex','pAge','pLifeStage','examDate','vWeight','vBcs','vTemp','vHr','vRr','vBp','vIopL','vIopR','extCustomText','topFocusSelect','topFocusText','organCustomText','finalReviewText','nextScheduleText'];
     const fields = {};
     fieldIds.forEach(id => { const el = document.getElementById(id); if (el) fields[id] = el.value; });
 
@@ -1011,11 +1254,11 @@
     document.querySelectorAll('input[type="checkbox"]').forEach(chk => {
       checks[chk.id] = chk.checked;
     });
-    return { fields, checks };
+    return { fields, checks, problemRows };
   }
 
   function saveData() {
-    localStorage.setItem('23si_hc_v2_data', JSON.stringify(collectAllData()));
+    localStorage.setItem('23si_hc_v3_data', JSON.stringify(collectAllData()));
     alert('✅ 현재 맞춤형 건강검진 결과 리포트가 브라우저에 저장되었습니다.');
   }
 
@@ -1026,7 +1269,7 @@
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${pName}_건강검진리포트_${date}.json`;
+    a.download = `${pName}_건강검진심층리포트_${date}.json`;
     a.click();
   }
 
@@ -1037,6 +1280,10 @@
     reader.onload = ev => {
       try {
         const parsed = JSON.parse(ev.target.result);
+        if (parsed.problemRows) {
+          problemRows = parsed.problemRows;
+          renderProblemTable();
+        }
         if (parsed.fields) {
           Object.keys(parsed.fields).forEach(id => {
             const el = document.getElementById(id);
@@ -1060,7 +1307,7 @@
 
   function resetForm() {
     if (!confirm('입력 및 체크된 모든 내용을 초기 상태로 되돌리시겠습니까?')) return;
-    localStorage.removeItem('23si_hc_v2_data');
+    localStorage.removeItem('23si_hc_v3_data');
     location.reload();
   }
 
