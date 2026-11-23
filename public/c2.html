@@ -1082,8 +1082,10 @@ function submitSelectedIconNote(idx) {
 function appendIcuLine(idx, tag, detail = '') {
   const now = new Date();
   const nowStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+  // TXT/clipboard용 순수 텍스트: 이모지·장식 제거, 기록은 한 줄씩
+  const plainTag = String(tag).replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim();
   const area = $('icuLog' + idx);
-  area.value += `[${nowStr}] ${tag}${detail ? ' : ' + detail : ''}\n`;
+  area.value += `[${nowStr}] ${plainTag}${detail ? ': ' + detail : ''}\n`;
   area.scrollTop = area.scrollHeight;
 }
 
@@ -1091,11 +1093,8 @@ function buildIcuReport(idx) {
   const pt = $('icuPt' + idx).value.trim() || `ICU_${idx + 1}번환자`;
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  return `[23시 하단오거리 동물병원 집중 ICU #${idx + 1} 처치 장부 - ${today}]
-- 환자정보: ${pt}
-- 상태게이지: 밥 ${$('gF' + idx).textContent} | 물 ${$('gW' + idx).textContent} | 활력 ${$('gV' + idx).textContent} | 수액잔량 ${$('gL' + idx).textContent}
---------------------------------------------------
-${$('icuLog' + idx).value.trim() || '(기록된 처치 내역 없음)'}`;
+  const log = $('icuLog' + idx).value.trim() || '기록된 처치 내역 없음';
+  return `집중 ICU #${idx + 1} 처치 기록\n날짜: ${today}\n환자: ${pt}\n상태: 밥 ${$('gF' + idx).textContent}, 물 ${$('gW' + idx).textContent}, 활력 ${$('gV' + idx).textContent}, 수액잔량 ${$('gL' + idx).textContent}\n\n${log}`;
 }
 
 function copyIcu(idx) {
