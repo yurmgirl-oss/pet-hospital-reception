@@ -1082,10 +1082,12 @@ function submitSelectedIconNote(idx) {
 function appendIcuLine(idx, tag, detail = '') {
   const now = new Date();
   const nowStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-  // TXT/clipboard용 순수 텍스트: 이모지·장식 제거, 기록은 한 줄씩
-  const plainTag = String(tag).replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim();
+  // 순수 TXT: 기록 1건을 반드시 1줄로 저장 (입력에 포함된 줄바꿈도 제거)
+  const plainTag = String(tag).replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, '').trim();
+  const plainDetail = String(detail).replace(/[\r\n]+/g, ' ').trim();
   const area = $('icuLog' + idx);
-  area.value += `[${nowStr}] ${plainTag}${detail ? ': ' + detail : ''}\n`;
+  const previous = area.value.replace(/[\r\n]+$/, '');
+  area.value = (previous ? previous + '\r\n' : '') + `[${nowStr}] ${plainTag}${plainDetail ? ': ' + plainDetail : ''}\r\n`;
   area.scrollTop = area.scrollHeight;
 }
 
@@ -1093,19 +1095,42 @@ function buildIcuReport(idx) {
   const pt = $('icuPt' + idx).value.trim() || `ICU_${idx + 1}번환자`;
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  const log = $('icuLog' + idx).value.trim() || '기록된 처치 내역 없음';
-  return `집중 ICU #${idx + 1} 처치 기록\n날짜: ${today}\n환자: ${pt}\n상태: 밥 ${$('gF' + idx).textContent}, 물 ${$('gW' + idx).textContent}, 활력 ${$('gV' + idx).textContent}, 수액잔량 ${$('gL' + idx).textContent}\n\n${log}`;
+  // Windows 메모장/일반 프로그램에서 줄바꿈이 확실히 보이도록 CRLF로 통일
+  const rawLog = $('icuLog' + idx).value.replace(/\r\n?/g, '\n').trim();
+  const log = rawLog ? rawLog.split('\n').map(line => line.trim()).filter(Boolean).join('\r\n') : '기록된 처치 내역 없음';
+  return [
+    `집중 ICU #${idx + 1} 처치 기록`,
+    `날짜: ${today}`,
+    `환자: ${pt}`,
+    `상태: 밥 ${$('gF' + idx).textContent}, 물 ${$('gW' + idx).textContent}, 활력 ${$('gV' + idx).textContent}, 수액잔량 ${$('gL' + idx).textContent}`,
+    '',
+    log
+  ].join('\r\n');
 }
 
-function copyIcu(idx) {
-  navigator.clipboard.writeText(buildIcuReport(idx)).then(() => alert(`집중 ICU #${idx + 1} 장부가 복사되었습니다.`));
+async function copyIcu(idx) {
+  const text = buildIcuReport(idx);
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (e) {
+    // Clipboard API가 제한된 환경에서는 textarea 기반 복사로 fallback
+    const temp = document.createElement('textarea');
+    temp.value = text;
+    temp.style.position = 'fixed';
+    temp.style.left = '-9999px';
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    temp.remove();
+  }
+  alert(`집중 ICU #${idx + 1} 장부가 복사되었습니다.`);
 }
 
 function saveIcuTxt(idx) {
   const pt = ($('icuPt' + idx).value.trim() || `ICU_${idx + 1}번`).replace(/[\\/:*?"<>|]/g, '_');
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  const blob = new Blob([buildIcuReport(idx)], { type: 'text/plain;charset=utf-8' });
+  const blob = new Blob(['\ufeff', buildIcuReport(idx)], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
