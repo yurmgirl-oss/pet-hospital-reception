@@ -20,7 +20,7 @@
     background: var(--bg);
     color: var(--ink);
     font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-    padding: 12px 16px;
+    padding: 10px 14px;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -35,55 +35,55 @@
   header.toolbar {
     background: #ffffff;
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 11px 16px;
-    margin-bottom: 10px;
+    border-radius: 12px;
+    padding: 9px 14px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   }
   .brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
   }
   .brand-badge {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
     background: linear-gradient(135deg, #2563eb, #1e40af);
     color: #fff;
     display: grid;
     place-items: center;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 900;
     box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
   }
   .title {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -0.4px;
   }
   .subtitle {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--muted);
     margin-top: 1px;
   }
   .actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     flex-wrap: wrap;
   }
   button {
     border: 1px solid transparent;
-    border-radius: 8px;
-    padding: 7px 11px;
-    font-size: 12px;
+    border-radius: 7px;
+    padding: 6px 10px;
+    font-size: 11.5px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -106,121 +106,113 @@
     background: #1d4ed8;
   }
 
-  /* A4 용지 시트 컨테이너 (이미지 저장 및 인쇄 기준 영역) */
+  /* A4 용지 시트 컨테이너 (상하 여백 컴팩트화) */
   #capture.a4-sheet {
     width: 794px;
     background: #ffffff;
     border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    padding: 18px 20px;
+    border-radius: 10px;
+    padding: 12px 16px;
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
   }
 
-  /* 견적서 상단 타이틀 배너 */
+  /* 견적서 상단 타이틀 배너 (상하 여백 축소) */
   .sheet-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 2px solid #0f172a;
-    padding-bottom: 8px;
-    margin-bottom: 2px;
-    gap: 10px;
+    padding-bottom: 5px;
+    margin-bottom: 0;
+    gap: 8px;
   }
   .sheet-title {
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 900;
     color: #0f172a;
     letter-spacing: -0.4px;
   }
   .sheet-clinic {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     color: #475569;
     text-align: right;
   }
 
-  /* 동물이름 및 일시(연월일시) 기록 바 */
+  /* 동물이름(축소) 및 자동 일시(연월일시분초) 바 */
   .patient-meta-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     background: #f8fafc;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 6px 12px;
+    border-radius: 6px;
+    padding: 3px 10px;
   }
   .meta-field {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
   }
   .meta-label {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 800;
     color: #334155;
     white-space: nowrap;
   }
-  .meta-input {
+  .pet-name-input {
+    width: 110px;
     border: 1px solid #cbd5e1;
     background: #ffffff;
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 13px;
+    border-radius: 5px;
+    padding: 2px 6px;
+    font-size: 12px;
     font-weight: 700;
     color: #0f172a;
     font-family: inherit;
+    height: 23px;
   }
-  .meta-input:focus {
+  .pet-name-input:focus {
     border-color: #2563eb;
     outline: none;
   }
-  .pet-name-input {
-    width: 170px;
-  }
-  .date-time-input {
-    width: 215px;
-  }
-  .now-btn {
-    padding: 4px 8px;
-    font-size: 11px;
-    background: #e2e8f0;
-    color: #1e293b;
-    border-radius: 6px;
-  }
-  .now-btn:hover {
-    background: #cbd5e1;
+  .auto-datetime-text {
+    font-size: 12px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.2px;
   }
 
-  /* 좌우 2열 그리드 */
+  /* 좌우 2열 그리드 (상하 간격 축소) */
   .main-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
     align-items: start;
   }
   .col-stack {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
   }
 
   .frame {
     background: #ffffff;
     border: 1px solid #cbd5e1;
-    border-top: 3.5px solid var(--color);
-    border-radius: 10px;
+    border-top: 3px solid var(--color);
+    border-radius: 8px;
     display: block;
     overflow: hidden;
     width: 100%;
   }
 
   .frame-head {
-    padding: 6px 10px;
+    padding: 4px 9px;
     background: var(--tint);
     border-bottom: 1px solid #dbe3ec;
     display: flex;
@@ -231,15 +223,15 @@
   .frame-title-wrap {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 6px;
   }
   .num-pill {
-    width: 20px;
-    height: 20px;
-    border-radius: 5px;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
     background: var(--color);
     color: #fff;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 800;
     display: inline-flex;
     align-items: center;
@@ -248,32 +240,32 @@
   }
   .frame-head h2 {
     margin: 0;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -0.3px;
   }
   .frame-sub {
-    font-size: 10.5px;
+    font-size: 10px;
     color: var(--muted);
     font-weight: 600;
   }
 
-  /* 검사/처치 항목 리스트 */
+  /* 검사/처치 항목 리스트 (상하 여백 타이트하게 조정) */
   .items {
-    padding: 5px 8px 6px 10px;
+    padding: 3px 7px 4px 9px;
     display: block;
   }
   .item {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 2px 4px;
-    margin-bottom: 2px;
-    border-radius: 6px;
+    gap: 4px;
+    padding: 1px 3px;
+    margin-bottom: 1.5px;
+    border-radius: 5px;
     border: 1px solid transparent;
     width: 100%;
-    min-height: 24px;
+    min-height: 21px;
   }
   .item:last-child {
     margin-bottom: 0;
@@ -286,8 +278,8 @@
     border-color: var(--color);
   }
   .item input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
+    width: 13.5px;
+    height: 13.5px;
     accent-color: var(--color);
     margin: 0;
     cursor: pointer;
@@ -297,22 +289,22 @@
   .name-price-pair {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     flex: 1;
     min-width: 0;
   }
   .name-input {
     width: 225px;
-    max-width: calc(100% - 84px);
+    max-width: calc(100% - 82px);
     flex: 1 1 auto;
     border: 1px solid transparent;
     background: transparent;
     border-radius: 4px;
-    padding: 2px 4px;
-    font-size: 12.5px;
+    padding: 1px 4px;
+    font-size: 12px;
     font-weight: 700;
     color: #1e293b;
-    line-height: 1.3;
+    line-height: 1.25;
   }
   .name-input.extra-empty {
     color: #94a3b8;
@@ -332,29 +324,29 @@
     flex: none;
     background: #f8fafc;
     border: 1px solid #cbd5e1;
-    border-radius: 5px;
-    padding: 1px 5px;
+    border-radius: 4px;
+    padding: 0.5px 5px;
   }
   .item.selected .price-box {
     background: #fff;
     border-color: var(--color);
   }
   .price-input {
-    width: 62px;
+    width: 60px;
     border: none;
     background: transparent;
     text-align: right;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     color: #0f172a;
-    padding: 1px 0;
-    line-height: 1.3;
+    padding: 0.5px 0;
+    line-height: 1.25;
   }
   .price-input:focus {
     outline: none;
   }
   .won {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 600;
     color: #64748b;
   }
@@ -362,17 +354,17 @@
     border: none;
     background: #fee2e2;
     color: #dc2626;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 700;
-    padding: 2px 5px;
+    padding: 1.5px 5px;
     border-radius: 4px;
     flex: none;
   }
 
   /* 하단 추가 바 */
   .add-bar {
-    margin-top: 4px;
-    padding-top: 4px;
+    margin-top: 3px;
+    padding-top: 3px;
     border-top: 1px dashed #e2e8f0;
     display: flex;
     gap: 4px;
@@ -381,9 +373,9 @@
     flex: 1;
     min-width: 0;
     border: 1px solid #cbd5e1;
-    border-radius: 5px;
-    padding: 3px 7px;
-    font-size: 11px;
+    border-radius: 4px;
+    padding: 2.5px 6px;
+    font-size: 10.5px;
     background: #f8fafc;
   }
   .add-bar input:focus {
@@ -394,26 +386,26 @@
   .add-bar button {
     background: var(--color);
     color: #fff;
-    padding: 3px 8px;
-    font-size: 11px;
-    border-radius: 5px;
+    padding: 2.5px 7px;
+    font-size: 10.5px;
+    border-radius: 4px;
     flex: none;
   }
 
-  /* 하단 견적 요약 패널 */
+  /* 하단 견적 요약 패널 (상하 여백 축소) */
   .summary {
     background: #f8fafc;
     border: 1.5px solid #cbd5e1;
-    border-radius: 10px;
-    padding: 11px 14px;
+    border-radius: 8px;
+    padding: 8px 12px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 215px;
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) 205px;
+    gap: 10px;
     width: 100%;
   }
   .summary-title {
-    margin: 0 0 6px;
-    font-size: 13.5px;
+    margin: 0 0 4px;
+    font-size: 13px;
     font-weight: 800;
     color: #0f172a;
     display: flex;
@@ -423,17 +415,17 @@
   .selected-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 4px 8px;
+    gap: 3px 7px;
   }
   .sel-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 6px;
-    font-size: 11.5px;
-    padding: 3px 7px;
+    font-size: 11px;
+    padding: 2px 6px;
     background: #ffffff;
-    border-radius: 5px;
+    border-radius: 4px;
     border: 1px solid #dbe3ec;
   }
   .sel-name {
@@ -449,15 +441,15 @@
     flex: none;
   }
   .empty-msg {
-    font-size: 11.5px;
+    font-size: 11px;
     color: #94a3b8;
-    padding: 4px 0;
+    padding: 2px 0;
   }
   .total-card {
     background: linear-gradient(145deg, #0f172a, #1e293b);
     color: #fff;
-    border-radius: 9px;
-    padding: 10px 12px;
+    border-radius: 8px;
+    padding: 8px 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -465,69 +457,68 @@
     text-align: center;
   }
   .total-label {
-    font-size: 11.5px;
+    font-size: 11px;
     color: #cbd5e1;
     font-weight: 600;
   }
   .total-amount {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
     color: #38bdf8;
-    margin: 2px 0;
+    margin: 1px 0;
     letter-spacing: -0.5px;
   }
   .total-count {
-    font-size: 10.5px;
+    font-size: 10px;
     background: rgba(255, 255, 255, 0.14);
-    padding: 2px 9px;
+    padding: 1.5px 8px;
     border-radius: 999px;
     color: #e2e8f0;
   }
   .note {
-    margin-top: 6px;
-    font-size: 10.5px;
+    margin-top: 4px;
+    font-size: 10px;
     color: #64748b;
   }
 
-  /* html2canvas 캡처 시 input 글자 잘림/겹침 방지용 대체 텍스트 스타일 */
+  /* html2canvas 캡처 시 스타일 (상하 여백을 줄여 내용 높이만큼 깔끔하게 캡처) */
   .capture-mode .add-bar,
   .capture-mode .del-btn,
-  .capture-mode .blank-extra,
-  .capture-mode .now-btn {
+  .capture-mode .blank-extra {
     display: none !important;
   }
   .capture-meta-val {
     display: inline-block;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     color: #0f172a;
-    padding: 2px 4px;
+    padding: 1px 2px;
   }
   .capture-text-val {
     display: inline-block;
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 700;
     color: #1e293b;
-    padding: 2px 4px;
-    line-height: 1.3;
+    padding: 1px 4px;
+    line-height: 1.25;
     flex: 1 1 auto;
     word-break: keep-all;
   }
   .capture-price-val {
     display: inline-block;
-    min-width: 56px;
+    min-width: 54px;
     text-align: right;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
     color: #0f172a;
-    padding: 1px 0;
-    line-height: 1.3;
+    padding: 0.5px 0;
+    line-height: 1.25;
   }
 
-  /* A4 세로 용지 100% 꽉 차게 인쇄 */
+  /* A4 세로 용지 인쇄 (상하 여백 축소 및 자연스러운 상단 밀착 배치) */
   @page {
     size: A4 portrait;
-    margin: 6mm;
+    margin: 5mm;
   }
   @media print {
     html, body {
@@ -541,132 +532,136 @@
     header.toolbar,
     .add-bar,
     .del-btn,
-    .blank-extra,
-    .now-btn {
+    .blank-extra {
       display: none !important;
     }
     .wrap {
-      width: 198mm !important;
-      max-width: 198mm !important;
+      width: 200mm !important;
+      max-width: 200mm !important;
       margin: 0 auto !important;
     }
     #capture.a4-sheet {
-      width: 198mm !important;
-      max-width: 198mm !important;
-      min-height: 282mm !important;
+      width: 200mm !important;
+      max-width: 200mm !important;
+      min-height: auto !important;
       border: none !important;
       border-radius: 0 !important;
       box-shadow: none !important;
-      padding: 2mm 2mm !important;
-      justify-content: space-between;
+      padding: 1mm 2mm !important;
+      gap: 2mm !important;
     }
     .sheet-header {
-      padding-bottom: 2mm;
-      margin-bottom: 1.5mm;
+      padding-bottom: 1.5mm;
+      margin-bottom: 0;
     }
     .sheet-title {
-      font-size: 15.5pt;
+      font-size: 15pt;
     }
     .sheet-clinic {
-      font-size: 9.5pt;
+      font-size: 9pt;
     }
     .patient-meta-bar {
-      padding: 1.5mm 3mm !important;
-      margin-bottom: 1.5mm !important;
+      padding: 1mm 2.5mm !important;
+      margin-bottom: 0 !important;
     }
     .meta-label {
-      font-size: 9.5pt !important;
+      font-size: 9pt !important;
     }
-    .meta-input {
+    .pet-name-input {
+      width: 28mm !important;
+      height: auto !important;
       border: none !important;
       background: transparent !important;
       padding: 0 !important;
-      font-size: 10pt !important;
+      font-size: 9.5pt !important;
+    }
+    .auto-datetime-text {
+      font-size: 9.5pt !important;
     }
     .main-grid {
       grid-template-columns: 1fr 1fr !important;
-      gap: 3mm !important;
+      gap: 2.5mm !important;
       align-items: start !important;
     }
     .col-stack {
-      gap: 2.5mm !important;
+      gap: 2mm !important;
     }
     .frame {
       border: 1px solid #cbd5e1 !important;
-      border-top: 3px solid var(--color) !important;
-      border-radius: 6px !important;
+      border-top: 2.5px solid var(--color) !important;
+      border-radius: 5px !important;
       break-inside: avoid;
     }
     .frame-head {
-      padding: 1.8mm 2.5mm !important;
+      padding: 1.2mm 2.2mm !important;
     }
     .frame-head h2 {
-      font-size: 10.5pt !important;
+      font-size: 10pt !important;
     }
     .frame-sub {
-      font-size: 8pt !important;
+      font-size: 7.5pt !important;
     }
     .items {
-      padding: 1.5mm 2.2mm !important;
+      padding: 1mm 2mm !important;
     }
     .item {
-      padding: 0.7mm 1mm !important;
-      margin-bottom: 0.5mm !important;
-      min-height: 5.5mm !important;
+      padding: 0.4mm 1mm !important;
+      margin-bottom: 0.3mm !important;
+      min-height: 4.8mm !important;
     }
     .item input[type="checkbox"] {
-      width: 3.4mm !important;
-      height: 3.4mm !important;
+      width: 3.2mm !important;
+      height: 3.2mm !important;
     }
     .name-input {
-      font-size: 9.2pt !important;
+      font-size: 8.8pt !important;
       padding: 0 1mm !important;
     }
     .price-box {
-      padding: 0.3mm 1.5mm !important;
+      padding: 0.2mm 1.2mm !important;
     }
     .price-input {
-      width: 14mm !important;
-      font-size: 9pt !important;
+      width: 13.5mm !important;
+      font-size: 8.8pt !important;
     }
     .won {
-      font-size: 8pt !important;
+      font-size: 7.8pt !important;
     }
     .summary {
-      margin-top: 2mm !important;
-      padding: 3mm 4mm !important;
-      grid-template-columns: minmax(0, 1fr) 52mm !important;
-      gap: 3mm !important;
-      border-radius: 7px !important;
+      margin-top: 1.5mm !important;
+      padding: 2mm 3mm !important;
+      grid-template-columns: minmax(0, 1fr) 48mm !important;
+      gap: 2.5mm !important;
+      border-radius: 6px !important;
       break-inside: avoid;
     }
     .summary-title {
-      font-size: 10.5pt !important;
-      margin-bottom: 1.5mm !important;
+      font-size: 10pt !important;
+      margin-bottom: 1mm !important;
     }
     .selected-grid {
-      gap: 1.2mm 2.5mm !important;
+      gap: 1mm 2mm !important;
     }
     .sel-row {
-      font-size: 8.5pt !important;
-      padding: 0.8mm 2mm !important;
+      font-size: 8.2pt !important;
+      padding: 0.5mm 1.8mm !important;
     }
     .note {
-      font-size: 7.8pt !important;
-      margin-top: 1.5mm !important;
+      font-size: 7.5pt !important;
+      margin-top: 1mm !important;
     }
     .total-card {
-      padding: 2.5mm !important;
-      border-radius: 6px !important;
+      padding: 2mm !important;
+      border-radius: 5px !important;
     }
     .total-label {
-      font-size: 9pt !important;
+      font-size: 8.5pt !important;
     }
     .total-amount {
-      font-size: 17pt !important;
+      font-size: 16pt !important;
     }
     .total-count {
-      font-size: 8pt !important;
+      font-size: 7.5pt !important;
     }
   }
 </style>
@@ -679,13 +674,13 @@
       <div class="brand-badge">🐾</div>
       <div>
         <div class="title">건강검진 및 처치 예상 견적 계산기</div>
-        <div class="subtitle">동물이름과 일시를 입력하고 항목을 체크하면 A4 규격에 맞춰 저장·인쇄됩니다.</div>
+        <div class="subtitle">동물이름을 입력하고 항목을 체크하면 자동 일시와 함께 A4 규격으로 저장·인쇄됩니다.</div>
       </div>
     </div>
     <div class="actions">
       <button type="button" class="btn-outline" onclick="resetChecks()">선택 초기화</button>
       <button type="button" class="btn-primary" onclick="saveImage()">🖼 A4 이미지 저장</button>
-      <button type="button" class="btn-outline" onclick="window.print()">🖨 A4 인쇄</button>
+      <button type="button" class="btn-outline" onclick="printSheet()">🖨 A4 인쇄</button>
       <button type="button" class="btn-outline" onclick="resetDefaults()">기본값 복원</button>
     </div>
   </header>
@@ -696,16 +691,15 @@
       <div class="sheet-clinic">23시 하단오거리 동물병원 · 051) 264-8275</div>
     </div>
 
-    <!-- 동물이름 및 날짜(연월일시) 입력 영역 -->
+    <!-- 동물이름(작은 입력칸) 및 자동 생성 일시(연월일시분초) -->
     <div class="patient-meta-bar">
       <div class="meta-field">
         <span class="meta-label">동물이름 :</span>
-        <input type="text" id="petName" class="meta-input pet-name-input" placeholder="예) 보리 / 초코" oninput="saveMeta()">
+        <input type="text" id="petName" class="pet-name-input" placeholder="이름 입력" oninput="saveMeta()">
       </div>
       <div class="meta-field">
         <span class="meta-label">견적일시 :</span>
-        <input type="text" id="estimateDateTime" class="meta-input date-time-input" placeholder="예) 2026년 11월 25일 13시" oninput="saveMeta()">
-        <button type="button" class="now-btn" onclick="setNowDateTime()" title="현재 연월일시로 갱신">현재시간</button>
+        <span id="autoDateTime" class="auto-datetime-text"></span>
       </div>
     </div>
 
@@ -825,35 +819,35 @@ const categories = [
 ];
 
 const STORAGE_KEY = 'vet_checkup_price_v3_priced';
-const META_STORAGE_KEY = 'vet_checkup_meta_v1';
+const META_STORAGE_KEY = 'vet_checkup_meta_v2';
 let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 let meta = JSON.parse(localStorage.getItem(META_STORAGE_KEY) || '{}');
 
-function formatKoreanDateTime(d = new Date()) {
+function formatKoreanDateTimeFull(d = new Date()) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   const h = String(d.getHours()).padStart(2, '0');
-  return `${y}년 ${m}월 ${day}일 ${h}시`;
+  const min = String(d.getMinutes()).padStart(2, '0');
+  const sec = String(d.getSeconds()).padStart(2, '0');
+  return `${y}년 ${m}월 ${day}일 ${h}시 ${min}분 ${sec}초`;
+}
+
+function updateClock() {
+  const el = document.getElementById('autoDateTime');
+  if (el) el.textContent = formatKoreanDateTimeFull();
 }
 
 function initMeta() {
   const petInp = document.getElementById('petName');
-  const dateInp = document.getElementById('estimateDateTime');
   petInp.value = meta.petName || '';
-  dateInp.value = meta.estimateDateTime || formatKoreanDateTime();
-  saveMeta();
+  updateClock();
+  setInterval(updateClock, 1000);
 }
 
 function saveMeta() {
   meta.petName = document.getElementById('petName').value;
-  meta.estimateDateTime = document.getElementById('estimateDateTime').value;
   localStorage.setItem(META_STORAGE_KEY, JSON.stringify(meta));
-}
-
-function setNowDateTime() {
-  document.getElementById('estimateDateTime').value = formatKoreanDateTime();
-  saveMeta();
 }
 
 (function migrateMovedItems(){
@@ -1113,7 +1107,8 @@ function renderSummary() {
 function resetChecks() {
   Object.values(data).forEach(x => { x.checked = false; });
   document.getElementById('petName').value = '';
-  setNowDateTime();
+  saveMeta();
+  updateClock();
   save();
   render();
 }
@@ -1125,12 +1120,19 @@ function resetDefaults() {
   render();
 }
 
+function printSheet() {
+  updateClock();
+  window.print();
+}
+
 async function saveImage() {
   const target = document.getElementById('capture');
   if (!window.html2canvas) {
     alert('이미지 저장 기능을 불러오지 못했습니다. 인쇄 기능을 이용해주세요.');
     return;
   }
+
+  updateClock();
 
   const clone = target.cloneNode(true);
   clone.id = 'capture-clone';
@@ -1139,26 +1141,21 @@ async function saveImage() {
   clone.style.left = '-9999px';
   clone.style.top = '0';
   clone.style.width = '794px';
-  clone.style.minHeight = '1123px';
-  clone.style.display = 'flex';
-  clone.style.flexDirection = 'column';
-  clone.style.justifyContent = 'space-between';
   clone.style.border = 'none';
   clone.style.borderRadius = '0';
   clone.style.boxShadow = 'none';
   clone.style.background = '#ffffff';
+  clone.style.padding = '12px 16px';
 
-  // 동물이름 및 일시(연월일시) input을 정적 텍스트로 치환
-  const origMetaInputs = target.querySelectorAll('.meta-input');
-  const cloneMetaInputs = clone.querySelectorAll('.meta-input');
-  origMetaInputs.forEach((inp, idx) => {
-    const cInp = cloneMetaInputs[idx];
-    if (!cInp) return;
+  // 동물이름 input을 정적 텍스트로 치환
+  const origPetInp = document.getElementById('petName');
+  const clonePetInp = clone.querySelector('#petName');
+  if (clonePetInp) {
     const span = document.createElement('span');
     span.className = 'capture-meta-val';
-    span.textContent = inp.value.trim() || '-';
-    cInp.replaceWith(span);
-  });
+    span.textContent = (origPetInp.value || '').trim() || '-';
+    clonePetInp.replaceWith(span);
+  }
 
   // 원본 체크박스 상태 동기화 및 input -> 정적 텍스트 변환
   const origCheckboxes = target.querySelectorAll('input[type="checkbox"]');
@@ -1195,13 +1192,13 @@ async function saveImage() {
     const canvas = await html2canvas(clone, {
       scale: 2,
       width: 794,
-      height: Math.max(1123, clone.scrollHeight),
+      height: clone.scrollHeight,
       windowWidth: 794,
       backgroundColor: '#ffffff',
       useCORS: true
     });
-    const petNameClean = (document.getElementById('petName').value || '').trim().replace(/[\/:*?"<>|]/g, '');
-    const fileName = petNameClean ? `건강검진_예상견적서_${petNameClean}.png` : '건강검진_예상견적서_A4.png';
+    const petNameClean = (origPetInp.value || '').trim().replace(/[\/:*?"<>|]/g, '');
+    const fileName = petNameClean ? `건강검진_예상견적서_${petNameClean}.png` : '건강검진_예상견적서.png';
     const a = document.createElement('a');
     a.download = fileName;
     a.href = canvas.toDataURL('image/png');
