@@ -774,7 +774,10 @@ const categories = [
       { name: 'SDMA', price: 70000 },
       { name: 'CPL/FPL', price: 35000 },
       { name: '혈구검사+도말검사', price: 50000 },
-      { name: '현미경도말검사', price: 20000 }
+      { name: '현미경도말검사', price: 20000 },
+      { name: '심장사상충 키트검사', price: 35000 },
+      { name: '고양이전염병검사 3종', price: 120000 },
+      { name: '지알디아검사', price: 40000 }
          ],
     extra: 1
   },
@@ -812,13 +815,20 @@ const categories = [
       { name: '귀세정 / 귀처치', price: 10000 },
       { name: '항문낭', price: 5000 },
       { name: '피하수액 처치', price: 40000 },
-      { name: '주사처치 (1종당)', price: 12000 }
+      { name: '주사처치 (1종당)', price: 12000 },
+      { name: '외과처치', price: 0 },
+      { name: '외과수술', price: 0 },
+      { name: '구토유도처치', price: 120000 },
+      { name: '붕대밴딩', price: 30000 },
+      { name: '소독처치', price: 0 },
+      { name: '스켈링', price: 0 },
+      { name: '발치', price: 0 }
     ],
     extra: 10
   }
 ];
 
-const STORAGE_KEY = 'vet_checkup_price_v3_priced';
+const STORAGE_KEY = 'vet_checkup_price_v4_priced';
 const META_STORAGE_KEY = 'vet_checkup_meta_v2';
 let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 let meta = JSON.parse(localStorage.getItem(META_STORAGE_KEY) || '{}');
