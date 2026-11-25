@@ -184,7 +184,7 @@
     background: #eff6ff;
   }
 
-  /* [신설] 시행 검사 항목 검색 및 카테고리 선택 UI */
+  /* 시행 검사 항목 검색 및 카테고리 선택 UI */
   .scope-search-bar {
     display: flex;
     gap: 3px;
@@ -462,6 +462,45 @@
     border-top: 4px solid var(--primary);
     border-radius: 2px;
   }
+
+  /* JPG 이미지 저장용 클론 전용 스타일 (A4 비율, 스크롤 잘림 방지) */
+  .a4-sheet.jpg-capture-clone {
+    width: 794px !important;
+    min-height: 1123px !important;
+    height: auto !important;
+    padding: 28px 32px !important;
+    font-size: 14.5px !important;
+    line-height: 1.48 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border-top: 6px solid var(--primary) !important;
+  }
+  .a4-sheet.jpg-capture-clone .sheet-title { font-size: 22px !important; }
+  .a4-sheet.jpg-capture-clone .sheet-sub { font-size: 13px !important; }
+  .a4-sheet.jpg-capture-clone .exam-scope-banner { padding: 10px 14px !important; margin-bottom: 10px !important; }
+  .a4-sheet.jpg-capture-clone .exam-scope-title { font-size: 15.5px !important; }
+  .a4-sheet.jpg-capture-clone .exam-count-pill { font-size: 13px !important; padding: 3px 10px !important; }
+  .a4-sheet.jpg-capture-clone .exam-scope-list { font-size: 14.5px !important; line-height: 1.48 !important; }
+  .a4-sheet.jpg-capture-clone .exam-scope-disclaimer { font-size: 12.8px !important; padding: 6px 9px !important; line-height: 1.44 !important; }
+  .a4-sheet.jpg-capture-clone .report-box { padding: 10px 13px !important; margin-bottom: 10px !important; }
+  .a4-sheet.jpg-capture-clone .report-box-title { font-size: 15.5px !important; padding: 5px 11px !important; margin-bottom: 8px !important; }
+  .a4-sheet.jpg-capture-clone .master-roadmap-box { padding: 11px 14px !important; margin-bottom: 10px !important; }
+  .a4-sheet.jpg-capture-clone .master-roadmap-title { font-size: 16.5px !important; padding: 6px 12px !important; }
+  .a4-sheet.jpg-capture-clone .info-grid { font-size: 14px !important; gap: 7px !important; }
+  .a4-sheet.jpg-capture-clone .info-cell { padding: 6px 9px !important; }
+  .a4-sheet.jpg-capture-clone .report-table { font-size: 13.8px !important; }
+  .a4-sheet.jpg-capture-clone .report-table th,
+  .a4-sheet.jpg-capture-clone .report-table td { padding: 6px 8px !important; }
+  .a4-sheet.jpg-capture-clone .roadmap-table { font-size: 14px !important; }
+  .a4-sheet.jpg-capture-clone .roadmap-table th,
+  .a4-sheet.jpg-capture-clone .roadmap-table td { padding: 7px 9px !important; line-height: 1.44 !important; }
+  .a4-sheet.jpg-capture-clone .pre-text { font-size: 14px !important; line-height: 1.48 !important; }
+  .a4-sheet.jpg-capture-clone .focus-banner { padding: 10px 13px !important; margin-bottom: 10px !important; }
+  .a4-sheet.jpg-capture-clone .focus-banner-title { font-size: 15.5px !important; margin-bottom: 4px !important; }
+  .a4-sheet.jpg-capture-clone .lifetime-vet-banner { padding: 11px 14px !important; margin-top: 8px !important; }
+  .a4-sheet.jpg-capture-clone .lifetime-vet-title { font-size: 15.2px !important; margin-bottom: 4px !important; }
+  .a4-sheet.jpg-capture-clone .lifetime-vet-body { font-size: 13.5px !important; line-height: 1.48 !important; }
+  .a4-sheet.jpg-capture-clone .sheet-footer { font-size: 12.5px !important; padding-top: 8px !important; }
 
   .sheet-header {
     display: flex;
@@ -795,7 +834,7 @@
     </div>
     <div class="frame-body">
 
-      <!-- [신설] 26종 검사 항목 분류 배열 + 실시간 검색 선택기 -->
+      <!-- 26종 검사 항목 분류 배열 + 실시간 검색 선택기 -->
       <div class="sec-box" style="background:#f0f9ff; border-color:#7dd3fc;">
         <div class="sec-title" style="color:#0369a1;">
           <span>🛡️ 금일 시행한 검사 항목 선택 (클레임 예방)</span>
@@ -1054,7 +1093,7 @@
             </div>
           </div>
 
-          <!-- [신설] 시행한 검진 항목 및 평가 범위 안내 (리포트 제목과 기본정보 사이) -->
+          <!-- 시행한 검진 항목 및 평가 범위 안내 (리포트 제목과 기본정보 사이) -->
           <div class="exam-scope-banner">
             <div class="exam-scope-head">
               <span class="exam-scope-title">📋 금일 시행한 건강검진 항목 및 평가 범위</span>
@@ -1283,7 +1322,7 @@
 </div>
 
 <script>
-  // [원장님 요청 26개 검사 항목 카테고리별 정밀 배열]
+  // [26개 검사 항목 카테고리별 정밀 배열]
   const examScopeGroups = [
     {
       cat: '① 기초 · 영상 검사',
@@ -1928,7 +1967,7 @@
     }
   }
 
-  // 결과표 3장을 각각 고해상도 JPG 이미지로 저장
+  // [수정 완료] 스크롤 잘림 없는 독립 클론 렌더링 방식 JPG 이미지 저장
   async function saveAsJPG() {
     if (typeof html2canvas === 'undefined') {
       alert('이미지 변환 라이브러리를 불러오는 중입니다. 잠시 후 다시 눌러주세요.');
@@ -1943,14 +1982,45 @@
     const date = (document.getElementById('examDate').value || '검진결과');
     const sheetIds = ['a4Page1', 'a4Page2', 'a4Page3'];
 
+    // 화면 밖 독립 렌더링 스테이지 생성 (overflow/스크롤 영향 완전 차단)
+    const stage = document.createElement('div');
+    stage.style.position = 'fixed';
+    stage.style.left = '-9999px';
+    stage.style.top = '0';
+    stage.style.width = '794px';
+    stage.style.background = '#ffffff';
+    stage.style.zIndex = '-1';
+    document.body.appendChild(stage);
+
     try {
       for (let i = 0; i < sheetIds.length; i++) {
-        const el = document.getElementById(sheetIds[i]);
-        const canvas = await html2canvas(el, {
-          scale: 2.2,
+        const origEl = document.getElementById(sheetIds[i]);
+        const clone = origEl.cloneNode(true);
+        clone.removeAttribute('id');
+        clone.classList.add('jpg-capture-clone');
+
+        stage.innerHTML = '';
+        stage.appendChild(clone);
+
+        // 폰트 및 레이아웃 안정화 대기
+        await new Promise(res => setTimeout(res, 120));
+
+        const fullHeight = Math.max(clone.scrollHeight, clone.offsetHeight, 1123);
+
+        const canvas = await html2canvas(clone, {
+          scale: 2,
+          width: 794,
+          height: fullHeight,
+          windowWidth: 794,
+          windowHeight: fullHeight,
+          scrollX: 0,
+          scrollY: 0,
+          x: 0,
+          y: 0,
           backgroundColor: '#ffffff',
           useCORS: true
         });
+
         const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
         const link = document.createElement('a');
         link.href = dataUrl;
@@ -1963,6 +2033,9 @@
     } catch (err) {
       alert('JPG 이미지 저장 중 오류가 발생했습니다: ' + err.message);
     } finally {
+      if (stage && stage.parentNode) {
+        stage.parentNode.removeChild(stage);
+      }
       btn.innerText = origText;
       btn.disabled = false;
     }
