@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>23시 하단오거리 동물병원 - 건강검진 및 처치 예상견적서</title>
+<style>
+  :root {
+    --bg: #eef2f6;
+    --card: #ffffff;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --border: #dbe3ec;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    padding: 12px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* A4 세로 비율(210mm x 297mm -> 794px x 1123px)에 맞춰 화면·이미지저장·인쇄 통일 */
+  .wrap {
+    width: 794px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  /* 상단 헤더 (화면 조작 버튼 영역 - 캡처/인쇄 대상 제외) */
+  header.toolbar {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 11px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    font-weight: 900;
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+  }
+  .title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.4px;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  button {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 7px 11px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-outline {
+    background: #fff;
+    border-color: #cbd5e1;
+    color: #334155;
+  }
+  .btn-outline:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+  }
+  .btn-primary {
+    background: #2563eb;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  }
+  .btn-primary:hover {
+    background: #1d4ed8;
+  }
+
+  /* A4 용지 시트 컨테이너 (이미지 저장 및 인쇄 기준 영역) */
+  #capture.a4-sheet {
+    width: 794px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* 견적서 상단 타이틀 배너 */
+  .sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 8px;
+    margin-bottom: 2px;
+  }
+  .sheet-title {
+    font-size: 19px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.4px;
+  }
+  .sheet-clinic {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-align: right;
+  }
+
+  /* 좌우 2열 그리드 (고정 높이/flex-between 제거하여 html2canvas 겹침 원천 차단) */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: start;
+  }
+  .col-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .frame {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-top: 3.5px solid var(--color);
+    border-radius: 10px;
+    display: block;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .frame-head {
+    padding: 6px 10px;
+    background: var(--tint);
+    border-bottom: 1px solid #dbe3ec;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .frame-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .num-pill {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: var(--color);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+  }
+  .frame-head h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+  }
+  .frame-sub {
+    font-size: 10.5px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  /* 검사/처치 항목 리스트 - 블록 누적 배치로 캡처 시 겹침 방지 */
+  .items {
+    padding: 5px 8px 6px 10px;
+    display: block;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    width: 100%;
+    min-height: 24px;
+  }
+  .item:last-child {
+    margin-bottom: 0;
+  }
+  .item:hover {
+    background: #f8fafc;
+  }
+  .item.selected {
+    background: var(--tint);
+    border-color: var(--color);
+  }
+  .item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--color);
+    margin: 0;
+    cursor: pointer;
+    flex: none;
+  }
+
+  .name-price-pair {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
+  }
+  .name-input {
+    width: 225px;
+    max-width: calc(100% - 84px);
+    flex: 1 1 auto;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.3;
+  }
+  .name-input.extra-empty {
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  .name-input:focus {
+    background: #fff;
+    border-color: var(--color);
+    color: #0f172a;
+    outline: none;
+  }
+
+  .price-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex: none;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+  .item.selected .price-box {
+    background: #fff;
+    border-color: var(--color);
+  }
+  .price-input {
+    width: 62px;
+    border: none;
+    background: transparent;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    padding: 1px 0;
+    line-height: 1.3;
+  }
+  .price-input:focus {
+    outline: none;
+  }
+  .won {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+  }
+  .del-btn {
+    border: none;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    flex: none;
+  }
+
+  /* 하단 추가 바 */
+  .add-bar {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed #e2e8f0;
+    display: flex;
+    gap: 4px;
+  }
+  .add-bar input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    padding: 3px 7px;
+    font-size: 11px;
+    background: #f8fafc;
+  }
+  .add-bar input:focus {
+    background: #fff;
+    border-color: var(--color);
+    outline: none;
+  }
+  .add-bar button {
+    background: var(--color);
+    color: #fff;
+    padding: 3px 8px;
+    font-size: 11px;
+    border-radius: 5px;
+    flex: none;
+  }
+
+  /* 하단 견적 요약 패널 */
+  .summary {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 11px 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 215px;
+    gap: 12px;
+    width: 100%;
+  }
+  .summary-title {
+    margin: 0 0 6px;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .selected-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 8px;
+  }
+  .sel-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 11.5px;
+    padding: 3px 7px;
+    background: #ffffff;
+    border-radius: 5px;
+    border: 1px solid #dbe3ec;
+  }
+  .sel-name {
+    color: #1e293b;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sel-price {
+    color: #0f172a;
+    font-weight: 800;
+    flex: none;
+  }
+  .empty-msg {
+    font-size: 11.5px;
+    color: #94a3b8;
+    padding: 4px 0;
+  }
+  .total-card {
+    background: linear-gradient(145deg, #0f172a, #1e293b);
+    color: #fff;
+    border-radius: 9px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .total-label {
+    font-size: 11.5px;
+    color: #cbd5e1;
+    font-weight: 600;
+  }
+  .total-amount {
+    font-size: 24px;
+    font-weight: 900;
+    color: #38bdf8;
+    margin: 2px 0;
+    letter-spacing: -0.5px;
+  }
+  .total-count {
+    font-size: 10.5px;
+    background: rgba(255, 255, 255, 0.14);
+    padding: 2px 9px;
+    border-radius: 999px;
+    color: #e2e8f0;
+  }
+  .note {
+    margin-top: 6px;
+    font-size: 10.5px;
+    color: #64748b;
+  }
+
+  /* html2canvas 캡처 시 input 글자 잘림/겹침 방지용 대체 텍스트 스타일 */
+  .capture-mode .add-bar,
+  .capture-mode .del-btn,
+  .capture-mode .blank-extra {
+    display: none !important;
+  }
+  .capture-text-val {
+    display: inline-block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1e293b;
+    padding: 2px 4px;
+    line-height: 1.3;
+    flex: 1 1 auto;
+    word-break: keep-all;
+  }
+  .capture-price-val {
+    display: inline-block;
+    min-width: 56px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    padding: 1px 0;
+    line-height: 1.3;
+  }
+
+  /* A4 세로 용지 100% 꽉 차게 인쇄 (50% 축소 현상 해결) */
+  @page {
+    size: A4 portrait;
+    margin: 6mm;
+  }
+  @media print {
+    html, body {
+      width: 210mm;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    header.toolbar,
+    .add-bar,
+    .del-btn,
+    .blank-extra {
+      display: none !important;
+    }
+    .wrap {
+      width: 198mm !important;
+      max-width: 198mm !important;
+      margin: 0 auto !important;
+    }
+    #capture.a4-sheet {
+      width: 198mm !important;
+      max-width: 198mm !important;
+      min-height: 282mm !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 2mm 2mm !important;
+      justify-content: space-between;
+    }
+    .sheet-header {
+      padding-bottom: 2.5mm;
+      margin-bottom: 2mm;
+    }
+    .sheet-title {
+      font-size: 16pt;
+    }
+    .sheet-clinic {
+      font-size: 9.5pt;
+    }
+    .main-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 3mm !important;
+      align-items: start !important;
+    }
+    .col-stack {
+      gap: 2.5mm !important;
+    }
+    .frame {
+      border: 1px solid #cbd5e1 !important;
+      border-top: 3px solid var(--color) !important;
+      border-radius: 6px !important;
+      break-inside: avoid;
+    }
+    .frame-head {
+      padding: 1.8mm 2.5mm !important;
+    }
+    .frame-head h2 {
+      font-size: 10.5pt !important;
+    }
+    .frame-sub {
+      font-size: 8pt !important;
+    }
+    .items {
+      padding: 1.5mm 2.2mm !important;
+    }
+    .item {
+      padding: 0.7mm 1mm !important;
+      margin-bottom: 0.5mm !important;
+      min-height: 5.5mm !important;
+    }
+    .item input[type="checkbox"] {
+      width: 3.4mm !important;
+      height: 3.4mm !important;
+    }
+    .name-input {
+      font-size: 9.2pt !important;
+      padding: 0 1mm !important;
+    }
+    .price-box {
+      padding: 0.3mm 1.5mm !important;
+    }
+    .price-input {
+      width: 14mm !important;
+      font-size: 9pt !important;
+    }
+    .won {
+      font-size: 8pt !important;
+    }
+    .summary {
+      margin-top: 2.5mm !important;
+      padding: 3mm 4mm !important;
+      grid-template-columns: minmax(0, 1fr) 52mm !important;
+      gap: 3mm !important;
+      border-radius: 7px !important;
+      break-inside: avoid;
+    }
+    .summary-title {
+      font-size: 10.5pt !important;
+      margin-bottom: 1.5mm !important;
+    }
+    .selected-grid {
+      gap: 1.2mm 2.5mm !important;
+    }
+    .sel-row {
+      font-size: 8.5pt !important;
+      padding: 0.8mm 2mm !important;
+    }
+    .note {
+      font-size: 7.8pt !important;
+      margin-top: 1.5mm !important;
+    }
+    .total-card {
+      padding: 2.5mm !important;
+      border-radius: 6px !important;
+    }
+    .total-label {
+      font-size: 9pt !important;
+    }
+    .total-amount {
+      font-size: 17pt !important;
+    }
+    .total-count {
+      font-size: 8pt !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="toolbar">
+    <div class="brand">
+      <div class="brand-badge">🐾</div>
+      <div>
+        <div class="title">건강검진 및 처치 예상 견적 계산기</div>
+        <div class="subtitle">항목을 체크하면 하단에 예상 비용이 합산되며, A4 비율에 맞춰 저장·인쇄됩니다.</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn-outline" onclick="resetChecks()">선택 초기화</button>
+      <button type="button" class="btn-primary" onclick="saveImage()">🖼 A4 이미지 저장</button>
+      <button type="button" class="btn-outline" onclick="window.print()">🖨 A4 인쇄</button>
+      <button type="button" class="btn-outline" onclick="resetDefaults()">기본값 복원</button>
+    </div>
+  </header>
+
+  <div id="capture" class="a4-sheet">
+    <div class="sheet-header">
+      <div class="sheet-title">반려동물 건강검진 및 처치 예상견적서</div>
+      <div class="sheet-clinic">23시 하단오거리 동물병원 · 051) 264-8275</div>
+    </div>
+
+    <div class="main-grid">
+      <!-- 1열: 1. 신체검사 + 2. 영상검사 + 3. 혈액검사 -->
+      <div class="col-stack" id="col-0"></div>
+      <!-- 2열: 4. 기타검사 + 5. 처치 및 마취·기타 -->
+      <div class="col-stack" id="col-1"></div>
+    </div>
+
+    <section class="summary">
+      <div>
+        <h3 class="summary-title">📋 선택된 검사 및 처치 내역</h3>
+        <div class="selected-grid" id="selectedList">
+          <div class="empty-msg">선택된 항목이 없습니다.</div>
+        </div>
+        <div class="note">※ 본 견적은 예상 비용이며, 진료 및 정밀 검사·처치 진행에 따라 실제 비용은 달라질 수 있습니다.</div>
+      </div>
+      <div class="total-card">
+        <div class="total-label">예상 총 비용</div>
+        <div class="total-amount" id="total">0원</div>
+        <div class="total-count" id="countBadge">총 0개 항목 선택</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const categories = [
+  {
+    col: 0,
+    title: '신체검사',
+    sub: '기본 계측 및 안압·혈압',
+    color: '#2563eb',
+    tint: '#eff6ff',
+    items: [
+      { name: '신체검사 (눈,코,귀,치아,피부,슬개골촉지)', price: 30000 },
+      { name: '안압검사', price: 15000 },
+      { name: '혈압검사', price: 15000 }
+    ],
+    extra: 2
+  },
+  {
+    col: 0,
+    title: '영상검사',
+    sub: '방사선 및 정밀 초음파',
+    color: '#0d9488',
+    tint: '#f0fdfa',
+    items: [
+      { name: '엑스레이 (기본 2컷)', price: 50000 },
+      { name: '초음파 (기본 컷)', price: 55000 },
+      { name: '심장초음파 (기본 컷)', price: 80000 },
+      { name: '엑스레이 추가컷 장당', price: 10000 },
+      { name: '치과엑스레이', price: 80000 },
+      { name: '치과CT', price: 150000 },
+      { name: '내시경검사', price: 200000 }
+    ],
+    extra: 2
+  },
+  {
+    col: 0,
+    title: '혈액검사',
+    sub: '혈구·혈청·전해질·장기특이',
+    color: '#e11d48',
+    tint: '#fff1f2',
+    items: [
+      { name: '혈구검사', price: 30000 },
+      { name: '혈청 (마취전검사)', price: 80000 },
+      { name: '혈청 (17종)', price: 98000 },
+      { name: '혈청+전해질 (27종)', price: 130000 },
+      { name: '혈액가스검사', price: 88000 },
+      { name: 'SDMA', price: 70000 },
+      { name: 'CPL/FPL', price: 35000 },
+      { name: '혈구검사+도말검사', price: 50000 },
+      { name: '혈액도말검사', price: 20000 }
+    ],
+    extra: 1
+  },
+  {
+    col: 1,
+    title: '기타검사',
+    sub: '호르몬·면역·배설물·소변검사',
+    color: '#d97706',
+    tint: '#fffbeb',
+    items: [
+      { name: 'T4', price: 70000 },
+      { name: 'proBNP', price: 80000 },
+      { name: 'cortisol', price: 70000 },
+      { name: 'CRP', price: 35000 },
+      { name: 'IgG', price: 50000 },
+      { name: '알러지 120종검사', price: 300000 },
+      { name: '항체가검사', price: 88000 },
+      { name: '암표지검사', price: 99000 },
+      { name: '분변검사', price: 50000 },
+      { name: '소변검사', price: 50000 }
+    ],
+    extra: 2
+  },
+  {
+    col: 1,
+    title: '처치 및 마취·기타',
+    sub: '진정·마취·수액·기본 처치',
+    color: '#7c3aed',
+    tint: '#f5f3ff',
+    items: [
+      { name: '진정 / 가벼운 진정처치', price: 30000 },
+      { name: '호흡마취 (기본)', price: 100000 },
+      { name: '수액처치 (정맥수액)', price: 35000 },
+      { name: '채혈 및 기본처치비', price: 10000 },
+      { name: '귀세정 / 귀처치', price: 15000 },
+      { name: '항문낭 / 발톱정리', price: 10000 },
+      { name: '피하수액 처치', price: 20000 },
+      { name: '주사처치 (1종당)', price: 15000 }
+    ],
+    extra: 10
+  }
+];
+
+const STORAGE_KEY = 'vet_checkup_price_v3_priced';
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+(function migrateMovedItems(){
+  const videoCat = 1, otherCat = 3;
+  [4,5].forEach(oldIdx => {
+    const oldKey = `${videoCat}_${oldIdx}`;
+    if (data[oldKey]) {
+      const newKey = `${videoCat}_${oldIdx + 3}`;
+      if (!data[newKey]) data[newKey] = data[oldKey];
+      delete data[oldKey];
+    }
+  });
+  const moved = [{old:8,new:4},{old:9,new:5},{old:12,new:6}];
+  moved.forEach(({old,new:ni}) => {
+    const oldKey = `${otherCat}_${old}`;
+    if (data[oldKey]) {
+      const newKey = `${videoCat}_${ni}`;
+      if (!data[newKey]) data[newKey] = data[oldKey];
+      delete data[oldKey];
+    }
+  });
+  const remap = {};
+  Object.keys(data).forEach(k => {
+    if (!k.startsWith(otherCat + '_')) return;
+    const idx = Number(k.split('_')[1]);
+    if (idx === 10) remap[k] = `${otherCat}_8`;
+    else if (idx === 11) remap[k] = `${otherCat}_9`;
+    else if (idx === 13) remap[k] = `${otherCat}_10`;
+    else if (idx === 14) remap[k] = `${otherCat}_11`;
+    else if (idx >= 15) remap[k] = `${otherCat}_${idx - 3}`;
+  });
+  Object.entries(remap).forEach(([oldKey,newKey]) => {
+    if (!data[newKey]) data[newKey] = data[oldKey];
+    delete data[oldKey];
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+})();
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  renderSummary();
+}
+
+function key(c, i) {
+  return c + '_' + i;
+}
+
+function getItem(c, i, defaultName, defaultPrice, isExtra) {
+  const k = key(c, i);
+  if (!data[k]) {
+    data[k] = {
+      name: defaultName,
+      price: defaultPrice,
+      checked: false,
+      extra: isExtra,
+      custom: false
+    };
+  }
+  return data[k];
+}
+
+function money(n) {
+  return Number(n || 0).toLocaleString('ko-KR') + '원';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[m]));
+}
+
+function render() {
+  document.getElementById('col-0').innerHTML = '';
+  document.getElementById('col-1').innerHTML = '';
+
+  categories.forEach((cat, c) => {
+    const colContainer = document.getElementById('col-' + cat.col);
+    const frame = document.createElement('section');
+    frame.className = 'frame';
+    frame.style.setProperty('--color', cat.color);
+    frame.style.setProperty('--tint', cat.tint);
+    frame.innerHTML = `
+      <div class="frame-head">
+        <div class="frame-title-wrap">
+          <span class="num-pill">${c + 1}</span>
+          <h2>${cat.title}</h2>
+        </div>
+        <span class="frame-sub">${cat.sub}</span>
+      </div>
+      <div class="items" id="items-${c}"></div>
+    `;
+    colContainer.appendChild(frame);
+
+    const list = frame.querySelector('.items');
+
+    cat.items.forEach((itemObj, i) => {
+      addItemRow(list, c, i, itemObj.name, itemObj.price, false, false);
+    });
+
+    for (let j = 0; j < cat.extra; j++) {
+      const idx = cat.items.length + j;
+      addItemRow(list, c, idx, '', 0, true, false);
+    }
+
+    Object.keys(data).forEach(k => {
+      if (k.startsWith(c + '_')) {
+        const idx = Number(k.split('_')[1]);
+        if (idx >= cat.items.length + cat.extra && data[k].custom) {
+          addItemRow(list, c, idx, data[k].name, data[k].price, false, true);
+        }
+      }
+    });
+
+    const addBar = document.createElement('div');
+    addBar.className = 'add-bar';
+    addBar.innerHTML = `
+      <input id="new-${c}" placeholder="추가 항목 입력..." onkeydown="if(event.key==='Enter') addCustom(${c})">
+      <button type="button" onclick="addCustom(${c})">+ 추가</button>
+    `;
+    list.appendChild(addBar);
+  });
+
+  renderSummary();
+}
+
+function addItemRow(list, c, i, defaultName, defaultPrice, isExtra, isCustom) {
+  const obj = getItem(c, i, defaultName, defaultPrice, isExtra);
+  const row = document.createElement('div');
+  const isBlankExtra = isExtra && !String(obj.name || '').trim() && Number(obj.price || 0) === 0;
+  row.className = 'item' + (obj.checked ? ' selected' : '') + (isBlankExtra ? ' blank-extra' : '');
+
+  const placeholderText = isExtra ? `여유 항목 ${(i - categories[c].items.length) + 1}` : '항목명';
+
+  row.innerHTML = `
+    <input type="checkbox" ${obj.checked ? 'checked' : ''}>
+    <div class="name-price-pair">
+      <input type="text" class="name-input ${isExtra && !obj.name ? 'extra-empty' : ''}" value="${escapeHtml(obj.name)}" placeholder="${placeholderText}" title="${escapeHtml(obj.name)}">
+      <div class="price-box">
+        <input class="price-input" type="text" inputmode="numeric" value="${Number(obj.price || 0).toLocaleString('ko-KR')}">
+        <span class="won">원</span>
+      </div>
+    </div>
+    ${isCustom ? '<button type="button" class="del-btn" title="삭제">삭제</button>' : ''}
+  `;
+
+  const cb = row.querySelector('input[type="checkbox"]');
+  const ni = row.querySelector('.name-input');
+  const pi = row.querySelector('.price-input');
+
+  function updateBlankState() {
+    if (!isExtra) return;
+    const blank = !String(obj.name || '').trim() && Number(obj.price || 0) === 0 && !obj.checked;
+    row.classList.toggle('blank-extra', blank);
+  }
+
+  cb.onchange = () => {
+    obj.checked = cb.checked;
+    row.classList.toggle('selected', obj.checked);
+    updateBlankState();
+    save();
+  };
+
+  ni.oninput = () => {
+    obj.name = ni.value;
+    ni.classList.toggle('extra-empty', isExtra && !obj.name);
+    updateBlankState();
+    save();
+  };
+
+  pi.oninput = () => {
+    const raw = pi.value.replace(/[^0-9]/g, '');
+    obj.price = Math.max(0, Number(raw) || 0);
+    const formatted = obj.price.toLocaleString('ko-KR');
+    if (pi.value !== formatted) pi.value = formatted;
+    updateBlankState();
+    save();
+  };
+  pi.onblur = () => { pi.value = Number(obj.price || 0).toLocaleString('ko-KR'); };
+
+  pi.onfocus = () => {
+    pi.select();
+  };
+
+  if (isCustom) {
+    row.querySelector('.del-btn').onclick = () => {
+      delete data[key(c, i)];
+      save();
+      render();
+    };
+  }
+
+  list.appendChild(row);
+}
+
+function addCustom(c) {
+  const inp = document.getElementById('new-' + c);
+  const name = inp.value.trim();
+  if (!name) return;
+
+  let idx = categories[c].items.length + categories[c].extra;
+  while (data[key(c, idx)]) {
+    idx++;
+  }
+
+  data[key(c, idx)] = {
+    name: name,
+    price: 0,
+    checked: true,
+    extra: false,
+    custom: true
+  };
+  inp.value = '';
+  save();
+  render();
+}
+
+function renderSummary() {
+  const out = document.getElementById('selectedList');
+  let total = 0;
+  const selected = [];
+
+  categories.forEach((cat, c) => {
+    const keys = Object.keys(data)
+      .filter(k => k.startsWith(c + '_'))
+      .sort((a, b) => Number(a.split('_')[1]) - Number(b.split('_')[1]));
+
+    keys.forEach(k => {
+      const o = data[k];
+      if (o && o.checked) {
+        const displayName = (o.name || '').trim() || '미입력 여유 항목';
+        const price = Number(o.price) || 0;
+        total += price;
+        selected.push({ name: displayName, price: price });
+      }
+    });
+  });
+
+  if (selected.length > 0) {
+    out.innerHTML = selected.map(item => `
+      <div class="sel-row">
+        <span class="sel-name">${escapeHtml(item.name)}</span>
+        <span class="sel-price">${money(item.price)}</span>
+      </div>
+    `).join('');
+  } else {
+    out.innerHTML = '<div class="empty-msg">선택된 항목이 없습니다.</div>';
+  }
+
+  document.getElementById('total').textContent = money(total);
+  document.getElementById('countBadge').textContent = `총 ${selected.length}개 항목 선택`;
+}
+
+function resetChecks() {
+  Object.values(data).forEach(x => { x.checked = false; });
+  save();
+  render();
+}
+
+function resetDefaults() {
+  if (!confirm('입력하신 모든 가격과 처치 항목을 초기 기본값으로 되돌릴까요?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  data = {};
+  render();
+}
+
+async function saveImage() {
+  const target = document.getElementById('capture');
+  if (!window.html2canvas) {
+    alert('이미지 저장 기능을 불러오지 못했습니다. 인쇄 기능을 이용해주세요.');
+    return;
+  }
+
+  // 캡처 전용 복제본을 A4 세로 규격(794px x 1123px)으로 생성하고 input을 텍스트 노드로 치환해 겹침 완전 차단
+  const clone = target.cloneNode(true);
+  clone.id = 'capture-clone';
+  clone.classList.add('capture-mode');
+  clone.style.position = 'fixed';
+  clone.style.left = '-9999px';
+  clone.style.top = '0';
+  clone.style.width = '794px';
+  clone.style.minHeight = '1123px';
+  clone.style.display = 'flex';
+  clone.style.flexDirection = 'column';
+  clone.style.justifyContent = 'space-between';
+  clone.style.border = 'none';
+  clone.style.borderRadius = '0';
+  clone.style.boxShadow = 'none';
+  clone.style.background = '#ffffff';
+
+  // 원본 체크박스 상태 동기화 및 input -> 정적 텍스트 변환
+  const origCheckboxes = target.querySelectorAll('input[type="checkbox"]');
+  const cloneCheckboxes = clone.querySelectorAll('input[type="checkbox"]');
+  origCheckboxes.forEach((cb, idx) => {
+    if (cloneCheckboxes[idx]) cloneCheckboxes[idx].checked = cb.checked;
+  });
+
+  const origNameInputs = target.querySelectorAll('.name-input');
+  const cloneNameInputs = clone.querySelectorAll('.name-input');
+  origNameInputs.forEach((inp, idx) => {
+    const cInp = cloneNameInputs[idx];
+    if (!cInp) return;
+    const span = document.createElement('span');
+    span.className = 'capture-text-val';
+    span.textContent = inp.value || inp.placeholder || '';
+    cInp.replaceWith(span);
+  });
+
+  const origPriceInputs = target.querySelectorAll('.price-input');
+  const clonePriceInputs = clone.querySelectorAll('.price-input');
+  origPriceInputs.forEach((inp, idx) => {
+    const cInp = clonePriceInputs[idx];
+    if (!cInp) return;
+    const span = document.createElement('span');
+    span.className = 'capture-price-val';
+    span.textContent = inp.value || '0';
+    cInp.replaceWith(span);
+  });
+
+  document.body.appendChild(clone);
+
+  try {
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      width: 794,
+      height: Math.max(1123, clone.scrollHeight),
+      windowWidth: 794,
+      backgroundColor: '#ffffff',
+      useCORS: true
+    });
+    const a = document.createElement('a');
+    a.download = '건강검진_예상견적서_A4.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  } catch (e) {
+    alert('이미지 저장에 실패했습니다. 인쇄 기능을 이용해주세요.');
+  } finally {
+    clone.remove();
+  }
+}
+
+render();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>
