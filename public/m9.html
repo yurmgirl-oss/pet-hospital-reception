@@ -172,7 +172,8 @@
       🐾 23시 하단오거리 동물병원 · 접수 통합 현황판
     </div>
 
-    <div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="p-btn" style="background:#2563eb;border-color:#60a5fa;padding:5px 10px;font-size:12px;" onclick="openPrice()">F1 · 가격표</button>
       <button class="btn-all-refresh" onclick="refreshAllFrames()">🔄 전체 새로고침</button>
     </div>
   </header>
@@ -204,6 +205,17 @@
   </main>
 
   <script>
+    function openPrice() {
+      window.open('/price.html', 'clinicPriceWindow');
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        openPrice();
+      }
+    });
+
     function refreshAllFrames() {
       ['frame-m3', 'frame-m6'].forEach(id => {
         const frame = document.getElementById(id);
