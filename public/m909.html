@@ -188,6 +188,7 @@
       <button class="tab-btn" id="tab-f5" onclick="switchView('f5')" style="color:#a7f3d0;">5️⃣ 🩺 C2 임상 유틸리티 (F5)</button>
       <button class="tab-btn" id="tab-f6" onclick="switchView('f6')" style="color:#c4b5fd;">6️⃣ ⚔️ C3 하오동 해전 (F6)</button>
       <button class="tab-btn" id="tab-f7" onclick="switchView('f7')" style="color:#fda4af;">7️⃣ 📝 메모천국 (F7)</button>
+      <button class="tab-btn" id="tab-f8" onclick="switchView('f8')" style="color:#93c5fd;">8️⃣ 💰 건강검진·처치 예상견적 (F8)</button>
       <button class="tab-btn" id="tab-f9" onclick="switchView('f9')" style="color:#fbbf24;">9️⃣ 🩺 건강검진 HC (F9)</button>
     </div>
 
@@ -344,6 +345,22 @@
       </section>
     </div>
 
+    <!-- [F8 뷰] 건강검진 및 처치 예상견적 계산기 -->
+    <div id="view-f8" class="f3-layout" style="display: none;">
+      <section class="panel" style="width: 100%; height: 100%;">
+        <div class="panel-header">
+          <div class="panel-title">💰 건강검진 및 처치 예상견적 계산기</div>
+          <div>
+            <button class="p-btn" onclick="document.getElementById('frame-price').contentWindow.location.reload()">새로고침</button>
+            <button class="p-btn" onclick="window.open('/price.html', '_blank')">새창</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <iframe id="frame-price" src="/price.html" title="건강검진 및 처치 예상견적 계산기"></iframe>
+        </div>
+      </section>
+    </div>
+
     <!-- [F9 뷰] 건강검진 리포트 HC -->
     <div id="view-f9" class="f3-layout" style="display: none;">
       <section class="panel" style="width: 100%; height: 100%;">
@@ -474,6 +491,7 @@
       document.getElementById('view-f5').style.display = 'none';
       document.getElementById('view-f6').style.display = 'none';
       document.getElementById('view-f7').style.display = 'none';
+      document.getElementById('view-f8').style.display = 'none';
       document.getElementById('view-f9').style.display = 'none';
 
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -499,6 +517,9 @@
       } else if (mode === 'f7') {
         document.getElementById('view-f7').style.display = 'flex';
         document.getElementById('tab-f7').classList.add('active');
+      } else if (mode === 'f8') {
+        document.getElementById('view-f8').style.display = 'flex';
+        document.getElementById('tab-f8').classList.add('active');
       } else if (mode === 'f9') {
         document.getElementById('view-f9').style.display = 'flex';
         document.getElementById('tab-f9').classList.add('active');
@@ -521,6 +542,7 @@
       if (e.key === 'F5') { e.preventDefault(); switchView('f5'); }
       if (e.key === 'F6') { e.preventDefault(); switchView('f6'); }
       if (e.key === 'F7') { e.preventDefault(); switchView('f7'); }
+      if (e.key === 'F8') { e.preventDefault(); switchView('f8'); }
       if (e.key === 'F9') { e.preventDefault(); switchView('f9'); }
     });
   </script>
