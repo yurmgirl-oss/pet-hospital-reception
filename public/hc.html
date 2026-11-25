@@ -104,7 +104,7 @@
   .workspace {
     flex: 1;
     display: grid;
-    grid-template-columns: 15% 19% 21% 18% 27%;
+    grid-template-columns: 17.5% 18.5% 19.5% 17.5% 27%;
     gap: 6px;
     padding: 6px;
     height: calc(100vh - 44px);
@@ -155,7 +155,7 @@
     background: #f8fafc;
   }
   .sec-title {
-    font-size: 10.8px;
+    font-size: 10.6px;
     font-weight: 700;
     color: var(--primary);
     margin-bottom: 5px;
@@ -169,19 +169,97 @@
   }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
   .field { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
-  .field label { font-size: 9.6px; font-weight: 600; color: #475569; }
+  .field label { font-size: 9.5px; font-weight: 600; color: #475569; }
   .field input, .field select, .field textarea {
     width: 100%;
     padding: 3.5px 5px;
     border: 1px solid #cbd5e1;
     border-radius: 4px;
-    font-size: 10.5px;
+    font-size: 10.4px;
     background: #fff;
   }
   .field input:focus, .field select:focus, .field textarea:focus {
     outline: none;
     border-color: var(--primary);
     background: #eff6ff;
+  }
+
+  /* [신설] 시행 검사 항목 검색 및 카테고리 선택 UI */
+  .scope-search-bar {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 5px;
+  }
+  .scope-search-bar input {
+    flex: 1;
+    padding: 3.5px 6px;
+    border: 1.5px solid #38bdf8;
+    border-radius: 4px;
+    font-size: 10.2px;
+    background: #fff;
+  }
+  .scope-search-bar input:focus {
+    outline: none;
+    border-color: #0284c7;
+    background: #fef9c3;
+  }
+  .mini-tool-btn {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #7dd3fc;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .mini-tool-btn:hover { background: #bae6fd; }
+
+  .scope-cat-title {
+    font-size: 9.4px;
+    font-weight: 800;
+    color: #0369a1;
+    margin: 4px 0 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .scope-chip-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-bottom: 3px;
+  }
+  .scope-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 2.5px 5px;
+    font-size: 9.4px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.1s;
+  }
+  .scope-pill:hover {
+    background: #e0f2fe;
+    border-color: #38bdf8;
+  }
+  .scope-pill input[type="checkbox"] {
+    accent-color: #0284c7;
+    cursor: pointer;
+    margin: 0;
+  }
+  .scope-pill.checked-pill {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0369a1;
+    font-weight: 700;
   }
 
   /* 문제 검사 항목 카드형 입력 리스트 */
@@ -344,7 +422,7 @@
   .chk-item.deep-item { border-left: 3px solid #2563eb; }
   .chk-item.water-item { border-left: 3px solid #0284c7; background: #f0f9ff; }
 
-  /* 5번째 프레임: 우측 통합 A4 3장 스크롤 출력 뷰어 (+2pt 큰글씨) */
+  /* 5번째 프레임: 우측 통합 A4 3장 스크롤 출력 뷰어 */
   .print-scroll-area {
     flex: 1;
     background: #64748b;
@@ -371,15 +449,15 @@
   /* A4 용지 시뮬레이션 카드 */
   .a4-sheet {
     width: 100%;
-    min-height: 510px;
+    min-height: 515px;
     background: #ffffff;
-    padding: 13px 14px;
+    padding: 12px 13px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    font-size: 11px;
-    line-height: 1.44;
+    font-size: 10.8px;
+    line-height: 1.42;
     color: #1e293b;
     border-top: 4px solid var(--primary);
     border-radius: 2px;
@@ -390,35 +468,84 @@
     justify-content: space-between;
     align-items: flex-end;
     border-bottom: 1.5px solid var(--primary);
-    padding-bottom: 5px;
-    margin-bottom: 6px;
+    padding-bottom: 4px;
+    margin-bottom: 5px;
   }
   .sheet-title {
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 800;
     color: var(--primary);
     letter-spacing: -0.3px;
   }
   .sheet-sub {
-    font-size: 9.5px;
+    font-size: 9.2px;
     color: var(--text-muted);
     font-weight: 600;
+  }
+
+  /* 1페이지 최상단 시행 검사 범위 및 클레임 방어 안내 박스 */
+  .exam-scope-banner {
+    background: #f0f9ff;
+    border: 1.5px solid #38bdf8;
+    border-left: 4.5px solid #0284c7;
+    border-radius: 4px;
+    padding: 5px 7px;
+    margin-bottom: 6px;
+  }
+  .exam-scope-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+    border-bottom: 1px dashed #bae6fd;
+    padding-bottom: 2px;
+  }
+  .exam-scope-title {
+    font-size: 10.8px;
+    font-weight: 800;
+    color: #0369a1;
+  }
+  .exam-count-pill {
+    background: #0284c7;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1.5px 7px;
+    border-radius: 10px;
+  }
+  .exam-scope-list {
+    font-size: 10px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.4;
+    margin-bottom: 3.5px;
+    word-break: keep-all;
+  }
+  .exam-scope-disclaimer {
+    font-size: 8.9px;
+    color: #334155;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid #bae6fd;
+    padding: 3px 5px;
+    border-radius: 3px;
+    line-height: 1.35;
+    word-break: keep-all;
   }
 
   .report-box {
     border: 1px solid #cbd5e1;
     border-radius: 4px;
-    padding: 6px 7px;
-    margin-bottom: 6px;
+    padding: 5px 7px;
+    margin-bottom: 5px;
   }
   .report-box-title {
-    font-size: 11.4px;
+    font-size: 11px;
     font-weight: 700;
     color: #fff;
     background: var(--primary);
-    padding: 3px 7px;
+    padding: 2.5px 7px;
     border-radius: 3px;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     display: flex;
     justify-content: space-between;
   }
@@ -437,11 +564,11 @@
     box-shadow: 0 2px 5px rgba(13, 148, 136, 0.12);
   }
   .master-roadmap-title {
-    font-size: 11.8px;
+    font-size: 11.5px;
     font-weight: 800;
     color: #ffffff;
     background: linear-gradient(90deg, #0f766e, #0d9488);
-    padding: 4px 8px;
+    padding: 3.5px 8px;
     border-radius: 3px;
     margin-bottom: 5px;
     display: flex;
@@ -452,12 +579,12 @@
   .info-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    font-size: 10.5px;
+    gap: 3.5px;
+    font-size: 10.2px;
   }
   .info-cell {
     background: #f8fafc;
-    padding: 3px 6px;
+    padding: 2.5px 5px;
     border: 1px solid #e2e8f0;
     border-radius: 2px;
   }
@@ -466,11 +593,11 @@
   .report-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 10.2px;
+    font-size: 10px;
   }
   .report-table th, .report-table td {
     border: 1px solid #cbd5e1;
-    padding: 3.5px 4.5px;
+    padding: 3px 4px;
   }
   .report-table th {
     background: #f1f5f9;
@@ -483,21 +610,21 @@
   .roadmap-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 10.4px;
+    font-size: 10.2px;
     background: #ffffff;
   }
   .roadmap-table th {
     background: #115e59;
     color: #ffffff;
     font-weight: 700;
-    padding: 4.5px 5px;
+    padding: 4px 5px;
     border: 1px solid #0f766e;
     text-align: center;
   }
   .roadmap-table td {
     border: 1px solid #99f6e4;
-    padding: 4.5px 5px;
-    line-height: 1.38;
+    padding: 4px 5px;
+    line-height: 1.36;
     vertical-align: middle;
   }
   .roadmap-table tr:nth-child(even) td {
@@ -511,8 +638,8 @@
   .pre-text {
     white-space: pre-wrap;
     word-break: keep-all;
-    font-size: 10.5px;
-    line-height: 1.46;
+    font-size: 10.2px;
+    line-height: 1.42;
   }
 
   .focus-banner {
@@ -524,10 +651,10 @@
     margin-bottom: 6px;
   }
   .focus-banner-title {
-    font-size: 11.2px;
+    font-size: 11px;
     font-weight: 800;
     color: #be123c;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
 
   /* 3페이지 하단: 요람에서 무덤까지 평생 전담 주치의 홍보 배너 */
@@ -540,7 +667,7 @@
     margin-top: 4px;
   }
   .lifetime-vet-title {
-    font-size: 11px;
+    font-size: 10.8px;
     font-weight: 800;
     color: #1e3a8a;
     margin-bottom: 2px;
@@ -548,20 +675,20 @@
     justify-content: space-between;
   }
   .lifetime-vet-body {
-    font-size: 9.8px;
+    font-size: 9.6px;
     color: #1e293b;
-    line-height: 1.42;
+    line-height: 1.4;
     word-break: keep-all;
   }
 
   .sheet-footer {
     border-top: 1px solid #cbd5e1;
-    padding-top: 4px;
+    padding-top: 3.5px;
     margin-top: auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 9.5px;
+    font-size: 9.2px;
     color: #64748b;
   }
 
@@ -601,9 +728,9 @@
       width: 100% !important;
       height: 279mm !important;
       box-shadow: none !important;
-      padding: 5mm 7mm !important;
-      font-size: 12.5px !important;
-      line-height: 1.48 !important;
+      padding: 4.5mm 6.5mm !important;
+      font-size: 12px !important;
+      line-height: 1.44 !important;
       page-break-after: always;
       break-after: page;
     }
@@ -611,25 +738,30 @@
       page-break-after: auto;
       break-after: auto;
     }
-    .sheet-title { font-size: 18px !important; }
-    .sheet-sub { font-size: 11.5px !important; }
-    .report-box { padding: 6px 8px !important; margin-bottom: 7px !important; }
-    .report-box-title { font-size: 13.5px !important; padding: 3.5px 8px !important; }
+    .sheet-title { font-size: 17.5px !important; }
+    .sheet-sub { font-size: 11px !important; }
+    .exam-scope-banner { padding: 6px 8px !important; margin-bottom: 6px !important; }
+    .exam-scope-title { font-size: 12.8px !important; }
+    .exam-count-pill { font-size: 11px !important; padding: 2px 8px !important; }
+    .exam-scope-list { font-size: 11.8px !important; line-height: 1.42 !important; }
+    .exam-scope-disclaimer { font-size: 10.4px !important; line-height: 1.38 !important; }
+    .report-box { padding: 5.5px 8px !important; margin-bottom: 6px !important; }
+    .report-box-title { font-size: 13px !important; padding: 3px 8px !important; }
     .master-roadmap-box { padding: 7px 9px !important; margin-bottom: 7px !important; }
-    .master-roadmap-title { font-size: 14px !important; padding: 4px 8px !important; }
-    .info-grid { font-size: 12.2px !important; gap: 5px !important; }
-    .info-cell { padding: 4px 7px !important; }
-    .report-table { font-size: 12px !important; }
-    .report-table th, .report-table td { padding: 4px 6px !important; }
-    .roadmap-table { font-size: 12.2px !important; }
-    .roadmap-table th, .roadmap-table td { padding: 5px 6px !important; }
-    .pre-text { font-size: 12.2px !important; line-height: 1.48 !important; }
+    .master-roadmap-title { font-size: 13.8px !important; padding: 4px 8px !important; }
+    .info-grid { font-size: 11.8px !important; gap: 4.5px !important; }
+    .info-cell { padding: 3.5px 6px !important; }
+    .report-table { font-size: 11.6px !important; }
+    .report-table th, .report-table td { padding: 3.5px 5.5px !important; }
+    .roadmap-table { font-size: 12px !important; }
+    .roadmap-table th, .roadmap-table td { padding: 4.5px 6px !important; }
+    .pre-text { font-size: 11.8px !important; line-height: 1.44 !important; }
     .focus-banner { padding: 6px 9px !important; margin-bottom: 7px !important; }
-    .focus-banner-title { font-size: 13.2px !important; }
+    .focus-banner-title { font-size: 13px !important; }
     .lifetime-vet-banner { padding: 7px 10px !important; }
-    .lifetime-vet-title { font-size: 13px !important; }
-    .lifetime-vet-body { font-size: 11.8px !important; line-height: 1.46 !important; }
-    .sheet-footer { font-size: 10.8px !important; padding-top: 5px !important; }
+    .lifetime-vet-title { font-size: 12.8px !important; }
+    .lifetime-vet-body { font-size: 11.5px !important; line-height: 1.44 !important; }
+    .sheet-footer { font-size: 10.5px !important; padding-top: 4px !important; }
   }
 </style>
 </head>
@@ -655,14 +787,33 @@
 <!-- 16:9 5-프레임 작업 영역 -->
 <div class="workspace">
 
-  <!-- [프레임 1] 섹션 1: 환자 기본정보, 기초 신체검사(안압 포함), 핵심 중점 관리 -->
+  <!-- [프레임 1] 섹션 1: 시행 검사 항목 검색·선택 + 환자 기본정보 + 기초 신체검사 + 핵심 중점 관리 -->
   <div class="frame control-frame">
     <div class="frame-header f1-header">
-      <span>1. 환자정보 & 기초신체검사</span>
+      <span>1. 시행검사항목 & 환자정보</span>
       <span style="font-size:9.5px; font-weight:500;">Page 1 상단</span>
     </div>
     <div class="frame-body">
-      
+
+      <!-- [신설] 26종 검사 항목 분류 배열 + 실시간 검색 선택기 -->
+      <div class="sec-box" style="background:#f0f9ff; border-color:#7dd3fc;">
+        <div class="sec-title" style="color:#0369a1;">
+          <span>🛡️ 금일 시행한 검사 항목 선택 (클레임 예방)</span>
+        </div>
+        <div class="scope-search-bar">
+          <input type="text" id="scopeSearchInput" placeholder="🔍 검사명 빠른 검색 (예: 혈청, CT, 초음파...)" oninput="filterScopeChips()">
+          <button type="button" class="mini-tool-btn" onclick="resetDefaultScopes()">기본선택</button>
+          <button type="button" class="mini-tool-btn" style="background:#fee2e2; color:#be123c; border-color:#fda4af;" onclick="clearAllScopes()">전체해제</button>
+        </div>
+
+        <div id="examScopeContainer"></div>
+
+        <div class="field" style="margin-top:4px; margin-bottom:0;">
+          <label>기타 추가 시행 검사 (직접 입력)</label>
+          <input type="text" id="examScopeExtra" placeholder="예: 심장사상충 키트, 곰팡이 배양 등" oninput="sync()">
+        </div>
+      </div>
+
       <div class="sec-box">
         <div class="sec-title">🐾 환자 및 보호자 기본정보</div>
         <div class="grid-2">
@@ -889,7 +1040,7 @@
     <div class="print-scroll-area">
 
       <!-- ================= PAGE 1 ================= -->
-      <div class="page-badge-divider">📄 1페이지 / 총 3페이지 — 기본정보 · 기초신체검사(안압) · 외부신체검사</div>
+      <div class="page-badge-divider">📄 1페이지 / 총 3페이지 — 시행검사항목(클레임예방) · 기본정보 · 기초/외부신체검사</div>
       <div class="a4-sheet" id="a4Page1">
         <div>
           <div class="sheet-header">
@@ -903,9 +1054,23 @@
             </div>
           </div>
 
+          <!-- [신설] 시행한 검진 항목 및 평가 범위 안내 (리포트 제목과 기본정보 사이) -->
+          <div class="exam-scope-banner">
+            <div class="exam-scope-head">
+              <span class="exam-scope-title">📋 금일 시행한 건강검진 항목 및 평가 범위</span>
+              <span class="exam-count-pill" id="outExamScopeCount">총 8개 항목 시행</span>
+            </div>
+            <div class="exam-scope-list" id="outExamScopeList">
+              • 시행 검사: 신체검사, 안압검사, 혈압검사, 엑스레이(기본2컷), 초음파(기본 컷), 혈구검사, 혈청+전해질(27종), SDMA
+            </div>
+            <div class="exam-scope-disclaimer">
+              ※ <strong>이러한 금일 시행 검사 결과들을 토대로 아래의 종합 건강검진 리포트가 작성되었습니다.</strong> 본 결과지는 위 선택된 검사 범위 내의 현재 의학적 소견을 반영하며, 금일 미시행된 정밀검사(CT, 심장초음파, 특수호르몬·면역·내시경 등) 영역이나 검진일 이후 새롭게 진행되는 질환은 별도의 추가·추적 검사를 통해 확인이 필요합니다.
+            </div>
+          </div>
+
           <!-- 1. 환자 정보 -->
           <div class="report-box">
-            <div class="report-box-title"><span>1. 수진 환자 기본 정보</span><span id="outDate">2026-11-23</span></div>
+            <div class="report-box-title"><span>1. 수진 환자 기본 정보</span><span id="outDate">2026-11-25</span></div>
             <div class="info-grid">
               <div class="info-cell"><strong>환자명:</strong><span id="outPName">보리</span></div>
               <div class="info-cell"><strong>보호자:</strong><span id="outOName">김민수</span></div>
@@ -967,10 +1132,10 @@
           <!-- 3. 외부 신체검사 -->
           <div class="report-box">
             <div class="report-box-title"><span>3. 외부 신체검사 소견 (눈 · 귀 · 치아 · 항문낭 · 피부)</span></div>
-            <div class="pre-text" id="outExtExam" style="min-height:110px;"></div>
+            <div class="pre-text" id="outExtExam" style="min-height:80px;"></div>
           </div>
 
-          <div style="background:#f8fafc; border:1px dashed #94a3b8; border-radius:4px; padding:5px 7px; font-size:9.6px; color:#475569; line-height:1.4;">
+          <div style="background:#f8fafc; border:1px dashed #94a3b8; border-radius:4px; padding:4.5px 7px; font-size:9.2px; color:#475569; line-height:1.38;">
             💡 <strong>검진 결과 안내 원칙:</strong> 본 결과표는 보호자님께서 아이의 문제점과 향후 건강 관리 목표를 명확히 이해하실 수 있도록 핵심 소견 중심으로 작성되었습니다. 정밀 X-ray 영상, 초음파 사진, 전체 혈액 수치 원본이 필요하신 경우 데스크에서 별도로 출력해 드립니다.
           </div>
         </div>
@@ -991,7 +1156,7 @@
               <div class="sheet-sub">ABNORMAL FINDINGS & TARGETED THERAPEUTIC ROADMAP (2/3)</div>
             </div>
             <div style="text-align:right; font-size:9.8px; font-weight:700; color:#475569;">
-              환자명: <span class="syncName">보리</span> (<span class="syncDate">2026-11-23</span>)
+              환자명: <span class="syncName">보리</span> (<span class="syncDate">2026-11-25</span>)
             </div>
           </div>
 
@@ -1118,6 +1283,140 @@
 </div>
 
 <script>
+  // [원장님 요청 26개 검사 항목 카테고리별 정밀 배열]
+  const examScopeGroups = [
+    {
+      cat: '① 기초 · 영상 검사',
+      items: [
+        { id: 'scp_phys', name: '신체검사', def: true },
+        { id: 'scp_iop', name: '안압검사', def: true },
+        { id: 'scp_bp', name: '혈압검사', def: true },
+        { id: 'scp_xray', name: '엑스레이(기본2컷)', def: true },
+        { id: 'scp_us', name: '초음파(기본 컷)', def: true },
+        { id: 'scp_echo', name: '심장초음파(기본컷)', def: false }
+      ]
+    },
+    {
+      cat: '② 혈액 · 장기 정밀',
+      items: [
+        { id: 'scp_cbc', name: '혈구검사', def: true },
+        { id: 'scp_chem_pre', name: '혈청(마취전검사)', def: false },
+        { id: 'scp_chem_17', name: '혈청(17종)', def: false },
+        { id: 'scp_chem_27', name: '혈청+전해질(27종)', def: true },
+        { id: 'scp_bloodgas', name: '혈액가스검사', def: false },
+        { id: 'scp_sdma', name: 'SDMA', def: true },
+        { id: 'scp_cpl', name: 'CPL/FPL', def: false }
+      ]
+    },
+    {
+      cat: '③ 호르몬 · 바이오마커 · 면역',
+      items: [
+        { id: 'scp_t4', name: 'T4', def: false },
+        { id: 'scp_probnp', name: 'proBNP', def: false },
+        { id: 'scp_cortisol', name: 'cortisol', def: false },
+        { id: 'scp_crp', name: 'CRP', def: false },
+        { id: 'scp_igg', name: 'IgG', def: false },
+        { id: 'scp_allergy', name: '알러지 120종검사', def: false },
+        { id: 'scp_titer', name: '항체가검사', def: false },
+        { id: 'scp_cancer', name: '암표지검사', def: false }
+      ]
+    },
+    {
+      cat: '④ 치과 · 배설물 · 내시경',
+      items: [
+        { id: 'scp_dent_xray', name: '치과엑스레이', def: false },
+        { id: 'scp_dent_ct', name: '치과CT', def: false },
+        { id: 'scp_fecal', name: '분변검사', def: false },
+        { id: 'scp_urine', name: '소변검사', def: false },
+        { id: 'scp_endo', name: '내시경검사', def: false }
+      ]
+    }
+  ];
+
+  // 시행 검사 항목 UI 렌더링
+  function renderExamScopes() {
+    const container = document.getElementById('examScopeContainer');
+    container.innerHTML = '';
+
+    examScopeGroups.forEach(group => {
+      const groupWrap = document.createElement('div');
+      groupWrap.className = 'scope-group-block';
+
+      const title = document.createElement('div');
+      title.className = 'scope-cat-title';
+      title.innerText = group.cat;
+      groupWrap.appendChild(title);
+
+      const chipWrap = document.createElement('div');
+      chipWrap.className = 'scope-chip-wrap';
+
+      group.items.forEach(item => {
+        const label = document.createElement('label');
+        label.className = 'scope-pill' + (item.def ? ' checked-pill' : '');
+        label.setAttribute('data-name', item.name.toLowerCase());
+        label.innerHTML = `<input type="checkbox" id="${item.id}" ${item.def ? 'checked' : ''} onchange="toggleScopePill(this); sync()"><span>${item.name}</span>`;
+        chipWrap.appendChild(label);
+      });
+
+      groupWrap.appendChild(chipWrap);
+      container.appendChild(groupWrap);
+    });
+  }
+
+  function toggleScopePill(chk) {
+    const label = chk.closest('.scope-pill');
+    if (label) {
+      if (chk.checked) label.classList.add('checked-pill');
+      else label.classList.remove('checked-pill');
+    }
+  }
+
+  // 실시간 검색 필터
+  function filterScopeChips() {
+    const q = (document.getElementById('scopeSearchInput').value || '').trim().toLowerCase();
+    document.querySelectorAll('.scope-group-block').forEach(block => {
+      let visibleCount = 0;
+      block.querySelectorAll('.scope-pill').forEach(pill => {
+        const name = pill.getAttribute('data-name') || '';
+        if (!q || name.includes(q)) {
+          pill.style.display = 'inline-flex';
+          visibleCount++;
+        } else {
+          pill.style.display = 'none';
+        }
+      });
+      block.style.display = visibleCount > 0 ? 'block' : 'none';
+    });
+  }
+
+  function resetDefaultScopes() {
+    examScopeGroups.forEach(g => {
+      g.items.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el) {
+          el.checked = item.def;
+          toggleScopePill(el);
+        }
+      });
+    });
+    document.getElementById('scopeSearchInput').value = '';
+    filterScopeChips();
+    sync();
+  }
+
+  function clearAllScopes() {
+    examScopeGroups.forEach(g => {
+      g.items.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el) {
+          el.checked = false;
+          toggleScopePill(el);
+        }
+      });
+    });
+    sync();
+  }
+
   // 1. 문제 검사 항목 초기 샘플
   let problemRows = [
     {
@@ -1340,7 +1639,7 @@
     renderCustomCareChips();
   }
 
-  // [신설] 표 내용 저장 버튼 동작 (현재 표 저장 + 새 항목 상용구 자동 등록)
+  // 표 내용 저장 버튼 동작 (현재 표 저장 + 새 항목 상용구 자동 등록)
   function saveCarePlanTable() {
     localStorage.setItem('23si_hc_v5_data', JSON.stringify(collectAllData()));
 
@@ -1440,6 +1739,7 @@
       try { customCareChips = JSON.parse(savedChips) || []; } catch (e) {}
     }
 
+    renderExamScopes();
     renderProblemCards();
     renderCarePlanCards();
     renderCustomCareChips();
@@ -1470,7 +1770,10 @@
         if (parsed.checks) {
           Object.keys(parsed.checks).forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.checked = parsed.checks[id];
+            if (el) {
+              el.checked = parsed.checks[id];
+              if (el.closest('.scope-pill')) toggleScopePill(el);
+            }
           });
         }
       } catch (e) {}
@@ -1482,6 +1785,23 @@
     const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
     const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
 
+    // 1. 시행한 검진 항목 동기화
+    const selectedScopes = [];
+    examScopeGroups.forEach(g => {
+      g.items.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el && el.checked) selectedScopes.push(item.name);
+      });
+    });
+    const extraScope = getVal('examScopeExtra').trim();
+    if (extraScope) selectedScopes.push(extraScope);
+
+    setTxt('outExamScopeCount', `총 ${selectedScopes.length}개 항목 시행`);
+    setTxt('outExamScopeList', selectedScopes.length > 0
+      ? `• 시행 검사: ${selectedScopes.join(', ')}`
+      : '• 시행 검사: 기초 문진 및 신체검사');
+
+    // 2. 환자 기본정보
     setTxt('outPName', getVal('pName'));
     setTxt('outOName', getVal('oName'));
     setTxt('outSpecies', getVal('pSpecies'));
@@ -1495,7 +1815,7 @@
     document.querySelectorAll('.syncDate').forEach(el => el.innerText = getVal('examDate'));
     document.querySelectorAll('.syncLife').forEach(el => el.innerText = getVal('pLifeStage'));
 
-    // 기초 신체검사 + 안압
+    // 3. 기초 신체검사 + 안압
     setTxt('outWeight', getVal('vWeight'));
     setTxt('outBcs', getVal('vBcs'));
     setTxt('outTemp', getVal('vTemp'));
@@ -1505,7 +1825,7 @@
     setTxt('outIopL', getVal('vIopL'));
     setTxt('outIopR', getVal('vIopR'));
 
-    // 외부 신체검사 조합
+    // 4. 외부 신체검사 조합
     let extResult = getCheckedTexts(extExamPresets, true, true);
     const customExt = getVal('extCustomText').trim();
     if (customExt) {
@@ -1513,10 +1833,10 @@
     }
     setTxt('outExtExam', extResult || '• 외부 신체검사 특이사항 없음');
 
-    // 핵심 중점 관리 포인트
+    // 5. 핵심 중점 관리 포인트
     setTxt('outTopFocus', getVal('topFocusText'));
 
-    // 문제 검사 항목 리스트 표 출력 동기화
+    // 6. 문제 검사 항목 리스트 표 출력 동기화
     const outProbBody = document.getElementById('outProbTableBody');
     outProbBody.innerHTML = '';
     if (problemRows.length === 0) {
@@ -1539,7 +1859,7 @@
       });
     }
 
-    // 주요 장기 및 질환별 심층 대책
+    // 7. 주요 장기 및 질환별 심층 대책
     let organResult = getCheckedTexts(organDeepPresets, true, false);
     const customOrgan = getVal('organCustomText').trim();
     if (customOrgan) {
@@ -1547,7 +1867,7 @@
     }
     setTxt('outOrganFindings', organResult || '• 주요 장기 및 질환군 특이 문제점 없음');
 
-    // 2페이지 하단 대형 정밀 관리 로드맵 표 동기화
+    // 8. 2페이지 하단 대형 정밀 관리 로드맵 표 동기화
     const outCareBody = document.getElementById('outCarePlanBody');
     outCareBody.innerHTML = '';
     if (carePlanRows.length === 0) {
@@ -1565,19 +1885,19 @@
       });
     }
 
-    // 탈수 예방과 물 섭취의 중요성 & 음수 방법
+    // 9. 탈수 예방과 물 섭취의 중요성 & 음수 방법
     const hydResult = getCheckedTexts(hydrationPresets, false, false);
     setTxt('outHydrationGuide', hydResult || '• 하루 충분한 수분 섭취(체중 kg당 50~60ml)는 혈액순환과 신장·장기 보호의 기본입니다.');
 
-    // 정밀 추적 모니터링 안내
+    // 10. 정밀 추적 모니터링 안내
     const monitorResult = getCheckedTexts(monitorPresets, false, false);
     setTxt('outMonitorGuide', monitorResult || '• 현재 연령 기준 6개월 간격의 정기 혈액·영상 추적 검사를 권장합니다.');
 
-    // 예방의학
+    // 11. 예방의학
     const preventResult = getCheckedTexts(preventPresets, false, false);
     setTxt('outPreventPlan', preventResult || '• 정기 예방접종 및 심장사상충 예방을 꾸준히 유지해 주세요.');
 
-    // 최종 총평 및 다음 재검 스케줄
+    // 12. 최종 총평 및 다음 재검 스케줄
     setTxt('outFinalReview', getVal('finalReviewText'));
     setTxt('outNextSchedule', getVal('nextScheduleText'));
   }
@@ -1649,7 +1969,7 @@
   }
 
   function collectAllData() {
-    const fieldIds = ['pName','oName','pSpecies','pBreed','pSex','pAge','pLifeStage','examDate','vWeight','vBcs','vTemp','vHr','vRr','vBp','vIopL','vIopR','extCustomText','topFocusSelect','topFocusText','organCustomText','finalReviewText','nextScheduleText'];
+    const fieldIds = ['examScopeExtra','pName','oName','pSpecies','pBreed','pSex','pAge','pLifeStage','examDate','vWeight','vBcs','vTemp','vHr','vRr','vBp','vIopL','vIopR','extCustomText','topFocusSelect','topFocusText','organCustomText','finalReviewText','nextScheduleText'];
     const fields = {};
     fieldIds.forEach(id => { const el = document.getElementById(id); if (el) fields[id] = el.value; });
 
@@ -1700,7 +2020,10 @@
         if (parsed.checks) {
           Object.keys(parsed.checks).forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.checked = parsed.checks[id];
+            if (el) {
+              el.checked = parsed.checks[id];
+              if (el.closest('.scope-pill')) toggleScopePill(el);
+            }
           });
         }
         sync();
