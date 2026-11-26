@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>견적서 4개 - 원본 양식 복사</title><style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9eef4;font-family:Arial,sans-serif}
-#grid{height:100vh;width:100vw;display:grid;grid-template-columns:repeat(4,minmax(360px,1fr));grid-template-rows:1fr;gap:6px;padding:6px;overflow-x:auto;overflow-y:hidden}
+#grid{height:100vh;width:100vw;display:grid;grid-template-columns:repeat(3,minmax(360px,1fr));grid-template-rows:1fr;gap:6px;padding:6px;overflow-x:auto;overflow-y:hidden}
 .panel{min-width:0;min-height:0;background:#fff;border:1px solid #ccd5df;overflow:hidden}
 iframe{width:100%;height:100%;border:0;display:block}
 @media(max-width:1400px){body{overflow-x:auto}#grid{width:max(100vw,1440px)}}
@@ -13,5 +13,5 @@ const encoded = [
 ];
 function decodeUTF8Base64(b64){const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));return new TextDecoder('utf-8').decode(bytes)}
 const grid=document.getElementById('grid');
-encoded.forEach((b64,i)=>{const panel=document.createElement('section');panel.className='panel';const frame=document.createElement('iframe');frame.title='견적서 '+(i+1);frame.srcdoc=decodeUTF8Base64(b64);panel.appendChild(frame);grid.appendChild(panel)});
+Array.from({length:3},(_,i)=>encoded[0]).forEach((b64,i)=>{const panel=document.createElement('section');panel.className='panel';const frame=document.createElement('iframe');frame.title='견적서 '+(i+1);frame.srcdoc=decodeUTF8Base64(b64);panel.appendChild(frame);grid.appendChild(panel)});
 </script></body></html>
