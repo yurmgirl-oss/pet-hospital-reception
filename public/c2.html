@@ -74,7 +74,7 @@
   /* 5단 가로 배치 메인 그리드 */
   .five-grid {
     display: grid;
-    grid-template-columns: 0.98fr 1.32fr 0.8fr 0.72fr 1.58fr; /* 터치존·혈압존 각각 20% 축소, 확보 공간은 ICU에 배분 */
+    grid-template-columns: 0.82fr 1.30fr 1.32fr 0.80fr 1.78fr; /* 타이머폭 축소, ICU 폭 확대 */
     gap: 6px;
     flex: 1;
     min-height: 0;
@@ -89,7 +89,7 @@
     min-width: 0;
     box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
   }
-  .zone-timer  { background: #f8fafc; border: 1.5px solid #cbd5e1; }
+  .zone-timer  { background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 3px; gap: 3px; }
   .zone-chrono { background: #f8fafc; border: 1.5px solid #cbd5e1; }
   .zone-touch  { background: #f8fafc; border: 1.5px solid #cbd5e1; }
   .zone-bp     { background: #f8fafc; border: 1.5px solid #cbd5e1; }
@@ -144,7 +144,7 @@
   .card-input:focus { outline: none; border-color: var(--blue); }
 
   /* 1열 & 2열 그리드 */
-  .v-stack-3 { display: grid; grid-template-rows: repeat(3, 1fr); gap: 5px; flex: 1; min-height: 0; }
+  .v-stack-3 { display: grid; grid-template-rows: repeat(3, 1fr); gap: 3px; flex: 1; min-height: 0; }
   .grid-2x3 { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 5px; flex: 1; min-height: 0; }
   .v-stack-2 { display: grid; grid-template-rows: 1fr 1fr; gap: 5px; flex: 1; min-height: 0; }
   /* ICU 1·2는 공간 확보를 위해 좌우 병렬 */
@@ -154,7 +154,7 @@
     border-width: 2px;
     border-style: solid;
     border-radius: 9px;
-    padding: 4px 5px;
+    padding: 2px 3px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -175,8 +175,8 @@
     flex: 1;
     width: 100%;
     display: grid;
-    grid-template-columns: 92px 1fr;
-    gap: 4px;
+    grid-template-columns: 82px 1fr;
+    gap: 2px;
     align-items: center;
     min-height: 0;
     padding: 1px 0;
@@ -184,7 +184,7 @@
   .timer-left-ctrl {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
     justify-content: center;
     height: 100%;
   }
@@ -416,6 +416,13 @@
   <!-- [1] 타이머존 (3개: 빨강 1번 · 주황 2번 · 보라 3번) -->
   <section class="frame zone-timer">
     <div class="frame-head"><span>⏰ 1. 타이머존</span><span style="font-size:11px;color:#64748b">색상·번호 구분</span></div>
+    <div class="timer-sound-controls" style="display:flex;align-items:center;gap:3px;flex-shrink:0;font-size:10px;margin:0 1px 2px">
+      <select id="timerSoundType" onchange="timerSoundType=this.value" style="min-width:0;flex:1;font-size:10px;padding:2px;border:1px solid #cbd5e1;border-radius:4px">
+        <option value="soft">① 기본 삑</option><option value="beep">② 삐릭 반복</option><option value="fast">③ 빠른 경고</option><option value="urgent" selected>④ 강한 응급</option><option value="monitor">⑤ 모니터음</option>
+      </select>
+      <span>음량</span><input id="timerVolume" type="range" min="20" max="100" value="90" style="width:48px;height:14px" onchange="timerVolume=Number(this.value)/100" oninput="timerVolume=Number(this.value)/100">
+      <button class="btn" style="padding:2px 4px;font-size:10px" onclick="previewTimerSound()">시험</button>
+    </div>
     <div class="v-stack-3" id="timerStack"></div>
   </section>
 
@@ -448,6 +455,7 @@
 <script>
 const $ = id => document.getElementById(id);
 let soundEnabled = true, voiceEnabled = true, audioCtx = null;
+let timerSoundType = "urgent", timerVolume = 0.9;
 
 // 숫자 입력칸 휠 스크롤 방지
 document.addEventListener('wheel', e => {
@@ -464,18 +472,28 @@ function playChime(type = 'info') {
   try {
     ensureAudio();
     const now = audioCtx.currentTime;
-    const freqs = type === 'alarm' ? [880, 1174.66, 880, 1174.66] : type === 'warn' ? [659.25, 523.25] : [783.99, 1046.5];
-    freqs.forEach((f, i) => {
-      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(f, now + i * 0.18);
-      gain.gain.setValueAtTime(0.22, now + i * 0.18);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.18 + 0.25);
+    let pattern, wave='triangle', vol=0.22;
+    if(type==='alarm') {
+      const chosen=timerSoundType;
+      if(chosen==='soft') pattern=[[784,0,0.24],[988,0.28,0.24]];
+      else if(chosen==='beep') pattern=[[1100,0,0.16],[880,0.22,0.16],[1100,0.44,0.16],[880,0.66,0.16]];
+      else if(chosen==='fast') { pattern=[[1400,0,0.10],[1100,0.12,0.10],[1400,0.24,0.10],[1100,0.36,0.10],[1400,0.48,0.10],[1100,0.60,0.10]]; wave='square'; }
+      else if(chosen==='monitor') pattern=[[1000,0,0.08],[700,0.18,0.08],[1000,0.36,0.08],[700,0.54,0.08]];
+      else { pattern=[[1600,0,0.12],[900,0.16,0.12],[1600,0.32,0.12],[900,0.48,0.12],[1600,0.64,0.12],[900,0.80,0.12]]; wave='square'; }
+      vol=timerVolume;
+    } else if(type==='warn') pattern=[[659,0,0.18],[523,0.20,0.18]];
+    else pattern=[[784,0,0.18],[1046,0.20,0.18]];
+    pattern.forEach(([f,offset,dur])=>{
+      const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+      osc.type=wave; osc.frequency.setValueAtTime(f,now+offset);
+      gain.gain.setValueAtTime(Math.max(0.001,vol),now+offset);
+      gain.gain.exponentialRampToValueAtTime(0.001,now+offset+dur);
       osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(now + i * 0.18); osc.stop(now + i * 0.18 + 0.26);
+      osc.start(now+offset); osc.stop(now+offset+dur+0.01);
     });
-  } catch (e) {}
+  } catch(e) {}
 }
+function previewTimerSound(){ ensureAudio(); playChime('alarm'); }
 
 function speakText(txt) {
   if (!voiceEnabled || !('speechSynthesis' in window)) return;
