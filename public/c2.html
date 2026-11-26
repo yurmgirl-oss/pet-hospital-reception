@@ -147,6 +147,8 @@
   .v-stack-3 { display: grid; grid-template-rows: repeat(3, 1fr); gap: 5px; flex: 1; min-height: 0; }
   .grid-2x3 { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 5px; flex: 1; min-height: 0; }
   .v-stack-2 { display: grid; grid-template-rows: 1fr 1fr; gap: 5px; flex: 1; min-height: 0; }
+  /* ICU 1·2는 공간 확보를 위해 좌우 병렬 */
+  #icuStack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 1fr; gap: 8px; flex: 1; min-height: 0; }
 
   .clock-card {
     border-width: 2px;
@@ -332,8 +334,8 @@
     gap: 4px;
     min-height: 0;
   }
-  .icu-top { display: flex; align-items: center; gap: 4px; }
-  .icu-pt { flex: 1; border: 1.5px solid #cbd5e1; background: #fff; border-radius: 5px; padding: 3px 6px; font-size: 12px; font-weight: 800; font-family: inherit; min-width: 0; }
+  .icu-top { display: flex; align-items: center; gap: 5px; }
+  .icu-pt { flex: 1; border: 1.5px solid #cbd5e1; background: #fff; border-radius: 5px; padding: 5px 7px; font-size: 17px; font-weight: 800; font-family: inherit; min-width: 0; }
 
   .gauges-4 {
     display: grid;
@@ -343,20 +345,21 @@
     border: 1px solid #cbd5e1;
     padding: 3px 5px;
     border-radius: 6px;
-    font-size: 10.5px;
+    font-size: 15px;
     font-weight: 800;
   }
   .gauges-4 input[type=range] { width: 100%; margin: 0; height: 12px; accent-color: var(--blue); cursor: pointer; }
 
-  .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
+  .icon-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
   .ico-btn {
     border: 1px solid #cbd5e1;
     background: #ffffff;
     border-radius: 5px;
-    padding: 2.5px 1px;
-    font-size: 10.5px;
+    padding: 6px 3px;
+    font-size: 16px; /* 기존 확대 크기에서 약 1.5배 수준 */
     font-weight: 800;
     font-family: inherit;
+    white-space: nowrap;
     cursor: pointer;
     color: var(--navy);
     transition: 0.1s;
@@ -365,14 +368,14 @@
   .ico-btn.selected { background: #1d4ed8; border-color: #1e40af; color: #ffffff; }
   .icu-box.icu2 .ico-btn.selected { background: #15803d; border-color: #166534; }
 
-  .icu-input-row { display: flex; gap: 4px; }
+  .icu-input-row { display: flex; gap: 5px; }
   .icu-input-row input {
     flex: 1;
     border: 1px solid #cbd5e1;
     background: #fff;
     border-radius: 5px;
     padding: 3px 6px;
-    font-size: 12px;
+    font-size: 17px;
     font-weight: 700;
     font-family: inherit;
     min-width: 0;
@@ -385,10 +388,11 @@
     border-radius: 6px;
     padding: 4px 6px;
     font-family: 'Pretendard', 'Consolas', sans-serif;
-    font-size: 11.5px;
-    line-height: 1.4;
+    font-size: 19px;
+    line-height: 1.55;
     resize: none;
     color: var(--navy);
+    min-height: 120px;
   }
 </style>
 </head>
