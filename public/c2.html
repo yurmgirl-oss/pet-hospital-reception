@@ -401,6 +401,7 @@
     <div class="clock-pill mono" id="mainClock">00:00:00</div>
     <button class="btn active" id="btnSound" onclick="toggleAudio()">🔊 차임벨 ON</button>
     <button class="btn active" id="btnVoice" onclick="toggleVoice()">🗣️ 음성알람 ON</button>
+    <button class="btn" onclick="saveImageCapture(document.body, 'C2_전체화면')">📸 전체 화면 이미지</button>
     <button class="btn red" onclick="stopAllAlarms()">🔕 모든 알람 끄기</button>
   </div>
 </header>
@@ -1026,6 +1027,7 @@ function renderIcuStack() {
         <input class="icu-pt" id="icuPt${idx}" placeholder="환자명 · 품종 · 체중 · 진단명" style="border-color:${th.border}">
         <button class="btn" style="padding:2px 6px;font-size:11px" onclick="copyIcu(${idx})">복사</button>
         <button class="btn ${idx === 0 ? 'active' : 'green'}" style="padding:2px 7px;font-size:11px" onclick="saveIcuTxt(${idx})">TXT저장</button>
+        <button class="btn amber" style="padding:2px 7px;font-size:11px" onclick="saveIcuImage(${idx})">🖼️ 이미지</button>
       </div>
 
       <div class="gauges-4">
@@ -1138,6 +1140,43 @@ function saveIcuTxt(idx) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
+
+/* ==================== 이미지 저장 기능 ==================== */
+async function ensureCaptureLibrary(){
+  if(window.html2canvas) return true;
+  if(window.__captureLibraryPromise) return window.__captureLibraryPromise;
+  window.__captureLibraryPromise = new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    script.onload=()=>resolve(!!window.html2canvas);
+    script.onerror=()=>reject(new Error('이미지 캡처 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.'));
+    document.head.appendChild(script);
+  });
+  return window.__captureLibraryPromise;
+}
+function captureFileName(label){
+  const now=new Date();
+  const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+  return `${label}_${stamp}.png`;
+}
+async function saveImageCapture(target,label){
+  try{
+    await ensureCaptureLibrary();
+    if(!window.html2canvas) throw new Error('캡처 기능을 사용할 수 없습니다.');
+    const canvas=await html2canvas(target,{backgroundColor:'#f8fafc',scale:2,useCORS:true,allowTaint:false,logging:false,scrollX:0,scrollY:0});
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+    if(!blob) throw new Error('PNG 이미지 생성에 실패했습니다.');
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=captureFileName(label);document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }catch(err){alert('이미지 저장 실패: '+(err?.message||err));}
+}
+function saveIcuImage(idx){
+  const el=document.querySelectorAll('.icu-box')[idx];
+  const pt=$('icuPt'+idx).value.trim().replace(/[\\/:*?"<>|]/g,'_')||`ICU${idx+1}`;
+  saveImageCapture(el,`ICU${idx+1}_${pt}`);
+}
+
 </script>
 </body>
 </html>
