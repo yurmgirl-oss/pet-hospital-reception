@@ -74,7 +74,7 @@
   /* 5단 가로 배치 메인 그리드 */
   .five-grid {
     display: grid;
-    grid-template-columns: 0.82fr 1.30fr 1.32fr 0.80fr 1.78fr; /* 타이머폭 축소, ICU 폭 확대 */
+    grid-template-columns: 0.72fr 0.95fr 0.82fr 0.80fr 2.15fr; /* 타이머폭 축소, ICU 폭 확대 */
     gap: 6px;
     flex: 1;
     min-height: 0;
@@ -145,8 +145,12 @@
 
   /* 1열 & 2열 그리드 */
   .v-stack-3 { display: grid; grid-template-rows: repeat(3, 1fr); gap: 3px; flex: 1; min-height: 0; }
-  .grid-2x3 { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); gap: 5px; flex: 1; min-height: 0; }
+  .grid-2x3 { display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); gap: 5px; flex: 1; min-height: 0; }
   .v-stack-2 { display: grid; grid-template-rows: 1fr 1fr; gap: 5px; flex: 1; min-height: 0; }
+  .zone-touch .v-stack-2 { gap: 3px; }
+  .zone-touch .touch-card { padding: 3px; gap: 2px; }
+  .zone-touch .touch-pad { min-height: 0; }
+  .zone-touch .touch-pad svg { max-height: 100%; }
   /* ICU 1·2는 공간 확보를 위해 좌우 병렬 */
   #icuStack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 1fr; gap: 8px; flex: 1; min-height: 0; }
 
@@ -241,10 +245,10 @@
     border-width: 2px;
     border-style: solid;
     border-radius: 10px;
-    padding: 5px;
+    padding: 4px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
     min-height: 0;
     overflow: hidden;
   }
@@ -428,7 +432,7 @@
 
   <!-- [2] 경과시간존 (6개: 6가지 고유 컬러 & 큰 번호) -->
   <section class="frame zone-chrono">
-    <div class="frame-head"><span>⏱️ 2. 경과시간존 (6개)</span><span style="font-size:11px;color:#64748b">1~6번 독립시계</span></div>
+    <div class="frame-head"><span>⏱️ 2. 경과시간존 (3개)</span><span style="font-size:11px;color:#64748b">1~3번 독립시계</span></div>
     <div class="grid-2x3" id="chronoGrid"></div>
   </section>
 
@@ -684,12 +688,9 @@ setInterval(() => {
 const chronoThemes = [
   { num: '1', colorName: '파랑', main: '#2563eb', bg: '#eff6ff', border: '#93c5fd', placeholder: '파랑 1번 (진료)' },
   { num: '2', colorName: '청록', main: '#0891b2', bg: '#ecfeff', border: '#67e8f9', placeholder: '청록 2번 (마취)' },
-  { num: '3', colorName: '초록', main: '#16a34a', bg: '#f0fdf4', border: '#86efac', placeholder: '초록 3번 (수액A)' },
-  { num: '4', colorName: '황금', main: '#ca8a04', bg: '#fefce8', border: '#fde047', placeholder: '황금 4번 (수액B)' },
-  { num: '5', colorName: '분홍', main: '#db2777', bg: '#fdf2f8', border: '#f9a8d4', placeholder: '분홍 5번 (처치)' },
-  { num: '6', colorName: '남색', main: '#4f46e5', bg: '#eef2ff', border: '#a5b4fc', placeholder: '남색 6번 (대기)' }
+  { num: '3', colorName: '초록', main: '#16a34a', bg: '#f0fdf4', border: '#86efac', placeholder: '초록 3번 (수액/처치)' }
 ];
-const chronos = Array.from({ length: 6 }, (_, i) => ({ id: i, running: false, startMs: 0, accumSec: 0 }));
+const chronos = Array.from({ length: 3 }, (_, i) => ({ id: i, running: false, startMs: 0, accumSec: 0 }));
 
 function renderChronos() {
   $('chronoGrid').innerHTML = chronos.map(c => {
